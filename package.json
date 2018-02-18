@@ -3,17 +3,12 @@
   "version": "0.1.2",
   "description": "Simple, customizable yet performant spreadsheet for React",
   "author": "Iddan Aaronsohn <mail@aniddan.com> (https://aniddan.com)",
-  "keywords": [
-    "spreadsheet",
-    "react",
-    "sheet",
-    "data",
-    "table"
-  ],
-  "main": "dist/Table.js",
+  "keywords": ["spreadsheet", "excel", "react", "sheet", "table"],
+  "main": "dist/Spreadsheet.js",
   "scripts": {
     "start": "NODE_ENV=development yarn build -w & yarn storybook",
-    "build": "rm dist/*; flow gen-flow-files src --out-dir dist; babel src --out-dir dist --copy-files",
+    "build":
+      "rm dist/*; flow gen-flow-files src --out-dir dist; babel src --out-dir dist --copy-files",
     "prepublish": "NODE_ENV=production yarn build",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
