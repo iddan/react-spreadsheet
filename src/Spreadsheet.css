@@ -1,0 +1,54 @@
+.Spreadsheet {
+  position: relative;
+}
+
+.Spreadsheet .CellCreator {
+  position: absolute;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  background: white;
+  z-index: 100;
+}
+
+.Spreadsheet table {
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.Spreadsheet table td,
+.Spreadsheet table td input {
+  outline: none;
+}
+
+.Spreadsheet .CellCreator,
+.Spreadsheet table td {
+  min-width: 6em;
+  max-width: 6em;
+  min-height: 1.9em;
+  max-height: 1.9em;
+  padding: 4px;
+  border: 1px solid #eee;
+  overflow: hidden;
+  word-break: keep-all;
+  white-space: nowrap;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.Spreadsheet .CellCreator,
+.Spreadsheet table td.active {
+  border: 2px #5292f7 solid;
+}
+
+.Spreadsheet table td.readonly {
+  background: #f5f5f5;
+  color: #999;
+  text-align: center;
+}
+
+.Spreadsheet .DataEditor input {
+  width: 99%;
+  font: inherit;
+  border: none;
+  outline: none;
+  margin: 0;
+}
