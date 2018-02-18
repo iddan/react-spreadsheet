@@ -2,17 +2,18 @@
   "name": "@iddan/react-spreadsheet",
   "version": "0.1.0",
   "description": "Simple, customizable yet performant spreadsheet for React",
-  "author": {
-    "name": "Iddan Aaronsohn",
-    "email": "mail@aniddan.com",
-    "url": "https://aniddan.com"
-  },
-  "keywords": ["spreadsheet", "react", "sheet", "data", "table"],
+  "author": "Iddan Aaronsohn <mail@aniddan.com> (https://aniddan.com)",
+  "keywords": [
+    "spreadsheet",
+    "react",
+    "sheet",
+    "data",
+    "table"
+  ],
   "main": "dist/Table.js",
   "scripts": {
     "start": "NODE_ENV=development yarn build -w & yarn storybook",
-    "build":
-      "rm dist/*; flow gen-flow-files src --out-dir dist; babel src --out-dir dist --copy-files",
+    "build": "rm dist/*; flow gen-flow-files src --out-dir dist; babel src --out-dir dist --copy-files",
     "prepublish": "NODE_ENV=production yarn build",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
@@ -36,5 +37,14 @@
     "flow-bin": "^0.63.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iddan/react-spreadsheet.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iddan/react-spreadsheet/issues"
+  },
+  "homepage": "https://github.com/iddan/react-spreadsheet#readme"
 }
