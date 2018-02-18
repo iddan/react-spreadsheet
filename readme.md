@@ -2,6 +2,14 @@
 
 Simple, customizable yet performant spreadsheet for React.
 
+```bash
+npm install @iddan/react-spreadsheet
+```
+*or*
+```bash
+yarn add @iddan/react-spreadsheet
+```
+
 ### Features
 
  - Simple straight foreword API focusing on common use cases while keeping flexibility
