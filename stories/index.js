@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { storiesOf } from "@storybook/react";
 import Spreadsheet from "../src/Spreadsheet";
+import "./index.css";
 
 const COLUMNS = Array(26)
   .fill(1)
@@ -21,6 +22,7 @@ class App extends Component {
             .fill(1)
             .map((cell, i) => ({ value: "" }))
         ])
+        .slice(1)
     ]
   };
 
