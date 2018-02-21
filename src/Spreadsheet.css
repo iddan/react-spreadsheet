@@ -1,28 +1,19 @@
-.Spreadsheet {
+.SpreadsheetTable {
   position: relative;
 }
 
-.Spreadsheet .CellCreator {
-  position: absolute;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-  background: white;
-  z-index: 100;
-}
-
-.Spreadsheet table {
+.SpreadsheetTable {
   border-collapse: collapse;
   table-layout: fixed;
 }
 
-.Spreadsheet table td,
-.Spreadsheet table td input {
+.SpreadsheetTable td,
+.SpreadsheetTable td input {
   outline: none;
 }
 
-.Spreadsheet .CellCreator,
-.Spreadsheet table td {
+.SpreadsheetTable td {
   min-width: 6em;
-  max-width: 6em;
   min-height: 1.9em;
   max-height: 1.9em;
   padding: 4px;
@@ -34,18 +25,21 @@
   box-sizing: border-box;
 }
 
-.Spreadsheet .CellCreator,
-.Spreadsheet table td.active {
+.SpreadsheetTable td.active {
   border: 2px #5292f7 solid;
 }
 
-.Spreadsheet table td.readonly {
+.SpreadsheetTable td.active.edit {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.SpreadsheetTable td.readonly {
   background: #f5f5f5;
   color: #999;
   text-align: center;
 }
 
-.Spreadsheet .DataEditor input {
+.SpreadsheetTable .DataEditor input {
   width: 99%;
   font: inherit;
   border: none;

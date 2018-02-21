@@ -11,9 +11,11 @@ export const normalizeIndex = (array: Array<*>, index: number) => {
   return firstIndex;
 };
 
-export const getCellFromPath = (event: { path: EventTarget[] }) => {
+export const getCellFromPath = (event: {
+  path: EventTarget[]
+}): { element: Element, row: number, column: number } | null => {
   for (const target of event.path) {
-    if (target instanceof HTMLTableCellElement) {
+    if (target instanceof Element) {
       const row = Number(target.dataset.row);
       const column = Number(target.dataset.column);
       if (isNaN(row) || isNaN(column)) {

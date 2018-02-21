@@ -12,20 +12,21 @@
   ],
   "main": "dist/Spreadsheet.js",
   "scripts": {
-    "start": "NODE_ENV=development yarn build -w & yarn storybook",
+    "start": "NODE_ENV=development yarn storybook",
     "build": "rm dist/*; flow gen-flow-files src --out-dir dist; babel src --out-dir dist --copy-files",
     "prepublish": "NODE_ENV=production yarn build",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
   "dependencies": {
-    "babel-core": "^7.0.0-0",
     "classnames": "2.2.5",
-    "scroll-into-view-if-needed": "1.4.0"
+    "create-react-context": "^0.1.6",
+    "react-composer": "^4.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.38",
     "@babel/core": "^7.0.0-beta.38",
     "@storybook/react": "^3.3.13",
+    "babel-core": "^7.0.0-0",
     "babel-eslint": "^8.2.1",
     "babel-preset-react-app": "^4.0.0-next.9754a231",
     "eslint": "^4.16.0",

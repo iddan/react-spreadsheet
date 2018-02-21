@@ -1,29 +1,30 @@
 // @flow
 
-import React, { Component } from "react";
-import type { ComponentType, Node as ReactNode } from "react";
-import { shallowEqual } from "./util";
+import React, { PureComponent } from "react";
+import type { ComponentType, Node } from "react";
+import * as Types from "./types";
 
-type Props = {
-  cell: {
-    value: ReactNode,
-    component?: ComponentType<Props>
-  }
+type Cell = {
+  component?: ComponentType<{
+    row: number,
+    column: number,
+    value: Node
+  }>
 };
 
-export default class DataViewer extends Component<Props> {
-  shouldComponentUpdate(nextProps: Props) {
-    if (nextProps.cell.component) {
-      return !shallowEqual(this.props, nextProps);
-    }
-    return nextProps.cell.value !== this.props.cell.value;
-  }
+type Props = {
+  ...Types.CellComponentProps<Cell, Node>,
+  cell: Cell,
+  getValue: Types.getValue<Cell, Node>
+};
 
+export default class DataViewer extends PureComponent<Props> {
   render() {
-    const { cell } = this.props;
-    if (cell.component) {
-      return <cell.component {...this.props} />;
+    const { getValue, cell, column, row } = this.props;
+    const value = getValue({ cell, column, row });
+    if (cell && cell.component) {
+      return <cell.component {...this.props} value={value} />;
     }
-    return this.props.cell.value;
+    return value;
   }
 }

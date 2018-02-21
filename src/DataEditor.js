@@ -1,11 +1,19 @@
 // @flow
 
 import React, { PureComponent } from "react";
+import type { Node } from "react";
 import { moveCursorToEnd } from "./util";
+
+type Cell = {
+  value: Node
+};
 
 type Value = string | number;
 
-type Props = {
+export type Props = {
+  row: number,
+  column: number,
+  cell: Cell,
   value: Value,
   onChange: (value: Value) => string | number
 };
@@ -32,7 +40,7 @@ export default class DataEditor extends PureComponent<Props> {
   }
 
   render() {
-    const { value } = this.props;
+    const { cell, column, row, value } = this.props;
     return (
       <div className="DataEditor">
         <input
