@@ -12,9 +12,9 @@ yarn add @iddan/react-spreadsheet
 
 ### Features
 
- - Simple straight foreword API focusing on common use cases while keeping flexibility
+ - Simple straightforward API focusing on common use cases while keeping flexibility
  - Performant (yet not virtualized)
- - Just Component
+ - Implements Just Components™
 
 ### Prior Art
 
