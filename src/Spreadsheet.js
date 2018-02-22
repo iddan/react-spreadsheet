@@ -16,7 +16,8 @@ import "./Spreadsheet.css";
 
 type Props<CellType, Value> = {
   data: CellType[][],
-  onChange: Types.onChange<Value>,
+  onCellChange: Types.onChange<Value>,
+  onActiveChange: (?Types.Active) => void,
   Table: ComponentType<TableProps<CellType, Value>>,
   Row: ComponentType<RowProps<CellType, Value>>,
   Cell: ComponentType<CellProps<CellType, Value>>,
@@ -81,43 +82,56 @@ export default class Spreadsheet<CellType, Value> extends PureComponent<
       | ?$Shape<Types.Active<Value>>
       | ((
           prevActive: Types.Active<Value> | null
-        ) => $Shape<Types.Active<Value>> | null)
+        ) => $Shape<Types.Active<Value>> | null),
+    callback
   ) => {
-    this.setState(prevState => {
-      switch (typeof arg1) {
-        case "object": {
-          if (arg1 === null) {
-            return { active: null };
+    this.setState(
+      prevState => {
+        switch (typeof arg1) {
+          case "object": {
+            if (arg1 === null) {
+              return { active: null };
+            }
+            if (arg1 === prevState.active) {
+              return null;
+            }
+            return {
+              active: this.normalizeActive({ ...prevState.active, ...arg1 })
+            };
           }
-          if (arg1 === prevState.active) {
-            return null;
+          case "function": {
+            const nextActive = arg1(prevState.active);
+            if (nextActive === null) {
+              return { active: null };
+            }
+            if (nextActive === prevState.active) {
+              return null;
+            }
+            return {
+              active: this.normalizeActive({
+                ...prevState.active,
+                ...nextActive
+              })
+            };
           }
-          return {
-            active: this.normalizeActive({ ...prevState.active, ...arg1 })
-          };
+          default: {
+            throw new Error(
+              "this.setActive() must recieve active state object or function returning next active state"
+            );
+          }
         }
-        case "function": {
-          const nextActive = arg1(prevState.active);
-          if (nextActive === null) {
-            return { active: null };
+      },
+      callback || this.props.onActiveChange
+        ? () => {
+            if (callback) {
+              callback();
+            }
+            if (this.props.onActiveChange) {
+              this.props.onActiveChange(this.state.active);
+            }
           }
-          if (nextActive === prevState.active) {
-            return null;
-          }
-          return {
-            active: this.normalizeActive({
-              ...prevState.active,
-              ...nextActive
-            })
-          };
-        }
-        default: {
-          throw new Error(
-            "this.setActive() must recieve active state object or function returning next active state"
-          );
-        }
-      }
-    });
+        : null
+    );
   };
 
   table: Table<CellType, Value> | null = null;
@@ -153,7 +167,7 @@ export default class Spreadsheet<CellType, Value> extends PureComponent<
       DataEditor,
       data,
       getValue,
-      onChange,
+      onCellChange,
       emptyValue
     } = this.props;
     const [firstRow] = data;
@@ -169,12 +183,12 @@ export default class Spreadsheet<CellType, Value> extends PureComponent<
               DataViewer,
               DataEditor,
               getValue,
-              onChange,
               emptyValue
             }}
             rows={data.length}
             columns={firstRow && firstRow.length}
             onActiveChange={this.setActive}
+            onChange={onCellChange}
           />
         </Contexts.Active.Provider>
       </Contexts.Data.Provider>

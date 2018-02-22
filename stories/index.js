@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { storiesOf } from "@storybook/react";
+import { action } from "@storybook/addon-actions";
 import Spreadsheet from "../src/Spreadsheet";
 import "./index.css";
 
@@ -41,8 +42,18 @@ class App extends Component {
     });
   };
 
+  handleActiveChange = active => {
+    action(`Active changed to ${active.row} ${active.column} ${active.mode}`);
+  };
+
   render() {
-    return <Spreadsheet data={this.state.data} onChange={this.handleChange} />;
+    return (
+      <Spreadsheet
+        data={this.state.data}
+        onCellChange={this.handleChange}
+        onActiveChange={this.handleActiveChange}
+      />
+    );
   }
 }
 
