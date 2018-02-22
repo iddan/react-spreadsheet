@@ -3,7 +3,6 @@
 import React, { PureComponent } from "react";
 import Composer from "react-composer";
 import classnames from "classnames";
-import Throttle from "./Throttle";
 import * as Contexts from "./contexts";
 import * as Types from "./types";
 
@@ -16,13 +15,14 @@ export type Props<CellType, Value> = {
   onChange: Types.onChange<Value>
 };
 
+const EMPTY =
+  typeof Symbol === "function" ? Symbol("EMPTY") : "@@REACT_SPREADSHEET/EMPTY";
+
 type State<Value> = {
-  value: Value | null
+  localValue: Value | typeof EMPTY
 };
 
-const CHANGE_THROTTLE = 100;
-
-class Cell<CellType, Value> extends PureComponent<
+class Cell<CellType, Value> extends React.PureComponent<
   Props<CellType, Value> & {
     cell: CellType,
     isActive: boolean,
@@ -30,14 +30,24 @@ class Cell<CellType, Value> extends PureComponent<
   },
   State<Value>
 > {
-  emitChange = value => {
-    const { row, column } = this.props;
-    this.props.onChange({
-      row,
-      column,
-      value
-    });
+  state = { localValue: EMPTY };
+
+  handleChange = localValue => {
+    this.setState({ localValue });
   };
+
+  componentWillReceiveProps(nextProps) {
+    const { localValue } = this.state;
+    if (localValue !== EMPTY) {
+      if (nextProps.mode === "view" && this.props.mode === "edit") {
+        const { row, column, onChange } = nextProps;
+        onChange({ row, column, value: localValue });
+      }
+      if (nextProps.mode === "view" && this.props.mode === "view") {
+        this.setState({ localValue: EMPTY });
+      }
+    }
+  }
 
   render() {
     const {
@@ -50,6 +60,7 @@ class Cell<CellType, Value> extends PureComponent<
       DataEditor,
       getValue
     } = this.props;
+    const { localValue } = this.state;
     return (
       <td
         className={classnames(mode, {
@@ -61,21 +72,17 @@ class Cell<CellType, Value> extends PureComponent<
         data-column={column}
       >
         {mode === "edit" ? (
-          <Throttle
-            initialValue={getValue({ column, row, cell })}
-            onChange={this.emitChange}
-            timeout={CHANGE_THROTTLE}
-          >
-            {({ value, handleChange }) => (
-              <DataEditor
-                column={column}
-                row={row}
-                cell={cell}
-                value={value}
-                onChange={handleChange}
-              />
-            )}
-          </Throttle>
+          <DataEditor
+            column={column}
+            row={row}
+            cell={cell}
+            value={
+              localValue !== EMPTY
+                ? localValue
+                : getValue({ row, column, cell })
+            }
+            onChange={this.handleChange}
+          />
         ) : (
           <DataViewer
             column={column}
