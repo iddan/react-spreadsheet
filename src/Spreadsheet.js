@@ -40,9 +40,13 @@ type KeyDownHandlers<Value> = {
 
 /**
  * @todo
- * Selection: drag select
+ * Editing
+ * Proper sync props & state on cells
+ * Normalize keyboard navigation
+ * Multi Selection: drag select
  * Clipboard: copy, paste, select copy, select paste
  * Support getValue() return boolean by default
+ * Bindings: trigger render for cells when a cell changes
  */
 export default class Spreadsheet<CellType, Value> extends PureComponent<
   Props<CellType, Value>,
