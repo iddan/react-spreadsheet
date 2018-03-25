@@ -1,93 +1,153 @@
 // @flow
 
-import React, { PureComponent } from "react";
-import Composer from "react-composer";
+import React, { Component } from "react";
 import classnames from "classnames";
-import * as Contexts from "./contexts";
+import shallowEqual from "fbjs/lib/shallowEqual";
 import * as Types from "./types";
+import Store, {
+  CELL_VALUE_CHANGE,
+  CELL_MODE_CHANGE,
+  CELL_SELECT
+} from "./Store";
 
 export type Props<CellType, Value> = {
   row: number,
   column: number,
   DataEditor: Types.DataEditor<CellType, Value>,
   DataViewer: Types.DataViewer<CellType, Value>,
-  getValue: Types.getValue<CellType, Value>,
-  onChange: Types.onChange<Value>
+  getValue: Types.getValue<CellType, Value>
 };
-
-const EMPTY =
-  typeof Symbol === "function" ? Symbol("EMPTY") : "@@REACT_SPREADSHEET/EMPTY";
 
 type State<Value> = {
-  localValue: Value | typeof EMPTY
+  value: Value,
+  isSelected: boolean,
+  mode: Types.Mode
 };
 
-class Cell<CellType, Value> extends React.PureComponent<
-  Props<CellType, Value> & {
-    cell: CellType,
-    isActive: boolean,
-    mode: Types.Mode
-  },
+const getInitialValue = ({ store, row, column, emptyValue }: Props) => {
+  const { initialData } = store;
+  if (
+    initialData &&
+    initialData[row] &&
+    initialData[row][column] !== undefined
+  ) {
+    return emptyValue;
+  }
+  return emptyValue;
+};
+
+class Cell<CellType, Value> extends Component<
+  Props<CellType, Value> & { store: Store },
   State<Value>
 > {
-  state = { localValue: EMPTY };
-
-  handleChange = localValue => {
-    this.setState({ localValue });
+  state = {
+    value: getInitialValue(this.props),
+    isSelected: false,
+    mode: "view"
   };
 
-  componentWillReceiveProps(nextProps) {
-    const { localValue } = this.state;
-    if (localValue !== EMPTY) {
-      if (nextProps.mode === "view" && this.props.mode === "edit") {
-        const { row, column, onChange } = nextProps;
-        onChange({ row, column, value: localValue });
-      }
-      if (nextProps.mode === "view" && this.props.mode === "view") {
-        this.setState({ localValue: EMPTY });
-      }
+  /* external cells handlers */
+
+  handleCellSelect = cell => {
+    const { column, row } = this.props;
+    const nextIsSelect = cell.column === column && cell.row === row;
+    if (!nextIsSelect) {
+      this.setState({ isSelected: false, mode: "view" });
+    }
+  };
+
+  handleCellValueChange = cell => {
+    const { column, row } = this.props;
+    if (column === cell.column && cell.row === row) {
+      this.setState({ value: cell.value });
+    }
+  };
+
+  handleCellModeChange = cell => {
+    const { column, row } = this.props;
+    if (column === cell.column && cell.row === row) {
+      this.setState({ mode: cell.mode });
+    }
+  };
+
+  componentDidMount() {
+    const { store } = this.props;
+    store.on(CELL_VALUE_CHANGE, this.handleCellValueChange);
+    store.on(CELL_MODE_CHANGE, this.handleCellModeChange);
+    store.on(CELL_SELECT, this.handleCellSelect);
+  }
+
+  componentWillUnmount() {
+    const { store } = this.props;
+    store.off(CELL_VALUE_CHANGE, this.handleCellValueChange);
+    store.off(CELL_MODE_CHANGE, this.handleCellModeChange);
+    store.off(CELL_SELECT, this.handleCellSelect);
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return !shallowEqual(nextState, this.state);
+  }
+
+  componentDidUpdate() {
+    if (this.root && this.state.isSelected && this.state.mode === "view") {
+      this.root.focus();
     }
   }
 
+  select = () => {
+    const { store, row, column } = this.props;
+    store.emit(CELL_SELECT, { row, column });
+    store.on(CELL_SELECT, this.handleCellSelect);
+  };
+
+  handleClick = () => {
+    this.setState({ isSelected: true });
+    this.select();
+  };
+
+  handleDoubleClick = () => {
+    const { store, row, column } = this.props;
+    this.setState({ isSelected: true, mode: "edit" });
+    this.select();
+    store.emit(CELL_MODE_CHANGE, { row, column, mode: "edit" });
+  };
+
+  handleValueChange = value => {
+    const { store, row, column } = this.props;
+    this.setState({ value });
+    store.emit(CELL_VALUE_CHANGE, { row, column, value });
+  };
+
+  handleRoot = root => {
+    this.root = root;
+  };
+
   render() {
-    const {
-      isActive,
-      cell,
-      mode,
-      row,
-      column,
-      DataViewer,
-      DataEditor,
-      getValue
-    } = this.props;
-    const { localValue } = this.state;
+    const { row, column, DataViewer, DataEditor, getValue } = this.props;
+    const { isSelected, value, mode } = this.state;
     return (
       <td
+        ref={this.handleRoot}
         className={classnames(mode, {
-          active: isActive,
-          readonly: cell && cell.readOnly
+          active: isSelected,
+          readonly: value && value.readOnly
         })}
+        onClick={this.handleClick}
         tabIndex={0}
-        data-row={row}
-        data-column={column}
       >
         {mode === "edit" ? (
           <DataEditor
             column={column}
             row={row}
-            cell={cell}
-            value={
-              localValue !== EMPTY
-                ? localValue
-                : getValue({ row, column, cell })
-            }
+            cell={value}
+            value={getValue({ row, column, cell: value })}
             onChange={this.handleChange}
           />
         ) : (
           <DataViewer
             column={column}
             row={row}
-            cell={cell}
+            cell={value}
             getValue={getValue}
           />
         )}
@@ -96,41 +156,8 @@ class Cell<CellType, Value> extends React.PureComponent<
   }
 }
 
-export default class CellProvider<CellType, Value> extends PureComponent<
-  Props<CellType, Value>
-> {
-  mapResult = (child: *) => child;
+const ConnectedCell = props => (
+  <Store.Consumer>{store => <Cell {...props} store={store} />}</Store.Consumer>
+);
 
-  renderContext = ([data, active]: [CellType[][], Types.Active<Value>]) => {
-    const {
-      row,
-      column,
-      onChange,
-      DataEditor,
-      DataViewer,
-      getValue
-    } = this.props;
-    const isActive = active && active.row === row && active.column === column;
-    return (
-      <Cell
-        {...{ row, column, onChange, DataEditor, DataViewer, getValue }}
-        cell={data[row][column]}
-        mode={active && isActive ? active.mode : "view"}
-        isActive={Boolean(
-          active && active.row === row && active.column === column
-        )}
-      />
-    );
-  };
-
-  render() {
-    return (
-      <Composer
-        components={[<Contexts.Data.Consumer />, <Contexts.Active.Consumer />]}
-        mapResult={this.mapResult}
-      >
-        {this.renderContext}
-      </Composer>
-    );
-  }
-}
+export default ConnectedCell;
