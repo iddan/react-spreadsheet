@@ -43,6 +43,7 @@ type KeyDownHandlers<Value> = {
  * Editing
  * Proper sync props & state on cells
  * Normalize keyboard navigation and fix edge cases
+ * Use select events to get coordinates instead of modifying the DOM (going back to old idea) this will yield flexibility for selected area, less DOM deep mutations and fix border styling
  * Multi Selection: drag select
  * Clipboard: copy, paste, select copy, select paste
  * Support getValue() return boolean by default
