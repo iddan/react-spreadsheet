@@ -11,11 +11,7 @@ import type { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
 import * as Types from "./types";
-import Store, {
-  CELL_MODE_CHANGE,
-  CELL_VALUE_CHANGE,
-  CELL_SELECT
-} from "./Store";
+import { CELL_MODE_CHANGE, CELL_VALUE_CHANGE, CELL_SELECT } from "./Store";
 import "./Spreadsheet.css";
 
 export type Props<CellType, Value> = {
@@ -67,11 +63,6 @@ export default class Spreadsheet<CellType, Value> extends PureComponent<
 
   root: ?HTMLTableElement;
   selectedCell = null;
-
-  constructor(...args) {
-    super(...args);
-    this.store.initialData = this.props.data;
-  }
 
   componentDidMount() {
     const { store } = this;
@@ -180,31 +171,31 @@ export default class Spreadsheet<CellType, Value> extends PureComponent<
     const columns = firstRow ? firstRow.length : 0;
     const rows = data.length;
     return (
-      <Store.Provider value={this.store}>
-        <Table onKeyPress={this.handleKeyPress} onKeyDown={this.handleKeyDown}>
-          {Array(rows)
-            .fill(1)
-            .map((_, row) => (
-              <Row key={row} index={row}>
-                {Array(columns)
-                  .fill(1)
-                  .map((_, column) => {
-                    return (
-                      <Cell
-                        DataViewer={DataViewer}
-                        DataEditor={DataEditor}
-                        getValue={getValue}
-                        key={column}
-                        row={row}
-                        column={column}
-                        emptyValue={emptyValue}
-                      />
-                    );
-                  })}
-              </Row>
-            ))}
-        </Table>
-      </Store.Provider>
+      <Table onKeyPress={this.handleKeyPress} onKeyDown={this.handleKeyDown}>
+        {Array(rows)
+          .fill(1)
+          .map((_, row) => (
+            <Row key={row} index={row}>
+              {Array(columns)
+                .fill(1)
+                .map((_, column) => {
+                  return (
+                    <Cell
+                      DataViewer={DataViewer}
+                      DataEditor={DataEditor}
+                      getValue={getValue}
+                      key={column}
+                      row={row}
+                      column={column}
+                      emptyValue={emptyValue}
+                      value={data[row][column]}
+                      store={this.store}
+                    />
+                  );
+                })}
+            </Row>
+          ))}
+      </Table>
     );
   }
 }

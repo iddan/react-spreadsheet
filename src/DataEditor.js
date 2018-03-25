@@ -26,7 +26,7 @@ export default class DataEditor extends PureComponent<Props> {
   };
 
   handleChange = e => {
-    this.props.onChange(e.target.value);
+    this.props.onChange({ ...this.props.cell, value: e.target.value });
   };
 
   handleInput = (input: ?HTMLInputElement) => {
@@ -40,7 +40,7 @@ export default class DataEditor extends PureComponent<Props> {
   }
 
   render() {
-    const { cell, column, row, value } = this.props;
+    const { value } = this.props;
     return (
       <div className="DataEditor">
         <input

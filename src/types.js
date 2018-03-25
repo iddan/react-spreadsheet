@@ -15,9 +15,7 @@ export type CellComponentProps<CellType, Value> = {
   getValue: getValue<CellType, Value>
 };
 
-export type DataViewer<Cell, Value> = ComponentType<
-  CellComponentProps<Cell, Value>
->;
+export type DataViewer = ComponentType;
 
 export type DataEditor<Cell, Value> = ComponentType<{
   ...CellComponentProps<Cell, Value>,

@@ -24,24 +24,12 @@ type State<Value> = {
   mode: Types.Mode
 };
 
-const getInitialValue = ({ store, row, column, emptyValue }: Props) => {
-  const { initialData } = store;
-  if (
-    initialData &&
-    initialData[row] &&
-    initialData[row][column] !== undefined
-  ) {
-    return emptyValue;
-  }
-  return emptyValue;
-};
-
-class Cell<CellType, Value> extends Component<
+export default class Cell<CellType, Value> extends Component<
   Props<CellType, Value> & { store: Store },
   State<Value>
 > {
   state = {
-    value: getInitialValue(this.props),
+    value: this.props.value,
     isSelected: false,
     mode: "view"
   };
@@ -155,9 +143,3 @@ class Cell<CellType, Value> extends Component<
     );
   }
 }
-
-const ConnectedCell = props => (
-  <Store.Consumer>{store => <Cell {...props} store={store} />}</Store.Consumer>
-);
-
-export default ConnectedCell;
