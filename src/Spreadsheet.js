@@ -89,56 +89,78 @@ export default class Spreadsheet<CellType, Value> extends PureComponent<
   };
 
   keyDownHandlers: KeyDownHandlers<Value> = {
-    ArrowUp: active => ({
-      row: active.row - 1,
-      column: active.column,
-      mode: "view"
-    }),
-    ArrowDown: active => ({
-      row: active.row + 1,
-      column: active.column,
-      mode: "view"
-    }),
-    ArrowLeft: active => ({
-      row: active.row,
-      column: active.column - 1,
-      mode: "view"
-    }),
-    ArrowRight: active => ({
-      row: active.row,
-      column: active.column + 1,
-      mode: "view"
-    }),
-    Tab: active => ({
-      row: active.row,
-      column: active.column + 1,
-      mode: "view"
-    }),
-    Enter: active => ({
-      mode: "edit"
-    }),
-    Backspace: active => {
-      this.props.onChange({
-        row: active.row,
-        column: active.column,
-        value: this.props.emptyValue
+    ArrowUp: (store, selectedCell) => {
+      store.emit(CELL_SELECT, {
+        row: selectedCell.row - 1,
+        column: selectedCell.column
       });
-      return { mode: "edit" };
+    },
+    ArrowDown: (store, selectedCell) => {
+      store.emit(CELL_SELECT, {
+        row: selectedCell.row + 1,
+        column: selectedCell.column
+      });
+    },
+    ArrowLeft: (store, selectedCell) => {
+      store.emit(CELL_SELECT, {
+        row: selectedCell.row,
+        column: selectedCell.column - 1
+      });
+    },
+    ArrowRight: (store, selectedCell) => {
+      store.emit(CELL_SELECT, {
+        row: selectedCell.row,
+        column: selectedCell.column + 1
+      });
+    },
+    Tab: (store, selectedCell) => {
+      store.emit(CELL_SELECT, {
+        row: selectedCell.row,
+        column: selectedCell.column + 1
+      });
+    },
+    Enter: (store, selectedCell) => {
+      store.emit(CELL_MODE_CHANGE, {
+        row: selectedCell.row,
+        column: selectedCell.column,
+        mode: "edit"
+      });
+    },
+    Backspace: (store, selectedCell) => {
+      /** @todo test */
+      store.emit(CELL_VALUE_CHANGE, {
+        row: selectedCell.row,
+        column: selectedCell.column,
+        value: ""
+      });
+      store.emit(CELL_MODE_CHANGE, {
+        row: selectedCell.row,
+        column: selectedCell.column,
+        mode: "edit"
+      });
     }
   };
 
   editKeyDownHandlers: KeyDownHandlers<Value> = {
-    Escape: () => ({ mode: "view" }),
-    Tab: active => ({
-      row: active.row,
-      column: active.column + 1,
-      mode: "view"
-    }),
-    Enter: active => ({
-      row: active.row + 1,
-      column: active.column,
-      mode: "view"
-    })
+    Escape: (store, selectedCell) => {
+      store.emit(CELL_MODE_CHANGE, {
+        row: selectedCell.row,
+        column: selectedCell.column,
+        mode: "view"
+      });
+    },
+    Tab: (store, selectedCell) => {
+      store.emit(CELL_SELECT, {
+        row: selectedCell.row,
+        column: selectedCell.column + 1
+      });
+    },
+    Enter: (store, selectedCell) => {
+      store.emit(CELL_SELECT, {
+        row: selectedCell.row + 1,
+        column: selectedCell.column
+      });
+    }
   };
 
   /**
@@ -153,7 +175,7 @@ export default class Spreadsheet<CellType, Value> extends PureComponent<
     const handler = handlers[key];
     if (handler) {
       nativeEvent.preventDefault();
-      return handler(this.selectedCell);
+      return handler(this.store, this.selectedCell);
     }
   };
 

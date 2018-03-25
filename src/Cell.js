@@ -39,7 +39,14 @@ export default class Cell<CellType, Value> extends Component<
   handleCellSelect = cell => {
     const { column, row } = this.props;
     const nextIsSelect = cell.column === column && cell.row === row;
-    if (!nextIsSelect) {
+    if (nextIsSelect) {
+      this.setState(prevState => {
+        if (prevState.isSelected) {
+          return null;
+        }
+        return { isSelected: true };
+      });
+    } else {
       this.setState({ isSelected: false, mode: "view" });
     }
   };
