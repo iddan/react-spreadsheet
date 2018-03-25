@@ -1,16 +1,5 @@
 // @flow
 
-export const normalizeIndex = (array: Array<*>, index: number) => {
-  if (index in array) {
-    return index;
-  }
-  if (index >= array.length) {
-    return array.length - 1;
-  }
-  const [firstIndex] = array.keys();
-  return firstIndex;
-};
-
 export const getCellFromPath = (event: {
   path: EventTarget[]
 }): { element: Element, row: number, column: number } | null => {
@@ -30,6 +19,3 @@ export const getCellFromPath = (event: {
 export const moveCursorToEnd = (el: HTMLInputElement) => {
   el.selectionStart = el.selectionEnd = el.value.length;
 };
-
-export const shallowEqual = (src: Object, target: Object) =>
-  Object.keys(src).every(key => src[key] === target[key]);
