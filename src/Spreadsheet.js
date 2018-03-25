@@ -42,7 +42,7 @@ type KeyDownHandlers<Value> = {
  * @todo
  * Editing
  * Proper sync props & state on cells
- * Normalize keyboard navigation
+ * Normalize keyboard navigation and fix edge cases
  * Multi Selection: drag select
  * Clipboard: copy, paste, select copy, select paste
  * Support getValue() return boolean by default
