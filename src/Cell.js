@@ -54,7 +54,7 @@ export default class Cell<CellType, Value> extends Component<
   handleCellValueChange = cell => {
     const { column, row } = this.props;
     if (column === cell.column && cell.row === row) {
-      this.setState({ value: cell.value });
+      this.setValue(cell.value);
     }
   };
 
@@ -95,6 +95,10 @@ export default class Cell<CellType, Value> extends Component<
     store.on(CELL_SELECT, this.handleCellSelect);
   };
 
+  setValue = value => {
+    this.setState({ value });
+  };
+
   handleClick = () => {
     this.setState({ isSelected: true });
     this.select();
@@ -109,7 +113,7 @@ export default class Cell<CellType, Value> extends Component<
 
   handleValueChange = value => {
     const { store, row, column } = this.props;
-    this.setState({ value });
+    this.setValue(value);
     store.emit(CELL_VALUE_CHANGE, { row, column, value });
   };
 
@@ -136,7 +140,7 @@ export default class Cell<CellType, Value> extends Component<
             row={row}
             cell={value}
             value={getValue({ row, column, cell: value })}
-            onChange={this.handleChange}
+            onChange={this.handleValueChange}
           />
         ) : (
           <DataViewer

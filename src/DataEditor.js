@@ -25,7 +25,7 @@ export default class DataEditor extends PureComponent<Props> {
     value: ""
   };
 
-  handleChange = e => {
+  handleChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
     this.props.onChange({ ...this.props.cell, value: e.target.value });
   };
 

@@ -40,7 +40,7 @@ type KeyDownHandlers<Value> = {
 
 /**
  * @todo
- * Editing
+ * Editing - works
  * Proper sync props & state on cells
  * Normalize keyboard navigation and fix edge cases
  * Use select events to get coordinates instead of modifying the DOM (going back to old idea) this will yield flexibility for selected area, less DOM deep mutations and fix border styling
@@ -89,7 +89,8 @@ export default class Spreadsheet<CellType, Value> extends PureComponent<
   handleKeyPress = (e: SyntheticEvent<*>) => {
     const { store } = this;
     const { key } = e;
-    if (this.selectedCell) {
+    if (this.selectedCell && this.selectedCell.mode === "view") {
+      store.emit(CELL_MODE_CHANGE, { ...this.selectedCell, mode: "edit" });
       store.emit(CELL_VALUE_CHANGE, { ...this.selectedCell, value: key });
     }
   };
@@ -156,12 +157,14 @@ export default class Spreadsheet<CellType, Value> extends PureComponent<
       });
     },
     Tab: (store, selectedCell) => {
+      this.selectedCell.mode = "view";
       store.emit(CELL_SELECT, {
         row: selectedCell.row,
         column: selectedCell.column + 1
       });
     },
     Enter: (store, selectedCell) => {
+      this.selectedCell.mode = "view";
       store.emit(CELL_SELECT, {
         row: selectedCell.row + 1,
         column: selectedCell.column
