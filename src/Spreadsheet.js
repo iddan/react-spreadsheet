@@ -48,6 +48,7 @@ type KeyDownHandlers<Value> = {
  * Clipboard: copy, paste, select copy, select paste
  * Support getValue() return boolean by default
  * Bindings: trigger render for cells when a cell changes
+ * Propagate events
  */
 export default class Spreadsheet<CellType, Value> extends PureComponent<
   Props<CellType, Value>,
