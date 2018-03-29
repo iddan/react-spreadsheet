@@ -12,16 +12,12 @@ type Cell = {
   }>
 };
 
-type Props = {
-  ...Types.CellComponentProps<Cell, Node>,
-  cell: Cell,
-  getValue: Types.getValue<Cell, Node>
-};
+type Props = Types.CellComponentProps<Cell, Node>;
 
 export default class DataViewer extends PureComponent<Props> {
   render() {
     const { getValue, cell, column, row } = this.props;
-    const value = getValue({ cell, column, row });
+    const value = getValue({ data: cell, column, row });
     if (cell && cell.component) {
       return <cell.component {...this.props} value={value} />;
     }

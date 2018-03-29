@@ -1,152 +1,93 @@
 // @flow
 
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import classnames from "classnames";
-import shallowEqual from "fbjs/lib/shallowEqual";
+import { connect } from "unistore/react";
+import * as Selected from "./selected";
 import * as Types from "./types";
-import Store, {
-  CELL_VALUE_CHANGE,
-  CELL_MODE_CHANGE,
-  CELL_SELECT
-} from "./Store";
+import { setCell } from "./util";
 
-export type Props<CellType, Value> = {
+export type Props<Data, Value> = {
   row: number,
   column: number,
-  DataEditor: Types.DataEditor<CellType, Value>,
-  DataViewer: Types.DataViewer<CellType, Value>,
-  getValue: Types.getValue<CellType, Value>
+  DataEditor: Types.DataEditor<Data, Value>,
+  DataViewer: Types.DataViewer<Data, Value>,
+  getValue: Types.getValue<Data, Value>
 };
 
-type State<Value> = {
-  value: Value,
-  isSelected: boolean,
-  mode: Types.Mode
+type State<Data> = {
+  selected: boolean,
+  active: boolean,
+  mode: Types.Mode,
+  data: Data
 };
 
-export default class Cell<CellType, Value> extends Component<
-  Props<CellType, Value> & { store: Store },
-  State<Value>
-> {
-  state = {
-    value: this.props.value,
-    isSelected: false,
-    mode: "view"
-  };
+type Handlers<Data> = {
+  setData: (data: Data) => void,
+  select: (cellPointer: Types.CellPointer) => void
+};
 
-  /* external cells handlers */
+class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<{
+  ...Props<Data, Value>,
+  ...State<Data>,
+  ...Handlers<Data>
+}> {
+  root: HTMLElement | null;
 
-  handleCellSelect = cell => {
-    const { column, row } = this.props;
-    const nextIsSelect = cell.column === column && cell.row === row;
-    if (nextIsSelect) {
-      this.setState(prevState => {
-        if (prevState.isSelected) {
-          return null;
-        }
-        return { isSelected: true };
-      });
-    } else {
-      this.setState({ isSelected: false, mode: "view" });
-    }
-  };
-
-  handleCellValueChange = cell => {
-    const { column, row } = this.props;
-    if (column === cell.column && cell.row === row) {
-      this.setValue(cell.value);
-    }
-  };
-
-  handleCellModeChange = cell => {
-    const { column, row } = this.props;
-    if (column === cell.column && cell.row === row) {
-      this.setState({ mode: cell.mode });
-    }
-  };
-
-  componentDidMount() {
-    const { store } = this.props;
-    store.on(CELL_VALUE_CHANGE, this.handleCellValueChange);
-    store.on(CELL_MODE_CHANGE, this.handleCellModeChange);
-    store.on(CELL_SELECT, this.handleCellSelect);
-  }
-
-  componentWillUnmount() {
-    const { store } = this.props;
-    store.off(CELL_VALUE_CHANGE, this.handleCellValueChange);
-    store.off(CELL_MODE_CHANGE, this.handleCellModeChange);
-    store.off(CELL_SELECT, this.handleCellSelect);
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return !shallowEqual(nextState, this.state);
-  }
-
-  componentDidUpdate() {
-    if (this.root && this.state.isSelected && this.state.mode === "view") {
+  handleRoot = (root: HTMLElement | null) => {
+    const { selected, mode } = this.props;
+    if (this.root && selected && mode === "view") {
       this.root.focus();
     }
-  }
-
-  select = () => {
-    const { store, row, column } = this.props;
-    store.emit(CELL_SELECT, { row, column });
-    store.on(CELL_SELECT, this.handleCellSelect);
-  };
-
-  setValue = value => {
-    this.setState({ value });
   };
 
   handleClick = () => {
-    this.setState({ isSelected: true });
-    this.select();
+    const { row, column, select } = this.props;
+    select({ row, column });
   };
 
-  handleDoubleClick = () => {
-    const { store, row, column } = this.props;
-    this.setState({ isSelected: true, mode: "edit" });
-    this.select();
-    store.emit(CELL_MODE_CHANGE, { row, column, mode: "edit" });
-  };
-
-  handleValueChange = value => {
-    const { store, row, column } = this.props;
-    this.setValue(value);
-    store.emit(CELL_VALUE_CHANGE, { row, column, value });
-  };
-
-  handleRoot = root => {
-    this.root = root;
+  handleChange = (cell: Data) => {
+    const { setData } = this.props;
+    setData(cell);
   };
 
   render() {
-    const { row, column, DataViewer, DataEditor, getValue } = this.props;
-    const { isSelected, value, mode } = this.state;
+    const {
+      row,
+      column,
+      selected,
+      DataEditor,
+      DataViewer,
+      getValue,
+      active,
+      mode,
+      data,
+      select,
+      handleValueChange
+    } = this.props;
     return (
       <td
         ref={this.handleRoot}
         className={classnames(mode, {
-          active: isSelected,
-          readonly: value && value.readOnly
+          active,
+          selected,
+          readonly: data && data.readOnly
         })}
-        onClick={this.handleClick}
+        onClick={select}
         tabIndex={0}
       >
         {mode === "edit" ? (
           <DataEditor
-            column={column}
             row={row}
-            cell={value}
-            value={getValue({ row, column, cell: value })}
-            onChange={this.handleValueChange}
+            column={column}
+            cell={data}
+            onChange={this.handleChange}
           />
         ) : (
           <DataViewer
-            column={column}
             row={row}
-            cell={value}
+            column={column}
+            cell={data}
             getValue={getValue}
           />
         )}
@@ -154,3 +95,45 @@ export default class Cell<CellType, Value> extends Component<
     );
   }
 }
+
+function mapStateToProps<Data>(
+  { data, active, selected, mode }: Types.StoreState<Data>,
+  { column, row }: Props<Data, *>
+): State<Data> {
+  const cellIsActive = Boolean(
+    active && column === active.column && row === active.row
+  );
+  return {
+    selected: Selected.has(selected, { row, column }),
+    active: cellIsActive,
+    mode: cellIsActive ? mode : "view",
+    data: data[row][column]
+  };
+}
+
+type Actions<Data> = (
+  store: *
+) => {
+  [name: string]: (
+    state: Types.StoreState<Data>,
+    ...*
+  ) => $Shape<Types.StoreState<Data>>
+};
+
+const actions: Actions<*> = store => ({
+  select(state, cellPointer: Types.CellPointer, active) {
+    return {
+      selected: Selected.add(cellPointer),
+      active: active ? cellPointer : state.active
+    };
+  },
+  setData(state, data: *) {
+    return {
+      mode: "edit",
+      /** @todo the fuck do I know this? */
+      data: setCell(state, data)
+    };
+  }
+});
+
+export default connect(mapStateToProps, actions)(Cell);
