@@ -2,23 +2,21 @@
 
 import type { ComponentType } from "react";
 import type { Type as Selected } from "./selected";
+import type { Matrix } from "./matrix";
 
-export type CellPointer = {
+export type CellPointer = {|
   column: number,
   row: number
-};
+|};
 
-export type CellDescriptor<Cell> = {
-  ...CellPointer,
+export type CellDescriptor<Cell> = CellPointer & {|
   data: Cell
-};
+|};
 
 export type Mode = "view" | "edit";
 
-export type Data<Cell> = Cell[][];
-
 export type StoreState<Cell> = {|
-  data: Data<Cell>,
+  data: Matrix<Cell>,
   selected: Selected,
   active: CellPointer | null,
   mode: Mode

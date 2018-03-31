@@ -4,6 +4,7 @@ import React, { PureComponent } from "react";
 import classnames from "classnames";
 import { connect } from "unistore/react";
 import * as Selected from "./selected";
+import * as Matrix from "./matrix";
 import * as Types from "./types";
 import { setCell } from "./util";
 
@@ -83,6 +84,7 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
             row={row}
             column={column}
             cell={data}
+            getValue={getValue}
             onChange={this.handleChange}
           />
         ) : (
@@ -109,7 +111,7 @@ function mapStateToProps<Data>(
     selected: Selected.has(selected, { row, column }),
     active: cellIsActive,
     mode: cellIsActive ? mode : "view",
-    data: data[row][column]
+    data: Matrix.get(row, column, data)
   };
 }
 

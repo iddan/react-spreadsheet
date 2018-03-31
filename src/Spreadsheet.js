@@ -15,6 +15,7 @@ import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
 import { range, setCell } from "./util";
 import * as Selected from "./selected";
+import * as Matrix from "./matrix";
 import "./Spreadsheet.css";
 
 type DefaultCellType = {
@@ -23,10 +24,8 @@ type DefaultCellType = {
 
 const getValue = ({ data }: { data: DefaultCellType }) => data.value;
 
-type Data<CellType> = CellType[][];
-
 type Props<CellType, Value> = {|
-  data: Data<CellType>,
+  data: Matrix.Matrix<CellType>,
   Table: ComponentType<TableProps>,
   Row: ComponentType<RowProps>,
   Cell: ComponentType<CellProps<CellType, Value>>,
@@ -73,7 +72,7 @@ const Spreadsheet = <CellType, Value>({
   columns,
   handleKeyPress,
   handleKeyDown
-}: $Rest<Props<CellType, Value>, {| data: Data<CellType> |}> &
+}: $Rest<Props<CellType, Value>, {| data: Matrix.Matrix<CellType> |}> &
   State &
   Handlers<CellType>) => (
   <Table onKeyPress={handleKeyPress} onKeyDown={handleKeyDown}>
@@ -103,13 +102,8 @@ Spreadsheet.defaultProps = {
   getValue
 };
 
-const mapStateToProps = ({ data }: Types.StoreState<*>): State => {
-  const [firstRow] = data;
-  return {
-    rows: data.length,
-    columns: firstRow ? firstRow.length : 0
-  };
-};
+const mapStateToProps = ({ data }: Types.StoreState<*>): State =>
+  Matrix.getSize(data);
 
 type KeyDownHandler<Cell> = (
   state: Types.StoreState<Cell>,
@@ -171,19 +165,17 @@ const editKeyDownHandlers: KeyDownHandlers<*> = {
   Enter: keyDownHandlers.ArrowDown
 };
 
-const actions = store => ({
-  handleKeyPress(state, event) {
-    const { key } = event;
+const actions = <CellType>(store) => ({
+  handleKeyPress(state: Types.StoreState<CellType>) {
     if (state.mode === "view" && state.active) {
-      return {
-        mode: "edit",
-        /** @todo the fuck do I know this? */
-        data: setCell(state, cellFromValue(key))
-      };
+      return { mode: "edit" };
     }
     return null;
   },
-  handleKeyDown(state, event) {
+  handleKeyDown(
+    state: Types.StoreState<CellType>,
+    event: SyntheticKeyboardEvent<HTMLElement>
+  ) {
     const { key, nativeEvent } = event;
     const handlers =
       state.mode === "edit" ? editKeyDownHandlers : keyDownHandlers;

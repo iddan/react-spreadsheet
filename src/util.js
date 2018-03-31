@@ -1,20 +1,7 @@
 // @flow
 
-export const getCellFromPath = (event: {
-  path: EventTarget[]
-}): { element: Element, row: number, column: number } | null => {
-  for (const target of event.path) {
-    if (target instanceof Element) {
-      const row = Number(target.dataset.row);
-      const column = Number(target.dataset.column);
-      if (isNaN(row) || isNaN(column)) {
-        continue;
-      }
-      return { element: target, row, column };
-    }
-  }
-  return null;
-};
+import * as Types from "./types";
+import type { Matrix } from "./matrix";
 
 export const moveCursorToEnd = (el: HTMLInputElement) => {
   el.selectionStart = el.selectionEnd = el.value.length;
@@ -38,27 +25,26 @@ export function range(
   return array;
 }
 
-export function updateData<CellType>(
-  data: Types.Data<CellType>,
-  cellDescriptor: Types.CellDescriptor<CellType>
-): Types.Data<CellType> {
+export function updateData<Cell>(
+  data: Matrix<Cell>,
+  cellDescriptor: Types.CellDescriptor<Cell>
+): Matrix<Cell> {
+  const row = data[cellDescriptor.row];
   const nextData = [...data];
-  const nextRow = [...data[cellDescriptor.row]];
+  const nextRow = row ? [...row] : [];
   nextRow[cellDescriptor.column] = cellDescriptor.data;
   nextData[cellDescriptor.row] = nextRow;
   return nextData;
 }
 
 export function setCell<Cell>(
-  state: Types.StoreState<Cell>,
+  state: { data: Matrix<Cell>, active: Types.CellPointer },
   cell: Cell
-): $Shape<Types.StoreState<Cell>> {
-  return {
-    data: updateData(state.data, {
-      ...state.active,
-      data: cell
-    })
-  };
+): Matrix<Cell> {
+  return updateData(state.data, {
+    ...state.active,
+    data: cell
+  });
 }
 
 const CAPITAL_A_CODE = 65;
