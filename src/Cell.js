@@ -30,13 +30,10 @@ type Handlers<Data> = {|
 class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
   Props<Data, Value> & State<Data> & Handlers<Data>
 > {
+  /** @todo update to new API */
   root: HTMLElement | null;
-
   handleRoot = (root: HTMLElement | null) => {
-    const { selected, mode } = this.props;
-    if (this.root && selected && mode === "view") {
-      this.root.focus();
-    }
+    this.root = root;
   };
 
   handleClick = (e: SyntheticMouseEvent<HTMLElement>) => {
@@ -48,6 +45,14 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
     const { setData } = this.props;
     setData(cell);
   };
+
+  /** @todo update to new API */
+  componentDidUpdate() {
+    const { selected, mode } = this.props;
+    if (this.root && selected && mode === "view") {
+      this.root.focus();
+    }
+  }
 
   render() {
     const {

@@ -73,11 +73,9 @@ const Spreadsheet = <CellType, Value>({
   columns,
   handleKeyPress,
   handleKeyDown
-}: {|
-  ...$Rest<Props<CellType, Value>, {| data: Data<CellType> |}>,
-  ...State,
-  ...Handlers<CellType>
-|}) => (
+}: $Rest<Props<CellType, Value>, {| data: Data<CellType> |}> &
+  State &
+  Handlers<CellType>) => (
   <Table onKeyPress={handleKeyPress} onKeyDown={handleKeyDown}>
     {range(rows).map(rowNumber => (
       <Row key={rowNumber}>
@@ -200,18 +198,23 @@ const actions = store => ({
 
 const ConnectedSpreadsheet = connect(mapStateToProps, actions)(Spreadsheet);
 
-export default class SpreadsheetWrapper extends PureComponent<Props<*>> {
+const initialState: $Shape<Types.StoreState<*>> = {
+  selected: Selected.of([]),
+  active: null,
+  mode: "view"
+};
+
+export default class SpreadsheetWrapper extends PureComponent<Props<*, *>> {
   store = createStore({
-    data: this.props.data,
-    selected: Selected.of([]),
-    active: null,
-    mode: "view"
+    ...initialState,
+    data: this.props.data
   });
 
   render() {
+    const { data, ...rest } = this.props;
     return (
       <Provider store={this.store}>
-        <ConnectedSpreadsheet />
+        <ConnectedSpreadsheet {...rest} />
       </Provider>
     );
   }

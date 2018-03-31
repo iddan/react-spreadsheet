@@ -17,12 +17,12 @@ export type Mode = "view" | "edit";
 
 export type Data<Cell> = Cell[][];
 
-export type StoreState<Cell> = {
+export type StoreState<Cell> = {|
   data: Data<Cell>,
   selected: Selected,
   active: CellPointer | null,
   mode: Mode
-};
+|};
 
 export type getValue<Cell, Value> = (CellDescriptor<Cell>) => Value;
 
