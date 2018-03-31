@@ -14,6 +14,9 @@ export const get = <T>(
   return columns[column];
 };
 
+export const has = (row: number, column: number, matrix: Matrix<*>): boolean =>
+  Boolean(matrix[row] && matrix[row][column]);
+
 export const getSize = (
   matrix: Matrix<*>
 ): {| columns: number, rows: number |} => {

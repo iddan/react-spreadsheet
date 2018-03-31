@@ -53,13 +53,13 @@ type Handlers<Cell> = {|
 /**
  * @todo
  * Proper sync props & state on cells
- * Normalize keyboard navigation and fix edge cases
  * Use select events to get coordinates instead of modifying the DOM (going back to old idea) this will yield flexibility for selected area, less DOM deep mutations and fix border styling
  * Multi Selection: drag select
  * Clipboard: copy, paste, select copy, select paste
  * Support getValue() return boolean by default
  * Bindings: trigger render for cells when a cell changes. props.getBindingsFromCell : (cellDescriptor) => Set<cellDescriptor>
  * Propagate events: Use store.subscribe to emit changes
+ * Better Cell API
  */
 const Spreadsheet = <CellType, Value>({
   Table,
@@ -118,6 +118,7 @@ const go = (rowDelta: number, columnDelta: number): KeyDownHandler<*> => (
   state,
   event
 ) => {
+  const { rows, columns } = Matrix.getSize(state.data);
   if (!state.active) {
     return null;
   }
@@ -125,6 +126,9 @@ const go = (rowDelta: number, columnDelta: number): KeyDownHandler<*> => (
     row: state.active.row + rowDelta,
     column: state.active.column + columnDelta
   };
+  if (!Matrix.has(nextActive.row, nextActive.column, state.data)) {
+    return null;
+  }
   return {
     active: nextActive,
     selected: Selected.of([nextActive]),
