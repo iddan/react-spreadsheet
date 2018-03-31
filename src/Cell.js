@@ -15,23 +15,21 @@ export type Props<Data, Value> = {
   getValue: Types.getValue<Data, Value>
 };
 
-type State<Data> = {
+type State<Data> = {|
   selected: boolean,
   active: boolean,
   mode: Types.Mode,
   data: Data
-};
+|};
 
-type Handlers<Data> = {
+type Handlers<Data> = {|
   setData: (data: Data) => void,
-  select: (cellPointer: Types.CellPointer) => void
-};
+  select: (cellPointer: Types.CellPointer, activate: boolean) => void
+|};
 
-class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<{
-  ...Props<Data, Value>,
-  ...State<Data>,
-  ...Handlers<Data>
-}> {
+class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
+  Props<Data, Value> & State<Data> & Handlers<Data>
+> {
   root: HTMLElement | null;
 
   handleRoot = (root: HTMLElement | null) => {
@@ -41,9 +39,9 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<{
     }
   };
 
-  handleClick = () => {
+  handleClick = (e: SyntheticMouseEvent<HTMLElement>) => {
     const { row, column, select } = this.props;
-    select({ row, column });
+    select({ row, column }, !e.shiftKey);
   };
 
   handleChange = (cell: Data) => {
@@ -62,8 +60,7 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<{
       active,
       mode,
       data,
-      select,
-      handleValueChange
+      select
     } = this.props;
     return (
       <td
@@ -73,7 +70,7 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<{
           selected,
           readonly: data && data.readOnly
         })}
-        onClick={select}
+        onClick={this.handleClick}
         tabIndex={0}
       >
         {mode === "edit" ? (
@@ -120,14 +117,18 @@ type Actions<Data> = (
   ) => $Shape<Types.StoreState<Data>>
 };
 
-const actions: Actions<*> = store => ({
-  select(state, cellPointer: Types.CellPointer, active) {
+const actions: Actions<*> = <Cell>(store) => ({
+  select(
+    state: Types.StoreState<Cell>,
+    cellPointer: Types.CellPointer,
+    activate: boolean
+  ) {
     return {
-      selected: Selected.add(cellPointer),
-      active: active ? cellPointer : state.active
+      selected: Selected.add(state.selected, cellPointer),
+      active: activate ? cellPointer : state.active
     };
   },
-  setData(state, data: *) {
+  setData(state: Types.StoreState<Cell>, data: Cell) {
     return {
       mode: "edit",
       /** @todo the fuck do I know this? */

@@ -15,6 +15,13 @@ import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
 import { range, setCell } from "./util";
 import * as Selected from "./selected";
+import "./Spreadsheet.css";
+
+type DefaultCellType = {
+  value: string | number | boolean | null
+};
+
+const getValue = ({ data }: { data: DefaultCellType }) => data.value;
 
 type Data<CellType> = CellType[][];
 
@@ -52,8 +59,8 @@ type Handlers<Cell> = {|
  * Multi Selection: drag select
  * Clipboard: copy, paste, select copy, select paste
  * Support getValue() return boolean by default
- * Bindings: trigger render for cells when a cell changes
- * Propagate events
+ * Bindings: trigger render for cells when a cell changes. props.getBindingsFromCell : (cellDescriptor) => Set<cellDescriptor>
+ * Propagate events: Use store.subscribe to emit changes
  */
 const Spreadsheet = <CellType, Value>({
   Table,
@@ -94,7 +101,8 @@ Spreadsheet.defaultProps = {
   Row,
   Cell,
   DataViewer,
-  DataEditor
+  DataEditor,
+  getValue
 };
 
 const mapStateToProps = ({ data }: Types.StoreState<*>): State => {
