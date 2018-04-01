@@ -1,6 +1,7 @@
 // @flow
 
 import * as Types from "./types";
+import * as Matrix from "./matrix";
 import { flatMap } from "./util";
 
 /** @todo rename */
@@ -40,4 +41,17 @@ export function toArray(selected: Type): Types.CellPointer[] {
   return flatMap(Object.entries(selected), ([row, columns]) =>
     Object.keys(columns).map((column: number) => ({ row, column }))
   );
+}
+
+export function toMatrix<Cell>(selected: Type, data: Matrix.Matrix<Cell>) {
+  let matrix: Matrix.Matrix<Types.CellDescriptor<Cell>> = [];
+  for (const { row, column } of toArray(selected)) {
+    matrix = Matrix.set(
+      row,
+      column,
+      { row, column, data: data[row][column] },
+      matrix
+    );
+  }
+  return matrix;
 }

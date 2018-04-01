@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "classnames": "2.2.5",
+    "clipboard-polyfill": "^2.4.6",
     "create-react-context": "^0.2.1",
     "unistore": "^3.0.4"
   },

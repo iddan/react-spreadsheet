@@ -4,6 +4,7 @@ import React, { PureComponent } from "react";
 import type { ComponentType } from "react";
 import createStore from "unistore";
 import { Provider, connect } from "unistore/react";
+import clipboard from "clipboard-polyfill";
 import * as Types from "./types";
 import Table from "./Table";
 import type { Props as TableProps } from "./Table";
@@ -212,14 +213,17 @@ const initialState: $Shape<Types.StoreState<*>> = {
 
 type Unsubscribe = () => void;
 
+type WrapperProps<CellType, Value> = Props<CellType, Value> &
+  EventProps<CellType>;
+
 export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
-  Props<CellType, Value> & EventProps<CellType>
+  WrapperProps<CellType, Value>
 > {
   store: Object;
   unsubscribe: Unsubscribe;
   prevState: Types.StoreState<CellType>;
 
-  constructor(props) {
+  constructor(props: WrapperProps<CellType, Value>) {
     super(props);
     const state: Types.StoreState<CellType> = {
       ...initialState,
@@ -249,7 +253,50 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
         this.prevState = state;
       }
     );
+    document.addEventListener("copy", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.handleCopy(event);
+    });
+    document.addEventListener("cut", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.handleCut(event);
+    });
   }
+
+  handleCopy = event => {
+    const { data, selected } = this.store.getState();
+    const matrix = Selected.toMatrix(selected, data);
+    const filteredMatrix = Matrix.filter(Boolean, matrix);
+    const valueMatrix = Matrix.map(getValue, filteredMatrix);
+    const copy = () => clipboard.writeText(Matrix.join(valueMatrix));
+    if (navigator.permissions) {
+      navigator.permissions
+        .query({
+          name: "clipboard-read"
+        })
+        .then(readClipboardStatus => {
+          if (readClipboardStatus.state) {
+            copy();
+          }
+        });
+    } else {
+      copy();
+    }
+  };
+
+  handleCut = event => {
+    this.handleCopy(event);
+    const prevState = this.store.getState();
+    this.store.setState({
+      data: Selected.toArray(prevState.selected).reduce(
+        (acc, { row, column }) =>
+          Matrix.set(row, column, cellFromValue(""), acc),
+        prevState.data
+      )
+    });
+  };
 
   componentDidUpdate(prevProps: Props<CellType, Value>) {
     if (prevProps.data !== this.props.data) {

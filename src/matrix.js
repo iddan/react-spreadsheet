@@ -20,6 +20,34 @@ export const get = <T>(
   return columns[column];
 };
 
+export const set = <T>(
+  row: number,
+  column: number,
+  value: T,
+  matrix: Matrix<T>
+): Matrix<T> => {
+  const nextRow = matrix[row] ? [...matrix[row]] : [];
+  nextRow[column] = value;
+  const nextMatrix = [...matrix];
+  nextMatrix[row] = nextRow;
+  return nextMatrix;
+};
+
+export const filter = <T>(func: T => boolean, matrix: Matrix<T>): Matrix<T> =>
+  matrix.map(row => row && row.filter(func)).filter(row => row && row.length);
+
+export const map = <T, T2>(func: T => T2, matrix: Matrix<T>): Matrix<T2> =>
+  matrix.map(row => row && row.map(func));
+
+export const join = (
+  matrix: Matrix<*>,
+  horizontalSeparator: string = ", ",
+  verticalSeparator: string = "\n"
+): string =>
+  matrix
+    .map(row => row && row.join(horizontalSeparator))
+    .join(verticalSeparator);
+
 export const has = (row: number, column: number, matrix: Matrix<*>): boolean =>
   Boolean(matrix[row] && matrix[row][column]);
 
