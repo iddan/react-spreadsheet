@@ -80,7 +80,7 @@ export const toColumnLetter = (number: number): string => {
     return String.fromCharCode(CAPITAL_A_CODE + number);
   }
   return (
-    toColumnLetter(Math.floor(CAPITAL_A_CODE + number / ALPHABET_LENGTH)) +
+    toColumnLetter(Math.floor(number / ALPHABET_LENGTH)) +
     toColumnLetter(number % ALPHABET_LENGTH)
   );
 };

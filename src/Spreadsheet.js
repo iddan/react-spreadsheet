@@ -212,8 +212,8 @@ const initialState: $Shape<Types.StoreState<*>> = {
 
 type Unsubscribe = () => void;
 
-export default class SpreadsheetWrapper<CellType> extends PureComponent<
-  Props<CellType, *> & EventProps<CellType>
+export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
+  Props<CellType, Value> & EventProps<CellType>
 > {
   store: Object;
   unsubscribe: Unsubscribe;
@@ -249,6 +249,12 @@ export default class SpreadsheetWrapper<CellType> extends PureComponent<
         this.prevState = state;
       }
     );
+  }
+
+  componentDidUpdate(prevProps: Props<CellType, Value>) {
+    if (prevProps.data !== this.props.data) {
+      this.store.setState({ data: this.props.data });
+    }
   }
 
   componentWillUnmount() {

@@ -6,6 +6,7 @@ import { range, toColumnLetter } from "../src/util";
 import "./index.css";
 
 const COLUMNS = Array.from(range(26)).map(toColumnLetter);
+const EMPTY_CELL = { value: "" };
 
 class App extends Component {
   state = {
@@ -19,7 +20,7 @@ class App extends Component {
           { value: j, readOnly: true },
           ...Array(COLUMNS.length)
             .fill(1)
-            .map((cell, i) => ({ value: "" }))
+            .map((cell, i) => EMPTY_CELL)
         ])
         .slice(1)
     ]
@@ -33,14 +34,18 @@ class App extends Component {
   };
 
   addColumn = () => {
-    this.setState(({ data }) => ({
-      data: data.map(row => [...row, { value: "" }])
-    }));
+    this.setState(({ data }) => {
+      const [firstRow, ...rows] = data;
+      return [
+        ...firstRow.concat({ value: toColumnLetter(firstRow.length) }),
+        ...rows.map(row => row.concat(EMPTY_CELL))
+      ];
+    });
   };
 
   addRow = () => {
     this.setState(({ data }) => ({
-      data: [...data, Array(COLUMNS.length).fill({ value: "" })]
+      data: [...data, Array(COLUMNS.length).fill(EMPTY_CELL)]
     }));
   };
 
