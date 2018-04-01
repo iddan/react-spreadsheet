@@ -25,7 +25,10 @@ class App extends Component {
     ]
   };
 
+  changeAction = action("onChange");
+
   handleChange = data => {
+    // this.changeAction(data);
     // this.setState({ data });
   };
 
