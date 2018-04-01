@@ -25,7 +25,7 @@
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.38",
     "@babel/core": "^7.0.0-beta.38",
-    "@storybook/react": "^3.3.13",
+    "@storybook/react": "^3.4.0",
     "babel-core": "^7.0.0-0",
     "babel-eslint": "^8.2.1",
     "babel-preset-react-app": "^4.0.0-next.9754a231",

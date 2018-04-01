@@ -6,12 +6,8 @@ import { connect } from "unistore/react";
 import * as Selected from "./selected";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
-import { setCell } from "./util";
-
-const isActive = (
-  active: $PropertyType<Types.StoreState<*>, "active">,
-  { row, column }: Types.CellPointer
-): boolean => Boolean(active && column === active.column && row === active.row);
+import * as Actions from "./actions";
+import { isActive } from "./util";
 
 export type Props<Data, Value> = {
   row: number,
@@ -127,63 +123,28 @@ function mapStateToProps<Data>(
 ): State<Data> {
   const cellIsActive = isActive(active, { column, row });
   const cellIsSelected = Selected.has(selected, { row, column });
+
+  let edge = (rowDelta: number, columnDelta: number): boolean =>
+    cellIsSelected &&
+    !Selected.has(selected, {
+      row: row + rowDelta,
+      column: column + columnDelta
+    });
+
   return {
     selected: cellIsSelected,
     active: cellIsActive,
     mode: cellIsActive ? mode : "view",
     data: Matrix.get(row, column, data),
-    isRightEdge:
-      cellIsSelected && !Selected.has(selected, { row, column: column + 1 }),
-    isLeftEdge:
-      cellIsSelected && !Selected.has(selected, { row, column: column - 1 }),
-    isTopEdge:
-      cellIsSelected && !Selected.has(selected, { row: row - 1, column }),
-    isBottomEdge:
-      cellIsSelected && !Selected.has(selected, { row: row + 1, column })
+    isRightEdge: edge(0, 1),
+    isLeftEdge: edge(0, -1),
+    isTopEdge: edge(-1, 0),
+    isBottomEdge: edge(1, 0)
   };
 }
 
-type Actions<Data> = (
-  store: *
-) => {
-  [name: string]: (
-    state: Types.StoreState<Data>,
-    ...*
-  ) => $Shape<Types.StoreState<Data>>
-};
-
-const actions: Actions<*> = store => ({
-  select(state, cellPointer: Types.CellPointer) {
-    if (state.active && !isActive(state.active, cellPointer)) {
-      return {
-        selected: Selected.of(
-          Matrix.range(
-            { row: state.active.row - 1, column: state.active.column - 1 },
-            {
-              row: cellPointer.row,
-              column: cellPointer.column
-            }
-          )
-        ),
-        mode: "view"
-      };
-    }
-    return null;
-  },
-  activate(state, cellPointer: Types.CellPointer) {
-    return {
-      selected: Selected.of([cellPointer]),
-      active: cellPointer,
-      mode: isActive(state.active, cellPointer) ? "edit" : "view"
-    };
-  },
-  setData(state, data: *) {
-    return {
-      mode: "edit",
-      /** @todo the fuck do I know this? */
-      data: setCell(state, data)
-    };
-  }
-});
-
-export default connect(mapStateToProps, actions)(Cell);
+export default connect(mapStateToProps, () => ({
+  select: Actions.select,
+  activate: Actions.activate,
+  setData: Actions.setData
+}))(Cell);

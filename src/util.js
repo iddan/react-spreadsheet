@@ -62,15 +62,22 @@ export function setCell<Cell>(
   });
 }
 
+export function isActive(
+  active: $PropertyType<Types.StoreState<*>, "active">,
+  { row, column }: Types.CellPointer
+): boolean {
+  return Boolean(active && column === active.column && row === active.row);
+}
+
 const CAPITAL_A_CODE = 65;
 const ALPHABET_LENGTH = 26;
 
-export const toColumnLetter = (number: number) => {
+export const toColumnLetter = (number: number): string => {
   if (number < 0) {
     throw new Error("Number must be greater than 0");
   }
   if (number < ALPHABET_LENGTH) {
-    return String.fromCharCode(number);
+    return String.fromCharCode(CAPITAL_A_CODE + number);
   }
   return (
     toColumnLetter(Math.floor(CAPITAL_A_CODE + number / ALPHABET_LENGTH)) +

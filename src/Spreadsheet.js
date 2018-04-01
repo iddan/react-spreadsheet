@@ -34,6 +34,13 @@ type Props<CellType, Value> = {|
   getValue: Types.getValue<Cell, Value>
 |};
 
+type EventProps<CellType> = {|
+  onChange: (data: Matrix.Matrix<CellType>) => void,
+  onModeChange: (mode: Types.Mode) => void,
+  onSelect: (selected: Types.CellPointer[]) => void,
+  onActivate: (active: Types.CellPointer) => void
+|};
+
 type State = {|
   rows: number,
   columns: number
@@ -60,7 +67,6 @@ type Handlers<Cell> = {|
  * Cut & Copy indicators
  * Support getValue() return boolean by default
  * Bindings: trigger render for cells when a cell changes. props.getBindingsFromCell : (cellDescriptor) => Set<cellDescriptor>
- * Propagate events: Use store.subscribe to emit changes
  * Better Cell API
  */
 const Spreadsheet = <CellType, Value>({
@@ -74,7 +80,10 @@ const Spreadsheet = <CellType, Value>({
   columns,
   handleKeyPress,
   handleKeyDown
-}: $Rest<Props<CellType, Value>, {| data: Matrix.Matrix<CellType> |}> &
+}: $Rest<
+  Props<CellType, Value>,
+  {| data: Matrix.Matrix<CellType> |} & EventProps
+> &
   State &
   Handlers<CellType>) => (
   <Table onKeyPress={handleKeyPress} onKeyDown={handleKeyDown}>
@@ -129,7 +138,7 @@ const go = (rowDelta: number, columnDelta: number): KeyDownHandler<*> => (
     column: state.active.column + columnDelta
   };
   if (!Matrix.has(nextActive.row, nextActive.column, state.data)) {
-    return null;
+    return { mode: "view" };
   }
   return {
     active: nextActive,
@@ -201,11 +210,50 @@ const initialState: $Shape<Types.StoreState<*>> = {
   mode: "view"
 };
 
-export default class SpreadsheetWrapper extends PureComponent<Props<*, *>> {
-  store = createStore({
-    ...initialState,
-    data: this.props.data
-  });
+type Unsubscribe = () => void;
+
+export default class SpreadsheetWrapper<CellType> extends PureComponent<
+  Props<CellType, *> & EventProps<CellType>
+> {
+  store: Object;
+  unsubscribe: Unsubscribe;
+  prevState: Types.StoreState<CellType>;
+
+  constructor(props) {
+    super(props);
+    const state: Types.StoreState<CellType> = {
+      ...initialState,
+      data: this.props.data
+    };
+    this.store = createStore(state);
+    this.prevState = state;
+  }
+
+  componentDidMount() {
+    const { onChange, onModeChange, onSelect, onActivate } = this.props;
+    this.unsubscribe = this.store.subscribe(
+      (state: Types.StoreState<CellType>) => {
+        const { prevState } = this;
+        if (state.data !== prevState.data) {
+          onChange(state.data);
+        }
+        if (state.mode !== prevState.mode) {
+          onModeChange(state.mode);
+        }
+        if (state.selected !== prevState.selected) {
+          onSelect(Selected.toArray(state.selected));
+        }
+        if (state.active !== prevState.active) {
+          onActivate(state.active);
+        }
+        this.prevState = state;
+      }
+    );
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
 
   render() {
     const { data, ...rest } = this.props;
