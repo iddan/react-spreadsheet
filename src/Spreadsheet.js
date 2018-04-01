@@ -15,7 +15,7 @@ import type { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
 import { range, setCell } from "./util";
-import * as Selected from "./selected";
+import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import "./Spreadsheet.css";
 
@@ -69,6 +69,7 @@ type Handlers<Cell> = {|
  * Bindings: trigger render for cells when a cell changes. props.getBindingsFromCell : (cellDescriptor) => Set<cellDescriptor>
  * Better Cell API
  * Auto resizing edit cell
+ * Advanced paste
  */
 const Spreadsheet = <CellType, Value>({
   Table,
@@ -143,7 +144,7 @@ const go = (rowDelta: number, columnDelta: number): KeyDownHandler<*> => (
   }
   return {
     active: nextActive,
-    selected: Selected.of([nextActive]),
+    selected: PointSet.of([nextActive]),
     mode: "view"
   };
 };
@@ -206,7 +207,8 @@ const actions = <CellType>(store) => ({
 const ConnectedSpreadsheet = connect(mapStateToProps, actions)(Spreadsheet);
 
 const initialState: $Shape<Types.StoreState<*>> = {
-  selected: Selected.of([]),
+  selected: PointSet.of([]),
+  copied: PointSet.of([]),
   active: null,
   mode: "view"
 };
@@ -245,7 +247,7 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
           onModeChange(state.mode);
         }
         if (state.selected !== prevState.selected) {
-          onSelect(Selected.toArray(state.selected));
+          onSelect(PointSet.toArray(state.selected));
         }
         if (state.active !== prevState.active) {
           onActivate(state.active);
@@ -267,7 +269,7 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
 
   handleCopy = event => {
     const { data, selected } = this.store.getState();
-    const matrix = Selected.toMatrix(selected, data);
+    const matrix = PointSet.toMatrix(selected, data);
     const filteredMatrix = Matrix.filter(Boolean, matrix);
     const valueMatrix = Matrix.map(getValue, filteredMatrix);
     const copy = () => clipboard.writeText(Matrix.join(valueMatrix));
@@ -284,17 +286,29 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
     } else {
       copy();
     }
+    this.store.setState({ copied: selected, cut: false });
   };
 
   handleCut = event => {
     this.handleCopy(event);
+    this.store.setState({ cut: true });
+  };
+
+  handlePaste = event => {
     const prevState = this.store.getState();
     this.store.setState({
-      data: Selected.toArray(prevState.selected).reduce(
+      data: PointSet.toArray(prevState.copied).reduce(
         (acc, { row, column }) =>
-          Matrix.set(row, column, cellFromValue(""), acc),
+          Matrix.set(
+            row + prevState.active.row,
+            column + prevState.active.column,
+            Matrix.get(row, column),
+            acc
+          ),
         prevState.data
-      )
+      ),
+      copied: PointSet.of([]),
+      cut: false
     });
   };
 

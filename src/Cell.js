@@ -3,7 +3,7 @@
 import React, { PureComponent } from "react";
 import classnames from "classnames";
 import { connect } from "unistore/react";
-import * as Selected from "./selected";
+import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Actions from "./actions";
@@ -20,12 +20,17 @@ export type Props<Data, Value> = {
 type State<Data> = {|
   selected: boolean,
   active: boolean,
+  copied: boolean,
   mode: Types.Mode,
   data: Data,
-  isRightEdge: boolean,
-  isLeftEdge: boolean,
-  isTopEdge: boolean,
-  isBottomEdge: boolean
+  onSelectedRightEdge: boolean,
+  onSelectedLeftEdge: boolean,
+  onSelectedTopEdge: boolean,
+  onSelectedBottomEdge: boolean,
+  onCopiedRightEdge: boolean,
+  onCopiedLeftEdge: boolean,
+  onCopiedTopEdge: boolean,
+  onCopiedBottomEdge: boolean
 |};
 
 type Handlers<Data> = {|
@@ -70,16 +75,21 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
       row,
       column,
       selected,
+      copied,
       DataEditor,
       DataViewer,
       getValue,
       active,
       mode,
       data,
-      isRightEdge,
-      isLeftEdge,
-      isTopEdge,
-      isBottomEdge
+      onSelectedRightEdge,
+      onSelectedLeftEdge,
+      onSelectedTopEdge,
+      onSelectedBottomEdge,
+      onCopiedRightEdge,
+      onCopiedLeftEdge,
+      onCopiedTopEdge,
+      onCopiedBottomEdge
     } = this.props;
     return (
       <td
@@ -87,11 +97,16 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
         className={classnames(mode, {
           active,
           selected,
+          copied,
           readonly: data && data.readOnly,
-          "right-edge": isRightEdge,
-          "left-edge": isLeftEdge,
-          "top-edge": isTopEdge,
-          "bottom-edge": isBottomEdge
+          "selected-right-edge": onSelectedRightEdge,
+          "selected-left-edge": onSelectedLeftEdge,
+          "selected-top-edge": onSelectedTopEdge,
+          "selected-bottom-edge": onSelectedBottomEdge,
+          "copied-right-edge": onCopiedRightEdge,
+          "copied-left-edge": onCopiedLeftEdge,
+          "copied-top-edge": onCopiedTopEdge,
+          "copied-bottom-edge": onCopiedBottomEdge
         })}
         onClick={this.handleClick}
         tabIndex={0}
@@ -118,28 +133,29 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
 }
 
 function mapStateToProps<Data>(
-  { data, active, selected, mode }: Types.StoreState<Data>,
+  { data, active, selected, copied, mode }: Types.StoreState<Data>,
   { column, row }: Props<Data, *>
 ): State<Data> {
-  const cellIsActive = isActive(active, { column, row });
-  const cellIsSelected = Selected.has(selected, { row, column });
-
-  let edge = (rowDelta: number, columnDelta: number): boolean =>
-    cellIsSelected &&
-    !Selected.has(selected, {
-      row: row + rowDelta,
-      column: column + columnDelta
-    });
+  const point = { row, column };
+  const cellIsActive = isActive(active, point);
+  const cellIsSelected = PointSet.has(selected, point);
+  const onSelectedEdge = PointSet.onEdge(selected, point);
+  const onCopiedEdge = PointSet.onEdge(copied, point);
 
   return {
     selected: cellIsSelected,
     active: cellIsActive,
+    copied: PointSet.has(copied, point),
     mode: cellIsActive ? mode : "view",
     data: Matrix.get(row, column, data),
-    isRightEdge: edge(0, 1),
-    isLeftEdge: edge(0, -1),
-    isTopEdge: edge(-1, 0),
-    isBottomEdge: edge(1, 0)
+    onSelectedRightEdge: onSelectedEdge.right,
+    onSelectedLeftEdge: onSelectedEdge.left,
+    onSelectedTopEdge: onSelectedEdge.top,
+    onSelectedBottomEdge: onSelectedEdge.bottom,
+    onCopiedRightEdge: onCopiedEdge.right,
+    onCopiedLeftEdge: onCopiedEdge.left,
+    onCopiedTopEdge: onCopiedEdge.top,
+    onCopiedBottomEdge: onCopiedEdge.bottom
   };
 }
 

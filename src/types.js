@@ -1,7 +1,7 @@
 // @flow
 
 import type { ComponentType } from "react";
-import type { Type as Selected } from "./selected";
+import type { PointSet } from "./point-set";
 import type { Matrix } from "./matrix";
 
 export type CellPointer = {|
@@ -17,7 +17,8 @@ export type Mode = "view" | "edit";
 
 export type StoreState<Cell> = {|
   data: Matrix<Cell>,
-  selected: Selected,
+  selected: PointSet,
+  copied: PointSet,
   active: CellPointer | null,
   mode: Mode
 |};
