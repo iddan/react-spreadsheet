@@ -68,6 +68,7 @@ type Handlers<Cell> = {|
  * Support getValue() return boolean by default
  * Bindings: trigger render for cells when a cell changes. props.getBindingsFromCell : (cellDescriptor) => Set<cellDescriptor>
  * Better Cell API
+ * Auto resizing edit cell
  */
 const Spreadsheet = <CellType, Value>({
   Table,
