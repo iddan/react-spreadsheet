@@ -23,6 +23,7 @@
   white-space: nowrap;
   text-align: left;
   box-sizing: border-box;
+  user-select: none;
 }
 
 .SpreadsheetTable td.selected {

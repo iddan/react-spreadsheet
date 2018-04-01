@@ -50,7 +50,6 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
   handleClick = (e: SyntheticMouseEvent<HTMLElement>) => {
     const { row, column, select, activate } = this.props;
     if (e.shiftKey) {
-      /** @todo implement multi select */
       select({ row, column });
       return;
     }
@@ -159,8 +158,11 @@ const actions: Actions<*> = store => ({
       return {
         selected: Selected.of(
           Matrix.range(
-            { row: cellPointer.row + 1, column: cellPointer.column + 1 },
-            state.active
+            { row: state.active.row - 1, column: state.active.column - 1 },
+            {
+              row: cellPointer.row,
+              column: cellPointer.column
+            }
           )
         ),
         mode: "view"

@@ -52,10 +52,12 @@ type Handlers<Cell> = {|
 
 /**
  * @todo
+ * Fix backwards select
  * Proper sync props & state on cells
  * Use select events to get coordinates instead of modifying the DOM (going back to old idea) this will yield flexibility for selected area, less DOM deep mutations and fix border styling
  * Multi Selection: drag select
  * Clipboard: copy, paste, select copy, select paste
+ * Cut & Copy indicators
  * Support getValue() return boolean by default
  * Bindings: trigger render for cells when a cell changes. props.getBindingsFromCell : (cellDescriptor) => Set<cellDescriptor>
  * Propagate events: Use store.subscribe to emit changes
@@ -149,7 +151,6 @@ const keyDownHandlers: KeyDownHandlers<*> = {
   Enter: (state, event) => ({
     mode: "edit"
   }),
-  /** @todo test */
   Backspace: (state, event) => {
     if (!state.active) {
       return null;
