@@ -18,9 +18,14 @@ export function range(
   start: number = 0,
   step: number = 1
 ): number[] {
-  const direction = Math.sign(end - start);
   let array = [];
-  for (let element = start; element < end; element += step * direction) {
+  if (Math.sign(end - start) === -1) {
+    for (let element = start; element > end; element -= step) {
+      array.push(element);
+    }
+    return array;
+  }
+  for (let element = start; element < end; element += step) {
     array.push(element);
   }
   return array;

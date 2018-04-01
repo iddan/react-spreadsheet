@@ -32,3 +32,11 @@ export const getSize = (
     rows: matrix.length
   };
 };
+
+export const range = (
+  endPoint: Types.CellPointer,
+  startPoint: Types.CellPointer
+): Types.CellPointer[] =>
+  flatMap(_range(endPoint.row, startPoint.row), row =>
+    _range(endPoint.column, startPoint.column).map(column => ({ row, column }))
+  );
