@@ -45,7 +45,13 @@ class App extends Component {
 
   addRow = () => {
     this.setState(({ data }) => ({
-      data: [...data, Array(COLUMNS.length).fill(EMPTY_CELL)]
+      data: [
+        ...data,
+        [
+          { value: data.length, readOnly: true },
+          ...Array(COLUMNS.length).fill(EMPTY_CELL)
+        ]
+      ]
     }));
   };
 
