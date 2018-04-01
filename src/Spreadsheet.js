@@ -60,7 +60,6 @@ type Handlers<Cell> = {|
 /**
  * @todo
  * Fix backwards select
- * Proper sync props & state on cells
  * Use select events to get coordinates instead of modifying the DOM (going back to old idea) this will yield flexibility for selected area, less DOM deep mutations and fix border styling
  * Multi Selection: drag select
  * Clipboard: copy, paste, select copy, select paste
