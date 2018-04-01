@@ -1,4 +1,10 @@
 // @flow
+/**
+ * @todo own cell pointer in this module
+ */
+
+import { range as _range, flatMap } from "./util";
+import * as Types from "./types";
 
 export type Matrix<T> = Array<T[] | typeof undefined>;
 

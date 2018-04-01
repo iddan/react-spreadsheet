@@ -27,5 +27,9 @@ export function has(
 }
 
 export function of(cells: Types.CellPointer[]) {
-  return cells.reduce(add, {});
+  return cells.reduce(add, Object.create(null));
+}
+
+export function isEmpty(selected: Type) {
+  return Object.keys(selected).length === 0;
 }

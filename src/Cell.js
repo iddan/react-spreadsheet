@@ -8,6 +8,11 @@ import * as Matrix from "./matrix";
 import * as Types from "./types";
 import { setCell } from "./util";
 
+const isActive = (
+  active: $PropertyType<Types.StoreState<*>, "active">,
+  { row, column }: Types.CellPointer
+): boolean => Boolean(active && column === active.column && row === active.row);
+
 export type Props<Data, Value> = {
   row: number,
   column: number,
@@ -20,12 +25,17 @@ type State<Data> = {|
   selected: boolean,
   active: boolean,
   mode: Types.Mode,
-  data: Data
+  data: Data,
+  isRightEdge: boolean,
+  isLeftEdge: boolean,
+  isTopEdge: boolean,
+  isBottomEdge: boolean
 |};
 
 type Handlers<Data> = {|
   setData: (data: Data) => void,
-  select: (cellPointer: Types.CellPointer, activate: boolean) => void
+  select: (cellPointer: Types.CellPointer) => void,
+  activate: (cellPointer: Types.CellPointer) => void
 |};
 
 class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
@@ -38,8 +48,13 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
   };
 
   handleClick = (e: SyntheticMouseEvent<HTMLElement>) => {
-    const { row, column, select } = this.props;
-    select({ row, column }, !e.shiftKey);
+    const { row, column, select, activate } = this.props;
+    if (e.shiftKey) {
+      /** @todo implement multi select */
+      select({ row, column });
+      return;
+    }
+    activate({ row, column });
   };
 
   handleChange = (cell: Data) => {
@@ -66,7 +81,10 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
       active,
       mode,
       data,
-      select
+      isRightEdge,
+      isLeftEdge,
+      isTopEdge,
+      isBottomEdge
     } = this.props;
     return (
       <td
@@ -74,7 +92,11 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
         className={classnames(mode, {
           active,
           selected,
-          readonly: data && data.readOnly
+          readonly: data && data.readOnly,
+          "right-edge": isRightEdge,
+          "left-edge": isLeftEdge,
+          "top-edge": isTopEdge,
+          "bottom-edge": isBottomEdge
         })}
         onClick={this.handleClick}
         tabIndex={0}
@@ -104,14 +126,21 @@ function mapStateToProps<Data>(
   { data, active, selected, mode }: Types.StoreState<Data>,
   { column, row }: Props<Data, *>
 ): State<Data> {
-  const cellIsActive = Boolean(
-    active && column === active.column && row === active.row
-  );
+  const cellIsActive = isActive(active, { column, row });
+  const cellIsSelected = Selected.has(selected, { row, column });
   return {
-    selected: Selected.has(selected, { row, column }),
+    selected: cellIsSelected,
     active: cellIsActive,
     mode: cellIsActive ? mode : "view",
-    data: Matrix.get(row, column, data)
+    data: Matrix.get(row, column, data),
+    isRightEdge:
+      cellIsSelected && !Selected.has(selected, { row, column: column + 1 }),
+    isLeftEdge:
+      cellIsSelected && !Selected.has(selected, { row, column: column - 1 }),
+    isTopEdge:
+      cellIsSelected && !Selected.has(selected, { row: row - 1, column }),
+    isBottomEdge:
+      cellIsSelected && !Selected.has(selected, { row: row + 1, column })
   };
 }
 
@@ -124,18 +153,29 @@ type Actions<Data> = (
   ) => $Shape<Types.StoreState<Data>>
 };
 
-const actions: Actions<*> = <Cell>(store) => ({
-  select(
-    state: Types.StoreState<Cell>,
-    cellPointer: Types.CellPointer,
-    activate: boolean
-  ) {
+const actions: Actions<*> = store => ({
+  select(state, cellPointer: Types.CellPointer) {
+    if (state.active && !isActive(state.active, cellPointer)) {
+      return {
+        selected: Selected.of(
+          Matrix.range(
+            { row: cellPointer.row + 1, column: cellPointer.column + 1 },
+            state.active
+          )
+        ),
+        mode: "view"
+      };
+    }
+    return null;
+  },
+  activate(state, cellPointer: Types.CellPointer) {
     return {
-      selected: Selected.add(state.selected, cellPointer),
-      active: activate ? cellPointer : state.active
+      selected: Selected.of([cellPointer]),
+      active: cellPointer,
+      mode: isActive(state.active, cellPointer) ? "edit" : "view"
     };
   },
-  setData(state: Types.StoreState<Cell>, data: Cell) {
+  setData(state, data: *) {
     return {
       mode: "edit",
       /** @todo the fuck do I know this? */

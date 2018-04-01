@@ -18,11 +18,21 @@ export function range(
   start: number = 0,
   step: number = 1
 ): number[] {
+  const direction = Math.sign(end - start);
   let array = [];
-  for (let element = start; element < end; element += step) {
+  for (let element = start; element < end; element += step * direction) {
     array.push(element);
   }
   return array;
+}
+
+export function flatMap<T1, T2>(array: T1[], func: T1 => T2 | T2[]): T2[] {
+  let acc = [];
+  for (let i = 0; i < array.length; i++) {
+    let value = func(array[i]);
+    acc = acc.concat(value);
+  }
+  return acc;
 }
 
 export function updateData<Cell>(

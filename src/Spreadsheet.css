@@ -17,7 +17,7 @@
   min-height: 1.9em;
   max-height: 1.9em;
   padding: 4px;
-  border: 1px solid #eee;
+  border: 1px solid rgb(231, 231, 231);
   overflow: hidden;
   word-break: keep-all;
   white-space: nowrap;
@@ -25,9 +25,19 @@
   box-sizing: border-box;
 }
 
-.SpreadsheetTable td.active {
+.SpreadsheetTable td.selected {
+  background: rgba(160, 195, 255, 0.2);
+}
+
+.SpreadsheetTable td.selected.active {
+  background: none;
   border: 2px #5292f7 solid;
 }
+
+.SpreadsheetTable td.right-edge { border-right: 2px #5292f7 solid; }
+.SpreadsheetTable td.left-edge { border-left: 2px #5292f7 solid; }
+.SpreadsheetTable td.top-edge { border-top: 2px #5292f7 solid; }
+.SpreadsheetTable td.bottom-edge { border-bottom: 2px #5292f7 solid; }
 
 .SpreadsheetTable td.active.edit {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
