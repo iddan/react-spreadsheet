@@ -78,16 +78,17 @@ export function toMatrix<T>(
   set: PointSet,
   data: Matrix.Matrix<T>
 ): Matrix.Matrix<Descriptor<T>> {
-  let matrix = [];
-  for (const { row, column } of toArray(set)) {
-    matrix = Matrix.set(
-      row,
-      column,
-      { row, column, data: data[row][column] },
-      matrix
-    );
-  }
-  return matrix;
+  return reduce(
+    (acc, { row, column }) =>
+      Matrix.set(
+        row,
+        column,
+        { row, column, data: Matrix.get(row, column, data) },
+        acc
+      ),
+    set,
+    []
+  );
 }
 
 type OnEdge = {|
