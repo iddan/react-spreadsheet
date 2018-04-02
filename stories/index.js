@@ -1,12 +1,12 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { storiesOf } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
 import Spreadsheet from "../src/Spreadsheet";
+import { range, toColumnLetter } from "../src/util";
 import "./index.css";
 
-const COLUMNS = Array(26)
-  .fill(1)
-  .map((_, i) => String.fromCharCode(65 + i));
+const COLUMNS = Array.from(range(26)).map(toColumnLetter);
+const EMPTY_CELL = { value: "" };
 
 class App extends Component {
   state = {
@@ -15,44 +15,55 @@ class App extends Component {
         { value: "", readOnly: true },
         ...COLUMNS.map(letter => ({ value: letter, readOnly: true }))
       ],
-      ...Array(20)
-        .fill(1)
+      ...range(20)
         .map((row, j) => [
           { value: j, readOnly: true },
           ...Array(COLUMNS.length)
             .fill(1)
-            .map((cell, i) => ({ value: "" }))
+            .map((cell, i) => EMPTY_CELL)
         ])
         .slice(1)
     ]
   };
 
-  handleChange = ({ row, column, value }) => {
+  handleChange = data => {
+    // this.setState({ data });
+  };
+
+  addColumn = () => {
     this.setState(({ data }) => {
-      const newData = [...data];
-      const newRow = [...data[row]];
-      newData[row] = newRow;
-      newRow[column] = {
-        ...data[row][column],
-        value
-      };
+      const [firstRow, ...rows] = data;
       return {
-        data: newData
+        data: [
+          firstRow.concat({
+            value: toColumnLetter(firstRow.length - 1),
+            readOnly: true
+          }),
+          ...rows.map(row => row.concat(EMPTY_CELL))
+        ]
       };
     });
   };
 
-  handleActiveChange = active => {
-    action(`Active changed to ${active.row} ${active.column} ${active.mode}`);
+  addRow = () => {
+    this.setState(({ data }) => ({
+      data: [
+        ...data,
+        [
+          { value: data.length, readOnly: true },
+          ...Array(COLUMNS.length).fill(EMPTY_CELL)
+        ]
+      ]
+    }));
   };
 
   render() {
     return (
-      <Spreadsheet
-        data={this.state.data}
-        onCellChange={this.handleChange}
-        onActiveChange={this.handleActiveChange}
-      />
+      <Fragment>
+        <button onClick={this.addColumn}>Add column</button>
+        <button onClick={this.addRow}>Add row</button>
+        <Spreadsheet data={this.state.data} />
+      </Fragment>
     );
   }
 }

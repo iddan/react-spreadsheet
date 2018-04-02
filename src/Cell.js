@@ -1,93 +1,129 @@
 // @flow
 
 import React, { PureComponent } from "react";
-import Composer from "react-composer";
 import classnames from "classnames";
-import * as Contexts from "./contexts";
+import { connect } from "unistore/react";
+import * as PointSet from "./point-set";
+import * as Matrix from "./matrix";
 import * as Types from "./types";
+import * as Actions from "./actions";
+import { isActive } from "./util";
 
-export type Props<CellType, Value> = {
+export type Props<Data, Value> = {
   row: number,
   column: number,
-  DataEditor: Types.DataEditor<CellType, Value>,
-  DataViewer: Types.DataViewer<CellType, Value>,
-  getValue: Types.getValue<CellType, Value>,
-  onChange: Types.onChange<Value>
+  DataEditor: Types.DataEditor<Data, Value>,
+  DataViewer: Types.DataViewer<Data, Value>,
+  getValue: Types.getValue<Data, Value>
 };
 
-const EMPTY =
-  typeof Symbol === "function" ? Symbol("EMPTY") : "@@REACT_SPREADSHEET/EMPTY";
+type State<Data> = {|
+  selected: boolean,
+  active: boolean,
+  copied: boolean,
+  mode: Types.Mode,
+  data: Data,
+  onSelectedRightEdge: boolean,
+  onSelectedLeftEdge: boolean,
+  onSelectedTopEdge: boolean,
+  onSelectedBottomEdge: boolean,
+  onCopiedRightEdge: boolean,
+  onCopiedLeftEdge: boolean,
+  onCopiedTopEdge: boolean,
+  onCopiedBottomEdge: boolean
+|};
 
-type State<Value> = {
-  localValue: Value | typeof EMPTY
-};
+type Handlers<Data> = {|
+  setData: (data: Data) => void,
+  select: (cellPointer: Types.Point) => void,
+  activate: (cellPointer: Types.Point) => void
+|};
 
-class Cell<CellType, Value> extends React.PureComponent<
-  Props<CellType, Value> & {
-    cell: CellType,
-    isActive: boolean,
-    mode: Types.Mode
-  },
-  State<Value>
+class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
+  Props<Data, Value> & State<Data> & Handlers<Data>
 > {
-  state = { localValue: EMPTY };
-
-  handleChange = localValue => {
-    this.setState({ localValue });
+  /** @todo update to new API */
+  root: HTMLElement | null;
+  handleRoot = (root: HTMLElement | null) => {
+    this.root = root;
   };
 
-  componentWillReceiveProps(nextProps) {
-    const { localValue } = this.state;
-    if (localValue !== EMPTY) {
-      if (nextProps.mode === "view" && this.props.mode === "edit") {
-        const { row, column, onChange } = nextProps;
-        onChange({ row, column, value: localValue });
-      }
-      if (nextProps.mode === "view" && this.props.mode === "view") {
-        this.setState({ localValue: EMPTY });
-      }
+  handleClick = (e: SyntheticMouseEvent<HTMLElement>) => {
+    const { row, column, select, activate } = this.props;
+    if (e.shiftKey) {
+      select({ row, column });
+      return;
+    }
+    activate({ row, column });
+  };
+
+  handleChange = (cell: Data) => {
+    const { setData } = this.props;
+    setData(cell);
+  };
+
+  /** @todo update to new API */
+  componentDidUpdate() {
+    const { selected, mode } = this.props;
+    if (this.root && selected && mode === "view") {
+      this.root.focus();
     }
   }
 
   render() {
     const {
-      isActive,
-      cell,
-      mode,
       row,
       column,
-      DataViewer,
+      selected,
+      copied,
       DataEditor,
-      getValue
+      DataViewer,
+      getValue,
+      active,
+      mode,
+      data,
+      onSelectedRightEdge,
+      onSelectedLeftEdge,
+      onSelectedTopEdge,
+      onSelectedBottomEdge,
+      onCopiedRightEdge,
+      onCopiedLeftEdge,
+      onCopiedTopEdge,
+      onCopiedBottomEdge
     } = this.props;
-    const { localValue } = this.state;
     return (
       <td
+        ref={this.handleRoot}
         className={classnames(mode, {
-          active: isActive,
-          readonly: cell && cell.readOnly
+          active,
+          selected,
+          copied,
+          readonly: data && data.readOnly,
+          "selected-right-edge": onSelectedRightEdge,
+          "selected-left-edge": onSelectedLeftEdge,
+          "selected-top-edge": onSelectedTopEdge,
+          "selected-bottom-edge": onSelectedBottomEdge,
+          "copied-right-edge": onCopiedRightEdge,
+          "copied-left-edge": onCopiedLeftEdge,
+          "copied-top-edge": onCopiedTopEdge,
+          "copied-bottom-edge": onCopiedBottomEdge
         })}
+        onClick={this.handleClick}
         tabIndex={0}
-        data-row={row}
-        data-column={column}
       >
         {mode === "edit" ? (
           <DataEditor
-            column={column}
             row={row}
-            cell={cell}
-            value={
-              localValue !== EMPTY
-                ? localValue
-                : getValue({ row, column, cell })
-            }
+            column={column}
+            cell={data}
+            getValue={getValue}
             onChange={this.handleChange}
           />
         ) : (
           <DataViewer
-            column={column}
             row={row}
-            cell={cell}
+            column={column}
+            cell={data}
             getValue={getValue}
           />
         )}
@@ -96,41 +132,35 @@ class Cell<CellType, Value> extends React.PureComponent<
   }
 }
 
-export default class CellProvider<CellType, Value> extends PureComponent<
-  Props<CellType, Value>
-> {
-  mapResult = (child: *) => child;
+function mapStateToProps<Data>(
+  { data, active, selected, copied, mode }: Types.StoreState<Data>,
+  { column, row }: Props<Data, *>
+): State<Data> {
+  const point = { row, column };
+  const cellIsActive = isActive(active, point);
+  const cellIsSelected = PointSet.has(selected, point);
+  const onSelectedEdge = PointSet.onEdge(selected, point);
+  const onCopiedEdge = PointSet.onEdge(copied, point);
 
-  renderContext = ([data, active]: [CellType[][], Types.Active<Value>]) => {
-    const {
-      row,
-      column,
-      onChange,
-      DataEditor,
-      DataViewer,
-      getValue
-    } = this.props;
-    const isActive = active && active.row === row && active.column === column;
-    return (
-      <Cell
-        {...{ row, column, onChange, DataEditor, DataViewer, getValue }}
-        cell={data[row][column]}
-        mode={active && isActive ? active.mode : "view"}
-        isActive={Boolean(
-          active && active.row === row && active.column === column
-        )}
-      />
-    );
+  return {
+    selected: cellIsSelected,
+    active: cellIsActive,
+    copied: PointSet.has(copied, point),
+    mode: cellIsActive ? mode : "view",
+    data: Matrix.get(row, column, data),
+    onSelectedRightEdge: onSelectedEdge.right,
+    onSelectedLeftEdge: onSelectedEdge.left,
+    onSelectedTopEdge: onSelectedEdge.top,
+    onSelectedBottomEdge: onSelectedEdge.bottom,
+    onCopiedRightEdge: onCopiedEdge.right,
+    onCopiedLeftEdge: onCopiedEdge.left,
+    onCopiedTopEdge: onCopiedEdge.top,
+    onCopiedBottomEdge: onCopiedEdge.bottom
   };
-
-  render() {
-    return (
-      <Composer
-        components={[<Contexts.Data.Consumer />, <Contexts.Active.Consumer />]}
-        mapResult={this.mapResult}
-      >
-        {this.renderContext}
-      </Composer>
-    );
-  }
 }
+
+export default connect(mapStateToProps, () => ({
+  select: Actions.select,
+  activate: Actions.activate,
+  setData: Actions.setData
+}))(Cell);

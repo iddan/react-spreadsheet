@@ -2,6 +2,7 @@
 
 import React, { PureComponent } from "react";
 import type { Node } from "react";
+import * as Types from "./types";
 import { moveCursorToEnd } from "./util";
 
 type Cell = {
@@ -10,23 +11,18 @@ type Cell = {
 
 type Value = string | number;
 
-export type Props = {
-  row: number,
-  column: number,
-  cell: Cell,
-  value: Value,
-  onChange: (value: Value) => string | number
-};
-
-export default class DataEditor extends PureComponent<Props> {
+export default class DataEditor extends PureComponent<
+  Types.DataEditorProps<Cell, Value>
+> {
   input: ?HTMLInputElement;
 
   static defaultProps = {
     value: ""
   };
 
-  handleChange = e => {
-    this.props.onChange(e.target.value);
+  handleChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
+    const { onChange, cell } = this.props;
+    onChange({ ...cell, value: e.target.value });
   };
 
   handleInput = (input: ?HTMLInputElement) => {
@@ -40,7 +36,8 @@ export default class DataEditor extends PureComponent<Props> {
   }
 
   render() {
-    const { cell, column, row, value } = this.props;
+    const { getValue, column, row, cell } = this.props;
+    const value = getValue({ column, row, data: cell });
     return (
       <div className="DataEditor">
         <input

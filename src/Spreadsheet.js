@@ -1,7 +1,11 @@
-/* @flow */
+// @flow
+
 import React, { PureComponent } from "react";
 import type { ComponentType } from "react";
-import * as Contexts from "./contexts";
+import createStore from "unistore";
+import { Provider, connect } from "unistore/react";
+import clipboard from "clipboard-polyfill";
+import * as Types from "./types";
 import Table from "./Table";
 import type { Props as TableProps } from "./Table";
 import Row from "./Row";
@@ -10,188 +14,340 @@ import Cell from "./Cell";
 import type { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
-import * as Types from "./types";
-import { normalizeIndex } from "./util";
+import { range, setCell } from "./util";
+import * as PointSet from "./point-set";
+import * as Matrix from "./matrix";
 import "./Spreadsheet.css";
 
-type Props<CellType, Value> = {
-  data: CellType[][],
-  onCellChange: Types.onChange<Value>,
-  onActiveChange: (?Types.Active) => void,
-  Table: ComponentType<TableProps<CellType, Value>>,
-  Row: ComponentType<RowProps<CellType, Value>>,
+type DefaultCellType = {
+  value: string | number | boolean | null
+};
+
+const getValue = ({ data }: { data: DefaultCellType }) => data.value;
+
+type Props<CellType, Value> = {|
+  data: Matrix.Matrix<CellType>,
+  Table: ComponentType<TableProps>,
+  Row: ComponentType<RowProps>,
   Cell: ComponentType<CellProps<CellType, Value>>,
-  DataViewer: Types.DataViewer<CellType, Value>,
-  DataEditor: Types.DataEditor<CellType, Value>,
-  getValue: Types.getValue<CellType, Value>,
-  emptyValue: Value
-};
+  DataViewer: Types.DataEditor<CellType, Value>,
+  DataEditor: Types.DataViewer<CellType, Value>,
+  getValue: Types.getValue<Cell, Value>
+|};
 
-type State<Value> = {
-  active: ?Types.Active<Value>
-};
+type EventProps<CellType> = {|
+  onChange: (data: Matrix.Matrix<CellType>) => void,
+  onModeChange: (mode: Types.Mode) => void,
+  onSelect: (selected: Types.Point[]) => void,
+  onActivate: (active: Types.Point) => void
+|};
 
-const ACTIVE_CELL_THROTTLE = 30;
+type State = {|
+  rows: number,
+  columns: number
+|};
+
+type Handlers<Cell> = {|
+  handleKeyPress: (
+    state: Types.StoreState<Cell>,
+    event: SyntheticKeyboardEvent<*>
+  ) => void,
+  handleKeyDown: (
+    state: Types.StoreState<Cell>,
+    event: SyntheticKeyboardEvent<*>
+  ) => void
+|};
 
 /**
  * @todo
- * Selection: drag select
- * Clipboard: copy, paste, select copy, select paste
+ * Fix backwards select
+ * Multi Selection: drag select
+ * Clipboard: copy, paste
  * Support getValue() return boolean by default
+ * Bindings: trigger render for cells when a cell changes. props.getBindingsFromCell : (cellDescriptor) => Set<cellDescriptor>
+ * Better Cell API
+ * Advanced past
+ * Select delete
+ * Floating Editor: Use select events to get coordinates instead of modifying the DOM (going back to old idea) this will yield flexibility for selected area, less DOM deep mutations and fix border styling
+ * Auto resizing edit cell
+ * Use hot-formula-parser for formulas
  */
-export default class Spreadsheet<CellType, Value> extends PureComponent<
+const Spreadsheet = <CellType, Value>({
+  Table,
+  Row,
+  Cell,
+  DataViewer,
+  DataEditor,
+  getValue,
+  rows,
+  columns,
+  handleKeyPress,
+  handleKeyDown
+}: $Rest<
   Props<CellType, Value>,
-  State<Value>
-> {
-  static defaultProps = {
-    Table,
-    Row,
-    Cell,
-    DataViewer,
-    DataEditor,
-    getValue: ({ cell }: { cell: { value: string | number } }) => cell.value,
-    emptyValue: ""
+  {| data: Matrix.Matrix<CellType> |} & EventProps
+> &
+  State &
+  Handlers<CellType>) => (
+  <Table onKeyPress={handleKeyPress} onKeyDown={handleKeyDown}>
+    {range(rows).map(rowNumber => (
+      <Row key={rowNumber}>
+        {range(columns).map(columnNumber => (
+          <Cell
+            key={columnNumber}
+            row={rowNumber}
+            column={columnNumber}
+            DataViewer={DataViewer}
+            DataEditor={DataEditor}
+            getValue={getValue}
+          />
+        ))}
+      </Row>
+    ))}
+  </Table>
+);
+
+Spreadsheet.defaultProps = {
+  Table,
+  Row,
+  Cell,
+  DataViewer,
+  DataEditor,
+  getValue
+};
+
+const mapStateToProps = ({ data }: Types.StoreState<*>): State =>
+  Matrix.getSize(data);
+
+type KeyDownHandler<Cell> = (
+  state: Types.StoreState<Cell>,
+  event: SyntheticKeyboardEvent<*>
+) => $Shape<Types.StoreState<Cell>>;
+
+type KeyDownHandlers<Cell> = {
+  [eventType: string]: KeyDownHandler<Cell>
+};
+
+const go = (rowDelta: number, columnDelta: number): KeyDownHandler<*> => (
+  state,
+  event
+) => {
+  const { rows, columns } = Matrix.getSize(state.data);
+  if (!state.active) {
+    return null;
+  }
+  const nextActive = {
+    row: state.active.row + rowDelta,
+    column: state.active.column + columnDelta
   };
-
-  root: ?HTMLDivElement;
-
-  state = {
-    active: null
+  if (!Matrix.has(nextActive.row, nextActive.column, state.data)) {
+    return { mode: "view" };
+  }
+  return {
+    active: nextActive,
+    selected: PointSet.of([nextActive]),
+    mode: "view"
   };
+};
 
-  normalizeActive(active: ?Types.Active<Value>) {
-    if (!active) {
+/** @todo replace to real func */
+const cellFromValue = value => ({ value });
+
+/** @todo handle inactive state? */
+const keyDownHandlers: KeyDownHandlers<*> = {
+  ArrowUp: go(-1, 0),
+  ArrowDown: go(+1, 0),
+  ArrowLeft: go(0, -1),
+  ArrowRight: go(0, +1),
+  Tab: go(0, +1),
+  Enter: (state, event) => ({
+    mode: "edit"
+  }),
+  Backspace: (state, event) => {
+    if (!state.active) {
       return null;
     }
-    const { data } = this.props;
-    const [firstRow] = data;
     return {
-      ...active,
-      row: normalizeIndex(data, active.row),
-      column: normalizeIndex(firstRow, active.column)
+      data: setCell(state, cellFromValue("")),
+      mode: "edit"
     };
   }
+};
 
-  /**
-   * Like this.setState() but for this.state.active except when given
-   * null or (prevState) => null sets state to { active: null } instead
-   * of aborting. Instead expects returning previous active state
-   */
-  setActive = (
-    arg1:
-      | ?$Shape<Types.Active<Value>>
-      | ((
-          prevActive: Types.Active<Value> | null
-        ) => $Shape<Types.Active<Value>> | null),
-    callback
-  ) => {
-    this.setState(
-      prevState => {
-        switch (typeof arg1) {
-          case "object": {
-            if (arg1 === null) {
-              return { active: null };
-            }
-            if (arg1 === prevState.active) {
-              return null;
-            }
-            return {
-              active: this.normalizeActive({ ...prevState.active, ...arg1 })
-            };
-          }
-          case "function": {
-            const nextActive = arg1(prevState.active);
-            if (nextActive === null) {
-              return { active: null };
-            }
-            if (nextActive === prevState.active) {
-              return null;
-            }
-            return {
-              active: this.normalizeActive({
-                ...prevState.active,
-                ...nextActive
-              })
-            };
-          }
-          default: {
-            throw new Error(
-              "this.setActive() must recieve active state object or function returning next active state"
-            );
-          }
+const editKeyDownHandlers: KeyDownHandlers<*> = {
+  Escape: (state, event) => ({
+    mode: "view"
+  }),
+  Tab: keyDownHandlers.Tab,
+  Enter: keyDownHandlers.ArrowDown
+};
+
+const actions = <CellType>(store) => ({
+  handleKeyPress(state: Types.StoreState<CellType>) {
+    if (state.mode === "view" && state.active) {
+      return { mode: "edit" };
+    }
+    return null;
+  },
+  handleKeyDown(
+    state: Types.StoreState<CellType>,
+    event: SyntheticKeyboardEvent<HTMLElement>
+  ) {
+    const { key, nativeEvent } = event;
+    const handlers =
+      state.mode === "edit" ? editKeyDownHandlers : keyDownHandlers;
+    const handler = handlers[key];
+    if (handler) {
+      nativeEvent.preventDefault();
+      return handler(state, event);
+    }
+    return null;
+  }
+});
+
+const ConnectedSpreadsheet = connect(mapStateToProps, actions)(Spreadsheet);
+
+const initialState: $Shape<Types.StoreState<*>> = {
+  selected: PointSet.of([]),
+  copied: PointSet.of([]),
+  active: null,
+  mode: "view"
+};
+
+type Unsubscribe = () => void;
+
+type WrapperProps<CellType, Value> = Props<CellType, Value> &
+  EventProps<CellType>;
+
+export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
+  WrapperProps<CellType, Value>
+> {
+  store: Object;
+  unsubscribe: Unsubscribe;
+  prevState: Types.StoreState<CellType>;
+
+  static defaultProps = {
+    onChange: () => {},
+    onModeChange: () => {},
+    onSelect: () => {},
+    onActivate: () => {}
+  };
+
+  constructor(props: WrapperProps<CellType, Value>) {
+    super(props);
+    const state: Types.StoreState<CellType> = {
+      ...initialState,
+      data: this.props.data
+    };
+    this.store = createStore(state);
+    this.prevState = state;
+  }
+
+  componentDidMount() {
+    const { onChange, onModeChange, onSelect, onActivate } = this.props;
+    this.unsubscribe = this.store.subscribe(
+      (state: Types.StoreState<CellType>) => {
+        const { prevState } = this;
+        if (state.data !== prevState.data) {
+          onChange(state.data);
         }
-      },
-      callback || this.props.onActiveChange
-        ? () => {
-            if (callback) {
-              callback();
-            }
-            if (this.props.onActiveChange) {
-              this.props.onActiveChange(this.state.active);
-            }
+        if (state.mode !== prevState.mode) {
+          onModeChange(state.mode);
+        }
+        if (state.selected !== prevState.selected) {
+          onSelect(PointSet.toArray(state.selected));
+        }
+        if (state.active !== prevState.active) {
+          onActivate(state.active);
+        }
+        this.prevState = state;
+      }
+    );
+    document.addEventListener("copy", (event: ClipboardEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.handleCopy(event);
+    });
+    document.addEventListener("cut", (event: ClipboardEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.handleCut(event);
+    });
+    document.addEventListener("paste", (event: ClipboardEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.handlePaste(event);
+    });
+  }
+
+  handleCopy = (event: ClipboardEvent) => {
+    const { data, selected } = this.store.getState();
+    const matrix = PointSet.toMatrix(selected, data);
+    const filteredMatrix = Matrix.filter(Boolean, matrix);
+    const valueMatrix = Matrix.map(getValue, filteredMatrix);
+    const copy = () => clipboard.writeText(Matrix.join(valueMatrix));
+    if (navigator.permissions) {
+      navigator.permissions
+        .query({
+          name: "clipboard-read"
+        })
+        .then(readClipboardStatus => {
+          if (readClipboardStatus.state) {
+            copy();
           }
-        : null
-    );
-  };
-
-  table: Table<CellType, Value> | null = null;
-
-  handleTable = (table: Table<CellType, Value> | null) => {
-    this.table = table;
-  };
-
-  handleActiveCellTimeout: ?TimeoutID = null;
-
-  focusActiveElement = () => {
-    const { active } = this.state;
-    if (this.table && active) {
-      this.table.focusActiveElement(active);
+        });
+    } else {
+      copy();
     }
+    this.store.setState({ copied: selected, cut: false });
   };
 
-  componentDidUpdate() {
-    if (this.handleActiveCellTimeout) {
-      clearTimeout(this.handleActiveCellTimeout);
+  handleCut = (event: ClipboardEvent) => {
+    this.handleCopy(event);
+    this.store.setState({ cut: true });
+  };
+
+  handlePaste = (event: ClipboardEvent) => {
+    const prevState = this.store.getState();
+    this.store.setState({
+      data: PointSet.toArray(prevState.copied).reduce(
+        (acc, { row, column }) =>
+          Matrix.set(
+            row + prevState.active.row - 1,
+            column + prevState.active.column - 1,
+            Matrix.get(row, column, prevState.data),
+            acc
+          ),
+        prevState.data
+      ),
+      selected: PointSet.map(
+        point => ({
+          row: point.row + prevState.active.row - 1,
+          column: point.column + prevState.active.column - 1
+        }),
+        prevState.copied
+      ),
+      // copied: PointSet.of([]),
+      cut: false
+    });
+  };
+
+  componentDidUpdate(prevProps: Props<CellType, Value>) {
+    if (prevProps.data !== this.props.data) {
+      this.store.setState({ data: this.props.data });
     }
-    this.handleActiveCellTimeout = setTimeout(
-      this.focusActiveElement,
-      ACTIVE_CELL_THROTTLE
-    );
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
   }
 
   render() {
-    const {
-      Table,
-      Row,
-      DataViewer,
-      DataEditor,
-      data,
-      getValue,
-      onCellChange,
-      emptyValue
-    } = this.props;
-    const [firstRow] = data;
-    const { active } = this.state;
+    const { data, ...rest } = this.props;
     return (
-      <Contexts.Data.Provider value={data}>
-        <Contexts.Active.Provider value={active}>
-          <Table
-            ref={this.handleTable}
-            {...{
-              Row,
-              Cell,
-              DataViewer,
-              DataEditor,
-              getValue,
-              emptyValue
-            }}
-            rows={data.length}
-            columns={firstRow && firstRow.length}
-            onActiveChange={this.setActive}
-            onChange={onCellChange}
-          />
-        </Contexts.Active.Provider>
-      </Contexts.Data.Provider>
+      <Provider store={this.store}>
+        <ConnectedSpreadsheet {...rest} />
+      </Provider>
     );
   }
 }

@@ -1,40 +1,45 @@
 // @flow
 
 import type { ComponentType } from "react";
+import type { PointSet } from "./point-set";
+import type { Matrix } from "./matrix";
 
-type CellDescriptor<CellType> = {
-  cell: CellType,
-  row: number,
-  column: number
-};
+export type Point = {|
+  column: number,
+  row: number
+|};
 
-export type getValue<CellType, Value> = (CellDescriptor<CellType>) => Value;
+export type CellDescriptor<Cell> = Point & {|
+  data: Cell
+|};
 
-export type CellComponentProps<CellType, Value> = {
-  ...CellDescriptor<CellType>,
-  getValue: getValue<CellType, Value>
+export type Mode = "view" | "edit";
+
+export type StoreState<Cell> = {|
+  data: Matrix<Cell>,
+  selected: PointSet,
+  copied: PointSet,
+  active: Point | null,
+  mode: Mode
+|};
+
+export type getValue<Cell, Value> = (CellDescriptor<Cell>) => Value;
+
+export type CellComponentProps<Cell, Value> = {
+  ...Point,
+  cell: Cell,
+  getValue: getValue<Cell, Value>
 };
 
 export type DataViewer<Cell, Value> = ComponentType<
   CellComponentProps<Cell, Value>
 >;
 
-export type onChange<Value> = ({
-  row: number,
-  column: number,
-  value: Value
-}) => void;
-
-export type DataEditor<Cell, Value> = ComponentType<{
+export type DataEditorProps<Cell, Value> = {
   ...CellComponentProps<Cell, Value>,
-  onChange: Value => void
-}>;
-
-export type Mode = "view" | "edit";
-
-export type Active<Value> = {
-  row: number,
-  column: number,
-  mode: Mode,
-  value?: Value
+  onChange: Cell => void
 };
+
+export type DataEditor<Cell, Value> = ComponentType<
+  DataEditorProps<Cell, Value>
+>;
