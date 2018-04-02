@@ -310,7 +310,7 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
   handlePaste = (event: ClipboardEvent) => {
     const prevState = this.store.getState();
     this.store.setState({
-      data: PointSet.toArray(prevState.copied).reduce(
+      data: PointSet.reduce(
         (acc, { row, column }) =>
           Matrix.set(
             row + prevState.active.row - 1,
@@ -318,6 +318,7 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
             Matrix.get(row, column, prevState.data),
             acc
           ),
+        prevState.copied,
         prevState.data
       ),
       selected: PointSet.map(
@@ -328,7 +329,8 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
         prevState.copied
       ),
       // copied: PointSet.of([]),
-      cut: false
+      cut: false,
+      mode: "view"
     });
   };
 
