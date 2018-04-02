@@ -46,9 +46,31 @@ export function isEmpty(set: PointSet) {
   return Object.keys(set).length === 0;
 }
 
+export const reduce = <T>(
+  func: (T, Point) => T,
+  set: PointSet,
+  initialValue: T
+): T => {
+  let acc = initialValue;
+  for (const [row, columns] of Object.entries(set)) {
+    for (const column of Object.keys(columns)) {
+      acc = func(acc, { row: Number(row), column: Number(column) });
+    }
+  }
+  return acc;
+};
+
+export const map = (func: Point => Point, set: PointSet): PointSet =>
+  reduce((acc, point) => add(acc, func(point)), set, of([]));
+
 export function toArray(set: PointSet): Point[] {
-  return flatMap(Object.entries(set), ([row, columns]) =>
-    Object.keys(columns).map((column: number) => ({ row, column }))
+  return flatMap(
+    Object.entries(set),
+    ([row, columns]: [string, { [key: string]: boolean }]) =>
+      Object.keys(columns).map(column => ({
+        row: Number(row),
+        column: Number(column)
+      }))
   );
 }
 

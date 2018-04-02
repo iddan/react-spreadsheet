@@ -255,19 +255,24 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
         this.prevState = state;
       }
     );
-    document.addEventListener("copy", event => {
+    document.addEventListener("copy", (event: ClipboardEvent) => {
       event.preventDefault();
       event.stopPropagation();
       this.handleCopy(event);
     });
-    document.addEventListener("cut", event => {
+    document.addEventListener("cut", (event: ClipboardEvent) => {
       event.preventDefault();
       event.stopPropagation();
       this.handleCut(event);
     });
+    document.addEventListener("paste", (event: ClipboardEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.handlePaste(event);
+    });
   }
 
-  handleCopy = event => {
+  handleCopy = (event: ClipboardEvent) => {
     const { data, selected } = this.store.getState();
     const matrix = PointSet.toMatrix(selected, data);
     const filteredMatrix = Matrix.filter(Boolean, matrix);
@@ -289,25 +294,32 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
     this.store.setState({ copied: selected, cut: false });
   };
 
-  handleCut = event => {
+  handleCut = (event: ClipboardEvent) => {
     this.handleCopy(event);
     this.store.setState({ cut: true });
   };
 
-  handlePaste = event => {
+  handlePaste = (event: ClipboardEvent) => {
     const prevState = this.store.getState();
     this.store.setState({
       data: PointSet.toArray(prevState.copied).reduce(
         (acc, { row, column }) =>
           Matrix.set(
-            row + prevState.active.row,
-            column + prevState.active.column,
-            Matrix.get(row, column),
+            row + prevState.active.row - 1,
+            column + prevState.active.column - 1,
+            Matrix.get(row, column, prevState.data),
             acc
           ),
         prevState.data
       ),
-      copied: PointSet.of([]),
+      selected: PointSet.map(
+        point => ({
+          row: point.row + prevState.active.row - 1,
+          column: point.column + prevState.active.column - 1
+        }),
+        prevState.copied
+      ),
+      // copied: PointSet.of([]),
       cut: false
     });
   };
