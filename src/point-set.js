@@ -2,17 +2,13 @@
 
 import * as Matrix from "./matrix";
 import { flatMap } from "./util";
+import type { Point } from "./types";
 
 export type PointSet = {
   [row: number]: {
     [column: number]: boolean
   }
 };
-
-export type Point = {|
-  row: number,
-  column: number
-|};
 
 export type Descriptor<T> = Point & {|
   data: T
@@ -74,6 +70,7 @@ export function toArray(set: PointSet): Point[] {
   );
 }
 
+/** @todo return Matrix.Matrix<T> */
 export function toMatrix<T>(
   set: PointSet,
   data: Matrix.Matrix<T>

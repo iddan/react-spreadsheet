@@ -35,8 +35,8 @@ type State<Data> = {|
 
 type Handlers<Data> = {|
   setData: (data: Data) => void,
-  select: (cellPointer: Types.CellPointer) => void,
-  activate: (cellPointer: Types.CellPointer) => void
+  select: (cellPointer: Types.Point) => void,
+  activate: (cellPointer: Types.Point) => void
 |};
 
 class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<

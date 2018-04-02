@@ -53,7 +53,7 @@ export function updateData<Cell>(
 }
 
 export function setCell<Cell>(
-  state: { data: Matrix<Cell>, active: Types.CellPointer },
+  state: { data: Matrix<Cell>, active: Types.Point },
   cell: Cell
 ): Matrix<Cell> {
   return updateData(state.data, {
@@ -64,7 +64,7 @@ export function setCell<Cell>(
 
 export function isActive(
   active: $PropertyType<Types.StoreState<*>, "active">,
-  { row, column }: Types.CellPointer
+  { row, column }: Types.Point
 ): boolean {
   return Boolean(active && column === active.column && row === active.row);
 }

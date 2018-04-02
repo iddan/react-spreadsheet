@@ -4,12 +4,12 @@ import type { ComponentType } from "react";
 import type { PointSet } from "./point-set";
 import type { Matrix } from "./matrix";
 
-export type CellPointer = {|
+export type Point = {|
   column: number,
   row: number
 |};
 
-export type CellDescriptor<Cell> = CellPointer & {|
+export type CellDescriptor<Cell> = Point & {|
   data: Cell
 |};
 
@@ -19,14 +19,14 @@ export type StoreState<Cell> = {|
   data: Matrix<Cell>,
   selected: PointSet,
   copied: PointSet,
-  active: CellPointer | null,
+  active: Point | null,
   mode: Mode
 |};
 
 export type getValue<Cell, Value> = (CellDescriptor<Cell>) => Value;
 
 export type CellComponentProps<Cell, Value> = {
-  ...CellPointer,
+  ...Point,
   cell: Cell,
   getValue: getValue<Cell, Value>
 };

@@ -38,8 +38,8 @@ type Props<CellType, Value> = {|
 type EventProps<CellType> = {|
   onChange: (data: Matrix.Matrix<CellType>) => void,
   onModeChange: (mode: Types.Mode) => void,
-  onSelect: (selected: Types.CellPointer[]) => void,
-  onActivate: (active: Types.CellPointer) => void
+  onSelect: (selected: Types.Point[]) => void,
+  onActivate: (active: Types.Point) => void
 |};
 
 type State = {|

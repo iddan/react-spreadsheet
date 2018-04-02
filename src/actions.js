@@ -9,7 +9,7 @@ type Action = <Cell>(
   ...*
 ) => $Shape<Types.StoreState<Cell>>;
 
-export const select: Action = (state, cellPointer: Types.CellPointer) => {
+export const select: Action = (state, cellPointer: Types.Point) => {
   if (state.active && !isActive(state.active, cellPointer)) {
     return {
       selected: PointSet.of(
@@ -27,7 +27,7 @@ export const select: Action = (state, cellPointer: Types.CellPointer) => {
   return null;
 };
 
-export const activate: Action = (state, cellPointer: Types.CellPointer) => ({
+export const activate: Action = (state, cellPointer: Types.Point) => ({
   selected: PointSet.of([cellPointer]),
   active: cellPointer,
   mode: isActive(state.active, cellPointer) ? "edit" : "view"
