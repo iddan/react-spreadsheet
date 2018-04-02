@@ -226,6 +226,13 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
   unsubscribe: Unsubscribe;
   prevState: Types.StoreState<CellType>;
 
+  static defaultProps = {
+    onChange: () => {},
+    onModeChange: () => {},
+    onSelect: () => {},
+    onActivate: () => {}
+  };
+
   constructor(props: WrapperProps<CellType, Value>) {
     super(props);
     const state: Types.StoreState<CellType> = {

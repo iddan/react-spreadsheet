@@ -74,13 +74,13 @@ const ALPHABET_LENGTH = 26;
 
 export const toColumnLetter = (number: number): string => {
   if (number < 0) {
-    throw new Error("Number must be greater than 0");
+    throw new Error("number must be ≥ 0");
   }
   if (number < ALPHABET_LENGTH) {
     return String.fromCharCode(CAPITAL_A_CODE + number);
   }
   return (
-    toColumnLetter(Math.floor(number / ALPHABET_LENGTH)) +
+    toColumnLetter(Math.floor(number / ALPHABET_LENGTH) - 1) +
     toColumnLetter(number % ALPHABET_LENGTH)
   );
 };

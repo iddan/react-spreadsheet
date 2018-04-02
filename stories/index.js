@@ -26,20 +26,22 @@ class App extends Component {
     ]
   };
 
-  changeAction = action("onChange");
-
   handleChange = data => {
-    // this.changeAction(data);
     // this.setState({ data });
   };
 
   addColumn = () => {
     this.setState(({ data }) => {
       const [firstRow, ...rows] = data;
-      return [
-        ...firstRow.concat({ value: toColumnLetter(firstRow.length) }),
-        ...rows.map(row => row.concat(EMPTY_CELL))
-      ];
+      return {
+        data: [
+          firstRow.concat({
+            value: toColumnLetter(firstRow.length - 1),
+            readOnly: true
+          }),
+          ...rows.map(row => row.concat(EMPTY_CELL))
+        ]
+      };
     });
   };
 
@@ -60,13 +62,7 @@ class App extends Component {
       <Fragment>
         <button onClick={this.addColumn}>Add column</button>
         <button onClick={this.addRow}>Add row</button>
-        <Spreadsheet
-          data={this.state.data}
-          onChange={this.handleChange}
-          onActivate={action("onActivate")}
-          onModeChange={action("onModeChange")}
-          onSelect={action("onSelect")}
-        />
+        <Spreadsheet data={this.state.data} />
       </Fragment>
     );
   }
