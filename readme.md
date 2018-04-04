@@ -21,6 +21,8 @@ yarn add @iddan/react-spreadsheet
 * Performant (yet not virtualized)
 * Implements Just Components™
 
+### [Demo](https://iddan.github.io/react-spreadsheet)
+
 ### Prior Art
 
 * [React Datasheet](https://nadbm.github.io/react-datasheet/) - Heavily inspired by, enhanced performance and API, no formulas
