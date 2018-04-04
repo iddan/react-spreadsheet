@@ -22,5 +22,6 @@ yarn add @iddan/react-spreadsheet
 
 ### Prior Art
 
-* [React Datasheet](https://nadbm.github.io/react-datasheet/) - Heavily inspired by, enhanced performance and API
-* [React Spreadsheet Grid](https://denisraslov.github.io/grid/) - Virtualized, less excel like
+* [React Datasheet](https://nadbm.github.io/react-datasheet/) - Heavily inspired by, enhanced performance and API, no formulas
+* [React Spreadsheet Grid](https://denisraslov.github.io/grid/) - Virtualized, lacks significant UI parts, no formulas
+* [Handsonetable](https://handsontable.com/) - Virtualized, lacks dynamic customization. React Spreadsheet uses it's formulas parsing module
