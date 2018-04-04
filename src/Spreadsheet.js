@@ -58,20 +58,6 @@ type Handlers<Cell> = {|
   ) => void
 |};
 
-/**
- * @todo
- * Fix backwards select
- * Multi Selection: drag select
- * Clipboard: copy, paste
- * Support getValue() return boolean by default
- * Bindings: trigger render for cells when a cell changes. props.getBindingsFromCell : (cellDescriptor) => Set<cellDescriptor>
- * Better Cell API
- * Advanced past
- * Select delete
- * Floating Editor: Use select events to get coordinates instead of modifying the DOM (going back to old idea) this will yield flexibility for selected area, less DOM deep mutations and fix border styling
- * Auto resizing edit cell
- * Use hot-formula-parser for formulas
- */
 const Spreadsheet = <CellType, Value>({
   Table,
   Row,
