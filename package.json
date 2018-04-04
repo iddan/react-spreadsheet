@@ -3,19 +3,15 @@
   "version": "0.1.6",
   "description": "Simple, customizable yet performant spreadsheet for React",
   "author": "Iddan Aaronsohn <mail@aniddan.com> (https://aniddan.com)",
-  "keywords": [
-    "spreadsheet",
-    "excel",
-    "react",
-    "sheet",
-    "table"
-  ],
+  "keywords": ["spreadsheet", "excel", "react", "sheet", "table"],
   "main": "dist/Spreadsheet.js",
   "scripts": {
     "start": "NODE_ENV=development yarn storybook",
-    "build": "rm dist/*; flow gen-flow-files src --out-dir dist; babel src --out-dir dist --copy-files",
+    "build":
+      "rm dist/*; flow gen-flow-files src --out-dir dist; babel src --out-dir dist --copy-files",
     "prepublish": "NODE_ENV=production yarn build",
-    "storybook": "start-storybook -p 9001 -c .storybook"
+    "storybook": "start-storybook -p 9001 -c .storybook",
+    "deploy-storybook": "storybook-to-ghpages"
   },
   "dependencies": {
     "classnames": "2.2.5",
@@ -27,6 +23,7 @@
     "@babel/cli": "^7.0.0-beta.38",
     "@babel/core": "^7.0.0-beta.38",
     "@storybook/react": "^3.4.0",
+    "@storybook/storybook-deployer": "^2.3.0",
     "babel-core": "^7.0.0-0",
     "babel-eslint": "^8.2.1",
     "babel-preset-react-app": "^4.0.0-next.9754a231",
