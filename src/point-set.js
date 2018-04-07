@@ -19,7 +19,14 @@ export function add(set: PointSet, { row, column }: Point): PointSet {
 }
 
 export function remove(set: PointSet, { row, column }: Point): PointSet {
-  return { ...set, [row]: { ...set[row], [column]: false } };
+  const {
+    [String(row)]: { [String(column)]: _, ...nextRow },
+    ...nextSet
+  } = set;
+  if (Object.keys(nextRow).length === 0) {
+    return nextSet;
+  }
+  return { ...nextSet, [row]: nextRow };
 }
 
 export function has(set: PointSet, { row, column }: Point): boolean {
@@ -58,6 +65,18 @@ export const reduce = <T>(
 
 export const map = (func: Point => Point, set: PointSet): PointSet =>
   reduce((acc, point) => add(acc, func(point)), set, of([]));
+
+export const filter = (func: Point => boolean, set: PointSet): PointSet =>
+  reduce(
+    (acc, point) => {
+      if (func(point)) {
+        return add(acc, point);
+      }
+      return acc;
+    },
+    set,
+    of([])
+  );
 
 export function toArray(set: PointSet): Point[] {
   return flatMap(
@@ -119,4 +138,54 @@ export function onEdge(set: PointSet, point: Point): OnEdge {
     top: hasNot(-1, 0),
     bottom: hasNot(1, 0)
   };
+}
+
+export function getEdgeValue(
+  set: PointSet,
+  field: $Keys<Point>,
+  delta: number
+) {
+  const compare = Math.sign(delta) === -1 ? Math.min : Math.max;
+  return reduce(
+    (acc, point) => {
+      if (acc === null) {
+        return point[field];
+      }
+      return compare(acc, point[field]);
+    },
+    set,
+    null
+  );
+}
+
+export function extendEdge(set: PointSet, field: $Keys<Point>, delta: number) {
+  const oppositeField = field === "row" ? "column" : "row";
+  const edgeValue = getEdgeValue(set, field, delta);
+  return reduce(
+    (acc, point) => {
+      if (point[field] === edgeValue) {
+        return add(acc, {
+          [field]: edgeValue + delta,
+          [oppositeField]: point[oppositeField]
+        });
+      }
+      return acc;
+    },
+    set,
+    set
+  );
+}
+
+export function shrinkEdge(set: PointSet, field: $Keys<Point>, delta: number) {
+  const edgeValue = getEdgeValue(set, field, delta);
+  return reduce(
+    (acc, point) => {
+      if (point[field] === edgeValue) {
+        return remove(acc, point);
+      }
+      return acc;
+    },
+    set,
+    set
+  );
 }

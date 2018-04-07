@@ -118,7 +118,6 @@ const go = (rowDelta: number, columnDelta: number): KeyDownHandler<*> => (
   state,
   event
 ) => {
-  const { rows, columns } = Matrix.getSize(state.data);
   if (!state.active) {
     return null;
   }
@@ -168,6 +167,35 @@ const editKeyDownHandlers: KeyDownHandlers<*> = {
   Enter: keyDownHandlers.ArrowDown
 };
 
+const addToEdge = (field: $Keys<Types.Point>, delta: number) => (
+  state,
+  event
+) => {
+  const edgeOffsets = PointSet.has(state.selected, {
+    ...state.active,
+    [field]: state.active[field] + delta * -1
+  });
+
+  const nextSelected = edgeOffsets
+    ? PointSet.shrinkEdge(state.selected, field, delta * -1)
+    : PointSet.extendEdge(state.selected, field, delta);
+
+  /** @todo make sure it performs well */
+  return {
+    selected: PointSet.filter(
+      point => Matrix.has(point.row, point.column, state.data),
+      nextSelected
+    )
+  };
+};
+
+const shiftKeyDownHandlers: KeyDownHandlers<*> = {
+  ArrowUp: addToEdge("row", -1),
+  ArrowDown: addToEdge("row", 1),
+  ArrowLeft: addToEdge("column", -1),
+  ArrowRight: addToEdge("column", 1)
+};
+
 const actions = <CellType>(store) => ({
   handleKeyPress(state: Types.StoreState<CellType>) {
     if (state.mode === "view" && state.active) {
@@ -180,8 +208,14 @@ const actions = <CellType>(store) => ({
     event: SyntheticKeyboardEvent<HTMLElement>
   ) {
     const { key, nativeEvent } = event;
-    const handlers =
-      state.mode === "edit" ? editKeyDownHandlers : keyDownHandlers;
+    let handlers;
+    if (event.shiftKey) {
+      handlers = shiftKeyDownHandlers;
+    } else if (state.mode === "edit") {
+      handlers = editKeyDownHandlers;
+    } else {
+      handlers = keyDownHandlers;
+    }
     const handler = handlers[key];
     if (handler) {
       nativeEvent.preventDefault();
