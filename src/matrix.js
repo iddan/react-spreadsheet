@@ -1,6 +1,6 @@
 // @flow
 /**
- * @todo own cell pointer in this module
+ * @todo use Types.Point
  */
 
 import { range as _range, flatMap } from "./util";

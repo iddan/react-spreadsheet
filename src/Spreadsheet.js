@@ -14,7 +14,7 @@ import Cell from "./Cell";
 import type { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
-import { range, setCell } from "./util";
+import { range, updateData } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import "./Spreadsheet.css";
@@ -153,7 +153,15 @@ const keyDownHandlers: KeyDownHandlers<*> = {
       return null;
     }
     return {
-      data: setCell(state, cellFromValue("")),
+      data: PointSet.reduce(
+        (acc, point) =>
+          updateData(acc, {
+            ...point,
+            data: cellFromValue("")
+          }),
+        state.selected,
+        state.data
+      ),
       mode: "edit"
     };
   }

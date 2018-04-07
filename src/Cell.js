@@ -62,10 +62,9 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
     setData(cell);
   };
 
-  /** @todo update to new API */
   componentDidUpdate() {
-    const { selected, mode } = this.props;
-    if (this.root && selected && mode === "view") {
+    const { active, mode } = this.props;
+    if (this.root && active && mode === "view") {
       this.root.focus();
     }
   }

@@ -89,7 +89,7 @@ export function toArray(set: PointSet): Point[] {
   );
 }
 
-/** @todo return Matrix.Matrix<T> */
+/** @todo refactor to return Matrix.Matrix<T> */
 export function toMatrix<T>(
   set: PointSet,
   data: Matrix.Matrix<T>
