@@ -327,7 +327,7 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
     } else {
       copy();
     }
-    this.store.setState({ copied: selected, cut: false });
+    this.store.setState({ copied: selected, cut: false, hasPasted: false });
   };
 
   handleCut = (event: ClipboardEvent) => {
@@ -361,8 +361,8 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
     this.store.setState({
       data,
       selected,
-      // copied: PointSet.of([]),
       cut: false,
+      hasPasted: true,
       mode: "view"
     });
   };

@@ -132,7 +132,7 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
 }
 
 function mapStateToProps<Data>(
-  { data, active, selected, copied, mode }: Types.StoreState<Data>,
+  { data, active, selected, copied, hasPasted, mode }: Types.StoreState<Data>,
   { column, row }: Props<Data, *>
 ): State<Data> {
   const point = { row, column };
@@ -151,10 +151,10 @@ function mapStateToProps<Data>(
     onSelectedLeftEdge: onSelectedEdge.left,
     onSelectedTopEdge: onSelectedEdge.top,
     onSelectedBottomEdge: onSelectedEdge.bottom,
-    onCopiedRightEdge: onCopiedEdge.right,
-    onCopiedLeftEdge: onCopiedEdge.left,
-    onCopiedTopEdge: onCopiedEdge.top,
-    onCopiedBottomEdge: onCopiedEdge.bottom
+    onCopiedRightEdge: !hasPasted && onCopiedEdge.right,
+    onCopiedLeftEdge: !hasPasted && onCopiedEdge.left,
+    onCopiedTopEdge: !hasPasted && onCopiedEdge.top,
+    onCopiedBottomEdge: !hasPasted && onCopiedEdge.bottom
   };
 }
 
