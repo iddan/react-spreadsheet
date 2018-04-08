@@ -49,12 +49,19 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
   };
 
   handleClick = (e: SyntheticMouseEvent<HTMLElement>) => {
-    const { row, column, select, activate } = this.props;
+    const { row, column, select, activate, setActiveDimensions } = this.props;
     if (e.shiftKey) {
       select({ row, column });
       return;
     }
     activate({ row, column });
+    const {
+      width,
+      height,
+      top,
+      left
+    } = e.currentTarget.getBoundingClientRect();
+    setActiveDimensions({ width, height, top, left });
   };
 
   handleChange = (cell: Data) => {
@@ -136,16 +143,18 @@ function mapStateToProps<Data>(
   { column, row }: Props<Data, *>
 ): State<Data> {
   const point = { row, column };
-  const cellIsActive = isActive(active, point);
+  // const cellIsActive = isActive(active, point);
   const cellIsSelected = PointSet.has(selected, point);
   const onSelectedEdge = PointSet.onEdge(selected, point);
   const onCopiedEdge = PointSet.onEdge(copied, point);
 
   return {
     selected: cellIsSelected,
-    active: cellIsActive,
+    // active: cellIsActive,
     copied: PointSet.has(copied, point),
-    mode: cellIsActive ? mode : "view",
+    mode: "view",
+    active: false,
+    // mode: cellIsActive ? mode : "view",
     data: Matrix.get(row, column, data),
     onSelectedRightEdge: onSelectedEdge.right,
     onSelectedLeftEdge: onSelectedEdge.left,
@@ -161,5 +170,6 @@ function mapStateToProps<Data>(
 export default connect(mapStateToProps, () => ({
   select: Actions.select,
   activate: Actions.activate,
-  setData: Actions.setData
+  setData: Actions.setData,
+  setActiveDimensions: Actions.setActiveDimensions
 }))(Cell);

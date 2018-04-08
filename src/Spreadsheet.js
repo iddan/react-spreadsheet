@@ -2,6 +2,7 @@
 
 import React, { PureComponent } from "react";
 import type { ComponentType } from "react";
+import classnames from "classnames";
 import createStore from "unistore";
 import { Provider, connect } from "unistore/react";
 import clipboard from "clipboard-polyfill";
@@ -17,7 +18,56 @@ import DataEditor from "./DataEditor";
 import { range, updateData } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
+import * as Actions from "./actions";
 import "./Spreadsheet.css";
+
+const _ActiveCell = ({
+  DataEditor,
+  getValue,
+  onChange,
+  row,
+  column,
+  cell,
+  width,
+  height,
+  top,
+  left,
+  setData,
+  hidden,
+  mode
+}) =>
+  hidden ? null : (
+    <div
+      className={classnames("ActiveCell", mode)}
+      style={{ width, height, top, left }}
+    >
+      <DataEditor
+        row={row}
+        column={column}
+        cell={cell}
+        onChange={setData}
+        getValue={getValue}
+      />
+    </div>
+  );
+
+const __mapStateToProps = state =>
+  state.active && state.tableDimensions && state.activeDimensions
+    ? {
+        hidden: false,
+        ...state.active,
+        cell: Matrix.get(state.active.row, state.active.column, state.data),
+        width: state.activeDimensions.width,
+        height: state.activeDimensions.height,
+        top: state.activeDimensions.top - state.tableDimensions.top,
+        left: state.activeDimensions.left - state.tableDimensions.left,
+        mode: state.mode
+      }
+    : { hidden: true };
+
+const ActiveCell = connect(__mapStateToProps, {
+  setData: Actions.setData
+})(_ActiveCell);
 
 type DefaultCellType = {
   value: string | number | boolean | null
@@ -63,34 +113,40 @@ const Spreadsheet = <CellType, Value>({
   Row,
   Cell,
   DataViewer,
-  DataEditor,
   getValue,
   rows,
   columns,
   handleKeyPress,
-  handleKeyDown
+  handleKeyDown,
+  handleClick
 }: $Rest<
   Props<CellType, Value>,
   {| data: Matrix.Matrix<CellType> |} & EventProps
 > &
   State &
   Handlers<CellType>) => (
-  <Table onKeyPress={handleKeyPress} onKeyDown={handleKeyDown}>
-    {range(rows).map(rowNumber => (
-      <Row key={rowNumber}>
-        {range(columns).map(columnNumber => (
-          <Cell
-            key={columnNumber}
-            row={rowNumber}
-            column={columnNumber}
-            DataViewer={DataViewer}
-            DataEditor={DataEditor}
-            getValue={getValue}
-          />
-        ))}
-      </Row>
-    ))}
-  </Table>
+  <div className="Spreadsheet">
+    <Table
+      onKeyPress={handleKeyPress}
+      onKeyDown={handleKeyDown}
+      onClick={handleClick}
+    >
+      {range(rows).map(rowNumber => (
+        <Row key={rowNumber}>
+          {range(columns).map(columnNumber => (
+            <Cell
+              key={columnNumber}
+              row={rowNumber}
+              column={columnNumber}
+              DataViewer={DataViewer}
+              getValue={getValue}
+            />
+          ))}
+        </Row>
+      ))}
+    </Table>
+    <ActiveCell DataEditor={DataEditor} getValue={getValue} />
+  </div>
 );
 
 Spreadsheet.defaultProps = {
@@ -230,6 +286,15 @@ const actions = <CellType>(store) => ({
       return handler(state, event);
     }
     return null;
+  },
+  handleClick(state, event) {
+    const {
+      width,
+      height,
+      left,
+      top
+    } = event.currentTarget.getBoundingClientRect();
+    return Actions.setTableDimensions(state, { width, height, left, top });
   }
 });
 

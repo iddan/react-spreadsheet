@@ -1,5 +1,15 @@
+.Spreadsheet {
+  position: relative;
+}
+
 .SpreadsheetTable {
   position: relative;
+}
+
+.Spreadsheet .ActiveCell {
+  position: absolute;
+  border: 2px solid #4285f4;
+  transform: translate(-1.5px, -1.5px);
 }
 
 .SpreadsheetTable {
@@ -30,12 +40,12 @@
   background: rgba(160, 195, 255, 0.2);
 }
 
-.SpreadsheetTable td.selected.active {
+/* .SpreadsheetTable td.selected.active {
   background: none;
   border: 2px #5292f7 solid;
-}
+} */
 
-.SpreadsheetTable td.selected-right-edge { border-right: 2px #4285f4 solid; }
+/* .SpreadsheetTable td.selected-right-edge { border-right: 2px #4285f4 solid; }
 .SpreadsheetTable td.selected-left-edge { border-left: 2px #4285f4 solid; }
 .SpreadsheetTable td.selected-top-edge { border-top: 2px #4285f4 solid; }
 .SpreadsheetTable td.selected-bottom-edge { border-bottom: 2px #4285f4 solid; }
@@ -43,10 +53,10 @@
 .SpreadsheetTable td.copied-right-edge { border-right: 2px #4285f4 dashed; }
 .SpreadsheetTable td.copied-left-edge { border-left: 2px #4285f4 dashed; }
 .SpreadsheetTable td.copied-top-edge { border-top: 2px #4285f4 dashed; }
-.SpreadsheetTable td.copied-bottom-edge { border-bottom: 2px #4285f4 dashed; }
+.SpreadsheetTable td.copied-bottom-edge { border-bottom: 2px #4285f4 dashed; } */
 
 
-.SpreadsheetTable td.active.edit {
+.SpreadsheetTable .ActiveCell.edit {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
@@ -56,8 +66,9 @@
   text-align: center;
 }
 
-.SpreadsheetTable .DataEditor input {
+.Spreadsheet .DataEditor input {
   width: 99%;
+  height: 100%;
   font: inherit;
   border: none;
   outline: none;

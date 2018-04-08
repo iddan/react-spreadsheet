@@ -22,7 +22,19 @@ export type StoreState<Cell> = {|
   hasPasted: boolean,
   cut: boolean,
   active: Point | null,
-  mode: Mode
+  mode: Mode,
+  tableDimensions: {|
+    width: number,
+    height: number,
+    top: number,
+    left: number
+  |},
+  activeDimensions: {|
+    width: number,
+    height: number,
+    top: number,
+    left: number
+  |}
 |};
 
 export type getValue<Cell, Value> = (CellDescriptor<Cell>) => Value;
