@@ -34,20 +34,24 @@ const _ActiveCell = ({
   left,
   setData,
   hidden,
-  mode
+  mode,
+  edit
 }) =>
   hidden ? null : (
     <div
       className={classnames("ActiveCell", mode)}
       style={{ width, height, top, left }}
+      onClick={mode === "view" ? edit : undefined}
     >
-      <DataEditor
-        row={row}
-        column={column}
-        cell={cell}
-        onChange={setData}
-        getValue={getValue}
-      />
+      {mode === "edit" && (
+        <DataEditor
+          row={row}
+          column={column}
+          cell={cell}
+          onChange={setData}
+          getValue={getValue}
+        />
+      )}
     </div>
   );
 
@@ -66,7 +70,10 @@ const __mapStateToProps = state =>
     : { hidden: true };
 
 const ActiveCell = connect(__mapStateToProps, {
-  setData: Actions.setData
+  setData: Actions.setData,
+  edit: () => ({
+    mode: "edit"
+  })
 })(_ActiveCell);
 
 type DefaultCellType = {

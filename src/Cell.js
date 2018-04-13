@@ -48,20 +48,20 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
     this.root = root;
   };
 
-  handleClick = (e: SyntheticMouseEvent<HTMLElement>) => {
+  activate = () => {
     const { row, column, select, activate, setActiveDimensions } = this.props;
+    activate({ row, column });
+    const { width, height, top, left } = this.root.getBoundingClientRect();
+    setActiveDimensions({ width, height, top, left });
+  };
+
+  handleClick = (e: SyntheticMouseEvent<HTMLElement>) => {
+    const { row, column, select } = this.props;
     if (e.shiftKey) {
       select({ row, column });
       return;
     }
-    activate({ row, column });
-    const {
-      width,
-      height,
-      top,
-      left
-    } = e.currentTarget.getBoundingClientRect();
-    setActiveDimensions({ width, height, top, left });
+    this.activate();
   };
 
   handleChange = (cell: Data) => {
@@ -71,6 +71,9 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
 
   componentDidUpdate() {
     const { active, mode } = this.props;
+    if (active) {
+      this.activate();
+    }
     if (this.root && active && mode === "view") {
       this.root.focus();
     }
@@ -143,17 +146,16 @@ function mapStateToProps<Data>(
   { column, row }: Props<Data, *>
 ): State<Data> {
   const point = { row, column };
-  // const cellIsActive = isActive(active, point);
+  const cellIsActive = isActive(active, point);
   const cellIsSelected = PointSet.has(selected, point);
   const onSelectedEdge = PointSet.onEdge(selected, point);
   const onCopiedEdge = PointSet.onEdge(copied, point);
 
   return {
     selected: cellIsSelected,
-    // active: cellIsActive,
+    active: cellIsActive,
     copied: PointSet.has(copied, point),
     mode: "view",
-    active: false,
     // mode: cellIsActive ? mode : "view",
     data: Matrix.get(row, column, data),
     onSelectedRightEdge: onSelectedEdge.right,
