@@ -8,63 +8,70 @@ import * as Types from "./types";
 
 export type Matrix<T> = Array<T[] | typeof undefined>;
 
-export const get = <T>(
+export function get<T>(
   row: number,
   column: number,
   matrix: Matrix<T>
-): T | typeof undefined => {
+): T | typeof undefined {
   const columns = matrix[row];
   if (columns === undefined) {
     return undefined;
   }
   return columns[column];
-};
+}
 
-export const set = <T>(
+export function set<T>(
   row: number,
   column: number,
   value: T,
   matrix: Matrix<T>
-): Matrix<T> => {
+): Matrix<T> {
   const nextRow = matrix[row] ? [...matrix[row]] : [];
   nextRow[column] = value;
   const nextMatrix = [...matrix];
   nextMatrix[row] = nextRow;
   return nextMatrix;
-};
+}
 
-export const filter = <T>(func: T => boolean, matrix: Matrix<T>): Matrix<T> =>
-  matrix.map(row => row && row.filter(func)).filter(row => row && row.length);
+export function filter<T>(func: T => boolean, matrix: Matrix<T>): Matrix<T> {
+  return matrix
+    .map(row => row && row.filter(func))
+    .filter(row => row && row.length);
+}
 
-export const map = <T, T2>(func: T => T2, matrix: Matrix<T>): Matrix<T2> =>
-  matrix.map(row => row && row.map(func));
+export function map<T, T2>(func: T => T2, matrix: Matrix<T>): Matrix<T2> {
+  return matrix.map(row => row && row.map(func));
+}
 
-export const join = (
+export function join(
   matrix: Matrix<*>,
   horizontalSeparator: string = ", ",
   verticalSeparator: string = "\n"
-): string =>
-  matrix
+): string {
+  return matrix
     .map(row => row && row.join(horizontalSeparator))
     .join(verticalSeparator);
+}
 
-export const has = (row: number, column: number, matrix: Matrix<*>): boolean =>
-  Boolean(matrix[row] && matrix[row][column]);
+export function has(row: number, column: number, matrix: Matrix<*>): boolean {
+  return Boolean(matrix[row] && matrix[row][column]);
+}
 
-export const getSize = (
-  matrix: Matrix<*>
-): {| columns: number, rows: number |} => {
+type Size = $Exact<{ columns: number, rows: number }>;
+
+export function getSize(matrix: Matrix<*>): Size {
   const [firstRow] = matrix;
   return {
     columns: firstRow ? firstRow.length : 0,
     rows: matrix.length
   };
-};
+}
 
-export const range = (
+export function range(
   endPoint: Types.Point,
   startPoint: Types.Point
-): Types.Point[] =>
-  flatMap(_range(endPoint.row, startPoint.row), row =>
+): Types.Point[] {
+  return flatMap(_range(endPoint.row, startPoint.row), row =>
     _range(endPoint.column, startPoint.column).map(column => ({ row, column }))
   );
+}
