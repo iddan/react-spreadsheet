@@ -32,7 +32,6 @@ const mapStateToProps = state => {
     state.selected,
     { width: 0, height: 0, left: 0, top: 0 }
   );
-  console.log(tableDimensions);
   return {
     width: width,
     height: height,
