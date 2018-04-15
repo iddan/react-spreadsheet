@@ -12,6 +12,10 @@
   transform: translate(-1.5px, -1.5px);
 }
 
+.Spreadsheet .ActiveCell.edit {
+  background: white;
+}
+
 .SpreadsheetTable {
   border-collapse: collapse;
   table-layout: fixed;
@@ -66,10 +70,15 @@
   text-align: center;
 }
 
+.Spreadsheet .DataEditor,
 .Spreadsheet .DataEditor input {
-  width: 99%;
-  height: 100%;
+  width: 98%;
+  height: 98%;
+}
+
+.Spreadsheet .DataEditor input {
   font: inherit;
+  background: none;
   border: none;
   outline: none;
   margin: 0;

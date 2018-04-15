@@ -36,7 +36,10 @@ type State<Data> = {|
 type Handlers<Data> = {|
   setData: (data: Data) => void,
   select: (cellPointer: Types.Point) => void,
-  activate: (cellPointer: Types.Point) => void
+  activate: (cellPointer: Types.Point) => void,
+  setActiveDimensions: (
+    activeDimensions: $PropertyType<Types.StoreState<Data>, "activeDimensions">
+  ) => void
 |};
 
 class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
@@ -49,10 +52,12 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
   };
 
   activate = () => {
-    const { row, column, select, activate, setActiveDimensions } = this.props;
+    const { row, column, activate, setActiveDimensions } = this.props;
     activate({ row, column });
-    const { width, height, top, left } = this.root.getBoundingClientRect();
-    setActiveDimensions({ width, height, top, left });
+    if (this.root) {
+      const { width, height, top, left } = this.root.getBoundingClientRect();
+      setActiveDimensions({ width, height, top, left });
+    }
   };
 
   handleClick = (e: SyntheticMouseEvent<HTMLElement>) => {
@@ -74,9 +79,9 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
     if (active) {
       this.activate();
     }
-    if (this.root && active && mode === "view") {
-      this.root.focus();
-    }
+    // if (this.root && active && mode === "view") {
+    //   this.root.focus();
+    // }
   }
 
   render() {

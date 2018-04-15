@@ -6,7 +6,7 @@
 import { range as _range, flatMap } from "./util";
 import * as Types from "./types";
 
-export type Matrix<T> = Array<T[] | typeof undefined>;
+export type Matrix<T> = Array<T[]>;
 
 export function get<T>(
   row: number,

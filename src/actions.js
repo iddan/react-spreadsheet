@@ -38,12 +38,11 @@ export const setData: Action = (state, data: *) => ({
   data: setCell(state, data)
 });
 
-const setter = <Cell>(key: $Keys<Types.StoreState<Cell>>) => (
-  state: Types.StoreState<Cell>,
-  value: *
-) => ({
-  [key]: value
-});
+function setter<Cell>(key: $Keys<Types.StoreState<Cell>>) {
+  return (state: Types.StoreState<Cell>, value: *) => ({
+    [key]: value
+  });
+}
 
 export const setActiveDimensions = setter("activeDimensions");
 export const setTableDimensions = setter("tableDimensions");

@@ -183,7 +183,7 @@ const editKeyDownHandlers: KeyDownHandlers<*> = {
   Enter: keyDownHandlers.ArrowDown
 };
 
-const addToEdge = (field: $Keys<Types.Point>, delta: number) => (
+const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
   state,
   event
 ) => {
@@ -206,10 +206,10 @@ const addToEdge = (field: $Keys<Types.Point>, delta: number) => (
 };
 
 const shiftKeyDownHandlers: KeyDownHandlers<*> = {
-  ArrowUp: addToEdge("row", -1),
-  ArrowDown: addToEdge("row", 1),
-  ArrowLeft: addToEdge("column", -1),
-  ArrowRight: addToEdge("column", 1)
+  ArrowUp: modifyEdge("row", -1),
+  ArrowDown: modifyEdge("row", 1),
+  ArrowLeft: modifyEdge("column", -1),
+  ArrowRight: modifyEdge("column", 1)
 };
 
 function actions<CellType>(store) {
