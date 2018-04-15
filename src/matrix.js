@@ -64,7 +64,10 @@ export const getSize = (
 export const range = (
   endPoint: Types.Point,
   startPoint: Types.Point
-): Types.Point[] =>
-  flatMap(_range(endPoint.row, startPoint.row), row =>
-    _range(endPoint.column, startPoint.column).map(column => ({ row, column }))
+): Types.Point[] => {
+  return flatMap(
+    _range(endPoint.row, startPoint.row), 
+    row => _range(endPoint.column, startPoint.column)
+      .map(column => ({ row, column }))
   );
+};

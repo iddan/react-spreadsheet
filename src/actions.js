@@ -14,7 +14,10 @@ export const select: Action = (state, cellPointer: Types.Point) => {
     return {
       selected: PointSet.of(
         Matrix.range(
-          { row: state.active.row - 1, column: state.active.column - 1 },
+          { 
+            row: state.active.row - 1, 
+            column: state.active.column - 1 
+          },
           {
             row: cellPointer.row,
             column: cellPointer.column
