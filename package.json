@@ -3,13 +3,18 @@
   "version": "0.1.6",
   "description": "Simple, customizable yet performant spreadsheet for React",
   "author": "Iddan Aaronsohn <mail@aniddan.com> (https://aniddan.com)",
-  "keywords": ["spreadsheet", "excel", "react", "sheet", "table"],
+  "keywords": [
+    "spreadsheet",
+    "excel",
+    "react",
+    "sheet",
+    "table"
+  ],
   "main": "dist/Spreadsheet.js",
   "scripts": {
-    "start": "NODE_ENV=development yarn storybook",
-    "build":
-      "rm dist/*; flow gen-flow-files src --out-dir dist; babel src --out-dir dist --copy-files",
-    "prepublish": "NODE_ENV=production yarn build",
+    "start": "cross-env NODE_ENV=development yarn storybook",
+    "build": "rm dist/*; flow gen-flow-files src --out-dir dist; babel src --out-dir dist --copy-files",
+    "prepublish": "cross-env NODE_ENV=production yarn build",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "deploy-storybook": "storybook-to-ghpages"
   },
@@ -27,6 +32,7 @@
     "babel-core": "^7.0.0-0",
     "babel-eslint": "^8.2.1",
     "babel-preset-react-app": "^4.0.0-next.9754a231",
+    "cross-env": "^5.1.4",
     "eslint": "^4.16.0",
     "eslint-config-react-app": "^2.1.0",
     "eslint-plugin-flowtype": "^2.41.0",
@@ -34,6 +40,7 @@
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.5.1",
     "flow-bin": "^0.68.0",
+    "jest": "^22.4.3",
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
   },
