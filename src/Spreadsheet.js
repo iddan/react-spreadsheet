@@ -2,7 +2,6 @@
 
 import React, { PureComponent } from "react";
 import type { ComponentType } from "react";
-import classnames from "classnames";
 import createStore from "unistore";
 import { Provider, connect } from "unistore/react";
 import clipboard from "clipboard-polyfill";
@@ -15,66 +14,12 @@ import Cell from "./Cell";
 import type { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
+import ActiveCell from "./ActiveCell";
 import { range, updateData } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
 import "./Spreadsheet.css";
-
-const _ActiveCell = ({
-  DataEditor,
-  getValue,
-  onChange,
-  row,
-  column,
-  cell,
-  width,
-  height,
-  top,
-  left,
-  setData,
-  hidden,
-  mode,
-  edit
-}) =>
-  hidden ? null : (
-    <div
-      className={classnames("ActiveCell", mode)}
-      style={{ width, height, top, left }}
-      onClick={mode === "view" ? edit : undefined}
-    >
-      {mode === "edit" && (
-        <DataEditor
-          row={row}
-          column={column}
-          cell={cell}
-          onChange={setData}
-          getValue={getValue}
-        />
-      )}
-    </div>
-  );
-
-const __mapStateToProps = state =>
-  state.active && state.tableDimensions && state.activeDimensions
-    ? {
-        hidden: false,
-        ...state.active,
-        cell: Matrix.get(state.active.row, state.active.column, state.data),
-        width: state.activeDimensions.width,
-        height: state.activeDimensions.height,
-        top: state.activeDimensions.top - state.tableDimensions.top,
-        left: state.activeDimensions.left - state.tableDimensions.left,
-        mode: state.mode
-      }
-    : { hidden: true };
-
-const ActiveCell = connect(__mapStateToProps, {
-  setData: Actions.setData,
-  edit: () => ({
-    mode: "edit"
-  })
-})(_ActiveCell);
 
 type DefaultCellType = {
   value: string | number | boolean | null
@@ -267,43 +212,45 @@ const shiftKeyDownHandlers: KeyDownHandlers<*> = {
   ArrowRight: addToEdge("column", 1)
 };
 
-const actions = <CellType>(store) => ({
-  handleKeyPress(state: Types.StoreState<CellType>) {
-    if (state.mode === "view" && state.active) {
-      return { mode: "edit" };
+function actions<CellType>(store) {
+  return {
+    handleKeyPress(state: Types.StoreState<CellType>) {
+      if (state.mode === "view" && state.active) {
+        return { mode: "edit" };
+      }
+      return null;
+    },
+    handleKeyDown(
+      state: Types.StoreState<CellType>,
+      event: SyntheticKeyboardEvent<HTMLElement>
+    ) {
+      const { key, nativeEvent } = event;
+      let handlers;
+      if (event.shiftKey) {
+        handlers = shiftKeyDownHandlers;
+      } else if (state.mode === "edit") {
+        handlers = editKeyDownHandlers;
+      } else {
+        handlers = keyDownHandlers;
+      }
+      const handler = handlers[key];
+      if (handler) {
+        nativeEvent.preventDefault();
+        return handler(state, event);
+      }
+      return null;
+    },
+    handleClick(state, event) {
+      const {
+        width,
+        height,
+        left,
+        top
+      } = event.currentTarget.getBoundingClientRect();
+      return Actions.setTableDimensions(state, { width, height, left, top });
     }
-    return null;
-  },
-  handleKeyDown(
-    state: Types.StoreState<CellType>,
-    event: SyntheticKeyboardEvent<HTMLElement>
-  ) {
-    const { key, nativeEvent } = event;
-    let handlers;
-    if (event.shiftKey) {
-      handlers = shiftKeyDownHandlers;
-    } else if (state.mode === "edit") {
-      handlers = editKeyDownHandlers;
-    } else {
-      handlers = keyDownHandlers;
-    }
-    const handler = handlers[key];
-    if (handler) {
-      nativeEvent.preventDefault();
-      return handler(state, event);
-    }
-    return null;
-  },
-  handleClick(state, event) {
-    const {
-      width,
-      height,
-      left,
-      top
-    } = event.currentTarget.getBoundingClientRect();
-    return Actions.setTableDimensions(state, { width, height, left, top });
-  }
-});
+  };
+}
 
 const ConnectedSpreadsheet = connect(mapStateToProps, actions)(Spreadsheet);
 
