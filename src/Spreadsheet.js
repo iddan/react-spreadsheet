@@ -3,6 +3,7 @@
 import React, { PureComponent } from "react";
 import type { ComponentType } from "react";
 import createStore from "unistore";
+import devtools from "unistore/devtools";
 import { Provider, connect } from "unistore/react";
 import clipboard from "clipboard-polyfill";
 import * as Types from "./types";
@@ -15,6 +16,7 @@ import type { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
+import Selection from "./Selection";
 import { range, updateData } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
@@ -98,6 +100,7 @@ const Spreadsheet = <CellType, Value>({
       ))}
     </Table>
     <ActiveCell DataEditor={DataEditor} getValue={getValue} />
+    <Selection />
   </div>
 );
 
@@ -138,7 +141,7 @@ const go = (rowDelta: number, columnDelta: number): KeyDownHandler<*> => (
   }
   return {
     active: nextActive,
-    selected: PointSet.of([nextActive]),
+    selected: PointSet.from([nextActive]),
     mode: "view"
   };
 };
@@ -255,8 +258,8 @@ function actions<CellType>(store) {
 const ConnectedSpreadsheet = connect(mapStateToProps, actions)(Spreadsheet);
 
 const initialState: $Shape<Types.StoreState<*>> = {
-  selected: PointSet.of([]),
-  copied: PointSet.of([]),
+  selected: PointSet.from([]),
+  copied: PointSet.from([]),
   active: null,
   mode: "view"
 };
@@ -286,7 +289,10 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
       ...initialState,
       data: this.props.data
     };
-    this.store = createStore(state);
+    this.store =
+      process.env.NODE_ENV === "production"
+        ? createStore(state)
+        : devtools(createStore(state));
     this.prevState = state;
   }
 
@@ -375,7 +381,7 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
         return { data: nextData, selected: nextSelected };
       },
       prevState.copied,
-      { data: prevState.data, selected: PointSet.of([]) }
+      { data: prevState.data, selected: PointSet.from([]) }
     );
     this.store.setState({
       data,

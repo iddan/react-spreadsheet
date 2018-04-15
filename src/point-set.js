@@ -1,4 +1,9 @@
-// @flow
+/**
+ * Immutable Set like interface of points
+ * @todo use point map primitive
+ *
+ * @flow
+ */
 
 import * as Matrix from "./matrix";
 import { flatMap } from "./util";
@@ -42,7 +47,7 @@ export function min(set: PointSet): Point {
   return { row, column: minKey(set[row]) };
 }
 
-export function of(points: Point[]) {
+export function from(points: Point[]) {
   return points.reduce(add, {});
 }
 
@@ -65,7 +70,7 @@ export function reduce<T>(
 }
 
 export function map(func: Point => Point, set: PointSet): PointSet {
-  return reduce((acc, point) => add(acc, func(point)), set, of([]));
+  return reduce((acc, point) => add(acc, func(point)), set, from([]));
 }
 
 export function filter(func: Point => boolean, set: PointSet): PointSet {
@@ -77,7 +82,7 @@ export function filter(func: Point => boolean, set: PointSet): PointSet {
       return acc;
     },
     set,
-    of([])
+    from([])
   );
 }
 

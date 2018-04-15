@@ -1,5 +1,6 @@
 // @flow
 import * as PointSet from "./point-set";
+import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import { isActive, setCell } from "./util";
@@ -12,7 +13,7 @@ type Action = <Cell>(
 export const select: Action = (state, cellPointer: Types.Point) => {
   if (state.active && !isActive(state.active, cellPointer)) {
     return {
-      selected: PointSet.of(
+      selected: PointSet.from(
         Matrix.range(
           { row: state.active.row - 1, column: state.active.column - 1 },
           {
@@ -28,7 +29,7 @@ export const select: Action = (state, cellPointer: Types.Point) => {
 };
 
 export const activate: Action = (state, cellPointer: Types.Point) => ({
-  selected: PointSet.of([cellPointer]),
+  selected: PointSet.from([cellPointer]),
   active: cellPointer,
   mode: isActive(state.active, cellPointer) ? "edit" : "view"
 });
@@ -46,3 +47,7 @@ function setter<Cell>(key: $Keys<Types.StoreState<Cell>>) {
 
 export const setActiveDimensions = setter("activeDimensions");
 export const setTableDimensions = setter("tableDimensions");
+
+export const setCellDimensions = (state, point, dimensions) => ({
+  cellDimensions: PointMap.set(point, dimensions, state)
+});

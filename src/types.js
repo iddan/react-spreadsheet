@@ -1,6 +1,7 @@
 // @flow
 
 import type { ComponentType } from "react";
+import type { PointMap } from "./point-map";
 import type { PointSet } from "./point-set";
 import type { Matrix } from "./matrix";
 
@@ -15,6 +16,13 @@ export type CellDescriptor<Cell> = Point & {|
 
 export type Mode = "view" | "edit";
 
+export type Dimensions = {|
+  width: number,
+  height: number,
+  top: number,
+  left: number
+|};
+
 export type StoreState<Cell> = {|
   data: Matrix<Cell>,
   selected: PointSet,
@@ -23,18 +31,9 @@ export type StoreState<Cell> = {|
   cut: boolean,
   active: Point | null,
   mode: Mode,
-  tableDimensions: {|
-    width: number,
-    height: number,
-    top: number,
-    left: number
-  |},
-  activeDimensions: {|
-    width: number,
-    height: number,
-    top: number,
-    left: number
-  |}
+  tableDimensions: Dimensions,
+  activeDimensions: Dimensions,
+  cellDimensions: PointMap<Dimensions>
 |};
 
 export type getValue<Cell, Value> = (CellDescriptor<Cell>) => Value;

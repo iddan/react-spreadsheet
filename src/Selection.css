@@ -1,0 +1,13 @@
+.Selection {
+  background: rgba(160, 195, 255, 0.2);
+  border: 2px #4285f4 solid;
+  position: absolute;
+}
+
+.Selection.hidden {
+  display: hidden;
+}
+
+.Selection.copied {
+  border-style: dashed;
+}
