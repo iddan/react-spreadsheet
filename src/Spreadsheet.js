@@ -19,6 +19,7 @@ import ActiveCell from "./ActiveCell";
 import Selection from "./Selection";
 import { range, updateData } from "./util";
 import * as PointSet from "./point-set";
+import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
 import "./Spreadsheet.css";
@@ -261,7 +262,8 @@ const initialState: $Shape<Types.StoreState<*>> = {
   selected: PointSet.from([]),
   copied: PointSet.from([]),
   active: null,
-  mode: "view"
+  mode: "view",
+  cellDimensions: PointMap.from([])
 };
 
 type Unsubscribe = () => void;

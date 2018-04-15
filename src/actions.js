@@ -48,6 +48,12 @@ function setter<Cell>(key: $Keys<Types.StoreState<Cell>>) {
 export const setActiveDimensions = setter("activeDimensions");
 export const setTableDimensions = setter("tableDimensions");
 
-export const setCellDimensions = (state, point, dimensions) => ({
-  cellDimensions: PointMap.set(point, dimensions, state)
-});
+export function setCellDimensions(
+  state: Types.StoreState<*>,
+  point: Types.Point,
+  dimensions: Types.Dimensions
+) {
+  return {
+    cellDimensions: PointMap.set(point, dimensions, state.cellDimensions)
+  };
+}

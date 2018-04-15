@@ -31,6 +31,7 @@ export function range(
   return array;
 }
 
+/** Creates a flattened array of values by running each element in collection thru iteratee and flattening the mapped results. */
 export function flatMap<T1, T2>(array: T1[], func: T1 => T2 | T2[]): T2[] {
   let acc = [];
   for (let i = 0; i < array.length; i++) {

@@ -75,10 +75,14 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
   };
 
   componentDidUpdate() {
-    const { active, mode } = this.props;
-    if (active) {
-      this.activate();
+    const { row, column, selected, setCellDimensions } = this.props;
+    if (selected && this.root) {
+      const { width, height, top, left } = this.root.getBoundingClientRect();
+      setCellDimensions({ row, column }, { width, height, top, left });
     }
+    // if (active) {
+    //   this.activate();
+    // }
     // if (this.root && active && mode === "view") {
     //   this.root.focus();
     // }
@@ -178,5 +182,6 @@ export default connect(mapStateToProps, () => ({
   select: Actions.select,
   activate: Actions.activate,
   setData: Actions.setData,
-  setActiveDimensions: Actions.setActiveDimensions
+  setActiveDimensions: Actions.setActiveDimensions,
+  setCellDimensions: Actions.setCellDimensions
 }))(Cell);
