@@ -6,7 +6,7 @@
 }
 
 .Selection.hidden {
-  display: hidden;
+  display: none;
 }
 
 .Selection.copied {

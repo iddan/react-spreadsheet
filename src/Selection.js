@@ -37,7 +37,7 @@ const mapStateToProps = state => {
     height: height,
     top: tableDimensions ? top - tableDimensions.top : 0,
     left: tableDimensions ? left - tableDimensions.left : 0,
-    hidden: true
+    hidden: PointMap.size(state.selected) <= 1
   };
 };
 

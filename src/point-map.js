@@ -35,7 +35,15 @@ export function get<T>(
   return map[point.row] && map[point.row][point.column];
 }
 
-/** Creates a new PointSet instance from an array-like or iterable object. */
+/** Creates a new PointMap instance from an array-like or iterable object. */
 export function from<T>(pairs: [Types.Point, T][]): PointMap<T> {
   return pairs.reduce((acc, [point, value]) => set(point, value, acc), {});
+}
+
+/** Returns the number of elements in a PointMap object. */
+export function size(map: PointMap<*>): number {
+  return Object.values(map).reduce(
+    (acc, row) => acc + Object.keys(row).length,
+    0
+  );
 }
