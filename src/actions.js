@@ -14,12 +14,9 @@ export const select: Action = (state, cellPointer: Types.Point) => {
   if (state.active && !isActive(state.active, cellPointer)) {
     return {
       selected: PointSet.from(
-        Matrix.range(
-          { row: state.active.row - 1, column: state.active.column - 1 },
-          {
-            row: cellPointer.row,
-            column: cellPointer.column
-          }
+        Matrix.inclusiveRange(
+          { row: cellPointer.row, column: cellPointer.column },
+          { row: state.active.row, column: state.active.column }
         )
       ),
       mode: "view"

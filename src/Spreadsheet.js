@@ -24,6 +24,10 @@ import * as Matrix from "./matrix";
 import * as Actions from "./actions";
 import "./Spreadsheet.css";
 
+declare class ClipboardEvent extends Event {
+  clipboardData: DataTransfer;
+}
+
 type DefaultCellType = {
   value: string | number | boolean | null
 };
@@ -76,7 +80,7 @@ const Spreadsheet = <CellType, Value>({
   handleClick
 }: $Rest<
   Props<CellType, Value>,
-  {| data: Matrix.Matrix<CellType> |} & EventProps
+  {| data: Matrix.Matrix<CellType>, ...EventProps<CellType> |}
 > &
   State &
   Handlers<CellType>) => (
@@ -314,7 +318,7 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
         if (state.selected !== prevState.selected) {
           onSelect(PointSet.toArray(state.selected));
         }
-        if (state.active !== prevState.active) {
+        if (state.active !== prevState.active && state.active) {
           onActivate(state.active);
         }
         this.prevState = state;
