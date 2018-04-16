@@ -80,12 +80,13 @@ const Spreadsheet = <CellType, Value>({
 > &
   State &
   Handlers<CellType>) => (
-  <div className="Spreadsheet">
-    <Table
-      onKeyPress={handleKeyPress}
-      onKeyDown={handleKeyDown}
-      onClick={handleClick}
-    >
+  <div
+    className="Spreadsheet"
+    onKeyPress={handleKeyPress}
+    onKeyDown={handleKeyDown}
+    onClick={handleClick}
+  >
+    <Table>
       {range(rows).map(rowNumber => (
         <Row key={rowNumber}>
           {range(columns).map(columnNumber => (
