@@ -85,3 +85,10 @@ export const toColumnLetter = (number: number): string => {
     toColumnLetter(number % ALPHABET_LENGTH)
   );
 };
+
+export const getOffsetRect = (element: HTMLElement): Types.Dimensions => ({
+  width: element.offsetWidth,
+  height: element.offsetHeight,
+  left: element.offsetLeft,
+  top: element.offsetTop
+});

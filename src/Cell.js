@@ -7,7 +7,7 @@ import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Actions from "./actions";
-import { isActive } from "./util";
+import { isActive, getOffsetRect } from "./util";
 
 export type Props<Data, Value> = {
   row: number,
@@ -69,15 +69,7 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
       setCellDimensions
     } = this.props;
     if (selected && this.root) {
-      setCellDimensions(
-        { row, column },
-        {
-          width: this.root.offsetWidth,
-          height: this.root.offsetHeight,
-          left: this.root.offsetLeft,
-          top: this.root.offsetTop
-        }
-      );
+      setCellDimensions({ row, column }, getOffsetRect(this.root));
     }
     if (this.root && active && mode === "view") {
       this.root.focus();
@@ -85,26 +77,11 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
   }
 
   render() {
-    const {
-      row,
-      column,
-      selected,
-      copied,
-      DataViewer,
-      getValue,
-      active,
-      mode,
-      data
-    } = this.props;
+    const { row, column, DataViewer, getValue, data } = this.props;
     return (
       <td
         ref={this.handleRoot}
-        className={classnames(mode, {
-          active,
-          selected,
-          copied,
-          readonly: data && data.readOnly
-        })}
+        className={classnames({ readonly: data && data.readOnly })}
         onClick={this.handleClick}
         tabIndex={0}
       >
