@@ -115,4 +115,3 @@ export const inclusiveRange: typeof range = (endPoint, startPoint) =>
     },
     startPoint
   );
-}
