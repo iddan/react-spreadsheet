@@ -19,6 +19,10 @@ import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import "./Spreadsheet.css";
 
+declare class ClipboardEvent extends Event {
+  clipboardData: DataTransfer;
+}
+
 type DefaultCellType = {
   value: string | number | boolean | null
 };
@@ -71,7 +75,7 @@ const Spreadsheet = <CellType, Value>({
   handleKeyDown
 }: $Rest<
   Props<CellType, Value>,
-  {| data: Matrix.Matrix<CellType> |} & EventProps
+  {| data: Matrix.Matrix<CellType>, ...EventProps<CellType> |}
 > &
   State &
   Handlers<CellType>) => (
@@ -204,34 +208,36 @@ const shiftKeyDownHandlers: KeyDownHandlers<*> = {
   ArrowRight: addToEdge("column", 1)
 };
 
-const actions = <CellType>(store) => ({
-  handleKeyPress(state: Types.StoreState<CellType>) {
-    if (state.mode === "view" && state.active) {
-      return { mode: "edit" };
+function actions<CellType>(store) {
+  return {
+    handleKeyPress(state: Types.StoreState<CellType>) {
+      if (state.mode === "view" && state.active) {
+        return { mode: "edit" };
+      }
+      return null;
+    },
+    handleKeyDown(
+      state: Types.StoreState<CellType>,
+      event: SyntheticKeyboardEvent<HTMLElement>
+    ) {
+      const { key, nativeEvent } = event;
+      let handlers;
+      if (event.shiftKey) {
+        handlers = shiftKeyDownHandlers;
+      } else if (state.mode === "edit") {
+        handlers = editKeyDownHandlers;
+      } else {
+        handlers = keyDownHandlers;
+      }
+      const handler = handlers[key];
+      if (handler) {
+        nativeEvent.preventDefault();
+        return handler(state, event);
+      }
+      return null;
     }
-    return null;
-  },
-  handleKeyDown(
-    state: Types.StoreState<CellType>,
-    event: SyntheticKeyboardEvent<HTMLElement>
-  ) {
-    const { key, nativeEvent } = event;
-    let handlers;
-    if (event.shiftKey) {
-      handlers = shiftKeyDownHandlers;
-    } else if (state.mode === "edit") {
-      handlers = editKeyDownHandlers;
-    } else {
-      handlers = keyDownHandlers;
-    }
-    const handler = handlers[key];
-    if (handler) {
-      nativeEvent.preventDefault();
-      return handler(state, event);
-    }
-    return null;
-  }
-});
+  };
+}
 
 const ConnectedSpreadsheet = connect(mapStateToProps, actions)(Spreadsheet);
 
@@ -285,7 +291,7 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
         if (state.selected !== prevState.selected) {
           onSelect(PointSet.toArray(state.selected));
         }
-        if (state.active !== prevState.active) {
+        if (state.active !== prevState.active && state.active) {
           onActivate(state.active);
         }
         this.prevState = state;
