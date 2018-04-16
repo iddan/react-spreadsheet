@@ -130,7 +130,7 @@ const go = (rowDelta: number, columnDelta: number): KeyDownHandler<*> => (
   }
   return {
     active: nextActive,
-    selected: PointSet.of([nextActive]),
+    selected: PointSet.from([nextActive]),
     mode: "view"
   };
 };
@@ -236,8 +236,8 @@ const actions = <CellType>(store) => ({
 const ConnectedSpreadsheet = connect(mapStateToProps, actions)(Spreadsheet);
 
 const initialState: $Shape<Types.StoreState<*>> = {
-  selected: PointSet.of([]),
-  copied: PointSet.of([]),
+  selected: PointSet.from([]),
+  copied: PointSet.from([]),
   active: null,
   mode: "view"
 };
@@ -356,7 +356,7 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
         return { data: nextData, selected: nextSelected };
       },
       prevState.copied,
-      { data: prevState.data, selected: PointSet.of([]) }
+      { data: prevState.data, selected: PointSet.from([]) }
     );
     this.store.setState({
       data,

@@ -1,4 +1,9 @@
-// @flow
+/**
+ * Immutable Set like interface of points
+ * @todo use point map primitive
+ *
+ * @flow
+ */
 
 import * as Matrix from "./matrix";
 import { flatMap } from "./util";
@@ -10,7 +15,8 @@ export type PointSet = {
   }
 };
 
-export type Descriptor<T> = Point & {|
+export type Descriptor<T> = {|
+  ...Point,
   data: T
 |};
 
@@ -41,7 +47,7 @@ export function min(set: PointSet): Point {
   return { row, column: minKey(set[row]) };
 }
 
-export function of(points: Point[]) {
+export function from(points: Point[]) {
   return points.reduce(add, {});
 }
 
@@ -49,11 +55,11 @@ export function isEmpty(set: PointSet) {
   return Object.keys(set).length === 0;
 }
 
-export const reduce = <T>(
+export function reduce<T>(
   func: (T, Point) => T,
   set: PointSet,
   initialValue: T
-): T => {
+): T {
   let acc = initialValue;
   for (const [row, columns] of Object.entries(set)) {
     for (const column of Object.keys(columns)) {
@@ -61,13 +67,14 @@ export const reduce = <T>(
     }
   }
   return acc;
-};
+}
 
-export const map = (func: Point => Point, set: PointSet): PointSet =>
-  reduce((acc, point) => add(acc, func(point)), set, of([]));
+export function map(func: Point => Point, set: PointSet): PointSet {
+  return reduce((acc, point) => add(acc, func(point)), set, from([]));
+}
 
-export const filter = (func: Point => boolean, set: PointSet): PointSet =>
-  reduce(
+export function filter(func: Point => boolean, set: PointSet): PointSet {
+  return reduce(
     (acc, point) => {
       if (func(point)) {
         return add(acc, point);
@@ -75,8 +82,9 @@ export const filter = (func: Point => boolean, set: PointSet): PointSet =>
       return acc;
     },
     set,
-    of([])
+    from([])
   );
+}
 
 export function toArray(set: PointSet): Point[] {
   return flatMap(
