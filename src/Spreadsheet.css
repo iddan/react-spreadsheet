@@ -61,3 +61,16 @@
   outline: none;
   margin: 0;
 }
+
+.Spreadsheet .selected {
+  background: rgba(160, 195, 255, 0.2);
+  border: 2px #4285f4 solid;
+}
+
+.Spreadsheet .copied {
+  border: 2px #4285f4 dashed;
+}
+
+/* .Spreadsheet .Selection.copied {
+  border-style: dashed;
+} */

@@ -21,15 +21,7 @@ type State<Data> = {|
   active: boolean,
   copied: boolean,
   mode: Types.Mode,
-  data: Data,
-  onSelectedRightEdge: boolean,
-  onSelectedLeftEdge: boolean,
-  onSelectedTopEdge: boolean,
-  onSelectedBottomEdge: boolean,
-  onCopiedRightEdge: boolean,
-  onCopiedLeftEdge: boolean,
-  onCopiedTopEdge: boolean,
-  onCopiedBottomEdge: boolean
+  data: Data
 |};
 
 type Handlers<Data> = {|
@@ -102,15 +94,7 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
       getValue,
       active,
       mode,
-      data,
-      onSelectedRightEdge,
-      onSelectedLeftEdge,
-      onSelectedTopEdge,
-      onSelectedBottomEdge,
-      onCopiedRightEdge,
-      onCopiedLeftEdge,
-      onCopiedTopEdge,
-      onCopiedBottomEdge
+      data
     } = this.props;
     return (
       <td
@@ -119,15 +103,7 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
           active,
           selected,
           copied,
-          readonly: data && data.readOnly,
-          "selected-right-edge": onSelectedRightEdge,
-          "selected-left-edge": onSelectedLeftEdge,
-          "selected-top-edge": onSelectedTopEdge,
-          "selected-bottom-edge": onSelectedBottomEdge,
-          "copied-right-edge": onCopiedRightEdge,
-          "copied-left-edge": onCopiedLeftEdge,
-          "copied-top-edge": onCopiedTopEdge,
-          "copied-bottom-edge": onCopiedBottomEdge
+          readonly: data && data.readOnly
         })}
         onClick={this.handleClick}
         tabIndex={0}
@@ -145,23 +121,13 @@ function mapStateToProps<Data>(
   const point = { row, column };
   const cellIsActive = isActive(active, point);
   const cellIsSelected = PointSet.has(selected, point);
-  const onSelectedEdge = PointSet.onEdge(selected, point);
-  const onCopiedEdge = PointSet.onEdge(copied, point);
 
   return {
     selected: cellIsSelected,
     active: cellIsActive,
     copied: PointSet.has(copied, point),
     mode: cellIsActive ? mode : "view",
-    data: Matrix.get(row, column, data),
-    onSelectedRightEdge: onSelectedEdge.right,
-    onSelectedLeftEdge: onSelectedEdge.left,
-    onSelectedTopEdge: onSelectedEdge.top,
-    onSelectedBottomEdge: onSelectedEdge.bottom,
-    onCopiedRightEdge: !hasPasted && onCopiedEdge.right,
-    onCopiedLeftEdge: !hasPasted && onCopiedEdge.left,
-    onCopiedTopEdge: !hasPasted && onCopiedEdge.top,
-    onCopiedBottomEdge: !hasPasted && onCopiedEdge.bottom
+    data: Matrix.get(row, column, data)
   };
 }
 

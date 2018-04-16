@@ -1,0 +1,8 @@
+.FloatingRect {
+  position: absolute;
+  pointer-events: none;
+}
+
+.FloatingRect.hidden {
+  display: none;
+}

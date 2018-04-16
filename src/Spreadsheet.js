@@ -16,7 +16,7 @@ import type { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
-import Selection from "./Selection";
+import FloatingRect from "./FloatingRect";
 import { range, updateData } from "./util";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
@@ -101,7 +101,8 @@ const Spreadsheet = <CellType, Value>({
       ))}
     </Table>
     <ActiveCell DataEditor={DataEditor} getValue={getValue} />
-    <Selection />
+    <FloatingRect set="selected" className="selected" />
+    <FloatingRect set="copied" className="copied" />
   </div>
 );
 
