@@ -45,7 +45,6 @@ function setter<Cell>(key: $Keys<Types.StoreState<Cell>>) {
   });
 }
 
-export const setActiveDimensions = setter("activeDimensions");
 export const setTableDimensions = setter("tableDimensions");
 
 export function setCellDimensions(

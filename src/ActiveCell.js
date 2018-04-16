@@ -1,8 +1,24 @@
+// @flow
 import React from "react";
 import classnames from "classnames";
 import { connect } from "unistore/react";
 import * as Matrix from "./matrix";
+import * as PointMap from "./point-map";
 import * as Actions from "./actions";
+import * as Types from "./types";
+
+type Props<Cell, Value> = {|
+  ...Types.Point,
+  ...Types.Dimensions,
+  DataEditor: Types.DataEditor<Cell, Value>,
+  getValue: Types.getValue<Cell, Value>,
+  onChange: (data: Cell) => void,
+  setData: (data: Cell) => void,
+  cell: Cell,
+  hidden: boolean,
+  mode: Types.Mode,
+  edit: () => void
+|};
 
 const ActiveCell = ({
   DataEditor,
@@ -19,7 +35,7 @@ const ActiveCell = ({
   hidden,
   mode,
   edit
-}) =>
+}: Props) =>
   hidden ? null : (
     <div
       className={classnames("ActiveCell", mode)}
@@ -38,19 +54,26 @@ const ActiveCell = ({
     </div>
   );
 
-const mapStateToProps = state =>
-  state.active && state.tableDimensions && state.activeDimensions
-    ? {
-        hidden: false,
-        ...state.active,
-        cell: Matrix.get(state.active.row, state.active.column, state.data),
-        width: state.activeDimensions.width,
-        height: state.activeDimensions.height,
-        top: state.activeDimensions.top - state.tableDimensions.top,
-        left: state.activeDimensions.left - state.tableDimensions.left,
-        mode: state.mode
-      }
-    : { hidden: true };
+const mapStateToProps = (state: Types.StoreState<*>) => {
+  if (
+    !state.active ||
+    !state.tableDimensions ||
+    !PointMap.has(state.active, state.cellDimensions)
+  ) {
+    return { hidden: true };
+  }
+  const dimensions = PointMap.get(state.active, state.cellDimensions);
+  return {
+    hidden: false,
+    ...state.active,
+    cell: Matrix.get(state.active.row, state.active.column, state.data),
+    width: dimensions.width,
+    height: dimensions.height,
+    top: dimensions.top - state.tableDimensions.top,
+    left: dimensions.left - state.tableDimensions.left,
+    mode: state.mode
+  };
+};
 
 export default connect(mapStateToProps, {
   setData: Actions.setData,

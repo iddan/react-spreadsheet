@@ -37,9 +37,7 @@ type Handlers<Data> = {|
   setData: (data: Data) => void,
   select: (cellPointer: Types.Point) => void,
   activate: (cellPointer: Types.Point) => void,
-  setActiveDimensions: (
-    activeDimensions: $PropertyType<Types.StoreState<Data>, "activeDimensions">
-  ) => void
+  setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void
 |};
 
 class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
@@ -52,12 +50,8 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
   };
 
   activate = () => {
-    const { row, column, activate, setActiveDimensions } = this.props;
+    const { row, column, activate } = this.props;
     activate({ row, column });
-    if (this.root) {
-      const { width, height, top, left } = this.root.getBoundingClientRect();
-      setActiveDimensions({ width, height, top, left });
-    }
   };
 
   handleClick = (e: SyntheticMouseEvent<HTMLElement>) => {
@@ -182,6 +176,5 @@ export default connect(mapStateToProps, () => ({
   select: Actions.select,
   activate: Actions.activate,
   setData: Actions.setData,
-  setActiveDimensions: Actions.setActiveDimensions,
   setCellDimensions: Actions.setCellDimensions
 }))(Cell);

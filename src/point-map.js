@@ -35,6 +35,13 @@ export function get<T>(
   return map[point.row] && map[point.row][point.column];
 }
 
+/** Checks if map has point assigned to value */
+export function has<T>(point: Types.Point, map: PointMap<T>): boolean {
+  return (
+    map[point.row] !== undefined && map[point.row][point.column] !== undefined
+  );
+}
+
 /** Creates a new PointMap instance from an array-like or iterable object. */
 export function from<T>(pairs: [Types.Point, T][]): PointMap<T> {
   return pairs.reduce((acc, [point, value]) => set(point, value, acc), {});
