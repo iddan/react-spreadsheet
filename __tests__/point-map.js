@@ -1,0 +1,49 @@
+import * as PointMap from "../src/point-map";
+
+const map = PointMap.from([
+  [{ row: 0, column: 0 }, 42],
+  [{ row: 0, column: 1 }, 42],
+  [{ row: 1, column: 1 }, 42],
+  [{ row: 2, column: 2 }, 42]
+]);
+
+describe("PointMap.from()", () => {
+  test("Creates a map from entries", () => {
+    expect(map).toEqual({
+      0: { 0: 42, 1: 42 },
+      1: { 1: 42 },
+      2: { 2: 42 }
+    });
+  });
+});
+
+describe("PointMap.get()", () => {
+  test("Return value for set point", () => {
+    expect(PointMap.get({ row: 0, column: 0 }, map)).toBe(42);
+  });
+  test("Return undefined for unset point", () => {
+    expect(PointMap.get({ row: 5, column: 5 }, map)).toBe(undefined);
+  });
+});
+
+describe("PointMap.set()", () => {
+  test("Sets value for point", () => {
+    const newMap = PointMap.set({ row: 5, column: 5 }, 63, map);
+    expect(PointMap.get({ row: 5, column: 5 }, newMap)).toBe(63);
+  });
+});
+
+describe("PointMap.has()", () => {
+  test("Returns true for set point", () => {
+    expect(PointMap.has({ row: 0, column: 0 }, map)).toBe(true);
+  });
+  test("Returns false for unset point", () => {
+    expect(PointMap.has({ row: 5, column: 5 }, map)).toBe(false);
+  });
+});
+
+describe("PointMap.size()", () => {
+  test("Returns correct size", () => {
+    expect(PointMap.size(map)).toBe(4);
+  });
+});
