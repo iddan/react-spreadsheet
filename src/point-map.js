@@ -4,7 +4,6 @@
  * @flow
  */
 import * as Types from "./types";
-import { flatMap } from "./util";
 
 export type PointMap<T> = {
   [row: number]: {
