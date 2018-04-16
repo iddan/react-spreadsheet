@@ -14,7 +14,6 @@ const Selection = ({ width, height, top, left, hidden }) => (
 );
 
 const mapStateToProps = state => {
-  const { tableDimensions } = state;
   const { width, height, top, left } = PointSet.reduce(
     (acc, point) => {
       const isOnEdge = PointSet.onEdge(state.selected, point);
@@ -33,10 +32,10 @@ const mapStateToProps = state => {
     { width: 0, height: 0, left: 0, top: 0 }
   );
   return {
-    width: width,
-    height: height,
-    top: tableDimensions ? top - tableDimensions.top : 0,
-    left: tableDimensions ? left - tableDimensions.left : 0,
+    width,
+    height,
+    top,
+    left,
     hidden: PointMap.size(state.selected) <= 1
   };
 };

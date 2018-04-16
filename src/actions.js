@@ -52,6 +52,16 @@ export function setCellDimensions(
   point: Types.Point,
   dimensions: Types.Dimensions
 ) {
+  const prevDimensions = PointMap.get(point, state.cellDimensions);
+  if (
+    prevDimensions &&
+    prevDimensions.width === dimensions.width &&
+    prevDimensions.height === dimensions.height &&
+    prevDimensions.top === dimensions.top &&
+    prevDimensions.left === dimensions.left
+  ) {
+    return null;
+  }
   return {
     cellDimensions: PointMap.set(point, dimensions, state.cellDimensions)
   };

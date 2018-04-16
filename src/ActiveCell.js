@@ -55,11 +55,7 @@ const ActiveCell = ({
   );
 
 const mapStateToProps = (state: Types.StoreState<*>) => {
-  if (
-    !state.active ||
-    !state.tableDimensions ||
-    !PointMap.has(state.active, state.cellDimensions)
-  ) {
+  if (!state.active || !PointMap.has(state.active, state.cellDimensions)) {
     return { hidden: true };
   }
   const dimensions = PointMap.get(state.active, state.cellDimensions);
@@ -69,8 +65,8 @@ const mapStateToProps = (state: Types.StoreState<*>) => {
     cell: Matrix.get(state.active.row, state.active.column, state.data),
     width: dimensions.width,
     height: dimensions.height,
-    top: dimensions.top - state.tableDimensions.top,
-    left: dimensions.left - state.tableDimensions.left,
+    top: dimensions.top,
+    left: dimensions.left,
     mode: state.mode
   };
 };

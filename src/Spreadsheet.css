@@ -1,9 +1,6 @@
 .Spreadsheet {
   position: relative;
-}
-
-.SpreadsheetTable {
-  position: relative;
+  overflow: visible;
 }
 
 .Spreadsheet .ActiveCell {
@@ -21,12 +18,12 @@
   table-layout: fixed;
 }
 
-.SpreadsheetTable td,
-.SpreadsheetTable td input {
+.Spreadsheet td,
+.Spreadsheet td input {
   outline: none;
 }
 
-.SpreadsheetTable td {
+.Spreadsheet td {
   min-width: 6em;
   min-height: 1.9em;
   max-height: 1.9em;
@@ -41,11 +38,11 @@
 }
 
 
-.SpreadsheetTable .ActiveCell.edit {
+.Spreadsheet .ActiveCell.edit {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
-.SpreadsheetTable td.readonly {
+.Spreadsheet td.readonly {
   background: #f5f5f5;
   color: #999;
   text-align: center;

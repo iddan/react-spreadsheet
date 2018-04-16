@@ -12,7 +12,6 @@ import { isActive } from "./util";
 export type Props<Data, Value> = {
   row: number,
   column: number,
-  DataEditor: Types.DataEditor<Data, Value>,
   DataViewer: Types.DataViewer<Data, Value>,
   getValue: Types.getValue<Data, Value>
 };
@@ -69,17 +68,28 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
   };
 
   componentDidUpdate() {
-    const { row, column, selected, setCellDimensions } = this.props;
+    const {
+      row,
+      column,
+      active,
+      selected,
+      mode,
+      setCellDimensions
+    } = this.props;
     if (selected && this.root) {
-      const { width, height, top, left } = this.root.getBoundingClientRect();
-      setCellDimensions({ row, column }, { width, height, top, left });
+      setCellDimensions(
+        { row, column },
+        {
+          width: this.root.clientWidth,
+          height: this.root.clientHeight,
+          left: this.root.offsetLeft,
+          top: this.root.offsetTop
+        }
+      );
     }
-    // if (active) {
-    //   this.activate();
-    // }
-    // if (this.root && active && mode === "view") {
-    //   this.root.focus();
-    // }
+    if (this.root && active && mode === "view") {
+      this.root.focus();
+    }
   }
 
   render() {
@@ -88,7 +98,6 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
       column,
       selected,
       copied,
-      DataEditor,
       DataViewer,
       getValue,
       active,
@@ -123,22 +132,7 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
         onClick={this.handleClick}
         tabIndex={0}
       >
-        {mode === "edit" ? (
-          <DataEditor
-            row={row}
-            column={column}
-            cell={data}
-            getValue={getValue}
-            onChange={this.handleChange}
-          />
-        ) : (
-          <DataViewer
-            row={row}
-            column={column}
-            cell={data}
-            getValue={getValue}
-          />
-        )}
+        <DataViewer row={row} column={column} cell={data} getValue={getValue} />
       </td>
     );
   }
@@ -158,8 +152,7 @@ function mapStateToProps<Data>(
     selected: cellIsSelected,
     active: cellIsActive,
     copied: PointSet.has(copied, point),
-    mode: "view",
-    // mode: cellIsActive ? mode : "view",
+    mode: cellIsActive ? mode : "view",
     data: Matrix.get(row, column, data),
     onSelectedRightEdge: onSelectedEdge.right,
     onSelectedLeftEdge: onSelectedEdge.left,
