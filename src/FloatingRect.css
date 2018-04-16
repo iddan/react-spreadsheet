@@ -1,6 +1,7 @@
 .FloatingRect {
   position: absolute;
   pointer-events: none;
+  box-sizing: border-box;
 }
 
 .FloatingRect.hidden {
