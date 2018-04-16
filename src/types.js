@@ -19,6 +19,8 @@ export type StoreState<Cell> = {|
   data: Matrix<Cell>,
   selected: PointSet,
   copied: PointSet,
+  hasPasted: boolean,
+  cut: boolean,
   active: Point | null,
   mode: Mode
 |};

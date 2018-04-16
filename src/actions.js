@@ -12,7 +12,7 @@ type Action = <Cell>(
 export const select: Action = (state, cellPointer: Types.Point) => {
   if (state.active && !isActive(state.active, cellPointer)) {
     return {
-      selected: PointSet.of(
+      selected: PointSet.from(
         Matrix.range(
           { 
             row: state.active.row - 1, 
@@ -31,7 +31,7 @@ export const select: Action = (state, cellPointer: Types.Point) => {
 };
 
 export const activate: Action = (state, cellPointer: Types.Point) => ({
-  selected: PointSet.of([cellPointer]),
+  selected: PointSet.from([cellPointer]),
   active: cellPointer,
   mode: isActive(state.active, cellPointer) ? "edit" : "view"
 });

@@ -130,7 +130,7 @@ const go = (rowDelta: number, columnDelta: number): KeyDownHandler<*> => (
   }
   return {
     active: nextActive,
-    selected: PointSet.of([nextActive]),
+    selected: PointSet.from([nextActive]),
     mode: "view"
   };
 };
@@ -236,8 +236,8 @@ const actions = <CellType>(store) => ({
 const ConnectedSpreadsheet = connect(mapStateToProps, actions)(Spreadsheet);
 
 const initialState: $Shape<Types.StoreState<*>> = {
-  selected: PointSet.of([]),
-  copied: PointSet.of([]),
+  selected: PointSet.from([]),
+  copied: PointSet.from([]),
   active: null,
   mode: "view"
 };
@@ -327,7 +327,7 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
     } else {
       copy();
     }
-    this.store.setState({ copied: selected, cut: false });
+    this.store.setState({ copied: selected, cut: false, hasPasted: false });
   };
 
   handleCut = (event: ClipboardEvent) => {
@@ -337,27 +337,32 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
 
   handlePaste = (event: ClipboardEvent) => {
     const prevState = this.store.getState();
+    const { data, selected } = PointSet.reduce(
+      (acc, { row, column }) => {
+        const nextRow = row + prevState.active.row - 1;
+        const nextColumn = column + prevState.active.column - 1;
+        const nextPointExists = Matrix.has(nextRow, nextColumn, prevState.data);
+        const nextData = nextPointExists
+          ? Matrix.set(
+              nextRow,
+              nextColumn,
+              Matrix.get(row, column, prevState.data),
+              acc.data
+            )
+          : acc.data;
+        const nextSelected = nextPointExists
+          ? PointSet.add(acc.selected, { row: nextRow, column: nextColumn })
+          : acc.selected;
+        return { data: nextData, selected: nextSelected };
+      },
+      prevState.copied,
+      { data: prevState.data, selected: PointSet.from([]) }
+    );
     this.store.setState({
-      data: PointSet.reduce(
-        (acc, { row, column }) =>
-          Matrix.set(
-            row + prevState.active.row - 1,
-            column + prevState.active.column - 1,
-            Matrix.get(row, column, prevState.data),
-            acc
-          ),
-        prevState.copied,
-        prevState.data
-      ),
-      selected: PointSet.map(
-        point => ({
-          row: point.row + prevState.active.row - 1,
-          column: point.column + prevState.active.column - 1
-        }),
-        prevState.copied
-      ),
-      // copied: PointSet.of([]),
+      data,
+      selected,
       cut: false,
+      hasPasted: true,
       mode: "view"
     });
   };
