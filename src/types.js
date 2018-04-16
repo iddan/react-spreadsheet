@@ -9,7 +9,8 @@ export type Point = {|
   row: number
 |};
 
-export type CellDescriptor<Cell> = Point & {|
+export type CellDescriptor<Cell> = {|
+  ...Point,
   data: Cell
 |};
 
