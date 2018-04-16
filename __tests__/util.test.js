@@ -29,9 +29,9 @@ describe("range method:", () => {
   test("range with opposite parameters  return an incremented array", () => {
     const start = 1;
     const end = 5;
-    const res = range(end);
+    const res = range(start, end);
 
-    console.log(res);
+    expect(res).toEqual([1, 2, 3, 4]);
   });
 });
 
