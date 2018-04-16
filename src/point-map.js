@@ -5,11 +5,11 @@
  */
 import * as Types from "./types";
 
-export type PointMap<T> = {
-  [row: number]: {
+export type PointMap<T> = {|
+  [row: number]: {|
     [column: number]: T
-  }
-};
+  |}
+|};
 
 /** Sets the value for point in map */
 export function set<T>(
@@ -41,9 +41,11 @@ export function has<T>(point: Types.Point, map: PointMap<T>): boolean {
   );
 }
 
+const EMPTY: PointMap<any> = ({}: any);
+
 /** Creates a new PointMap instance from an array-like or iterable object. */
 export function from<T>(pairs: [Types.Point, T][]): PointMap<T> {
-  return pairs.reduce((acc, [point, value]) => set(point, value, acc), {});
+  return pairs.reduce((acc, [point, value]) => set(point, value, acc), EMPTY);
 }
 
 /** Returns the number of elements in a PointMap object. */

@@ -22,7 +22,6 @@
   "dependencies": {
     "classnames": "2.2.5",
     "clipboard-polyfill": "^2.4.6",
-    "create-react-context": "^0.2.1",
     "unistore": "^3.0.4"
   },
   "devDependencies": {
@@ -41,7 +40,7 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.5.1",
-    "flow-bin": "^0.68.0",
+    "flow-bin": "^0.70.0",
     "jest": "^22.4.3",
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
