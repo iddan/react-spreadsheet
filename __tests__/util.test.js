@@ -20,18 +20,12 @@ describe("range method:", () => {
     expect(res).toEqual([-10, -8, -6, -4, -2, 0, 2, 4, 6, 8]);
   });
 
-  /* Is it what we want ?
-  the case I have in my head is the current bug with backward select
-  where we have an endPoint and we send a new startPoint
+  test("range with larger start to return decreasing series", () => {
+    const end = 1;
+    const start = 5;
+    const res = range(end, start);
 
-  from what I understand we need to have an chornologicly incremented array,
-  but I was'nt sure, so I want to know what do you thing */
-  test("range with opposite parameters  return an incremented array", () => {
-    const start = 1;
-    const end = 5;
-    const res = range(start, end);
-
-    expect(res).toEqual([1, 2, 3, 4]);
+    expect(res).toEqual([5, 4, 3, 2]);
   });
 });
 
