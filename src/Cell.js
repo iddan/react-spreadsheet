@@ -80,8 +80,8 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
       setCellDimensions(
         { row, column },
         {
-          width: this.root.clientWidth,
-          height: this.root.clientHeight,
+          width: this.root.offsetWidth,
+          height: this.root.offsetHeight,
           left: this.root.offsetLeft,
           top: this.root.offsetTop
         }
