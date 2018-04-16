@@ -88,7 +88,30 @@ export function range(
   endPoint: Types.Point,
   startPoint: Types.Point
 ): Types.Point[] {
-  return flatMap(_range(endPoint.row, startPoint.row), row =>
-    _range(endPoint.column, startPoint.column).map(column => ({ row, column }))
+  const columnsRange =
+    startPoint.column !== endPoint.column
+      ? _range(endPoint.column, startPoint.column)
+      : startPoint.row !== endPoint.row
+        ? [startPoint.column]
+        : [];
+
+  const rowsRange =
+    startPoint.row !== endPoint.row
+      ? _range(endPoint.row, startPoint.row)
+      : startPoint.column !== endPoint.column
+        ? [startPoint.row]
+        : [];
+
+  return flatMap(rowsRange, row =>
+    columnsRange.map(column => ({ row, column }))
   );
 }
+
+export const inclusiveRange: typeof range = (endPoint, startPoint) =>
+  range(
+    {
+      row: endPoint.row + Math.sign(endPoint.row - startPoint.row),
+      column: endPoint.column + Math.sign(endPoint.column - startPoint.column)
+    },
+    startPoint
+  );
