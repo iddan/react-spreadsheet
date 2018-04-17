@@ -9,12 +9,12 @@ import * as Types from "./types";
 import * as Actions from "./actions";
 import { isActive, getOffsetRect } from "./util";
 
-export type Props<Data, Value> = {
+type StaticProps<Data, Value> = {|
   row: number,
   column: number,
   DataViewer: Types.DataViewer<Data, Value>,
   getValue: Types.getValue<Data, Value>
-};
+|};
 
 type State<Data> = {|
   selected: boolean,
@@ -31,8 +31,14 @@ type Handlers<Data> = {|
   setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void
 |};
 
-class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
-  Props<Data, Value> & State<Data> & Handlers<Data>
+export type Props<Data, Value> = {|
+  ...StaticProps<Data, Value>,
+  ...State<Data>,
+  ...Handlers<Data>
+|};
+
+export class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
+  Props<Data, Value>
 > {
   /** @todo update to new API */
   root: HTMLElement | null;
@@ -40,18 +46,17 @@ class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
     this.root = root;
   };
 
-  activate = () => {
-    const { row, column, activate } = this.props;
-    activate({ row, column });
-  };
-
   handleClick = (e: SyntheticMouseEvent<HTMLElement>) => {
-    const { row, column, select } = this.props;
+    const { row, column, setCellDimensions, select, activate } = this.props;
+
+    setCellDimensions({ row, column }, getOffsetRect(e.currentTarget));
+
     if (e.shiftKey) {
       select({ row, column });
       return;
     }
-    this.activate();
+
+    activate({ row, column });
   };
 
   handleChange = (cell: Data) => {
@@ -97,20 +102,19 @@ function mapStateToProps<Data>(
 ): State<Data> {
   const point = { row, column };
   const cellIsActive = isActive(active, point);
-  const cellIsSelected = PointSet.has(selected, point);
 
   return {
-    selected: cellIsSelected,
     active: cellIsActive,
+    selected: PointSet.has(selected, point),
     copied: PointSet.has(copied, point),
     mode: cellIsActive ? mode : "view",
     data: Matrix.get(row, column, data)
   };
 }
 
-export default connect(mapStateToProps, () => ({
+export const enhance = connect(mapStateToProps, () => ({
   select: Actions.select,
   activate: Actions.activate,
   setData: Actions.setData,
   setCellDimensions: Actions.setCellDimensions
-}))(Cell);
+}));

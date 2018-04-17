@@ -11,7 +11,7 @@ import Table from "./Table";
 import type { Props as TableProps } from "./Table";
 import Row from "./Row";
 import type { Props as RowProps } from "./Row";
-import Cell from "./Cell";
+import { Cell, enhance as enhanceCell } from "./Cell";
 import type { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
@@ -56,15 +56,10 @@ type State = {|
   columns: number
 |};
 
-type Handlers<Cell> = {|
-  handleKeyPress: (
-    state: Types.StoreState<Cell>,
-    event: SyntheticKeyboardEvent<*>
-  ) => void,
-  handleKeyDown: (
-    state: Types.StoreState<Cell>,
-    event: SyntheticKeyboardEvent<*>
-  ) => void
+type Handlers = {|
+  handleKeyPress: (event: SyntheticKeyboardEvent<*>) => void,
+  handleKeyDown: (event: SyntheticKeyboardEvent<*>) => void,
+  handleClick: (event: SyntheticMouseEvent<*>) => void
 |};
 
 const Spreadsheet = <CellType, Value>({
@@ -78,12 +73,11 @@ const Spreadsheet = <CellType, Value>({
   handleKeyPress,
   handleKeyDown,
   handleClick
-}: $Rest<
-  Props<CellType, Value>,
-  {| data: Matrix.Matrix<CellType>, ...EventProps<CellType> |}
-> &
-  State &
-  Handlers<CellType>) => (
+}: {|
+  ...$Diff<Props<CellType, Value>, {| data: Matrix.Matrix<CellType> |}>,
+  ...State,
+  ...Handlers
+|}) => (
   <div
     className="Spreadsheet"
     onKeyPress={handleKeyPress}
@@ -114,7 +108,8 @@ const Spreadsheet = <CellType, Value>({
 Spreadsheet.defaultProps = {
   Table,
   Row,
-  Cell,
+  /** @todo enhance incoming Cell prop */
+  Cell: enhanceCell(Cell),
   DataViewer,
   DataEditor,
   getValue
