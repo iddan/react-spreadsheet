@@ -42,8 +42,6 @@ function setter<Cell>(key: $Keys<Types.StoreState<Cell>>) {
   });
 }
 
-export const setTableDimensions = setter("tableDimensions");
-
 export function setCellDimensions(
   state: Types.StoreState<*>,
   point: Types.Point,

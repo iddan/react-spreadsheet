@@ -1,5 +1,5 @@
 import React from "react";
-import { connect } from "unistore/react";
+// import { connect } from "unistore/react";
 import * as PointMap from "./point-map";
 import * as PointSet from "./point-set";
 import classnames from "classnames";
@@ -12,11 +12,11 @@ const FloatingRect = ({ width, height, top, left, className, hidden }) => (
   />
 );
 
-const mapStateToProps = (state, prevProps) => {
-  const set = state[prevProps.set];
+/** @todo better arch */
+export const mapStateToProps = cells => state => {
   const dimensions = PointSet.reduce(
     (acc, point) => {
-      const isOnEdge = PointSet.onEdge(set, point);
+      const isOnEdge = PointSet.onEdge(cells, point);
       const dimensions = PointMap.get(point, state.cellDimensions);
       if (dimensions) {
         return {
@@ -28,7 +28,7 @@ const mapStateToProps = (state, prevProps) => {
       }
       return acc;
     },
-    set,
+    cells,
     { width: 0, height: 0, left: 0, top: 0 }
   );
   return {
@@ -37,4 +37,4 @@ const mapStateToProps = (state, prevProps) => {
   };
 };
 
-export default connect(mapStateToProps)(FloatingRect);
+export default FloatingRect;

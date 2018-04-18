@@ -16,7 +16,8 @@ import type { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
-import FloatingRect from "./FloatingRect";
+import Selected from "./Selected";
+import Copied from "./Copied";
 import { range, updateData } from "./util";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
@@ -58,8 +59,7 @@ type State = {|
 
 type Handlers = {|
   handleKeyPress: (event: SyntheticKeyboardEvent<*>) => void,
-  handleKeyDown: (event: SyntheticKeyboardEvent<*>) => void,
-  handleClick: (event: SyntheticMouseEvent<*>) => void
+  handleKeyDown: (event: SyntheticKeyboardEvent<*>) => void
 |};
 
 const Spreadsheet = <CellType, Value>({
@@ -71,8 +71,7 @@ const Spreadsheet = <CellType, Value>({
   rows,
   columns,
   handleKeyPress,
-  handleKeyDown,
-  handleClick
+  handleKeyDown
 }: {|
   ...$Diff<Props<CellType, Value>, {| data: Matrix.Matrix<CellType> |}>,
   ...State,
@@ -82,7 +81,6 @@ const Spreadsheet = <CellType, Value>({
     className="Spreadsheet"
     onKeyPress={handleKeyPress}
     onKeyDown={handleKeyDown}
-    onClick={handleClick}
   >
     <Table>
       {range(rows).map(rowNumber => (
@@ -100,8 +98,8 @@ const Spreadsheet = <CellType, Value>({
       ))}
     </Table>
     <ActiveCell DataEditor={DataEditor} getValue={getValue} />
-    <FloatingRect set="selected" className="selected" />
-    <FloatingRect set="copied" className="copied" />
+    <Selected />
+    <Copied />
   </div>
 );
 
@@ -244,15 +242,6 @@ function actions<CellType>(store) {
         return handler(state, event);
       }
       return null;
-    },
-    handleClick(state, event) {
-      const {
-        width,
-        height,
-        left,
-        top
-      } = event.currentTarget.getBoundingClientRect();
-      return Actions.setTableDimensions(state, { width, height, left, top });
     }
   };
 }

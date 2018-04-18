@@ -32,7 +32,6 @@ export type StoreState<Cell> = {|
   cut: boolean,
   active: Point | null,
   mode: Mode,
-  tableDimensions: Dimensions,
   cellDimensions: PointMap<Dimensions>
 |};
 
