@@ -174,8 +174,7 @@ const keyDownHandlers: KeyDownHandlers<*> = {
           }),
         state.selected,
         state.data
-      ),
-      mode: "edit"
+      )
     };
   }
 };
@@ -231,10 +230,11 @@ function actions<CellType>(store) {
     ) {
       const { key, nativeEvent } = event;
       let handlers;
-      if (event.shiftKey) {
-        handlers = shiftKeyDownHandlers;
-      } else if (state.mode === "edit") {
+      // Order matters
+      if (state.mode === "edit") {
         handlers = editKeyDownHandlers;
+      } else if (event.shiftKey) {
+        handlers = shiftKeyDownHandlers;
       } else {
         handlers = keyDownHandlers;
       }
