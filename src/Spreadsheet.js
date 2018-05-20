@@ -354,22 +354,30 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
 
   handlePaste = (event: ClipboardEvent) => {
     const prevState = this.store.getState();
+    const minRow = PointSet.getEdgeValue(prevState.copied, "row", -1);
+    const minColumn = PointSet.getEdgeValue(prevState.copied, "column", -1);
     const { data, selected } = PointSet.reduce(
       (acc, { row, column }) => {
-        const nextRow = row + prevState.active.row - 1;
-        const nextColumn = column + prevState.active.column - 1;
+        const nextRow = row - minRow + prevState.active.row;
+        const nextColumn = column - minColumn + prevState.active.column;
+
         const nextPointExists = Matrix.has(nextRow, nextColumn, prevState.data);
-        const nextData = nextPointExists
-          ? Matrix.set(
-              nextRow,
-              nextColumn,
-              Matrix.get(row, column, prevState.data),
-              acc.data
-            )
-          : acc.data;
-        const nextSelected = nextPointExists
-          ? PointSet.add(acc.selected, { row: nextRow, column: nextColumn })
-          : acc.selected;
+
+        if (!nextPointExists) {
+          return acc;
+        }
+
+        const nextData = Matrix.set(
+          nextRow,
+          nextColumn,
+          Matrix.get(row, column, prevState.data),
+          acc.data
+        );
+        const nextSelected = PointSet.add(acc.selected, {
+          row: nextRow,
+          column: nextColumn
+        });
+
         return { data: nextData, selected: nextSelected };
       },
       prevState.copied,

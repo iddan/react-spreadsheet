@@ -5,8 +5,6 @@ import FloatingRect, { mapStateToProps } from "./FloatingRect";
 
 const Copied = props => <FloatingRect {...props} className="copied" />;
 
-export default connect(
-  state =>
-    console.log(state) ||
-    mapStateToProps(state.hasPasted ? PointSet.from([]) : state.copied)(state)
+export default connect(state =>
+  mapStateToProps(state.hasPasted ? PointSet.from([]) : state.copied)(state)
 )(Copied);
