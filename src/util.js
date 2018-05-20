@@ -2,6 +2,7 @@
 
 import * as Types from "./types";
 import type { Matrix } from "./matrix";
+import clipboard from "clipboard-polyfill";
 
 export const moveCursorToEnd = (el: HTMLInputElement) => {
   el.selectionStart = el.selectionEnd = el.value.length;
@@ -92,3 +93,27 @@ export const getOffsetRect = (element: HTMLElement): Types.Dimensions => ({
   left: element.offsetLeft,
   top: element.offsetTop
 });
+
+/**
+ * @todo better error management
+ */
+/**
+ * Wraps Clipboard.writeText() with permission check if necessary
+ * @param string - The string to be written to the clipboard.
+ */
+export const writeTextToClipboard = (string: string) => {
+  const write = () => clipboard.writeText(string);
+  if (navigator.permissions) {
+    navigator.permissions
+      .query({
+        name: "clipboard-read"
+      })
+      .then(readClipboardStatus => {
+        if (readClipboardStatus.state) {
+          write();
+        }
+      });
+  } else {
+    write();
+  }
+};

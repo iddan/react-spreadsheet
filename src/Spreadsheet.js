@@ -5,7 +5,6 @@ import type { ComponentType } from "react";
 import createStore from "unistore";
 import devtools from "unistore/devtools";
 import { Provider, connect } from "unistore/react";
-import clipboard from "clipboard-polyfill";
 import * as Types from "./types";
 import Table from "./Table";
 import type { Props as TableProps } from "./Table";
@@ -18,7 +17,7 @@ import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import { range } from "./util";
+import { range, writeTextToClipboard } from "./util";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
@@ -279,20 +278,7 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
     const matrix = PointSet.toMatrix(selected, data);
     const filteredMatrix = Matrix.filter(Boolean, matrix);
     const valueMatrix = Matrix.map(getValue, filteredMatrix);
-    const write = () => clipboard.writeText(Matrix.join(valueMatrix));
-    if (navigator.permissions) {
-      navigator.permissions
-        .query({
-          name: "clipboard-read"
-        })
-        .then(readClipboardStatus => {
-          if (readClipboardStatus.state) {
-            write();
-          }
-        });
-    } else {
-      write();
-    }
+    writeTextToClipboard(Matrix.join(valueMatrix));
   };
 
   handleCopy = (event: ClipboardEvent) => {
