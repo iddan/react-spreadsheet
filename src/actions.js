@@ -187,3 +187,71 @@ export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
     )
   };
 };
+
+// Key Bindings
+
+type KeyDownHandlers<Cell> = {
+  [eventType: string]: KeyDownHandler<Cell>
+};
+
+/** @todo handle inactive state? */
+const keyDownHandlers: KeyDownHandlers<*> = {
+  ArrowUp: go(-1, 0),
+  ArrowDown: go(+1, 0),
+  ArrowLeft: go(0, -1),
+  ArrowRight: go(0, +1),
+  Tab: go(0, +1),
+  Enter: edit,
+  Backspace: unfocus
+};
+
+const editKeyDownHandlers: KeyDownHandlers<*> = {
+  Escape: view,
+  Tab: keyDownHandlers.Tab,
+  Enter: keyDownHandlers.ArrowDown
+};
+
+const shiftKeyDownHandlers: KeyDownHandlers<*> = {
+  ArrowUp: modifyEdge("row", -1),
+  ArrowDown: modifyEdge("row", 1),
+  ArrowLeft: modifyEdge("column", -1),
+  ArrowRight: modifyEdge("column", 1)
+};
+
+export function keyPress(
+  state: Types.StoreState<*>,
+  event: SyntheticKeyboardEvent<HTMLElement>
+) {
+  if (state.mode === "view" && state.active) {
+    return { mode: "edit" };
+  }
+  return null;
+}
+
+export const getKeyDownHandler = (
+  state: Types.StoreState<*>,
+  event: SyntheticKeyboardEvent<HTMLElement>
+) => {
+  const { key } = event;
+  let handlers;
+  // Order matters
+  if (state.mode === "edit") {
+    handlers = editKeyDownHandlers;
+  } else if (event.shiftKey) {
+    handlers = shiftKeyDownHandlers;
+  } else {
+    handlers = keyDownHandlers;
+  }
+  return handlers[key];
+};
+
+export function keyDown(
+  state: Types.StoreState<*>,
+  event: SyntheticKeyboardEvent<HTMLElement>
+) {
+  const handler = getKeyDownHandler(state, event);
+  if (handler) {
+    return handler(state, event);
+  }
+  return null;
+}

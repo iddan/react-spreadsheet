@@ -48,34 +48,6 @@ type State = {|
   columns: number
 |};
 
-type KeyDownHandlers<Cell> = {
-  [eventType: string]: Actions.KeyDownHandler<Cell>
-};
-
-/** @todo handle inactive state? */
-const keyDownHandlers: KeyDownHandlers<*> = {
-  ArrowUp: Actions.go(-1, 0),
-  ArrowDown: Actions.go(+1, 0),
-  ArrowLeft: Actions.go(0, -1),
-  ArrowRight: Actions.go(0, +1),
-  Tab: Actions.go(0, +1),
-  Enter: Actions.edit,
-  Backspace: Actions.unfocus
-};
-
-const editKeyDownHandlers: KeyDownHandlers<*> = {
-  Escape: Actions.view,
-  Tab: keyDownHandlers.Tab,
-  Enter: keyDownHandlers.ArrowDown
-};
-
-const shiftKeyDownHandlers: KeyDownHandlers<*> = {
-  ArrowUp: Actions.modifyEdge("row", -1),
-  ArrowDown: Actions.modifyEdge("row", 1),
-  ArrowLeft: Actions.modifyEdge("column", -1),
-  ArrowRight: Actions.modifyEdge("column", 1)
-};
-
 class Spreadsheet<CellType, Value> extends PureComponent<{|
   ...$Diff<
     Props<CellType, Value>,
@@ -125,31 +97,14 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     });
   }
 
-  handleKeyPress(state: Types.StoreState<CellType>) {
-    if (state.mode === "view" && state.active) {
-      return { mode: "edit" };
+  handleKeyDown = event => {
+    const { store, onKeyDown } = this.props;
+    // Only disable default behavior if an handler exist
+    if (Actions.getKeyDownHandler(store.getState(), event)) {
+      event.nativeEvent.preventDefault();
     }
-    return null;
-  }
-
-  handleKeyDown(event: SyntheticKeyboardEvent<HTMLElement>) {
-    const { key, nativeEvent } = event;
-    let handlers;
-    // Order matters
-    if (state.mode === "edit") {
-      handlers = editKeyDownHandlers;
-    } else if (event.shiftKey) {
-      handlers = shiftKeyDownHandlers;
-    } else {
-      handlers = keyDownHandlers;
-    }
-    const handler = handlers[key];
-    if (handler) {
-      nativeEvent.preventDefault();
-      return handler(event);
-    }
-    return null;
-  }
+    onKeyDown(event);
+  };
 
   render() {
     const {
@@ -159,12 +114,13 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       DataViewer,
       getValue,
       rows,
-      columns
+      columns,
+      onKeyPress
     } = this.props;
     return (
       <div
         className="Spreadsheet"
-        onKeyPress={this.handleKeyPress}
+        onKeyPress={onKeyPress}
         onKeyDown={this.handleKeyDown}
       >
         <Table>
@@ -196,5 +152,7 @@ const mapStateToProps = ({ data }: Types.StoreState<*>): State =>
 export default connect(mapStateToProps, {
   copy: Actions.copy,
   cut: Actions.cut,
-  paste: Actions.paste
+  paste: Actions.paste,
+  onKeyDown: Actions.keyDown,
+  onKeyPress: Actions.keyPress
 })(Spreadsheet);
