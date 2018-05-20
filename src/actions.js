@@ -3,7 +3,7 @@ import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
-import { isActive, setCell } from "./util";
+import { isActive, setCell, updateData } from "./util";
 
 type Action = <Cell>(
   state: Types.StoreState<Cell>,
@@ -35,12 +35,6 @@ export const setData: Action = (state, data: *) => ({
   mode: "edit",
   data: setCell(state, data)
 });
-
-function setter<Cell>(key: $Keys<Types.StoreState<Cell>>) {
-  return (state: Types.StoreState<Cell>, value: *) => ({
-    [key]: value
-  });
-}
 
 export function setCellDimensions(
   state: Types.StoreState<*>,
@@ -118,5 +112,78 @@ export const paste = (state: Types.StoreState<*>) => {
     cut: false,
     hasPasted: true,
     mode: "view"
+  };
+};
+
+export const edit = () => ({
+  mode: "edit"
+});
+
+export const view = () => ({
+  mode: "view"
+});
+
+export const unfocus = (state: Types.StoreState<*>) => {
+  if (!state.active) {
+    return null;
+  }
+  return {
+    data: PointSet.reduce(
+      (acc, point) =>
+        updateData(acc, {
+          ...point,
+          data: undefined
+        }),
+      state.selected,
+      state.data
+    )
+  };
+};
+
+export type KeyDownHandler<Cell> = (
+  state: Types.StoreState<Cell>,
+  event: SyntheticKeyboardEvent<*>
+) => $Shape<Types.StoreState<Cell>>;
+
+export const go = (
+  rowDelta: number,
+  columnDelta: number
+): KeyDownHandler<*> => (state, event) => {
+  if (!state.active) {
+    return null;
+  }
+  const nextActive = {
+    row: state.active.row + rowDelta,
+    column: state.active.column + columnDelta
+  };
+  if (!Matrix.has(nextActive.row, nextActive.column, state.data)) {
+    return { mode: "view" };
+  }
+  return {
+    active: nextActive,
+    selected: PointSet.from([nextActive]),
+    mode: "view"
+  };
+};
+
+export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
+  state: Types.StoreState<*>,
+  event: *
+) => {
+  const edgeOffsets = PointSet.has(state.selected, {
+    ...state.active,
+    [field]: state.active[field] + delta * -1
+  });
+
+  const nextSelected = edgeOffsets
+    ? PointSet.shrinkEdge(state.selected, field, delta * -1)
+    : PointSet.extendEdge(state.selected, field, delta);
+
+  /** @todo make sure it performs well */
+  return {
+    selected: PointSet.filter(
+      point => Matrix.has(point.row, point.column, state.data),
+      nextSelected
+    )
   };
 };

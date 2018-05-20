@@ -18,7 +18,7 @@ import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import { range, updateData } from "./util";
+import { range } from "./util";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
@@ -122,99 +122,32 @@ Spreadsheet.defaultProps = {
 const mapStateToProps = ({ data }: Types.StoreState<*>): State =>
   Matrix.getSize(data);
 
-type KeyDownHandler<Cell> = (
-  state: Types.StoreState<Cell>,
-  event: SyntheticKeyboardEvent<*>
-) => $Shape<Types.StoreState<Cell>>;
-
 type KeyDownHandlers<Cell> = {
-  [eventType: string]: KeyDownHandler<Cell>
-};
-
-const go = (rowDelta: number, columnDelta: number): KeyDownHandler<*> => (
-  state,
-  event
-) => {
-  if (!state.active) {
-    return null;
-  }
-  const nextActive = {
-    row: state.active.row + rowDelta,
-    column: state.active.column + columnDelta
-  };
-  if (!Matrix.has(nextActive.row, nextActive.column, state.data)) {
-    return { mode: "view" };
-  }
-  return {
-    active: nextActive,
-    selected: PointSet.from([nextActive]),
-    mode: "view"
-  };
+  [eventType: string]: Actions.KeyDownHandler<Cell>
 };
 
 /** @todo handle inactive state? */
 const keyDownHandlers: KeyDownHandlers<*> = {
-  ArrowUp: go(-1, 0),
-  ArrowDown: go(+1, 0),
-  ArrowLeft: go(0, -1),
-  ArrowRight: go(0, +1),
-  Tab: go(0, +1),
-  Enter: (state, event) => ({
-    mode: "edit"
-  }),
-  Backspace: (state, event) => {
-    if (!state.active) {
-      return null;
-    }
-    return {
-      data: PointSet.reduce(
-        (acc, point) =>
-          updateData(acc, {
-            ...point,
-            data: undefined
-          }),
-        state.selected,
-        state.data
-      )
-    };
-  }
+  ArrowUp: Actions.go(-1, 0),
+  ArrowDown: Actions.go(+1, 0),
+  ArrowLeft: Actions.go(0, -1),
+  ArrowRight: Actions.go(0, +1),
+  Tab: Actions.go(0, +1),
+  Enter: Actions.edit,
+  Backspace: Actions.unfocus
 };
 
 const editKeyDownHandlers: KeyDownHandlers<*> = {
-  Escape: (state, event) => ({
-    mode: "view"
-  }),
+  Escape: Actions.view,
   Tab: keyDownHandlers.Tab,
   Enter: keyDownHandlers.ArrowDown
 };
 
-const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
-  state,
-  event
-) => {
-  const edgeOffsets = PointSet.has(state.selected, {
-    ...state.active,
-    [field]: state.active[field] + delta * -1
-  });
-
-  const nextSelected = edgeOffsets
-    ? PointSet.shrinkEdge(state.selected, field, delta * -1)
-    : PointSet.extendEdge(state.selected, field, delta);
-
-  /** @todo make sure it performs well */
-  return {
-    selected: PointSet.filter(
-      point => Matrix.has(point.row, point.column, state.data),
-      nextSelected
-    )
-  };
-};
-
 const shiftKeyDownHandlers: KeyDownHandlers<*> = {
-  ArrowUp: modifyEdge("row", -1),
-  ArrowDown: modifyEdge("row", 1),
-  ArrowLeft: modifyEdge("column", -1),
-  ArrowRight: modifyEdge("column", 1)
+  ArrowUp: Actions.modifyEdge("row", -1),
+  ArrowDown: Actions.modifyEdge("row", 1),
+  ArrowLeft: Actions.modifyEdge("column", -1),
+  ArrowRight: Actions.modifyEdge("column", 1)
 };
 
 function actions<CellType>(store) {
