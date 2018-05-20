@@ -31,10 +31,20 @@ export function set<T>(
   value: T,
   matrix: Matrix<T>
 ): Matrix<T> {
+  const nextMatrix = [...matrix];
+
+  // Synchronize first row length
+  const [firstRow = []] = matrix;
+  const nextFirstRow = [...firstRow];
+  if (firstRow.length - 1 < column) {
+    firstRow[column] = undefined;
+    nextMatrix[0] = nextFirstRow;
+  }
+
   const nextRow = matrix[row] ? [...matrix[row]] : [];
   nextRow[column] = value;
-  const nextMatrix = [...matrix];
   nextMatrix[row] = nextRow;
+
   return nextMatrix;
 }
 
@@ -48,8 +58,11 @@ export function unset<T>(
   }
   const nextMatrix = [...matrix];
   const nextRow = [...matrix[row]];
+
+  // Avoid deleting to preserve first row length
   nextRow[column] = undefined;
   nextMatrix[row] = nextRow;
+
   return nextMatrix;
 }
 
@@ -84,7 +97,17 @@ export function join(
 
 /** Returns whether the point exists in the matrix or not. */
 export function has(row: number, column: number, matrix: Matrix<*>): boolean {
-  return Boolean(row in matrix && column in matrix[row]);
+  const [firstRow = []] = matrix;
+  return (
+    // validation
+    row >= 0 &&
+    column >= 0 &&
+    Number.isInteger(row) &&
+    Number.isInteger(column) &&
+    // first row length is in sync with other rows
+    column < firstRow.length &&
+    row < matrix.length
+  );
 }
 
 type Size = $Exact<{ columns: number, rows: number }>;
