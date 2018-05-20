@@ -27,7 +27,7 @@ export type Dimensions = {|
 export type StoreState<Cell> = {|
   data: Matrix<Cell>,
   selected: PointSet,
-  copied: PointSet,
+  copied: PointMap<Cell>,
   hasPasted: boolean,
   cut: boolean,
   active: Point | null,

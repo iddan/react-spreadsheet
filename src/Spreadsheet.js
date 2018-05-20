@@ -253,7 +253,7 @@ const ConnectedSpreadsheet = connect(mapStateToProps, actions)(Spreadsheet);
 
 const initialState: $Shape<Types.StoreState<*>> = {
   selected: PointSet.from([]),
-  copied: PointSet.from([]),
+  copied: PointMap.from([]),
   active: null,
   mode: "view",
   cellDimensions: PointMap.from([])

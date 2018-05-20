@@ -63,7 +63,12 @@ export function setCellDimensions(
 }
 
 export const copy = (state: Types.StoreState<*>) => ({
-  copied: state.selected,
+  copied: PointSet.reduce(
+    (acc, point) =>
+      PointMap.set(point, Matrix.get(point.row, point.column, state.data), acc),
+    state.selected,
+    PointMap.from([])
+  ),
   cut: false,
   hasPasted: false
 });
@@ -74,6 +79,7 @@ export const cut = (state: Types.StoreState<*>) => ({
 });
 
 export const paste = (state: Types.StoreState<*>) => {
+  /** @todo make PointMap extend PointSet so this will be allowed */
   const minRow = PointSet.getEdgeValue(state.copied, "row", -1);
   const minColumn = PointSet.getEdgeValue(state.copied, "column", -1);
 
@@ -82,8 +88,8 @@ export const paste = (state: Types.StoreState<*>) => {
     selected: typeof state.selected
   |};
 
-  const { data, selected } = PointSet.reduce(
-    (acc: Accumulator, { row, column }): Accumulator => {
+  const { data, selected } = PointMap.reduce(
+    (acc: Accumulator, value, { row, column }): Accumulator => {
       const nextRow = row - minRow + state.active.row;
       const nextColumn = column - minColumn + state.active.column;
 
@@ -96,12 +102,7 @@ export const paste = (state: Types.StoreState<*>) => {
       }
 
       return {
-        data: Matrix.set(
-          nextRow,
-          nextColumn,
-          Matrix.get(row, column, state.data),
-          nextData
-        ),
+        data: Matrix.set(nextRow, nextColumn, value, nextData),
         selected: PointSet.add(acc.selected, {
           row: nextRow,
           column: nextColumn

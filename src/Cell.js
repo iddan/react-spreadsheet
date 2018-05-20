@@ -4,6 +4,7 @@ import React, { PureComponent } from "react";
 import classnames from "classnames";
 import { connect } from "unistore/react";
 import * as PointSet from "./point-set";
+import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Actions from "./actions";
@@ -106,7 +107,7 @@ function mapStateToProps<Data>(
   return {
     active: cellIsActive,
     selected: PointSet.has(selected, point),
-    copied: PointSet.has(copied, point),
+    copied: PointMap.has(point, copied),
     mode: cellIsActive ? mode : "view",
     data: Matrix.get(row, column, data)
   };
