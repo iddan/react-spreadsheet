@@ -39,6 +39,14 @@ export function has(set: PointSet, { row, column }: Point): boolean {
   return Boolean(set[row] && set[row][column]);
 }
 
+/** Returns the number of elements in a PointSet object. */
+export function size(map: PointSet<*>): number {
+  return Object.values(map).reduce(
+    (acc, row) => acc + Object.keys(row).length,
+    0
+  );
+}
+
 const minKey = (object: { [key: number]: any }) =>
   Math.min(...Object.keys(object));
 

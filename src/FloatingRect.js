@@ -5,12 +5,13 @@ import * as PointSet from "./point-set";
 import classnames from "classnames";
 import "./FloatingRect.css";
 
-const FloatingRect = ({ width, height, top, left, className, hidden }) => (
-  <div
-    className={classnames("FloatingRect", { hidden }, className)}
-    style={{ width, height, top, left }}
-  />
-);
+const FloatingRect = ({ width, height, top, left, className, hidden }) =>
+  console.log(width, height, top, left, className, hidden) || (
+    <div
+      className={classnames("FloatingRect", { hidden }, className)}
+      style={{ width, height, top, left }}
+    />
+  );
 
 /** @todo better arch */
 export const mapStateToProps = cells => state => {
@@ -33,7 +34,7 @@ export const mapStateToProps = cells => state => {
   );
   return {
     ...dimensions,
-    hidden: PointMap.size(state.selected) <= 1
+    hidden: PointSet.size(cells) <= 1
   };
 };
 
