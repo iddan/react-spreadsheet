@@ -35,7 +35,7 @@ const ActiveCell = ({
   hidden,
   mode,
   edit
-}: Props) =>
+}: Props<*, *>) =>
   hidden ? null : (
     <div
       className={classnames("ActiveCell", mode)}

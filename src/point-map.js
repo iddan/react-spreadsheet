@@ -55,3 +55,25 @@ export function size(map: PointMap<*>): number {
     0
   );
 }
+
+export function reduce<A, T>(
+  func: (A, value: T, point: Types.Point) => A,
+  map: PointMap<T>,
+  initialValue: A
+): A {
+  let acc = initialValue;
+  for (const [row, columns] of Object.entries(map)) {
+    for (const [column, value] of Object.entries(columns)) {
+      acc = func(acc, value, { row: Number(row), column: Number(column) });
+    }
+  }
+  return acc;
+}
+
+export function map<T1, T2>(func: T1 => T2, map: PointMap<T1>): PointMap<T2> {
+  return reduce(
+    (acc, value, point) => set(point, func(value), acc),
+    map,
+    from([])
+  );
+}

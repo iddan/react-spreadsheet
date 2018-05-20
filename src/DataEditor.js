@@ -37,7 +37,7 @@ export default class DataEditor extends PureComponent<
 
   render() {
     const { getValue, column, row, cell } = this.props;
-    const value = getValue({ column, row, data: cell });
+    const value = getValue({ column, row, data: cell }) || "";
     return (
       <div className="DataEditor">
         <input

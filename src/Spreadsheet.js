@@ -33,7 +33,8 @@ type DefaultCellType = {
   value: string | number | boolean | null
 };
 
-const getValue = ({ data }: { data: DefaultCellType }) => data.value;
+const getValue = ({ data }: { data: ?DefaultCellType }) =>
+  data ? data.value : null;
 
 type Props<CellType, Value> = {|
   data: Matrix.Matrix<CellType>,
@@ -42,7 +43,7 @@ type Props<CellType, Value> = {|
   Cell: ComponentType<CellProps<CellType, Value>>,
   DataViewer: Types.DataEditor<CellType, Value>,
   DataEditor: Types.DataViewer<CellType, Value>,
-  getValue: Types.getValue<Cell, Value>
+  getValue: Types.getValue<CellType, Value>
 |};
 
 type EventProps<CellType> = {|
@@ -151,9 +152,6 @@ const go = (rowDelta: number, columnDelta: number): KeyDownHandler<*> => (
   };
 };
 
-/** @todo replace to real func */
-const cellFromValue = value => ({ value });
-
 /** @todo handle inactive state? */
 const keyDownHandlers: KeyDownHandlers<*> = {
   ArrowUp: go(-1, 0),
@@ -173,7 +171,7 @@ const keyDownHandlers: KeyDownHandlers<*> = {
         (acc, point) =>
           updateData(acc, {
             ...point,
-            data: cellFromValue("")
+            data: undefined
           }),
         state.selected,
         state.data
@@ -255,7 +253,7 @@ const ConnectedSpreadsheet = connect(mapStateToProps, actions)(Spreadsheet);
 
 const initialState: $Shape<Types.StoreState<*>> = {
   selected: PointSet.from([]),
-  copied: PointSet.from([]),
+  copied: PointMap.from([]),
   active: null,
   mode: "view",
   cellDimensions: PointMap.from([])
@@ -330,12 +328,25 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
     });
   }
 
-  handleCopy = (event: ClipboardEvent) => {
+  /**
+   * Apply an action on the state and set it's result,
+   * like actions of mapStateToProps() but for top level
+   */
+  dispatch = (
+    action: (Types.StoreState<CellType>) => $Shape<Types.StoreState<CellType>>
+  ) => {
+    this.store.setState(action(this.store.getState()));
+  };
+
+  /**
+   * Save selected cells as CSV to the clipboard
+   */
+  clip = () => {
     const { data, selected } = this.store.getState();
     const matrix = PointSet.toMatrix(selected, data);
     const filteredMatrix = Matrix.filter(Boolean, matrix);
     const valueMatrix = Matrix.map(getValue, filteredMatrix);
-    const copy = () => clipboard.writeText(Matrix.join(valueMatrix));
+    const write = () => clipboard.writeText(Matrix.join(valueMatrix));
     if (navigator.permissions) {
       navigator.permissions
         .query({
@@ -343,58 +354,26 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
         })
         .then(readClipboardStatus => {
           if (readClipboardStatus.state) {
-            copy();
+            write();
           }
         });
     } else {
-      copy();
+      write();
     }
-    this.store.setState({ copied: selected, cut: false, hasPasted: false });
+  };
+
+  handleCopy = (event: ClipboardEvent) => {
+    this.clip();
+    this.dispatch(Actions.copy);
   };
 
   handleCut = (event: ClipboardEvent) => {
-    this.handleCopy(event);
-    this.store.setState({ cut: true });
+    this.clip();
+    this.dispatch(Actions.cut);
   };
 
   handlePaste = (event: ClipboardEvent) => {
-    const prevState = this.store.getState();
-    const minRow = PointSet.getEdgeValue(prevState.copied, "row", -1);
-    const minColumn = PointSet.getEdgeValue(prevState.copied, "column", -1);
-    const { data, selected } = PointSet.reduce(
-      (acc, { row, column }) => {
-        const nextRow = row - minRow + prevState.active.row;
-        const nextColumn = column - minColumn + prevState.active.column;
-
-        const nextPointExists = Matrix.has(nextRow, nextColumn, prevState.data);
-
-        if (!nextPointExists) {
-          return acc;
-        }
-
-        const nextData = Matrix.set(
-          nextRow,
-          nextColumn,
-          Matrix.get(row, column, prevState.data),
-          acc.data
-        );
-        const nextSelected = PointSet.add(acc.selected, {
-          row: nextRow,
-          column: nextColumn
-        });
-
-        return { data: nextData, selected: nextSelected };
-      },
-      prevState.copied,
-      { data: prevState.data, selected: PointSet.from([]) }
-    );
-    this.store.setState({
-      data,
-      selected,
-      cut: false,
-      hasPasted: true,
-      mode: "view"
-    });
+    this.dispatch(Actions.paste);
   };
 
   componentDidUpdate(prevProps: Props<CellType, Value>) {
