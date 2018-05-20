@@ -91,8 +91,6 @@ export const paste = (state: Types.StoreState<*>) => {
         ? Matrix.unset(row, column, acc.data)
         : acc.data;
 
-      console.log(nextData);
-
       if (!Matrix.has(nextRow, nextColumn, state.data)) {
         return { data: nextData, selected: acc.selected };
       }

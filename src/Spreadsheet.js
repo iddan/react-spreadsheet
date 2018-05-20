@@ -152,9 +152,6 @@ const go = (rowDelta: number, columnDelta: number): KeyDownHandler<*> => (
   };
 };
 
-/** @todo replace to real func */
-const cellFromValue = value => ({ value });
-
 /** @todo handle inactive state? */
 const keyDownHandlers: KeyDownHandlers<*> = {
   ArrowUp: go(-1, 0),

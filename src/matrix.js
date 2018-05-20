@@ -84,7 +84,7 @@ export function join(
 
 /** Returns whether the point exists in the matrix or not. */
 export function has(row: number, column: number, matrix: Matrix<*>): boolean {
-  return Boolean(matrix[row] && matrix[row][column]);
+  return Boolean(row in matrix && column in matrix[row]);
 }
 
 type Size = $Exact<{ columns: number, rows: number }>;
