@@ -39,6 +39,14 @@ export function has(set: PointSet, { row, column }: Point): boolean {
   return Boolean(set[row] && set[row][column]);
 }
 
+/** Returns the number of elements in a PointSet object. */
+export function size(map: PointSet<*>): number {
+  return Object.values(map).reduce(
+    (acc, row) => acc + Object.keys(row).length,
+    0
+  );
+}
+
 const minKey = (object: { [key: number]: any }) =>
   Math.min(...Object.keys(object));
 
@@ -47,11 +55,11 @@ export function min(set: PointSet): Point {
   return { row, column: minKey(set[row]) };
 }
 
-export function from(points: Point[]) {
+export function from(points: Point[]): PointSet {
   return points.reduce(add, {});
 }
 
-export function isEmpty(set: PointSet) {
+export function isEmpty(set: PointSet): boolean {
   return Object.keys(set).length === 0;
 }
 
@@ -152,7 +160,7 @@ export function getEdgeValue(
   set: PointSet,
   field: $Keys<Point>,
   delta: number
-) {
+): number {
   const compare = Math.sign(delta) === -1 ? Math.min : Math.max;
   return reduce(
     (acc, point) => {
@@ -166,7 +174,11 @@ export function getEdgeValue(
   );
 }
 
-export function extendEdge(set: PointSet, field: $Keys<Point>, delta: number) {
+export function extendEdge(
+  set: PointSet,
+  field: $Keys<Point>,
+  delta: number
+): PointSet {
   const oppositeField = field === "row" ? "column" : "row";
   const edgeValue = getEdgeValue(set, field, delta);
   return reduce(
@@ -184,7 +196,11 @@ export function extendEdge(set: PointSet, field: $Keys<Point>, delta: number) {
   );
 }
 
-export function shrinkEdge(set: PointSet, field: $Keys<Point>, delta: number) {
+export function shrinkEdge(
+  set: PointSet,
+  field: $Keys<Point>,
+  delta: number
+): PointSet {
   const edgeValue = getEdgeValue(set, field, delta);
   return reduce(
     (acc, point) => {

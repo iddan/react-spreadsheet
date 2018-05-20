@@ -1,5 +1,16 @@
-.SpreadsheetTable {
+.Spreadsheet {
   position: relative;
+  overflow: visible;
+}
+
+.Spreadsheet .ActiveCell {
+  position: absolute;
+  border: 2px solid #4285f4;
+  box-sizing: border-box;
+}
+
+.Spreadsheet .ActiveCell.edit {
+  background: white;
 }
 
 .SpreadsheetTable {
@@ -7,12 +18,12 @@
   table-layout: fixed;
 }
 
-.SpreadsheetTable td,
-.SpreadsheetTable td input {
+.Spreadsheet td,
+.Spreadsheet td input {
   outline: none;
 }
 
-.SpreadsheetTable td {
+.Spreadsheet td {
   min-width: 6em;
   min-height: 1.9em;
   max-height: 1.9em;
@@ -26,40 +37,40 @@
   user-select: none;
 }
 
-.SpreadsheetTable td.selected {
-  background: rgba(160, 195, 255, 0.2);
-}
 
-.SpreadsheetTable td.selected.active {
-  background: none;
-  border: 2px #5292f7 solid;
-}
-
-.SpreadsheetTable td.selected-right-edge { border-right: 2px #4285f4 solid; }
-.SpreadsheetTable td.selected-left-edge { border-left: 2px #4285f4 solid; }
-.SpreadsheetTable td.selected-top-edge { border-top: 2px #4285f4 solid; }
-.SpreadsheetTable td.selected-bottom-edge { border-bottom: 2px #4285f4 solid; }
-
-.SpreadsheetTable td.copied-right-edge { border-right: 2px #4285f4 dashed; }
-.SpreadsheetTable td.copied-left-edge { border-left: 2px #4285f4 dashed; }
-.SpreadsheetTable td.copied-top-edge { border-top: 2px #4285f4 dashed; }
-.SpreadsheetTable td.copied-bottom-edge { border-bottom: 2px #4285f4 dashed; }
-
-
-.SpreadsheetTable td.active.edit {
+.Spreadsheet .ActiveCell.edit {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
-.SpreadsheetTable td.readonly {
+.Spreadsheet td.readonly {
   background: #f5f5f5;
   color: #999;
   text-align: center;
 }
 
-.SpreadsheetTable .DataEditor input {
-  width: 99%;
+.Spreadsheet .DataEditor,
+.Spreadsheet .DataEditor input {
+  width: 98%;
+  height: 98%;
+}
+
+.Spreadsheet .DataEditor input {
   font: inherit;
+  background: none;
   border: none;
   outline: none;
   margin: 0;
 }
+
+.Spreadsheet .selected {
+  background: rgba(160, 195, 255, 0.2);
+  border: 2px #4285f4 solid;
+}
+
+.Spreadsheet .copied {
+  border: 2px #4285f4 dashed;
+}
+
+/* .Spreadsheet .Selection.copied {
+  border-style: dashed;
+} */

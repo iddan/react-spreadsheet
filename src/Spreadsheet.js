@@ -3,6 +3,7 @@
 import React, { PureComponent } from "react";
 import type { ComponentType } from "react";
 import createStore from "unistore";
+import devtools from "unistore/devtools";
 import { Provider, connect } from "unistore/react";
 import clipboard from "clipboard-polyfill";
 import * as Types from "./types";
@@ -10,13 +11,18 @@ import Table from "./Table";
 import type { Props as TableProps } from "./Table";
 import Row from "./Row";
 import type { Props as RowProps } from "./Row";
-import Cell from "./Cell";
+import { Cell, enhance as enhanceCell } from "./Cell";
 import type { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
+import ActiveCell from "./ActiveCell";
+import Selected from "./Selected";
+import Copied from "./Copied";
 import { range, updateData } from "./util";
 import * as PointSet from "./point-set";
+import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
+import * as Actions from "./actions";
 import "./Spreadsheet.css";
 
 declare class ClipboardEvent extends Event {
@@ -51,15 +57,9 @@ type State = {|
   columns: number
 |};
 
-type Handlers<Cell> = {|
-  handleKeyPress: (
-    state: Types.StoreState<Cell>,
-    event: SyntheticKeyboardEvent<*>
-  ) => void,
-  handleKeyDown: (
-    state: Types.StoreState<Cell>,
-    event: SyntheticKeyboardEvent<*>
-  ) => void
+type Handlers = {|
+  handleKeyPress: (event: SyntheticKeyboardEvent<*>) => void,
+  handleKeyDown: (event: SyntheticKeyboardEvent<*>) => void
 |};
 
 const Spreadsheet = <CellType, Value>({
@@ -67,40 +67,47 @@ const Spreadsheet = <CellType, Value>({
   Row,
   Cell,
   DataViewer,
-  DataEditor,
   getValue,
   rows,
   columns,
   handleKeyPress,
   handleKeyDown
-}: $Rest<
-  Props<CellType, Value>,
-  {| data: Matrix.Matrix<CellType>, ...EventProps<CellType> |}
-> &
-  State &
-  Handlers<CellType>) => (
-  <Table onKeyPress={handleKeyPress} onKeyDown={handleKeyDown}>
-    {range(rows).map(rowNumber => (
-      <Row key={rowNumber}>
-        {range(columns).map(columnNumber => (
-          <Cell
-            key={columnNumber}
-            row={rowNumber}
-            column={columnNumber}
-            DataViewer={DataViewer}
-            DataEditor={DataEditor}
-            getValue={getValue}
-          />
-        ))}
-      </Row>
-    ))}
-  </Table>
+}: {|
+  ...$Diff<Props<CellType, Value>, {| data: Matrix.Matrix<CellType> |}>,
+  ...State,
+  ...Handlers
+|}) => (
+  <div
+    className="Spreadsheet"
+    onKeyPress={handleKeyPress}
+    onKeyDown={handleKeyDown}
+  >
+    <Table>
+      {range(rows).map(rowNumber => (
+        <Row key={rowNumber}>
+          {range(columns).map(columnNumber => (
+            <Cell
+              key={columnNumber}
+              row={rowNumber}
+              column={columnNumber}
+              DataViewer={DataViewer}
+              getValue={getValue}
+            />
+          ))}
+        </Row>
+      ))}
+    </Table>
+    <ActiveCell DataEditor={DataEditor} getValue={getValue} />
+    <Selected />
+    <Copied />
+  </div>
 );
 
 Spreadsheet.defaultProps = {
   Table,
   Row,
-  Cell,
+  /** @todo enhance incoming Cell prop */
+  Cell: enhanceCell(Cell),
   DataViewer,
   DataEditor,
   getValue
@@ -165,8 +172,7 @@ const keyDownHandlers: KeyDownHandlers<*> = {
           }),
         state.selected,
         state.data
-      ),
-      mode: "edit"
+      )
     };
   }
 };
@@ -179,7 +185,7 @@ const editKeyDownHandlers: KeyDownHandlers<*> = {
   Enter: keyDownHandlers.ArrowDown
 };
 
-const addToEdge = (field: $Keys<Types.Point>, delta: number) => (
+const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
   state,
   event
 ) => {
@@ -202,10 +208,10 @@ const addToEdge = (field: $Keys<Types.Point>, delta: number) => (
 };
 
 const shiftKeyDownHandlers: KeyDownHandlers<*> = {
-  ArrowUp: addToEdge("row", -1),
-  ArrowDown: addToEdge("row", 1),
-  ArrowLeft: addToEdge("column", -1),
-  ArrowRight: addToEdge("column", 1)
+  ArrowUp: modifyEdge("row", -1),
+  ArrowDown: modifyEdge("row", 1),
+  ArrowLeft: modifyEdge("column", -1),
+  ArrowRight: modifyEdge("column", 1)
 };
 
 function actions<CellType>(store) {
@@ -222,10 +228,11 @@ function actions<CellType>(store) {
     ) {
       const { key, nativeEvent } = event;
       let handlers;
-      if (event.shiftKey) {
-        handlers = shiftKeyDownHandlers;
-      } else if (state.mode === "edit") {
+      // Order matters
+      if (state.mode === "edit") {
         handlers = editKeyDownHandlers;
+      } else if (event.shiftKey) {
+        handlers = shiftKeyDownHandlers;
       } else {
         handlers = keyDownHandlers;
       }
@@ -245,7 +252,8 @@ const initialState: $Shape<Types.StoreState<*>> = {
   selected: PointSet.from([]),
   copied: PointSet.from([]),
   active: null,
-  mode: "view"
+  mode: "view",
+  cellDimensions: PointMap.from([])
 };
 
 type Unsubscribe = () => void;
@@ -273,7 +281,10 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
       ...initialState,
       data: this.props.data
     };
-    this.store = createStore(state);
+    this.store =
+      process.env.NODE_ENV === "production"
+        ? createStore(state)
+        : devtools(createStore(state));
     this.prevState = state;
   }
 
@@ -343,22 +354,30 @@ export default class SpreadsheetWrapper<CellType, Value> extends PureComponent<
 
   handlePaste = (event: ClipboardEvent) => {
     const prevState = this.store.getState();
+    const minRow = PointSet.getEdgeValue(prevState.copied, "row", -1);
+    const minColumn = PointSet.getEdgeValue(prevState.copied, "column", -1);
     const { data, selected } = PointSet.reduce(
       (acc, { row, column }) => {
-        const nextRow = row + prevState.active.row - 1;
-        const nextColumn = column + prevState.active.column - 1;
+        const nextRow = row - minRow + prevState.active.row;
+        const nextColumn = column - minColumn + prevState.active.column;
+
         const nextPointExists = Matrix.has(nextRow, nextColumn, prevState.data);
-        const nextData = nextPointExists
-          ? Matrix.set(
-              nextRow,
-              nextColumn,
-              Matrix.get(row, column, prevState.data),
-              acc.data
-            )
-          : acc.data;
-        const nextSelected = nextPointExists
-          ? PointSet.add(acc.selected, { row: nextRow, column: nextColumn })
-          : acc.selected;
+
+        if (!nextPointExists) {
+          return acc;
+        }
+
+        const nextData = Matrix.set(
+          nextRow,
+          nextColumn,
+          Matrix.get(row, column, prevState.data),
+          acc.data
+        );
+        const nextSelected = PointSet.add(acc.selected, {
+          row: nextRow,
+          column: nextColumn
+        });
+
         return { data: nextData, selected: nextSelected };
       },
       prevState.copied,
