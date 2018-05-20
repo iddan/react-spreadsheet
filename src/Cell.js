@@ -21,7 +21,7 @@ type State<Data> = {|
   active: boolean,
   copied: boolean,
   mode: Types.Mode,
-  data: Data
+  data: ?Data
 |};
 
 type Handlers<Data> = {|

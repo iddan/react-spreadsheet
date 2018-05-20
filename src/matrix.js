@@ -38,6 +38,21 @@ export function set<T>(
   return nextMatrix;
 }
 
+export function unset<T>(
+  row: number,
+  column: number,
+  matrix: Matrix<T>
+): Matrix<T> {
+  if (!has(row, column, matrix)) {
+    return matrix;
+  }
+  const nextMatrix = [...matrix];
+  const nextRow = [...matrix[row]];
+  nextRow[column] = undefined;
+  nextMatrix[row] = nextRow;
+  return nextMatrix;
+}
+
 /**
  * Iterates over elements of matrix, returning an array of all elements predicate returns truthy for.
  * Empty rows are excluded
