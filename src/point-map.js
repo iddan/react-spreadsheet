@@ -62,7 +62,7 @@ export function reduce<A, T>(
   initialValue: A
 ): A {
   let acc = initialValue;
-  for (const [row, columns] of Object.entries(set)) {
+  for (const [row, columns] of Object.entries(map)) {
     for (const [column, value] of Object.entries(columns)) {
       acc = func(acc, value, { row: Number(row), column: Number(column) });
     }
