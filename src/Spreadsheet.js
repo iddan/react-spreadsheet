@@ -43,7 +43,7 @@ type Props<CellType, Value> = {|
   Cell: ComponentType<CellProps<CellType, Value>>,
   DataViewer: Types.DataEditor<CellType, Value>,
   DataEditor: Types.DataViewer<CellType, Value>,
-  getValue: Types.getValue<Cell, Value>
+  getValue: Types.getValue<CellType, Value>
 |};
 
 type EventProps<CellType> = {|

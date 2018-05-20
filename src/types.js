@@ -12,7 +12,7 @@ export type Point = {|
 
 export type CellDescriptor<Cell> = {|
   ...Point,
-  data: Cell
+  data: ?Cell
 |};
 
 export type Mode = "view" | "edit";
@@ -39,7 +39,7 @@ export type getValue<Cell, Value> = (CellDescriptor<Cell>) => Value;
 
 export type CellComponentProps<Cell, Value> = {
   ...Point,
-  cell: Cell,
+  cell: ?Cell,
   getValue: getValue<Cell, Value>
 };
 
