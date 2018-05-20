@@ -33,7 +33,7 @@ type DefaultCellType = {
 const getValue = ({ data }: { data: ?DefaultCellType }) =>
   data ? data.value : null;
 
-type Props<CellType, Value> = {|
+export type Props<CellType, Value> = {|
   data: Matrix.Matrix<CellType>,
   Table: ComponentType<TableProps>,
   Row: ComponentType<RowProps>,
@@ -46,11 +46,6 @@ type Props<CellType, Value> = {|
 type State = {|
   rows: number,
   columns: number
-|};
-
-type Handlers = {|
-  handleKeyPress: (event: SyntheticKeyboardEvent<*>) => void,
-  handleKeyDown: (event: SyntheticKeyboardEvent<*>) => void
 |};
 
 type KeyDownHandlers<Cell> = {
@@ -88,8 +83,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       data: Matrix.Matrix<CellType>
     |}
   >,
-  ...State,
-  ...Handlers
+  ...State
 |}> {
   static defaultProps = {
     Table,
@@ -138,10 +132,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     return null;
   }
 
-  handleKeyDown(
-    state: Types.StoreState<CellType>,
-    event: SyntheticKeyboardEvent<HTMLElement>
-  ) {
+  handleKeyDown(event: SyntheticKeyboardEvent<HTMLElement>) {
     const { key, nativeEvent } = event;
     let handlers;
     // Order matters
@@ -155,7 +146,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     const handler = handlers[key];
     if (handler) {
       nativeEvent.preventDefault();
-      return handler(state, event);
+      return handler(event);
     }
     return null;
   }

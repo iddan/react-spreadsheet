@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from "react";
 import { storiesOf } from "@storybook/react";
 import { action } from "@storybook/addon-actions";
-import Spreadsheet from "../src/Spreadsheet";
+import Spreadsheet from "../src/SpreadsheetStateProvider";
 import { range, toColumnLetter } from "../src/util";
 import "./index.css";
 

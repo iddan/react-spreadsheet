@@ -19,7 +19,7 @@ export type Props<CellType, Value> = {|
   onActivate: (active: Types.Point) => void
 |};
 
-const initialState: $Shape<Types.StoreState<*>> = {
+const initialState: $Shape<Types.StoreState<any>> = {
   selected: PointSet.from([]),
   copied: PointMap.from([]),
   active: null,
@@ -89,6 +89,7 @@ export default class SpreadsheetStateProvider<
 
   render() {
     const { data, ...rest } = this.props;
+    console.log(this.store.getState());
     return (
       <Provider store={this.store}>
         <Spreadsheet {...rest} store={this.store} />
