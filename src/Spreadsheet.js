@@ -73,7 +73,12 @@ const Spreadsheet = <CellType, Value>({
   handleKeyPress,
   handleKeyDown
 }: {|
-  ...$Diff<Props<CellType, Value>, {| data: Matrix.Matrix<CellType> |}>,
+  ...$Diff<
+    Props<CellType, Value>,
+    {|
+      data: Matrix.Matrix<CellType>
+    |}
+  >,
   ...State,
   ...Handlers
 |}) => (
