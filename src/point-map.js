@@ -96,3 +96,8 @@ export function map<T1, T2>(func: T1 => T2, map: PointMap<T1>): PointMap<T2> {
     from([])
   );
 }
+
+/** Returns whether map has any points set to value */
+export function isEmpty(map: PointMap<any>): boolean {
+  return Object.keys(map).length === 0;
+}

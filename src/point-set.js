@@ -49,6 +49,7 @@ export function map(func: Point => Point, set: PointSet): PointSet {
   return reduce((acc, point) => add(acc, func(point)), set, from([]));
 }
 
+/** Creates a new set with all points that pass the test implemented by the provided function */
 export function filter(func: Point => boolean, set: PointSet): PointSet {
   return reduce(
     (acc, point) => {
@@ -62,6 +63,7 @@ export function filter(func: Point => boolean, set: PointSet): PointSet {
   );
 }
 
+/** Returns the point on the minimal row in the minimal column in the set */
 const minKey = (object: { [key: number]: any }) =>
   Math.min(...Object.keys(object));
 
@@ -70,23 +72,17 @@ export function min(set: PointSet): Point {
   return { row, column: minKey(set[row]) };
 }
 
+/** Creates a new PointSet instance from an array-like or iterable object */
 export function from(points: Point[]): PointSet {
-  return points.reduce(add, {});
+  return points.reduce(add, PointMap.from([]));
 }
 
-export function isEmpty(set: PointSet): boolean {
-  return Object.keys(set).length === 0;
-}
+/** Returns whether set has any points in */
+export const isEmpty = (set: PointSet) => PointMap.isEmpty(set);
 
+/** Returns an array of the set points */
 export function toArray(set: PointSet): Point[] {
-  return flatMap(
-    Object.entries(set),
-    ([row, columns]: [string, { [key: string]: boolean }]) =>
-      Object.keys(columns).map(column => ({
-        row: Number(row),
-        column: Number(column)
-      }))
-  );
+  return reduce((acc: Point[], point: Point) => [...acc, point], set, []);
 }
 
 /** @todo refactor to return Matrix.Matrix<T> */
