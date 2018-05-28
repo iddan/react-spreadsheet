@@ -26,6 +26,25 @@ export function set<T>(
   };
 }
 
+export function unset<T>(
+  { row, column }: Types.Point,
+  map: PointMap<T>
+): PointMap<T> {
+  const rowKey = String(row);
+  const columnKey = String(column);
+  if (!(rowKey in map) || !(columnKey in map[rowKey])) {
+    return map;
+  }
+  const {
+    [String(row)]: { [String(column)]: _, ...nextRow },
+    ...nextMap
+  } = map;
+  if (Object.keys(nextRow).length === 0) {
+    return nextMap;
+  }
+  return { ...nextMap, [row]: nextRow };
+}
+
 /** Gets the value for point in map */
 export function get<T>(
   point: Types.Point,
@@ -36,9 +55,7 @@ export function get<T>(
 
 /** Checks if map has point assigned to value */
 export function has<T>(point: Types.Point, map: PointMap<T>): boolean {
-  return (
-    map[point.row] !== undefined && map[point.row][point.column] !== undefined
-  );
+  return point.row in map && point.column in map[point.row];
 }
 
 const EMPTY: PointMap<any> = ({}: any);
@@ -56,6 +73,7 @@ export function size(map: PointMap<*>): number {
   );
 }
 
+/** Applies a function against an accumulator and each value and point in the map (from left to right) to reduce it to a single value */
 export function reduce<A, T>(
   func: (A, value: T, point: Types.Point) => A,
   map: PointMap<T>,
@@ -70,6 +88,7 @@ export function reduce<A, T>(
   return acc;
 }
 
+/** Creates a new map with the results of calling a provided function on every value in the calling map */
 export function map<T1, T2>(func: T1 => T2, map: PointMap<T1>): PointMap<T2> {
   return reduce(
     (acc, value, point) => set(point, func(value), acc),

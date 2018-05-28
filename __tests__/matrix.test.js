@@ -19,6 +19,6 @@ describe("Matrix:", () => {
     const endPoint = { row: 5, column: 5 };
 
     const res = range(startPoint, endPoint);
-    console.log("res:", res);
+    /** @todo */
   });
 });

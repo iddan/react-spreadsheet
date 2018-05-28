@@ -1,6 +1,5 @@
 /**
  * Immutable Set like interface of points
- * @todo use point map primitive
  *
  * @flow
  */
@@ -8,42 +7,58 @@
 import * as Matrix from "./matrix";
 import { flatMap } from "./util";
 import type { Point } from "./types";
+import * as PointMap from "./point-map";
 
-export type PointSet = {
-  [row: number]: {
-    [column: number]: boolean
-  }
-};
+export type PointSet = PointMap.PointMap<boolean>;
 
 export type Descriptor<T> = {|
   ...Point,
   data: T
 |};
 
-export function add(set: PointSet, { row, column }: Point): PointSet {
-  return { ...set, [row]: { ...set[row], [column]: true } };
+/** Appends a new point to the Set object */
+export const add = (set: PointSet, point: Point): PointSet =>
+  PointMap.set(point, true, set);
+
+/** Removes the point from the Set object */
+export const remove = (set: PointSet, point: Point): PointSet =>
+  PointMap.unset(point, set);
+
+/** Returns a boolean asserting whether an point is present with the given value in the Set object or not */
+export const has = (set: PointSet, point: Point): boolean =>
+  PointMap.has(point, set);
+
+/** Returns the number of points in a PointSet object */
+export const size = (set: PointSet) => PointMap.size(set);
+
+/** Applies a function against an accumulator and each point in the set (from left to right) to reduce it to a single value */
+export function reduce<T>(
+  func: (T, Point) => T,
+  set: PointSet,
+  initialValue: T
+): T {
+  return PointMap.reduce(
+    (acc, _, point) => func(acc, point),
+    set,
+    initialValue
+  );
 }
 
-export function remove(set: PointSet, { row, column }: Point): PointSet {
-  const {
-    [String(row)]: { [String(column)]: _, ...nextRow },
-    ...nextSet
-  } = set;
-  if (Object.keys(nextRow).length === 0) {
-    return nextSet;
-  }
-  return { ...nextSet, [row]: nextRow };
+/** Creates a new set with the results of calling a provided function on every point in the calling set */
+export function map(func: Point => Point, set: PointSet): PointSet {
+  return reduce((acc, point) => add(acc, func(point)), set, from([]));
 }
 
-export function has(set: PointSet, { row, column }: Point): boolean {
-  return Boolean(set[row] && set[row][column]);
-}
-
-/** Returns the number of elements in a PointSet object. */
-export function size(map: PointSet<*>): number {
-  return Object.values(map).reduce(
-    (acc, row) => acc + Object.keys(row).length,
-    0
+export function filter(func: Point => boolean, set: PointSet): PointSet {
+  return reduce(
+    (acc, point) => {
+      if (func(point)) {
+        return add(acc, point);
+      }
+      return acc;
+    },
+    set,
+    from([])
   );
 }
 
@@ -61,37 +76,6 @@ export function from(points: Point[]): PointSet {
 
 export function isEmpty(set: PointSet): boolean {
   return Object.keys(set).length === 0;
-}
-
-export function reduce<T>(
-  func: (T, Point) => T,
-  set: PointSet,
-  initialValue: T
-): T {
-  let acc = initialValue;
-  for (const [row, columns] of Object.entries(set)) {
-    for (const column of Object.keys(columns)) {
-      acc = func(acc, { row: Number(row), column: Number(column) });
-    }
-  }
-  return acc;
-}
-
-export function map(func: Point => Point, set: PointSet): PointSet {
-  return reduce((acc, point) => add(acc, func(point)), set, from([]));
-}
-
-export function filter(func: Point => boolean, set: PointSet): PointSet {
-  return reduce(
-    (acc, point) => {
-      if (func(point)) {
-        return add(acc, point);
-      }
-      return acc;
-    },
-    set,
-    from([])
-  );
 }
 
 export function toArray(set: PointSet): Point[] {
