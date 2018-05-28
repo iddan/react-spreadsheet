@@ -83,7 +83,12 @@ export class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
   }
 
   render() {
-    const { row, column, DataViewer, getValue, data } = this.props;
+    const { row, column, getValue } = this.props;
+    let { DataViewer, data } = this.props;
+    if (data && data.DataViewer) {
+      ({ DataViewer, ...data } = data);
+    }
+
     return (
       <td
         ref={this.handleRoot}
