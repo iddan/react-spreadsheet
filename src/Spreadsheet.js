@@ -4,6 +4,8 @@ import React, { PureComponent } from "react";
 import type { ComponentType } from "react";
 import devtools from "unistore/devtools";
 import { connect } from "unistore/react";
+import type { Store } from "unistore";
+import { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
 import Table from "./Table";
 import type { Props as TableProps } from "./Table";
@@ -38,9 +40,12 @@ export type Props<CellType, Value> = {|
   Table: ComponentType<TableProps>,
   Row: ComponentType<RowProps>,
   Cell: ComponentType<CellProps<CellType, Value>>,
-  DataViewer: Types.DataEditor<CellType, Value>,
-  DataEditor: Types.DataViewer<CellType, Value>,
-  getValue: Types.getValue<CellType, Value>
+  DataViewer: Types.DataViewer<CellType, Value>,
+  DataEditor: Types.DataEditor<CellType, Value>,
+  getValue: Types.getValue<CellType, Value>,
+  onKeyDown: (SyntheticKeyboardEvent<HTMLElement>) => void,
+  onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void,
+  store: Store
 |};
 
 type State = {|
@@ -66,6 +71,8 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     DataEditor,
     getValue
   };
+
+  formulaParser = new FormulaParser();
 
   clip = () => {
     const { store } = this.props;
@@ -133,6 +140,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
                   column={columnNumber}
                   DataViewer={DataViewer}
                   getValue={getValue}
+                  formulaParser={this.formulaParser}
                 />
               ))}
             </Row>

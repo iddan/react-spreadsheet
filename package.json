@@ -22,6 +22,7 @@
   "dependencies": {
     "classnames": "2.2.5",
     "clipboard-polyfill": "^2.4.6",
+    "hot-formula-parser": "^2.3.3",
     "unistore": "^3.0.4"
   },
   "devDependencies": {

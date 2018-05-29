@@ -3,6 +3,7 @@
 import React, { PureComponent } from "react";
 import classnames from "classnames";
 import { connect } from "unistore/react";
+import type { Parser as FormulaParser } from "hot-formula-parser";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
@@ -14,8 +15,11 @@ type StaticProps<Data, Value> = {|
   row: number,
   column: number,
   DataViewer: Types.DataViewer<Data, Value>,
-  getValue: Types.getValue<Data, Value>
+  getValue: Types.getValue<Data, Value>,
+  formulaParser: FormulaParser
 |};
+
+export type { StaticProps as Props };
 
 type State<Data> = {|
   selected: boolean,
@@ -32,7 +36,7 @@ type Handlers<Data> = {|
   setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void
 |};
 
-export type Props<Data, Value> = {|
+type Props<Data, Value> = {|
   ...StaticProps<Data, Value>,
   ...State<Data>,
   ...Handlers<Data>
@@ -83,7 +87,7 @@ export class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
   }
 
   render() {
-    const { row, column, getValue } = this.props;
+    const { row, column, getValue, formulaParser } = this.props;
     let { DataViewer, data } = this.props;
     if (data && data.DataViewer) {
       ({ DataViewer, ...data } = data);
@@ -96,7 +100,13 @@ export class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
         onClick={this.handleClick}
         tabIndex={0}
       >
-        <DataViewer row={row} column={column} cell={data} getValue={getValue} />
+        <DataViewer
+          row={row}
+          column={column}
+          cell={data}
+          getValue={getValue}
+          formulaParser={formulaParser}
+        />
       </td>
     );
   }
