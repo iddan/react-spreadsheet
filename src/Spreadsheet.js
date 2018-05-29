@@ -18,7 +18,7 @@ import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import { range, writeTextToClipboard } from "./util";
+import { range, writeTextToClipboard, toColumnLetter } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -53,6 +53,9 @@ type State = {|
   columns: number
 |};
 
+const ColumnIndicator = ({ column }) => <th>{toColumnLetter(column)}</th>;
+const RowIndicator = ({ row }) => <th>{row + 1}</th>;
+
 class Spreadsheet<CellType, Value> extends PureComponent<{|
   ...$Diff<
     Props<CellType, Value>,
@@ -84,7 +87,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
   };
 
   componentDidMount() {
-    const { copy, cut, paste } = this.props;
+    const { copy, cut, paste, store } = this.props;
     document.addEventListener("copy", (event: ClipboardEvent) => {
       event.preventDefault();
       event.stopPropagation();
@@ -101,6 +104,21 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       event.preventDefault();
       event.stopPropagation();
       paste();
+    });
+    this.formulaParser.on("callCellValue", (cellCoord, done) => {
+      let value;
+      try {
+        const cell = Matrix.get(
+          cellCoord.row.index,
+          cellCoord.column.index,
+          store.getState().data
+        );
+        value = getValue({ data: cell });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        done(value);
+      }
     });
   }
 
@@ -131,8 +149,15 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
         onKeyDown={this.handleKeyDown}
       >
         <Table>
+          <tr>
+            <th />
+            {range(columns).map(columnNumber => (
+              <ColumnIndicator column={columnNumber} />
+            ))}
+          </tr>
           {range(rows).map(rowNumber => (
             <Row key={rowNumber}>
+              <RowIndicator row={rowNumber} />
               {range(columns).map(columnNumber => (
                 <Cell
                   key={columnNumber}
