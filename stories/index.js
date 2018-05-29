@@ -39,6 +39,7 @@ const RangeInput = ({ cell, getValue }) => (
 );
 
 initialData[4][5] = { value: 0, DataViewer: RangeInput };
+initialData[5][6] = { value: 0, component: RangeInput };
 
 class App extends Component {
   state = {
