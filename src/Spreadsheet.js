@@ -107,6 +107,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     });
     this.formulaParser.on("callCellValue", (cellCoord, done) => {
       let value;
+      /** @todo More sound error, or at least document */
       try {
         const cell = Matrix.get(
           cellCoord.row.index,
@@ -120,6 +121,23 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
         done(value);
       }
     });
+    this.formulaParser.on(
+      "callRangeValue",
+      (startCellCoord, endCellCoord, done) => {
+        const startPoint = {
+          row: startCellCoord.row.index,
+          column: startCellCoord.column.index
+        };
+        const endPoint = {
+          row: endCellCoord.row.index,
+          column: endCellCoord.column.index
+        };
+        const values = Matrix.toArray(
+          Matrix.slice(startPoint, endPoint, store.getState().data)
+        ).map(cell => getValue({ data: cell }));
+        done(values);
+      }
+    );
   }
 
   handleKeyDown = event => {
@@ -152,12 +170,12 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
           <tr>
             <th />
             {range(columns).map(columnNumber => (
-              <ColumnIndicator column={columnNumber} />
+              <ColumnIndicator key={columnNumber} column={columnNumber} />
             ))}
           </tr>
           {range(rows).map(rowNumber => (
             <Row key={rowNumber}>
-              <RowIndicator row={rowNumber} />
+              <RowIndicator key={rowNumber} row={rowNumber} />
               {range(columns).map(columnNumber => (
                 <Cell
                   key={columnNumber}

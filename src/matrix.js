@@ -172,3 +172,7 @@ export const inclusiveRange: typeof range = (endPoint, startPoint) =>
     },
     startPoint
   );
+
+export function toArray<T>(matrix: Matrix<T>): Array<T> {
+  return matrix.reduce((acc, row) => [...acc, ...row], []);
+}
