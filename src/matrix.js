@@ -1,7 +1,7 @@
 /**
  * Immutable interface for Matrices
  *
- * @todo use Types.Point
+ * @todo use Types.Point for all point references
  *
  * @flow
  */

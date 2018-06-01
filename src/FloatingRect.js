@@ -1,5 +1,4 @@
 import React from "react";
-// import { connect } from "unistore/react";
 import * as PointMap from "./point-map";
 import * as PointSet from "./point-set";
 import classnames from "classnames";
@@ -12,7 +11,6 @@ const FloatingRect = ({ width, height, top, left, className, hidden }) => (
   />
 );
 
-/** @todo better arch */
 export const mapStateToProps = cells => state => {
   const dimensions = PointSet.reduce(
     (acc, point) => {

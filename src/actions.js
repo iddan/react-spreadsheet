@@ -73,7 +73,6 @@ export const cut = (state: Types.StoreState<*>) => ({
 });
 
 export const paste = (state: Types.StoreState<*>) => {
-  /** @todo make PointMap extend PointSet so this will be allowed */
   const minRow = PointSet.getEdgeValue(state.copied, "row", -1);
   const minColumn = PointSet.getEdgeValue(state.copied, "column", -1);
 
