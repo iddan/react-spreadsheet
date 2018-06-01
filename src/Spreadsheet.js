@@ -4,6 +4,8 @@ import React, { PureComponent } from "react";
 import type { ComponentType } from "react";
 import devtools from "unistore/devtools";
 import { connect } from "unistore/react";
+import type { Store } from "unistore";
+import { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
 import Table from "./Table";
 import type { Props as TableProps } from "./Table";
@@ -16,7 +18,7 @@ import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import { range, writeTextToClipboard } from "./util";
+import { range, writeTextToClipboard, toColumnLetter } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -38,15 +40,21 @@ export type Props<CellType, Value> = {|
   Table: ComponentType<TableProps>,
   Row: ComponentType<RowProps>,
   Cell: ComponentType<CellProps<CellType, Value>>,
-  DataViewer: Types.DataEditor<CellType, Value>,
-  DataEditor: Types.DataViewer<CellType, Value>,
-  getValue: Types.getValue<CellType, Value>
+  DataViewer: Types.DataViewer<CellType, Value>,
+  DataEditor: Types.DataEditor<CellType, Value>,
+  getValue: Types.getValue<CellType, Value>,
+  onKeyDown: (SyntheticKeyboardEvent<HTMLElement>) => void,
+  onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void,
+  store: Store
 |};
 
 type State = {|
   rows: number,
   columns: number
 |};
+
+const ColumnIndicator = ({ column }) => <th>{toColumnLetter(column)}</th>;
+const RowIndicator = ({ row }) => <th>{row + 1}</th>;
 
 class Spreadsheet<CellType, Value> extends PureComponent<{|
   ...$Diff<
@@ -67,6 +75,8 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     getValue
   };
 
+  formulaParser = new FormulaParser();
+
   clip = () => {
     const { store } = this.props;
     const { data, selected } = store.getState();
@@ -77,7 +87,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
   };
 
   componentDidMount() {
-    const { copy, cut, paste } = this.props;
+    const { copy, cut, paste, store } = this.props;
     document.addEventListener("copy", (event: ClipboardEvent) => {
       event.preventDefault();
       event.stopPropagation();
@@ -95,6 +105,39 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       event.stopPropagation();
       paste();
     });
+    this.formulaParser.on("callCellValue", (cellCoord, done) => {
+      let value;
+      /** @todo More sound error, or at least document */
+      try {
+        const cell = Matrix.get(
+          cellCoord.row.index,
+          cellCoord.column.index,
+          store.getState().data
+        );
+        value = getValue({ data: cell });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        done(value);
+      }
+    });
+    this.formulaParser.on(
+      "callRangeValue",
+      (startCellCoord, endCellCoord, done) => {
+        const startPoint = {
+          row: startCellCoord.row.index,
+          column: startCellCoord.column.index
+        };
+        const endPoint = {
+          row: endCellCoord.row.index,
+          column: endCellCoord.column.index
+        };
+        const values = Matrix.toArray(
+          Matrix.slice(startPoint, endPoint, store.getState().data)
+        ).map(cell => getValue({ data: cell }));
+        done(values);
+      }
+    );
   }
 
   handleKeyDown = event => {
@@ -124,8 +167,15 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
         onKeyDown={this.handleKeyDown}
       >
         <Table>
+          <tr>
+            <th />
+            {range(columns).map(columnNumber => (
+              <ColumnIndicator key={columnNumber} column={columnNumber} />
+            ))}
+          </tr>
           {range(rows).map(rowNumber => (
             <Row key={rowNumber}>
+              <RowIndicator key={rowNumber} row={rowNumber} />
               {range(columns).map(columnNumber => (
                 <Cell
                   key={columnNumber}
@@ -133,6 +183,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
                   column={columnNumber}
                   DataViewer={DataViewer}
                   getValue={getValue}
+                  formulaParser={this.formulaParser}
                 />
               ))}
             </Row>

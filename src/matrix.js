@@ -24,6 +24,25 @@ export function get<T>(
   return columns[column];
 }
 
+export function slice<T>(
+  startPoint: Types.Point,
+  endPoint: Types.Point,
+  matrix: Matrix<T>
+): Matrix<T> {
+  let sliced = [];
+  for (let row = startPoint.row; row <= endPoint.row; row++) {
+    for (let column = startPoint.column; column <= endPoint.column; column++) {
+      sliced = set(
+        row - startPoint.row,
+        column - startPoint.column,
+        get(row, column, matrix),
+        sliced
+      );
+    }
+  }
+  return sliced;
+}
+
 /** Sets the value at row and column of matrix. If a row doesn't exist, it's created. */
 export function set<T>(
   row: number,
@@ -153,3 +172,7 @@ export const inclusiveRange: typeof range = (endPoint, startPoint) =>
     },
     startPoint
   );
+
+export function toArray<T>(matrix: Matrix<T>): Array<T> {
+  return matrix.reduce((acc, row) => [...acc, ...row], []);
+}

@@ -9,13 +9,8 @@ const COLUMNS = Array.from(range(26)).map(toColumnLetter);
 const EMPTY_CELL = { value: "" };
 
 const initialData = [
-  [
-    { value: "", readOnly: true },
-    ...COLUMNS.map(letter => ({ value: letter, readOnly: true }))
-  ],
   ...range(20)
     .map((row, j) => [
-      { value: j, readOnly: true },
       ...Array(COLUMNS.length)
         .fill(1)
         .map((cell, i) => EMPTY_CELL)
@@ -52,28 +47,15 @@ class App extends Component {
 
   addColumn = () => {
     this.setState(({ data }) => {
-      const [firstRow, ...rows] = data;
       return {
-        data: [
-          firstRow.concat({
-            value: toColumnLetter(firstRow.length - 1),
-            readOnly: true
-          }),
-          ...rows.map(row => row.concat(EMPTY_CELL))
-        ]
+        data: data.map(row => row.concat(EMPTY_CELL))
       };
     });
   };
 
   addRow = () => {
     this.setState(({ data }) => ({
-      data: [
-        ...data,
-        [
-          { value: data.length, readOnly: true },
-          ...Array(COLUMNS.length).fill(EMPTY_CELL)
-        ]
-      ]
+      data: [...data, Array(COLUMNS.length).fill(EMPTY_CELL)]
     }));
   };
 
