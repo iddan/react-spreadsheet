@@ -170,7 +170,9 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     this.formulaParser.on(
       "callRangeValue",
       (startCellCoord, endCellCoord, done) => {
-        const { rows, columns } = Matrix.getSize(data);
+        const { rows, columns } = Matrix.getSize(
+          this.props.store.getState().data
+        );
         const startPoint = {
           row: startCellCoord.row.index,
           column: startCellCoord.column.index
