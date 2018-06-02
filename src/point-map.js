@@ -80,9 +80,15 @@ export function reduce<A, T>(
   initialValue: A
 ): A {
   let acc = initialValue;
-  for (const [row, columns] of Object.entries(map)) {
-    for (const [column, value] of Object.entries(columns)) {
-      acc = func(acc, value, { row: Number(row), column: Number(column) });
+  const _map_keys = Object.keys(map);
+  for (let i = 0; i < _map_keys.length; i++) {
+    const row = Number(_map_keys[i]);
+    const columns = map[row];
+    const _columns_keys = Object.keys(columns);
+    for (let j = 0; j < _columns_keys.length; j++) {
+      const column = Number(_columns_keys[j]);
+      const value = columns[column];
+      acc = func(acc, value, { row: row, column: column });
     }
   }
   return acc;
