@@ -2,7 +2,6 @@
 
 import React, { PureComponent } from "react";
 import type { ComponentType } from "react";
-import devtools from "unistore/devtools";
 import { connect } from "unistore/react";
 import type { Store } from "unistore";
 import {
