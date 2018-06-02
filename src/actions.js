@@ -38,7 +38,7 @@ export const changeCell: Action = (
 ) => ({
   mode: "edit",
   data: setCell(state, data),
-  bindings: PointMap.set(state.active, bindings, state.bindings)
+  bindings: PointMap.set(state.active, PointSet.from(bindings), state.bindings)
 });
 
 export function setCellDimensions(

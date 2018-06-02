@@ -107,7 +107,15 @@ export class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
 }
 
 function mapStateToProps<Data>(
-  { data, active, selected, copied, hasPasted, mode }: Types.StoreState<Data>,
+  {
+    data,
+    active,
+    selected,
+    copied,
+    hasPasted,
+    mode,
+    bindings
+  }: Types.StoreState<Data>,
   { column, row }: Props<Data, *>
 ): State<Data> {
   const point = { row, column };

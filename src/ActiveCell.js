@@ -12,7 +12,7 @@ type Props<Cell, Value> = {|
   ...Types.Dimensions,
   DataEditor: Types.DataEditor<Cell, Value>,
   getValue: Types.getValue<Cell, Value>,
-  getBindingsForCell: Types.getBindingsForCell<Cell>,
+  getBindingsForCell: (Types.CellDescriptor<Cell>) => Types.Point[],
   changeCell: (data: Cell, bindings: Types.Point[]) => void,
   cell: Cell,
   hidden: boolean,

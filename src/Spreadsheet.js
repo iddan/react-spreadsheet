@@ -118,7 +118,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
 
   getBindingsForCell = cellDescriptor => {
     const { getBindingsForCell, store } = this.props;
-    getBindingsForCell(cellDescriptor, store.getState().data);
+    return getBindingsForCell(cellDescriptor, store.getState().data);
   };
 
   formulaParser = new FormulaParser();
@@ -179,15 +179,21 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
           row: Math.min(rows, endCellCoord.row.index),
           column: Math.min(columns, endCellCoord.column.index)
         };
-        const values = Matrix.toArray(
-          Matrix.slice(startPoint, endPoint, store.getState().data),
-          cell => getValue({ data: cell })
-        );
-        done(values);
+        let values = [];
+        try {
+          values = Matrix.toArray(
+            Matrix.slice(startPoint, endPoint, store.getState().data),
+            cell => getValue({ data: cell })
+          );
+        } catch (error) {
+          console.error(error);
+        } finally {
+          done(values);
+        }
       }
     );
   }
-  8;
+
   handleKeyDown = event => {
     const { store, onKeyDown } = this.props;
     // Only disable default behavior if an handler exist
