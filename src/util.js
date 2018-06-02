@@ -37,7 +37,13 @@ export function flatMap<T1, T2>(array: T1[], func: T1 => T2 | T2[]): T2[] {
   let acc = [];
   for (let i = 0; i < array.length; i++) {
     let value = func(array[i]);
-    acc = acc.concat(value);
+    if (Array.isArray(value)) {
+      for (let j = 0; j < value.length; j++) {
+        acc.push(value[j]);
+      }
+    } else {
+      acc.push(value);
+    }
   }
   return acc;
 }
@@ -70,22 +76,6 @@ export function isActive(
 ): boolean {
   return Boolean(active && column === active.column && row === active.row);
 }
-
-const CAPITAL_A_CODE = 65;
-const ALPHABET_LENGTH = 26;
-
-export const toColumnLetter = (number: number): string => {
-  if (number < 0) {
-    throw new Error("number must be ≥ 0");
-  }
-  if (number < ALPHABET_LENGTH) {
-    return String.fromCharCode(CAPITAL_A_CODE + number);
-  }
-  return (
-    toColumnLetter(Math.floor(number / ALPHABET_LENGTH) - 1) +
-    toColumnLetter(number % ALPHABET_LENGTH)
-  );
-};
 
 export const getOffsetRect = (element: HTMLElement): Types.Dimensions => ({
   width: element.offsetWidth,

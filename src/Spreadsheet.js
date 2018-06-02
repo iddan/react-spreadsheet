@@ -5,7 +5,11 @@ import type { ComponentType } from "react";
 import devtools from "unistore/devtools";
 import { connect } from "unistore/react";
 import type { Store } from "unistore";
-import { Parser as FormulaParser } from "hot-formula-parser";
+import {
+  Parser as FormulaParser,
+  columnIndexToLabel,
+  extractLabel
+} from "hot-formula-parser";
 import * as Types from "./types";
 import Table from "./Table";
 import type { Props as TableProps } from "./Table";
@@ -18,7 +22,7 @@ import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import { range, writeTextToClipboard, toColumnLetter } from "./util";
+import { range, writeTextToClipboard } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -35,6 +39,41 @@ type DefaultCellType = {
 const getValue = ({ data }: { data: ?DefaultCellType }) =>
   data ? data.value : null;
 
+const labelToPoint = (label: string): Types.Point => {
+  const [row, column] = extractLabel(label);
+  return { row: row.index, column: column.index };
+};
+
+/** @todo use external parser or extract */
+const CELL_REFERENCES_REGEX = /(\$?[A-Z]+\$?[0-9]+(?::\$?[A-Z]+\$?[0-9]+)?)/g;
+const getCellReferences = (formula: string): string[] =>
+  formula.match(CELL_REFERENCES_REGEX) || [];
+
+const getBindingsForCell: Types.getBindingsForCell<?DefaultCellType> = (
+  cell,
+  data
+) => {
+  if (
+    cell.data &&
+    typeof cell.data.value === "string" &&
+    cell.data.value.startsWith("=")
+  ) {
+    const { rows, columns } = Matrix.getSize(data);
+    return getCellReferences(cell.data.value).reduce((acc, match) => {
+      if (match.includes(":")) {
+        let [startPoint, endPoint] = match.split(":").map(labelToPoint);
+        endPoint = {
+          row: Math.min(endPoint.row, rows),
+          column: Math.min(endPoint.column, columns)
+        };
+        return [...acc, ...Matrix.inclusiveRange(startPoint, endPoint)];
+      }
+      return [...acc, labelToPoint(match)];
+    }, []);
+  }
+  return [];
+};
+
 export type Props<CellType, Value> = {|
   data: Matrix.Matrix<CellType>,
   Table: ComponentType<TableProps>,
@@ -45,6 +84,7 @@ export type Props<CellType, Value> = {|
   getValue: Types.getValue<CellType, Value>,
   onKeyDown: (SyntheticKeyboardEvent<HTMLElement>) => void,
   onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void,
+  getBindingsForCell: Types.getBindingsForCell<CellType>,
   store: Store
 |};
 
@@ -53,7 +93,7 @@ type State = {|
   columns: number
 |};
 
-const ColumnIndicator = ({ column }) => <th>{toColumnLetter(column)}</th>;
+const ColumnIndicator = ({ column }) => <th>{columnIndexToLabel(column)}</th>;
 const RowIndicator = ({ row }) => <th>{row + 1}</th>;
 
 class Spreadsheet<CellType, Value> extends PureComponent<{|
@@ -72,7 +112,13 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     Cell: enhanceCell(Cell),
     DataViewer,
     DataEditor,
-    getValue
+    getValue,
+    getBindingsForCell
+  };
+
+  getBindingsForCell = cellDescriptor => {
+    const { getBindingsForCell, store } = this.props;
+    getBindingsForCell(cellDescriptor, store.getState().data);
   };
 
   formulaParser = new FormulaParser();
@@ -124,22 +170,24 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     this.formulaParser.on(
       "callRangeValue",
       (startCellCoord, endCellCoord, done) => {
+        const { rows, columns } = Matrix.getSize(data);
         const startPoint = {
           row: startCellCoord.row.index,
           column: startCellCoord.column.index
         };
         const endPoint = {
-          row: endCellCoord.row.index,
-          column: endCellCoord.column.index
+          row: Math.min(rows, endCellCoord.row.index),
+          column: Math.min(columns, endCellCoord.column.index)
         };
         const values = Matrix.toArray(
-          Matrix.slice(startPoint, endPoint, store.getState().data)
-        ).map(cell => getValue({ data: cell }));
+          Matrix.slice(startPoint, endPoint, store.getState().data),
+          cell => getValue({ data: cell })
+        );
         done(values);
       }
     );
   }
-
+  8;
   handleKeyDown = event => {
     const { store, onKeyDown } = this.props;
     // Only disable default behavior if an handler exist
@@ -189,7 +237,11 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
             </Row>
           ))}
         </Table>
-        <ActiveCell DataEditor={DataEditor} getValue={getValue} />
+        <ActiveCell
+          DataEditor={DataEditor}
+          getValue={getValue}
+          getBindingsForCell={this.getBindingsForCell}
+        />
         <Selected />
         <Copied />
       </div>

@@ -30,7 +30,6 @@ type State<Data> = {|
 |};
 
 type Handlers<Data> = {|
-  setData: (data: Data) => void,
   select: (cellPointer: Types.Point) => void,
   activate: (cellPointer: Types.Point) => void,
   setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void
@@ -62,11 +61,6 @@ export class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
     }
 
     activate({ row, column });
-  };
-
-  handleChange = (cell: Data) => {
-    const { setData } = this.props;
-    setData(cell);
   };
 
   componentDidUpdate() {
@@ -131,6 +125,5 @@ function mapStateToProps<Data>(
 export const enhance = connect(mapStateToProps, () => ({
   select: Actions.select,
   activate: Actions.activate,
-  setData: Actions.setData,
   setCellDimensions: Actions.setCellDimensions
 }));

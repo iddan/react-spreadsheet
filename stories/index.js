@@ -5,13 +5,14 @@ import Spreadsheet from "../src/SpreadsheetStateProvider";
 import { range, toColumnLetter } from "../src/util";
 import "./index.css";
 
-const COLUMNS = Array.from(range(26)).map(toColumnLetter);
+const INITIAL_ROWS = 20;
+const INITIAL_COLUMNS = 26;
 const EMPTY_CELL = { value: "" };
 
 const initialData = [
-  ...range(20)
+  ...range(INITIAL_ROWS)
     .map((row, j) => [
-      ...Array(COLUMNS.length)
+      ...Array(INITIAL_COLUMNS)
         .fill(1)
         .map((cell, i) => EMPTY_CELL)
     ])

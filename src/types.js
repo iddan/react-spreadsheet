@@ -32,10 +32,16 @@ export type StoreState<Cell> = {|
   cut: boolean,
   active: Point | null,
   mode: Mode,
-  cellDimensions: PointMap<Dimensions>
+  cellDimensions: PointMap<Dimensions>,
+  bindings: PointMap<PointSet>
 |};
 
 export type getValue<Cell, Value> = (CellDescriptor<Cell>) => Value;
+
+export type getBindingsForCell<Cell> = (
+  CellDescriptor<Cell>,
+  Matrix<Cell>
+) => Point[];
 
 export type CellComponentProps<Cell, Value> = {|
   ...Point,

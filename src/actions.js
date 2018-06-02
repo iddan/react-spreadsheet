@@ -31,9 +31,14 @@ export const activate: Action = (state, cellPointer: Types.Point) => ({
   mode: isActive(state.active, cellPointer) ? "edit" : "view"
 });
 
-export const setData: Action = (state, data: *) => ({
+export const changeCell: Action = (
+  state,
+  data: *,
+  bindings: PointSet.PointSet
+) => ({
   mode: "edit",
-  data: setCell(state, data)
+  data: setCell(state, data),
+  bindings: PointMap.set(state.active, bindings, state.bindings)
 });
 
 export function setCellDimensions(
