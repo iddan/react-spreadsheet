@@ -1,17 +1,18 @@
 import React, { Component, Fragment } from "react";
 import { storiesOf } from "@storybook/react";
-import { action } from "@storybook/addon-actions";
 import Spreadsheet from "../src/SpreadsheetStateProvider";
-import { range, toColumnLetter } from "../src/util";
+import * as Matrix from "../src/matrix";
+import { range } from "../src/util";
 import "./index.css";
 
-const COLUMNS = Array.from(range(26)).map(toColumnLetter);
+const INITIAL_ROWS = 20;
+const INITIAL_COLUMNS = 26;
 const EMPTY_CELL = { value: "" };
 
 const initialData = [
-  ...range(20)
+  ...range(INITIAL_ROWS)
     .map((row, j) => [
-      ...Array(COLUMNS.length)
+      ...Array(INITIAL_COLUMNS)
         .fill(1)
         .map((cell, i) => EMPTY_CELL)
     ])
@@ -42,7 +43,7 @@ class App extends Component {
   };
 
   handleChange = data => {
-    // this.setState({ data });
+    this.setState({ data });
   };
 
   addColumn = () => {
@@ -54,9 +55,10 @@ class App extends Component {
   };
 
   addRow = () => {
-    this.setState(({ data }) => ({
-      data: [...data, Array(COLUMNS.length).fill(EMPTY_CELL)]
-    }));
+    this.setState(({ data }) => {
+      const { columns } = Matrix.getSize(data);
+      return { data: [...data, Array(columns).fill(EMPTY_CELL)] };
+    });
   };
 
   render() {
@@ -64,7 +66,7 @@ class App extends Component {
       <Fragment>
         <button onClick={this.addColumn}>Add column</button>
         <button onClick={this.addRow}>Add row</button>
-        <Spreadsheet data={this.state.data} />
+        <Spreadsheet data={this.state.data} onChange={this.handleChange} />
       </Fragment>
     );
   }

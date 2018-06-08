@@ -1,5 +1,6 @@
 // @flow
-import React, { PureComponent } from "react";
+import React, { Component } from "react";
+import shallowEqual from "fbjs/lib/shallowEqual";
 import createStore from "unistore";
 import devtools from "unistore/devtools";
 import { Provider } from "unistore/react";
@@ -30,7 +31,7 @@ const initialState: $Shape<Types.StoreState<any>> = {
 export default class SpreadsheetStateProvider<
   CellType,
   Value
-> extends PureComponent<Props<CellType, Value>> {
+> extends Component<Props<CellType, Value>> {
   store: Object;
   unsubscribe: Unsubscribe;
   prevState: Types.StoreState<CellType>;
@@ -53,6 +54,12 @@ export default class SpreadsheetStateProvider<
         ? createStore(state)
         : devtools(createStore(state));
     this.prevState = state;
+  }
+
+  shouldComponentUpdate(nextProps) {
+    const { data, ...rest } = this.props;
+    const { data: nextData, ...nextRest } = nextProps;
+    return !shallowEqual(rest, nextRest) || nextData !== this.prevState.data;
   }
 
   componentDidMount() {
@@ -78,7 +85,7 @@ export default class SpreadsheetStateProvider<
   }
 
   componentDidUpdate(prevProps: Props<CellType, Value>) {
-    if (prevProps.data !== this.props.data) {
+    if (this.props.data !== this.prevState.data) {
       this.store.setState({ data: this.props.data });
     }
   }

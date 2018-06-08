@@ -30,14 +30,12 @@ export function slice<T>(
   matrix: Matrix<T>
 ): Matrix<T> {
   let sliced = [];
+  const columns = endPoint.column - startPoint.column;
   for (let row = startPoint.row; row <= endPoint.row; row++) {
+    const slicedRow = row - startPoint.row;
+    sliced[slicedRow] = sliced[slicedRow] || Array(columns);
     for (let column = startPoint.column; column <= endPoint.column; column++) {
-      sliced = set(
-        row - startPoint.row,
-        column - startPoint.column,
-        get(row, column, matrix),
-        sliced
-      );
+      sliced[slicedRow][column - startPoint.column] = get(row, column, matrix);
     }
   }
   return sliced;
@@ -145,6 +143,7 @@ export function range(
   endPoint: Types.Point,
   startPoint: Types.Point
 ): Types.Point[] {
+  const points = [];
   const columnsRange =
     startPoint.column !== endPoint.column
       ? _range(endPoint.column, startPoint.column)
@@ -159,9 +158,15 @@ export function range(
         ? [startPoint.row]
         : [];
 
-  return flatMap(rowsRange, row =>
-    columnsRange.map(column => ({ row, column }))
-  );
+  for (let i = 0; i < rowsRange.length; i++) {
+    const row = rowsRange[i];
+    for (let j = 0; j < columnsRange.length; j++) {
+      const column = columnsRange[j];
+      points.push({ row, column });
+    }
+  }
+
+  return points;
 }
 
 export const inclusiveRange: typeof range = (endPoint, startPoint) =>
@@ -173,6 +178,17 @@ export const inclusiveRange: typeof range = (endPoint, startPoint) =>
     startPoint
   );
 
-export function toArray<T>(matrix: Matrix<T>): Array<T> {
-  return matrix.reduce((acc, row) => [...acc, ...row], []);
-}
+type ToArray<T, T2> = (
+  Matrix<T>
+) => Array<T> & ((Matrix<T>, (T) => T2) => Array<T2>);
+
+export const toArray: ToArray<*, *> = (matrix, transform) => {
+  let array = [];
+  for (let row = 0; row < matrix.length; row++) {
+    for (let column = 0; column < matrix.length; column++) {
+      const value = matrix[row][column];
+      array.push(transform ? transform(value) : value);
+    }
+  }
+  return array;
+};

@@ -5,7 +5,10 @@ import type { ComponentType } from "react";
 import devtools from "unistore/devtools";
 import { connect } from "unistore/react";
 import type { Store } from "unistore";
-import { Parser as FormulaParser } from "hot-formula-parser";
+import {
+  Parser as FormulaParser,
+  columnIndexToLabel
+} from "hot-formula-parser";
 import * as Types from "./types";
 import Table from "./Table";
 import type { Props as TableProps } from "./Table";
@@ -18,7 +21,7 @@ import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import { range, writeTextToClipboard, toColumnLetter } from "./util";
+import { range, writeTextToClipboard } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -53,7 +56,7 @@ type State = {|
   columns: number
 |};
 
-const ColumnIndicator = ({ column }) => <th>{toColumnLetter(column)}</th>;
+const ColumnIndicator = ({ column }) => <th>{columnIndexToLabel(column)}</th>;
 const RowIndicator = ({ row }) => <th>{row + 1}</th>;
 
 class Spreadsheet<CellType, Value> extends PureComponent<{|
@@ -200,10 +203,13 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
 const mapStateToProps = ({ data }: Types.StoreState<*>): State =>
   Matrix.getSize(data);
 
-export default connect(mapStateToProps, {
-  copy: Actions.copy,
-  cut: Actions.cut,
-  paste: Actions.paste,
-  onKeyDown: Actions.keyDown,
-  onKeyPress: Actions.keyPress
-})(Spreadsheet);
+export default connect(
+  mapStateToProps,
+  {
+    copy: Actions.copy,
+    cut: Actions.cut,
+    paste: Actions.paste,
+    onKeyDown: Actions.keyDown,
+    onKeyPress: Actions.keyPress
+  }
+)(Spreadsheet);
