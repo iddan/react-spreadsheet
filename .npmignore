@@ -64,6 +64,10 @@ typings/
 
 src/
 
+# Test files
+
+__tests__/
+
 # Storybook
 
 .storybook/
@@ -72,3 +76,9 @@ stories/
 # Scripts
 
 scripts/
+
+# Configuration
+
+.vscode/
+.eslintrc
+.babelrc
