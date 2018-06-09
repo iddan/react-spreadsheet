@@ -259,10 +259,13 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
 const mapStateToProps = ({ data }: Types.StoreState<*>): State =>
   Matrix.getSize(data);
 
-export default connect(mapStateToProps, {
-  copy: Actions.copy,
-  cut: Actions.cut,
-  paste: Actions.paste,
-  onKeyDown: Actions.keyDown,
-  onKeyPress: Actions.keyPress
-})(Spreadsheet);
+export default connect(
+  mapStateToProps,
+  {
+    copy: Actions.copy,
+    cut: Actions.cut,
+    paste: Actions.paste,
+    onKeyDown: Actions.keyDown,
+    onKeyPress: Actions.keyPress
+  }
+)(Spreadsheet);
