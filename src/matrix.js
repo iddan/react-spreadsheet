@@ -6,7 +6,7 @@
  * @flow
  */
 
-import { range as _range, flatMap } from "./util";
+import { range as _range } from "./util";
 import * as Types from "./types";
 
 export type Matrix<T> = Array<T[]>;
@@ -24,6 +24,7 @@ export function get<T>(
   return columns[column];
 }
 
+/** Creates a slice of matrix from startPoint up to, but not including, endPoint. */
 export function slice<T>(
   startPoint: Types.Point,
   endPoint: Types.Point,
@@ -54,7 +55,7 @@ export function set<T>(
   const [firstRow = []] = matrix;
   const nextFirstRow = [...firstRow];
   if (firstRow.length - 1 < column) {
-    firstRow[column] = undefined;
+    nextFirstRow[column] = undefined;
     nextMatrix[0] = nextFirstRow;
   }
 
@@ -138,7 +139,7 @@ export function getSize(matrix: Matrix<*>): Size {
   };
 }
 
-/** Creates a matrix of numbers (positive and/or negative) progressing from start up to, but not including, end. */
+/** Creates an array of points (positive and/or negative) progressing from startPoint up to, but not including, endPoint. */
 export function range(
   endPoint: Types.Point,
   startPoint: Types.Point
@@ -169,6 +170,7 @@ export function range(
   return points;
 }
 
+/** Like Matrix.range() but including endPoint. */
 export const inclusiveRange: typeof range = (endPoint, startPoint) =>
   range(
     {
