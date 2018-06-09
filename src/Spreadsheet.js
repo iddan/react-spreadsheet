@@ -27,10 +27,6 @@ import * as Matrix from "./matrix";
 import * as Actions from "./actions";
 import "./Spreadsheet.css";
 
-declare class ClipboardEvent extends Event {
-  clipboardData: DataTransfer;
-}
-
 type DefaultCellType = {
   value: string | number | boolean | null
 };
