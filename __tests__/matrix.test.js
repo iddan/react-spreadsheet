@@ -39,6 +39,26 @@ describe("Matrix.set()", () => {
   });
 });
 
+describe("Matrix.unset()", () => {
+  test("Removes the coordinate of matrix", () => {
+    const nextMatrix = Matrix.unset(2, 2, matrix);
+    expect(Matrix.get(2, 2, nextMatrix)).toBe(undefined);
+  });
+  test("Returns same matrix if nothing changed", () => {
+    expect(Matrix.unset(5, 5, matrix)).toBe(matrix);
+  });
+});
+
+describe("Matrix.filter()", () => {
+  test("Iterates over elements of matrix, returning a matrix of all elements predicate returns truthy for", () => {
+    expect(Matrix.filter(item => item % 2 === 0, matrix)).toEqual([
+      [undefined, 2, undefined],
+      [4, undefined, 6],
+      [undefined, 8]
+    ]);
+  });
+});
+
 describe("Matrix.slice()", () => {
   const matrix = [
     [1, 2, 3, 4, 5],
