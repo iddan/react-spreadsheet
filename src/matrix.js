@@ -116,7 +116,7 @@ export function reduce<T, A>(
   let acc = initialValue;
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
-      if (row in matrix && column in matrix[column]) {
+      if (row in matrix && column in matrix[row]) {
         acc = func(acc, matrix[row][column], { row, column });
       }
     }
@@ -143,10 +143,14 @@ export function filter<T>(func: T => boolean, matrix: Matrix<T>): Matrix<T> {
 
 /** Creates an array of values by running each element in collection thru iteratee. */
 export function map<T, T2>(func: T => T2, matrix: Matrix<T>): Matrix<T2> {
-  return reduce((acc, value, point) => {
-    mutableSet(point.row, point.column, func(value), acc);
-    return acc;
-  }, ([]: Matrix));
+  return reduce(
+    (acc, value, point) => {
+      mutableSet(point.row, point.column, func(value), acc);
+      return acc;
+    },
+    matrix,
+    ([]: Matrix)
+  );
 }
 
 /**
