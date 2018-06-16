@@ -63,13 +63,22 @@ export function filter(func: Point => boolean, set: PointSet): PointSet {
   );
 }
 
-/** Returns the point on the minimal row in the minimal column in the set */
-const minKey = (object: { [key: number]: any }) =>
+const minKey = (object: { [key: number]: any }): number =>
   Math.min(...Object.keys(object));
 
+/** Returns the point on the minimal row in the minimal column in the set */
 export function min(set: PointSet): Point {
   const row = minKey(set);
   return { row, column: minKey(set[row]) };
+}
+
+const maxKey = (object: { [key: number]: any }): number =>
+  Math.max(...Object.keys(object));
+
+/** Returns the point on the maximal row in the maximal column in the set */
+export function max(set: PointSet): Point {
+  const row = maxKey(set);
+  return { row, column: maxKey(set[row]) };
 }
 
 /** Creates a new PointSet instance from an array-like or iterable object */
@@ -83,24 +92,6 @@ export const isEmpty = (set: PointSet) => PointMap.isEmpty(set);
 /** Returns an array of the set points */
 export function toArray(set: PointSet): Point[] {
   return reduce((acc: Point[], point: Point) => [...acc, point], set, []);
-}
-
-/** @todo refactor to return Matrix.Matrix<T> */
-export function toMatrix<T>(
-  set: PointSet,
-  data: Matrix.Matrix<T>
-): Matrix.Matrix<Descriptor<T>> {
-  return reduce(
-    (acc, { row, column }) =>
-      Matrix.set(
-        row,
-        column,
-        { row, column, data: Matrix.get(row, column, data) },
-        acc
-      ),
-    set,
-    []
-  );
 }
 
 type OnEdge = {|
