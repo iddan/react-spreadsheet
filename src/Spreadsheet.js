@@ -232,6 +232,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
                   DataViewer={DataViewer}
                   getValue={getValue}
                   formulaParser={this.formulaParser}
+                  store={this.props.store}
                 />
               ))}
             </Row>

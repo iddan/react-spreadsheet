@@ -5,7 +5,6 @@ import classnames from "classnames";
 import { connect } from "unistore/react";
 import type { Parser as FormulaParser } from "hot-formula-parser";
 import * as PointSet from "./point-set";
-import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Actions from "./actions";
@@ -22,11 +21,6 @@ type StaticProps<Data, Value> = {|
 export type { StaticProps as Props };
 
 type State<Data> = {|
-  selected: boolean,
-  active: boolean,
-  copied: boolean,
-  dragging: boolean,
-  mode: Types.Mode,
   data: ?Data
 |};
 
@@ -60,9 +54,9 @@ export class Cell<
       setCellDimensions,
       select,
       activate,
-      mode
+      store
     } = this.props;
-    if (mode === "view") {
+    if (store.getState().mode === "view") {
       setCellDimensions({ row, column }, getOffsetRect(e.currentTarget));
 
       if (e.shiftKey) {
@@ -75,8 +69,8 @@ export class Cell<
   };
 
   handleMouseOver = (e: SyntheticMouseEvent<*>) => {
-    const { row, column, dragging, setCellDimensions, select } = this.props;
-    if (dragging) {
+    const { row, column, setCellDimensions, select, store } = this.props;
+    if (store.getState().dragging) {
       setCellDimensions({ row, column }, getOffsetRect(e.currentTarget));
       select({ row, column });
     }
@@ -87,19 +81,36 @@ export class Cell<
     setData(cell);
   };
 
-  componentDidUpdate() {
-    const {
-      row,
-      column,
-      active,
-      selected,
-      mode,
-      setCellDimensions
-    } = this.props;
-    if (selected && this.root) {
-      setCellDimensions({ row, column }, getOffsetRect(this.root));
+  prevState = this.props.store.getState();
+  selected: boolean;
+
+  measure = () => {
+    if (this.selected && this.root) {
+      const { row, column } = this.props;
+      this.props.setCellDimensions({ row, column }, getOffsetRect(this.root));
     }
-    if (this.root && active && mode === "view") {
+  };
+
+  componentDidMount() {
+    const { row, column } = this.props;
+    this.props.store.subscribe(state => {
+      if (state.selected !== this.prevState.selected) {
+        this.selected = PointSet.has(state.selected, { row, column });
+        this.measure();
+      }
+      this.prevState = state;
+    });
+  }
+
+  componentDidUpdate() {
+    const { row, column, store } = this.props;
+    const state = store.getState();
+    const point = { row, column };
+    if (this.selected && this.root) {
+      this.measure();
+    }
+
+    if (this.root && isActive(state.active, point) && state.mode === "view") {
       this.root.focus();
     }
   }
@@ -134,36 +145,20 @@ export class Cell<
 }
 
 function mapStateToProps<Data>(
-  {
-    data,
-    active,
-    selected,
-    copied,
-    hasPasted,
-    mode,
-    dragging
-  }: Types.StoreState<Data>,
+  { data, hasPasted }: Types.StoreState<Data>,
   { column, row }: Props<Data, *>
 ): State<Data> {
-  const point = { row, column };
-  const cellIsActive = isActive(active, point);
-
   return {
-    active: cellIsActive,
-    selected: PointSet.has(selected, point),
-    copied: PointMap.has(point, copied),
-    mode: cellIsActive ? mode : "view",
-    data: Matrix.get(row, column, data),
-    dragging
+    data: Matrix.get(row, column, data)
   };
 }
 
 export const enhance = connect(
   mapStateToProps,
-  () => ({
+  {
     select: Actions.select,
     activate: Actions.activate,
     setData: Actions.setData,
     setCellDimensions: Actions.setCellDimensions
-  })
+  }
 );
