@@ -79,15 +79,17 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
   clip = () => {
     const { store } = this.props;
     const { data, selected } = store.getState();
-    const matrix = PointSet.toMatrix(selected, data);
-    const filteredMatrix = Matrix.filter(Boolean, matrix);
-    const valueMatrix = Matrix.map(getValue, filteredMatrix);
+    const startPoint = PointSet.min(selected);
+    const endPoint = PointSet.max(selected);
+    const slicedMatrix = Matrix.slice(startPoint, endPoint, data);
+    const valueMatrix = Matrix.map(getValue, slicedMatrix);
     writeTextToClipboard(Matrix.join(valueMatrix));
   };
 
   componentDidMount() {
     const { copy, cut, paste, store } = this.props;
     document.addEventListener("copy", (event: ClipboardEvent) => {
+      console.log(event);
       event.preventDefault();
       event.stopPropagation();
       this.clip();

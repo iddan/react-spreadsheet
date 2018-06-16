@@ -7,17 +7,8 @@ import "./index.css";
 
 const INITIAL_ROWS = 20;
 const INITIAL_COLUMNS = 26;
-const EMPTY_CELL = { value: "" };
 
-const initialData = [
-  ...range(INITIAL_ROWS)
-    .map((row, j) => [
-      ...Array(INITIAL_COLUMNS)
-        .fill(1)
-        .map((cell, i) => EMPTY_CELL)
-    ])
-    .slice(1)
-];
+const initialData = range(INITIAL_ROWS).map(() => Array(INITIAL_COLUMNS));
 
 const RangeInput = ({ cell, getValue }) => (
   <span>
@@ -49,7 +40,11 @@ class App extends Component {
   addColumn = () => {
     this.setState(({ data }) => {
       return {
-        data: data.map(row => row.concat(EMPTY_CELL))
+        data: data.map(row => {
+          const nextRow = [...row];
+          nextRow.length += 1;
+          return nextRow;
+        })
       };
     });
   };
@@ -57,7 +52,7 @@ class App extends Component {
   addRow = () => {
     this.setState(({ data }) => {
       const { columns } = Matrix.getSize(data);
-      return { data: [...data, Array(columns).fill(EMPTY_CELL)] };
+      return { data: [...data, Array(columns)] };
     });
   };
 

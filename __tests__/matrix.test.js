@@ -49,16 +49,6 @@ describe("Matrix.unset()", () => {
   });
 });
 
-describe("Matrix.filter()", () => {
-  test("Iterates over elements of matrix, returning a matrix of all elements predicate returns truthy for", () => {
-    expect(Matrix.filter(item => item % 2 === 0, matrix)).toEqual([
-      [undefined, 2, undefined],
-      [4, undefined, 6],
-      [undefined, 8]
-    ]);
-  });
-});
-
 describe("Matrix.slice()", () => {
   const matrix = [
     [1, 2, 3, 4, 5],
