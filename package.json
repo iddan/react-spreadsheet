@@ -15,7 +15,7 @@
     "test": "jest",
     "start": "cross-env NODE_ENV=development yarn storybook",
     "build": "rm dist/*; babel src --out-dir dist --copy-files",
-    "prepublish": "cross-env NODE_ENV=production yarn build",
+    "prepack": "cross-env NODE_ENV=production yarn build",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "deploy-storybook": "storybook-to-ghpages"
   },
