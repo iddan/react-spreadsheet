@@ -4,8 +4,6 @@
  * @flow
  */
 
-import * as Matrix from "./matrix";
-import { flatMap } from "./util";
 import type { Point } from "./types";
 import * as PointMap from "./point-map";
 

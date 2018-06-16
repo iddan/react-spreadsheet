@@ -73,8 +73,11 @@ export const cut = (state: Types.StoreState<*>) => ({
 });
 
 export const paste = (state: Types.StoreState<*>) => {
-  const minRow = PointSet.getEdgeValue(state.copied, "row", -1);
-  const minColumn = PointSet.getEdgeValue(state.copied, "column", -1);
+  if (!state.active) {
+    return null;
+  }
+
+  const minPoint = PointSet.min(state.copied);
 
   type Accumulator = {|
     data: typeof state.data,
@@ -83,8 +86,8 @@ export const paste = (state: Types.StoreState<*>) => {
 
   const { data, selected } = PointMap.reduce(
     (acc: Accumulator, value, { row, column }): Accumulator => {
-      const nextRow = row - minRow + state.active.row;
-      const nextColumn = column - minColumn + state.active.column;
+      const nextRow = row - minPoint.row + state.active.row;
+      const nextColumn = column - minPoint.column + state.active.column;
 
       const nextData = state.cut
         ? Matrix.unset(row, column, acc.data)

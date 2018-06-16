@@ -29,7 +29,7 @@ export function slice<T>(
   startPoint: Types.Point,
   endPoint: Types.Point,
   matrix: Matrix<T>
-): Matrix<T> {
+): Matrix<T | typeof undefined> {
   let sliced = [];
   const columns = endPoint.column - startPoint.column;
   for (let row = startPoint.row; row <= endPoint.row; row++) {

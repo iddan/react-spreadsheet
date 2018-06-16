@@ -20,10 +20,10 @@
     "deploy-storybook": "storybook-to-ghpages"
   },
   "dependencies": {
-    "classnames": "2.2.5",
-    "clipboard-polyfill": "^2.4.6",
-    "hot-formula-parser": "^2.3.3",
-    "unistore": "^3.0.4"
+    "classnames": "^2.2.6",
+    "clipboard-polyfill": "^2.4.7",
+    "hot-formula-parser": "^3.0.0",
+    "unistore": "^3.0.6"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.38",

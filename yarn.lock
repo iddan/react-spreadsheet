@@ -727,13 +727,12 @@
     lodash "^4.17.5"
     to-fast-properties "^2.0.0"
 
-"@handsontable/formulajs@^1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@handsontable/formulajs/-/formulajs-1.2.3.tgz#a98b98bc3d23832730646e3bbd6194413f8faade"
+"@handsontable/formulajs@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@handsontable/formulajs/-/formulajs-2.0.0.tgz#3e41fedbb51a195dd5b8c2694afe171ec08f3a02"
   dependencies:
     bessel "^0.2.0"
     jStat "^1.7.0"
-    numbro "^1.11.0"
 
 "@storybook/addon-actions@3.4.5":
   version "3.4.5"
@@ -2690,9 +2689,13 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@2.2.5, classnames@^2.2.5:
+classnames@^2.2.5:
   version "2.2.5"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.5.tgz#fb3801d453467649ef3603c7d61a02bd129bde6d"
+
+classnames@^2.2.6:
+  version "2.2.6"
+  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.6.tgz#43935bffdd291f326dad0a205309b38d00f650ce"
 
 clean-css@4.1.x:
   version "4.1.11"
@@ -2710,9 +2713,9 @@ cli-width@^2.0.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/cli-width/-/cli-width-2.2.0.tgz#ff19ede8a9a5e579324147b0c11f0fbcbabed639"
 
-clipboard-polyfill@^2.4.6:
-  version "2.4.6"
-  resolved "https://registry.yarnpkg.com/clipboard-polyfill/-/clipboard-polyfill-2.4.6.tgz#9fcf2ad9e0a3a0e76c256182b159de0e679b2709"
+clipboard-polyfill@^2.4.7:
+  version "2.4.7"
+  resolved "https://registry.yarnpkg.com/clipboard-polyfill/-/clipboard-polyfill-2.4.7.tgz#5eda50164a9ab7669e08a5dc80698b9ed54164a4"
   dependencies:
     es6-promise "4.1.1"
 
@@ -4486,11 +4489,11 @@ hosted-git-info@^2.1.4:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.6.0.tgz#23235b29ab230c576aab0d4f13fc046b0b038222"
 
-hot-formula-parser@^2.3.3:
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/hot-formula-parser/-/hot-formula-parser-2.3.3.tgz#a7f3f8d2d8ea8d68c409c2df4e362f29e37b604d"
+hot-formula-parser@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/hot-formula-parser/-/hot-formula-parser-3.0.0.tgz#4019db8d565b84293ad7d1e46fcc1a4f894bb72e"
   dependencies:
-    "@handsontable/formulajs" "^1.2.3"
+    "@handsontable/formulajs" "^2.0.0"
     tiny-emitter "^2.0.1"
 
 html-comment-regex@^1.1.0:
@@ -6125,10 +6128,6 @@ num2fraction@^1.2.2:
 number-is-nan@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/number-is-nan/-/number-is-nan-1.0.1.tgz#097b602b53422a522c1afb8790318336941a011d"
-
-numbro@^1.11.0:
-  version "1.11.1"
-  resolved "https://registry.yarnpkg.com/numbro/-/numbro-1.11.1.tgz#e0d9ba0ddfc3ad5ac01d9558a49383db214f04be"
 
 nwmatcher@^1.4.3:
   version "1.4.4"
@@ -8329,9 +8328,9 @@ unique-slug@^2.0.0:
   dependencies:
     imurmurhash "^0.1.4"
 
-unistore@^3.0.4:
-  version "3.0.5"
-  resolved "https://registry.yarnpkg.com/unistore/-/unistore-3.0.5.tgz#3945252f43fc950ec764cab789e26add0aec5147"
+unistore@^3.0.6:
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/unistore/-/unistore-3.0.6.tgz#e3abefaca0184bd932e4818fb20b771aafdd6dcb"
 
 unpipe@1.0.0, unpipe@~1.0.0:
   version "1.0.0"
