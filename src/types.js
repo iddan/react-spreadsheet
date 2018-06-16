@@ -32,7 +32,8 @@ export type StoreState<Cell> = {|
   cut: boolean,
   active: Point | null,
   mode: Mode,
-  cellDimensions: PointMap<Dimensions>
+  cellDimensions: PointMap<Dimensions>,
+  dragging: boolean
 |};
 
 export type getValue<Cell, Value> = (CellDescriptor<Cell>) => Value;

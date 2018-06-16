@@ -25,6 +25,7 @@ type State<Data> = {|
   selected: boolean,
   active: boolean,
   copied: boolean,
+  dragging: boolean,
   mode: Types.Mode,
   data: ?Data
 |};
@@ -52,17 +53,33 @@ export class Cell<
     this.root = root;
   };
 
-  handleClick = (e: SyntheticMouseEvent<HTMLElement>) => {
-    const { row, column, setCellDimensions, select, activate } = this.props;
+  handleMouseDown = (e: SyntheticMouseEvent<HTMLElement>) => {
+    const {
+      row,
+      column,
+      setCellDimensions,
+      select,
+      activate,
+      mode
+    } = this.props;
+    if (mode === "view") {
+      setCellDimensions({ row, column }, getOffsetRect(e.currentTarget));
 
-    setCellDimensions({ row, column }, getOffsetRect(e.currentTarget));
+      if (e.shiftKey) {
+        select({ row, column });
+        return;
+      }
 
-    if (e.shiftKey) {
-      select({ row, column });
-      return;
+      activate({ row, column });
     }
+  };
 
-    activate({ row, column });
+  handleMouseOver = (e: SyntheticMouseEvent<*>) => {
+    const { row, column, dragging, setCellDimensions, select } = this.props;
+    if (dragging) {
+      setCellDimensions({ row, column }, getOffsetRect(e.currentTarget));
+      select({ row, column });
+    }
   };
 
   handleChange = (cell: Data) => {
@@ -97,8 +114,11 @@ export class Cell<
     return (
       <td
         ref={this.handleRoot}
-        className={classnames({ readonly: data && data.readOnly })}
-        onClick={this.handleClick}
+        className={classnames({
+          readonly: data && data.readOnly
+        })}
+        onMouseOver={this.handleMouseOver}
+        onMouseDown={this.handleMouseDown}
         tabIndex={0}
       >
         <DataViewer
@@ -114,7 +134,15 @@ export class Cell<
 }
 
 function mapStateToProps<Data>(
-  { data, active, selected, copied, hasPasted, mode }: Types.StoreState<Data>,
+  {
+    data,
+    active,
+    selected,
+    copied,
+    hasPasted,
+    mode,
+    dragging
+  }: Types.StoreState<Data>,
   { column, row }: Props<Data, *>
 ): State<Data> {
   const point = { row, column };
@@ -125,7 +153,8 @@ function mapStateToProps<Data>(
     selected: PointSet.has(selected, point),
     copied: PointMap.has(point, copied),
     mode: cellIsActive ? mode : "view",
-    data: Matrix.get(row, column, data)
+    data: Matrix.get(row, column, data),
+    dragging
   };
 }
 

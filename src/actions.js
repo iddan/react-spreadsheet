@@ -260,3 +260,10 @@ export function keyDown(
   }
   return null;
 }
+
+export function setDragging<T>(
+  state: Types.StoreState<T>,
+  dragging: boolean
+): Types.StoreState<T> {
+  return { ...state, dragging };
+}

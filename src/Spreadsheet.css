@@ -73,6 +73,10 @@
   border: 2px #4285f4 solid;
 }
 
+.Spreadsheet .selected.dragging {
+  border: none;
+}
+
 .Spreadsheet .copied {
   border: 2px #4285f4 dashed;
 }
