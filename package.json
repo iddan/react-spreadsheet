@@ -34,6 +34,7 @@
     "babel-eslint": "^8.2.1",
     "babel-jest": "^22.4.3",
     "babel-preset-react-app": "^4.0.0-next.66cc7a90",
+    "coveralls": "^3.0.1",
     "cross-env": "^5.1.4",
     "eslint": "^4.16.0",
     "eslint-config-react-app": "^3.0.0-next.66cc7a90",

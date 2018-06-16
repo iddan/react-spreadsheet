@@ -35,5 +35,8 @@ jobs:
         
       # run tests!
       - run: yarn test
+      # Push coverage
+      - run: jest --coverage --coverageReporters=text-lcov | coveralls
+
 
 
