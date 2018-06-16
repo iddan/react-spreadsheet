@@ -10,7 +10,7 @@ const INITIAL_COLUMNS = 26;
 
 const initialData = range(INITIAL_ROWS).map(() => Array(INITIAL_COLUMNS));
 
-const RangeInput = ({ cell, getValue }) => (
+const RangeView = ({ cell, getValue }) => (
   <span>
     0
     <input
@@ -25,8 +25,33 @@ const RangeInput = ({ cell, getValue }) => (
   </span>
 );
 
-initialData[4][5] = { value: 0, DataViewer: RangeInput };
-initialData[5][6] = { value: 0, component: RangeInput };
+class RangeEdit extends Component {
+  handleChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
+    const { onChange, cell } = this.props;
+    onChange({ ...cell, value: e.target.value });
+  };
+
+  render() {
+    const { getValue, column, row, cell } = this.props;
+    const value = getValue({ column, row, data: cell }) || "";
+    return (
+      <span>
+        0
+        <input
+          type="range"
+          onChange={this.handleChange}
+          value={value}
+          min={0}
+          max={100}
+          autoFocus
+        />
+        100
+      </span>
+    );
+  }
+}
+
+initialData[4][5] = { value: 0, DataViewer: RangeView, DataEditor: RangeEdit };
 
 class App extends Component {
   state = {

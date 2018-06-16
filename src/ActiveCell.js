@@ -35,8 +35,9 @@ const ActiveCell = ({
   hidden,
   mode,
   edit
-}: Props<*, *>) =>
-  hidden ? null : (
+}: Props<*, *>) => {
+  DataEditor = (cell && cell.DataEditor) || DataEditor;
+  return hidden ? null : (
     <div
       className={classnames("ActiveCell", mode)}
       style={{ width, height, top, left }}
@@ -53,6 +54,7 @@ const ActiveCell = ({
       )}
     </div>
   );
+};
 
 const mapStateToProps = (state: Types.StoreState<*>) => {
   if (!state.active || !PointMap.has(state.active, state.cellDimensions)) {
@@ -71,9 +73,12 @@ const mapStateToProps = (state: Types.StoreState<*>) => {
   };
 };
 
-export default connect(mapStateToProps, {
-  setData: Actions.setData,
-  edit: () => ({
-    mode: "edit"
-  })
-})(ActiveCell);
+export default connect(
+  mapStateToProps,
+  {
+    setData: Actions.setData,
+    edit: () => ({
+      mode: "edit"
+    })
+  }
+)(ActiveCell);

@@ -22,18 +22,10 @@ export default class DataViewer extends PureComponent<Props> {
   render() {
     const { getValue, cell, column, row, formulaParser } = this.props;
     const rawValue = getValue({ data: cell, column, row });
-    let value;
     if (typeof rawValue === "string" && rawValue.startsWith("=")) {
       const { result, error } = formulaParser.parse(rawValue.slice(1));
-      value = error || result;
-    } else {
-      value = rawValue;
+      return error || result;
     }
-
-    if (cell && cell.component) {
-      return <cell.component {...this.props} value={value} />;
-    }
-
-    return value;
+    return rawValue;
   }
 }
