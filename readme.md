@@ -5,6 +5,7 @@ Simple, customizable yet performant spreadsheet for React.
 ![Screenshot](https://github.com/iddan/react-spreadsheet/blob/master/assets/screenshot.png?raw=true)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fiddan%2Freact-spreadsheet.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fiddan%2Freact-spreadsheet?ref=badge_shield)
 [![CircleCI](https://circleci.com/gh/iddan/react-spreadsheet.svg?style=svg)](https://circleci.com/gh/iddan/react-spreadsheet)
+[![Known Vulnerabilities](https://snyk.io/test/github/iddan/react-spreadsheet/badge.svg?targetFile=package.json)](https://snyk.io/test/github/iddan/react-spreadsheet?targetFile=package.json)
 
 ```bash
 npm install @iddan/react-spreadsheet
