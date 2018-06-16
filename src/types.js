@@ -37,20 +37,20 @@ export type StoreState<Cell> = {|
 
 export type getValue<Cell, Value> = (CellDescriptor<Cell>) => Value;
 
-export type CellComponentProps<Cell, Value> = {|
+export type CellComponentProps<Cell, Value> = {
   ...Point,
   cell: ?Cell,
   getValue: getValue<Cell, Value>
-|};
+};
 
 export type DataViewer<Cell, Value> = ComponentType<
   CellComponentProps<Cell, Value>
 >;
 
-export type DataEditorProps<Cell, Value> = {|
+export type DataEditorProps<Cell, Value> = {
   ...CellComponentProps<Cell, Value>,
   onChange: Cell => void
-|};
+};
 
 export type DataEditor<Cell, Value> = ComponentType<
   DataEditorProps<Cell, Value>

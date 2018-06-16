@@ -13,10 +13,9 @@ type Cell = {
   }>
 };
 
-type Props = {|
-  ...Types.CellComponentProps<Cell, Node>,
+type Props = Types.CellComponentProps<Cell, Node> & {
   formulaParser: FormulaParser
-|};
+};
 
 export default class DataViewer extends PureComponent<Props> {
   render() {
