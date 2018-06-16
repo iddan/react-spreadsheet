@@ -93,25 +93,35 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     writeTextToClipboard(Matrix.join(valueMatrix));
   };
 
+  isFocused(): boolean {
+    const { activeElement } = document;
+    return this.root === activeElement || this.root.contains(activeElement);
+  }
+
   componentDidMount() {
     const { copy, cut, paste, store } = this.props;
     document.addEventListener("copy", (event: ClipboardEvent) => {
-      console.log(event);
-      event.preventDefault();
-      event.stopPropagation();
-      this.clip();
-      copy();
+      if (this.isFocused()) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.clip();
+        copy();
+      }
     });
     document.addEventListener("cut", (event: ClipboardEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-      this.clip();
-      cut();
+      if (this.isFocused()) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.clip();
+        cut();
+      }
     });
     document.addEventListener("paste", (event: ClipboardEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-      paste();
+      if (this.isFocused()) {
+        event.preventDefault();
+        event.stopPropagation();
+        paste();
+      }
     });
     this.formulaParser.on("callCellValue", (cellCoord, done) => {
       let value;
@@ -157,6 +167,12 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     onKeyDown(event);
   };
 
+  root: HTMLDivElement;
+
+  handleRoot = (root: HTMLDivElement) => {
+    this.root = root;
+  };
+
   render() {
     const {
       Table,
@@ -170,6 +186,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     } = this.props;
     return (
       <div
+        ref={this.handleRoot}
         className="Spreadsheet"
         onKeyPress={onKeyPress}
         onKeyDown={this.handleKeyDown}
