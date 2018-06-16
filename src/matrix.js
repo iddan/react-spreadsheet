@@ -115,8 +115,11 @@ export function reduce<T, A>(
   const { rows, columns } = getSize(matrix);
   let acc = initialValue;
   for (let row = 0; row < rows; row++) {
+    if (!matrix[row]) {
+      continue;
+    }
     for (let column = 0; column < columns; column++) {
-      if (row in matrix && column in matrix[row]) {
+      if (column in matrix[row]) {
         acc = func(acc, matrix[row][column], { row, column });
       }
     }
@@ -162,9 +165,22 @@ export function join(
   horizontalSeparator: string = ", ",
   verticalSeparator: string = "\n"
 ): string {
-  return matrix
-    .map(row => row && row.join(horizontalSeparator))
-    .join(verticalSeparator);
+  let joined = "";
+  const { rows, columns } = getSize(matrix);
+  for (let row = 0; row < rows; row++) {
+    if (row) {
+      joined += verticalSeparator;
+    }
+    for (let column = 0; column < columns; column++) {
+      if (column) {
+        joined += horizontalSeparator;
+      }
+      if (matrix[row] && column in matrix[row]) {
+        joined += matrix[row][column];
+      }
+    }
+  }
+  return joined;
 }
 
 /** Returns whether the point exists in the matrix or not. */
