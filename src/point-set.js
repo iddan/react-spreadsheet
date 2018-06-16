@@ -133,6 +133,10 @@ export function getEdgeValue(
   delta: number
 ): number {
   const compare = Math.sign(delta) === -1 ? Math.min : Math.max;
+  if (size(set) === 0) {
+    throw new Error("getEdgeValue() should never be called with an empty set");
+  }
+  // $FlowFixMe
   return reduce(
     (acc, point) => {
       if (acc === null) {
