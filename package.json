@@ -12,7 +12,7 @@
   ],
   "main": "dist/SpreadsheetStateProvider.js",
   "scripts": {
-    "test": "jest --watch --verbose",
+    "test": "jest",
     "start": "cross-env NODE_ENV=development yarn storybook",
     "build": "rm dist/*; babel src --out-dir dist --copy-files",
     "prepublish": "cross-env NODE_ENV=production yarn build",
