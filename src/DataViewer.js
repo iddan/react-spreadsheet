@@ -17,7 +17,7 @@ type Props = Types.CellComponentProps<Cell, Node> & {
   formulaParser: FormulaParser
 };
 
-const toView = (value: string | number | boolean): Node => {
+const toView = (value: Node | boolean): Node => {
   if (value === false) {
     return <div className="boolean">FALSE</div>;
   }

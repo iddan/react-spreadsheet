@@ -72,6 +72,7 @@ const mapStateToProps = (state: Types.StoreState<*>) => {
   return {
     hidden: false,
     ...state.active,
+    // $FlowFixMe
     cell: Matrix.get(state.active.row, state.active.column, state.data),
     width: dimensions.width,
     height: dimensions.height,

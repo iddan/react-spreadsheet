@@ -9,7 +9,7 @@
 import { range as _range } from "./util";
 import * as Types from "./types";
 
-export type Matrix<T> = Array<T[]>;
+export type Matrix<T> = Array<Array<T | typeof undefined>>;
 
 /** Gets the value at row and column of matrix. */
 export function get<T>(
@@ -29,7 +29,7 @@ export function slice<T>(
   startPoint: Types.Point,
   endPoint: Types.Point,
   matrix: Matrix<T>
-): Matrix<T | typeof undefined> {
+): Matrix<T> {
   let sliced = [];
   const columns = endPoint.column - startPoint.column;
   for (let row = startPoint.row; row <= endPoint.row; row++) {
@@ -108,7 +108,7 @@ export function unset<T>(
 }
 
 export function reduce<T, A>(
-  func: (A, T, Types.Point) => A,
+  func: (A, T | typeof undefined, Types.Point) => A,
   matrix: Matrix<T>,
   initialValue: A
 ): A {
@@ -129,7 +129,7 @@ export function reduce<T, A>(
 
 /** Creates an array of values by running each element in collection thru iteratee. */
 export function map<T, T2>(
-  func: (T, Types.Point) => T2,
+  func: (T | typeof undefined, Types.Point) => T2,
   matrix: Matrix<T>
 ): Matrix<T2> {
   return reduce(
@@ -239,7 +239,7 @@ export const inclusiveRange: typeof range = (endPoint, startPoint) =>
 
 export function toArray<T1, T2>(
   matrix: Matrix<T1>,
-  transform: ?(T1) => T2
+  transform: ?(T1 | typeof undefined) => T2
 ): Array<T1> | Array<T2> {
   let array = [];
   for (let row = 0; row < matrix.length; row++) {

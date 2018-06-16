@@ -34,6 +34,7 @@ export function unset<T>(
     return map;
   }
   const {
+    // $FlowFixMe
     [String(row)]: { [String(column)]: _, ...nextRow },
     ...nextMap
   } = map;

@@ -48,8 +48,7 @@ export type DataViewer<Cell, Value> = ComponentType<
   CellComponentProps<Cell, Value>
 >;
 
-export type DataEditorProps<Cell, Value> = {
-  ...CellComponentProps<Cell, Value>,
+export type DataEditorProps<Cell, Value> = CellComponentProps<Cell, Value> & {
   onChange: Cell => void
 };
 
