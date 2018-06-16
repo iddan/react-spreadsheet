@@ -188,7 +188,7 @@ export function has(row: number, column: number, matrix: Matrix<any>): boolean {
 type Size = $Exact<{ columns: number, rows: number }>;
 
 /** Gets the size of matrix by returning its number of rows and columns */
-export function getSize(matrix: Matrix<*>): Size {
+export function getSize(matrix: Matrix<any>): Size {
   const firstRow = matrix[0];
   return {
     columns: firstRow ? firstRow.length : 0,
@@ -237,11 +237,10 @@ export const inclusiveRange: typeof range = (endPoint, startPoint) =>
     startPoint
   );
 
-type ToArray<T, T2> = (
-  Matrix<T>
-) => Array<T> & ((Matrix<T>, (T) => T2) => Array<T2>);
-
-export const toArray: ToArray<*, *> = (matrix, transform) => {
+export function toArray<T1, T2>(
+  matrix: Matrix<T1>,
+  transform: ?(T1) => T2
+): Array<T1> | Array<T2> {
   let array = [];
   for (let row = 0; row < matrix.length; row++) {
     for (let column = 0; column < matrix.length; column++) {
@@ -250,4 +249,4 @@ export const toArray: ToArray<*, *> = (matrix, transform) => {
     }
   }
   return array;
-};
+}
