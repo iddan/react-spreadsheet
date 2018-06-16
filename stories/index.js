@@ -11,18 +11,12 @@ const INITIAL_COLUMNS = 26;
 const initialData = range(INITIAL_ROWS).map(() => Array(INITIAL_COLUMNS));
 
 const RangeView = ({ cell, getValue }) => (
-  <span>
-    0
-    <input
-      type="range"
-      value={getValue({ data: cell })}
-      min={0}
-      max={100}
-      disabled
-      style={{ pointerEvents: "none" }}
-    />
-    100
-  </span>
+  <input
+    type="range"
+    value={getValue({ data: cell })}
+    disabled
+    style={{ pointerEvents: "none" }}
+  />
 );
 
 class RangeEdit extends Component {
@@ -33,21 +27,8 @@ class RangeEdit extends Component {
 
   render() {
     const { getValue, column, row, cell } = this.props;
-    const value = getValue({ column, row, data: cell }) || "";
-    return (
-      <span>
-        0
-        <input
-          type="range"
-          onChange={this.handleChange}
-          value={value}
-          min={0}
-          max={100}
-          autoFocus
-        />
-        100
-      </span>
-    );
+    const value = getValue({ column, row, data: cell }) || 0;
+    return <input type="range" onChange={this.handleChange} value={value} />;
   }
 }
 
