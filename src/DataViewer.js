@@ -1,6 +1,6 @@
 // @flow
 
-import React, { PureComponent } from "react";
+import React from "react";
 import type { ComponentType, Node } from "react";
 import type { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
@@ -17,14 +17,23 @@ type Props = Types.CellComponentProps<Cell, Node> & {
   formulaParser: FormulaParser
 };
 
-export default class DataViewer extends PureComponent<Props> {
-  render() {
-    const { getValue, cell, column, row, formulaParser } = this.props;
-    const rawValue = getValue({ data: cell, column, row });
-    if (typeof rawValue === "string" && rawValue.startsWith("=")) {
-      const { result, error } = formulaParser.parse(rawValue.slice(1));
-      return error || result;
-    }
-    return rawValue;
+const toView = (value: string | number | boolean): Node => {
+  if (value === false) {
+    return <div className="boolean">FALSE</div>;
   }
-}
+  if (value === true) {
+    return <div className="boolean">TRUE</div>;
+  }
+  return value;
+};
+
+const DataViewer = ({ getValue, cell, column, row, formulaParser }: Props) => {
+  const rawValue = getValue({ data: cell, column, row });
+  if (typeof rawValue === "string" && rawValue.startsWith("=")) {
+    const { result, error } = formulaParser.parse(rawValue.slice(1));
+    return error || toView(result);
+  }
+  return toView(rawValue);
+};
+
+export default DataViewer;

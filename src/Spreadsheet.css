@@ -81,6 +81,10 @@
   border: 2px #4285f4 dashed;
 }
 
+.Spreadsheet .boolean {
+  text-align: center;
+}
+
 /* .Spreadsheet .Selection.copied {
   border-style: dashed;
 } */
