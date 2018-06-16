@@ -77,12 +77,19 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
   formulaParser = new FormulaParser();
 
   clip = () => {
-    const { store } = this.props;
+    const { store, getValue } = this.props;
     const { data, selected } = store.getState();
     const startPoint = PointSet.min(selected);
     const endPoint = PointSet.max(selected);
     const slicedMatrix = Matrix.slice(startPoint, endPoint, data);
-    const valueMatrix = Matrix.map(getValue, slicedMatrix);
+    const valueMatrix = Matrix.map((value, point) => {
+      // Slice makes non-existing cells undefined, empty cells are classically
+      // translated to an empty string in join()
+      if (value === undefined) {
+        return "";
+      }
+      return getValue({ ...point, data: value });
+    }, slicedMatrix);
     writeTextToClipboard(Matrix.join(valueMatrix));
   };
 

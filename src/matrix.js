@@ -128,10 +128,13 @@ export function reduce<T, A>(
 }
 
 /** Creates an array of values by running each element in collection thru iteratee. */
-export function map<T, T2>(func: T => T2, matrix: Matrix<T>): Matrix<T2> {
+export function map<T, T2>(
+  func: (T, Types.Point) => T2,
+  matrix: Matrix<T>
+): Matrix<T2> {
   return reduce(
     (acc, value, point) => {
-      mutableSet(point.row, point.column, func(value), acc);
+      mutableSet(point.row, point.column, func(value, point), acc);
       return acc;
     },
     matrix,
