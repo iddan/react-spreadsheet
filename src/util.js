@@ -32,22 +32,6 @@ export function range(
   return array;
 }
 
-/** Creates a flattened array of values by running each element in collection thru iteratee and flattening the mapped results. */
-export function flatMap<T1, T2>(array: T1[], func: T1 => T2 | T2[]): T2[] {
-  let acc = [];
-  for (let i = 0; i < array.length; i++) {
-    let value = func(array[i]);
-    if (Array.isArray(value)) {
-      for (let j = 0; j < value.length; j++) {
-        acc.push(value[j]);
-      }
-    } else {
-      acc.push(value);
-    }
-  }
-  return acc;
-}
-
 export function updateData<Cell>(
   data: Matrix<Cell>,
   cellDescriptor: Types.CellDescriptor<Cell>

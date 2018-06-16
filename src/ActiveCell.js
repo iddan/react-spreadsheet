@@ -56,11 +56,19 @@ const ActiveCell = ({
   );
 };
 
+const EmptyDimensions = {
+  width: 0,
+  height: 0,
+  top: 0,
+  left: 0
+};
+
 const mapStateToProps = (state: Types.StoreState<*>) => {
   if (!state.active || !PointMap.has(state.active, state.cellDimensions)) {
     return { hidden: true };
   }
-  const dimensions = PointMap.get(state.active, state.cellDimensions);
+  const dimensions =
+    PointMap.get(state.active, state.cellDimensions) || EmptyDimensions;
   return {
     hidden: false,
     ...state.active,

@@ -169,6 +169,10 @@ export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
   state: Types.StoreState<*>,
   event: *
 ) => {
+  if (!state.active) {
+    return null;
+  }
+
   const edgeOffsets = PointSet.has(state.selected, {
     ...state.active,
     [field]: state.active[field] + delta * -1
@@ -178,7 +182,6 @@ export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
     ? PointSet.shrinkEdge(state.selected, field, delta * -1)
     : PointSet.extendEdge(state.selected, field, delta);
 
-  /** @todo make sure it performs well */
   return {
     selected: PointSet.filter(
       point => Matrix.has(point.row, point.column, state.data),

@@ -56,7 +56,7 @@ export default class SpreadsheetStateProvider<
     this.prevState = state;
   }
 
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps: Props<CellType, Value>) {
     const { data, ...rest } = this.props;
     const { data: nextData, ...nextRest } = nextProps;
     return !shallowEqual(rest, nextRest) || nextData !== this.prevState.data;
@@ -86,7 +86,9 @@ export default class SpreadsheetStateProvider<
 
   componentDidUpdate(prevProps: Props<CellType, Value>) {
     if (this.props.data !== this.prevState.data) {
-      this.store.setState({ data: this.props.data });
+      this.store.setState({
+        data: this.props.data
+      });
     }
   }
 

@@ -1,4 +1,4 @@
-import { range, flatMap } from "../src/util";
+import { range } from "../src/util";
 
 describe("range method:", () => {
   test("basic use of range", () => {
@@ -27,16 +27,4 @@ describe("range method:", () => {
 
     expect(res).toEqual([5, 4, 3, 2]);
   });
-});
-
-describe("flatMap method:", () => {
-  test("most basic use of flatMap", () => {
-    const array = [1, 2, 3, 4, 5];
-    const map = item => item + 1;
-
-    const res = flatMap(array, map);
-    expect(res).toEqual([2, 3, 4, 5, 6]);
-  });
-
-  test("the way Matrix.flatMap want to use it");
 });

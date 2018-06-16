@@ -95,7 +95,9 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
 
   isFocused(): boolean {
     const { activeElement } = document;
-    return this.root === activeElement || this.root.contains(activeElement);
+    return this.root
+      ? this.root === activeElement || this.root.contains(activeElement)
+      : false;
   }
 
   componentDidMount() {
@@ -167,9 +169,9 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     onKeyDown(event);
   };
 
-  root: HTMLDivElement;
+  root: HTMLDivElement | null;
 
-  handleRoot = (root: HTMLDivElement) => {
+  handleRoot = (root: HTMLDivElement | null) => {
     this.root = root;
   };
 

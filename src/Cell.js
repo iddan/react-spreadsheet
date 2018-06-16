@@ -42,9 +42,10 @@ type Props<Data, Value> = {|
   ...Handlers<Data>
 |};
 
-export class Cell<Data: { readOnly?: boolean }, Value> extends PureComponent<
-  Props<Data, Value>
-> {
+export class Cell<
+  Data: ?{ readOnly?: boolean, DataViewer: Types.DataViewer<*, *> },
+  Value
+> extends PureComponent<Props<Data, Value>> {
   /** @todo update to new API */
   root: HTMLElement | null;
   handleRoot = (root: HTMLElement | null) => {
@@ -128,9 +129,12 @@ function mapStateToProps<Data>(
   };
 }
 
-export const enhance = connect(mapStateToProps, () => ({
-  select: Actions.select,
-  activate: Actions.activate,
-  setData: Actions.setData,
-  setCellDimensions: Actions.setCellDimensions
-}));
+export const enhance = connect(
+  mapStateToProps,
+  () => ({
+    select: Actions.select,
+    activate: Actions.activate,
+    setData: Actions.setData,
+    setCellDimensions: Actions.setCellDimensions
+  })
+);
