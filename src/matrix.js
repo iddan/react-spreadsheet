@@ -52,9 +52,9 @@ export function set<T>(
   const nextMatrix = [...matrix];
 
   // Synchronize first row length
-  const [firstRow = []] = matrix;
-  const nextFirstRow = [...firstRow];
-  if (firstRow.length - 1 < column) {
+  const firstRow = matrix[0];
+  const nextFirstRow = firstRow ? [...firstRow] : [];
+  if (nextFirstRow.length - 1 < column) {
     nextFirstRow[column] = undefined;
     nextMatrix[0] = nextFirstRow;
   }
@@ -66,6 +66,29 @@ export function set<T>(
   return nextMatrix;
 }
 
+/** Like Matrix.set() but mutates the matrix */
+export function mutableSet<T>(
+  row: number,
+  column: number,
+  value: T,
+  matrix: Matrix<T>
+): void {
+  let firstRow = matrix[0];
+  if (!firstRow) {
+    firstRow = [];
+    matrix[0] = firstRow;
+  }
+  if (!(row in matrix)) {
+    matrix[row] = [];
+  }
+  // Synchronize first row length
+  if (!(column in firstRow)) {
+    firstRow[column] = undefined;
+  }
+  matrix[row][column] = value;
+}
+
+/** Removes the coordinate of matrix */
 export function unset<T>(
   row: number,
   column: number,
@@ -84,19 +107,53 @@ export function unset<T>(
   return nextMatrix;
 }
 
+export function reduce<T, A>(
+  func: (A, T, Types.Point) => A,
+  matrix: Matrix<T>,
+  initialValue: A
+): A {
+  const { rows, columns } = getSize(matrix);
+  let acc = initialValue;
+  for (let row = 0; row < rows; row++) {
+    if (!matrix[row]) {
+      continue;
+    }
+    for (let column = 0; column < columns; column++) {
+      if (column in matrix[row]) {
+        acc = func(acc, matrix[row][column], { row, column });
+      }
+    }
+  }
+  return acc;
+}
+
 /**
- * Iterates over elements of matrix, returning an array of all elements predicate returns truthy for.
+ * Iterates over elements of matrix, returning a matrix of all elements predicate returns truthy for.
  * Empty rows are excluded
  */
 export function filter<T>(func: T => boolean, matrix: Matrix<T>): Matrix<T> {
-  return matrix
-    .map(row => row && row.filter(func))
-    .filter(row => row && row.length);
+  return reduce(
+    (acc, value, point) => {
+      if (func(value)) {
+        mutableSet(point.row, point.column, value, acc);
+      }
+      return acc;
+    },
+    matrix,
+    ([]: Matrix)
+  );
 }
 
 /** Creates an array of values by running each element in collection thru iteratee. */
 export function map<T, T2>(func: T => T2, matrix: Matrix<T>): Matrix<T2> {
-  return matrix.map(row => row && row.map(func));
+  return reduce(
+    (acc, value, point) => {
+      mutableSet(point.row, point.column, func(value), acc);
+      return acc;
+    },
+    matrix,
+    ([]: Matrix)
+  );
 }
 
 /**
@@ -108,15 +165,29 @@ export function join(
   horizontalSeparator: string = ", ",
   verticalSeparator: string = "\n"
 ): string {
-  return matrix
-    .map(row => row && row.join(horizontalSeparator))
-    .join(verticalSeparator);
+  let joined = "";
+  const { rows, columns } = getSize(matrix);
+  for (let row = 0; row < rows; row++) {
+    if (row) {
+      joined += verticalSeparator;
+    }
+    for (let column = 0; column < columns; column++) {
+      if (column) {
+        joined += horizontalSeparator;
+      }
+      if (matrix[row] && column in matrix[row]) {
+        joined += matrix[row][column];
+      }
+    }
+  }
+  return joined;
 }
 
 /** Returns whether the point exists in the matrix or not. */
 export function has(row: number, column: number, matrix: Matrix<*>): boolean {
-  const [firstRow = []] = matrix;
+  const firstRow = matrix[0];
   return (
+    firstRow &&
     // validation
     row >= 0 &&
     column >= 0 &&
@@ -132,7 +203,7 @@ type Size = $Exact<{ columns: number, rows: number }>;
 
 /** Gets the size of matrix by returning its number of rows and columns */
 export function getSize(matrix: Matrix<*>): Size {
-  const [firstRow] = matrix;
+  const firstRow = matrix[0];
   return {
     columns: firstRow ? firstRow.length : 0,
     rows: matrix.length
