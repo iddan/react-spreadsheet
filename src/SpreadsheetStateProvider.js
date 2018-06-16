@@ -25,7 +25,8 @@ const initialState: $Shape<Types.StoreState<any>> = {
   copied: PointMap.from([]),
   active: null,
   mode: "view",
-  cellDimensions: PointMap.from([])
+  cellDimensions: PointMap.from([]),
+  bindings: PointMap.from([])
 };
 
 export default class SpreadsheetStateProvider<
