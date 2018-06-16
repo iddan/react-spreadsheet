@@ -138,7 +138,7 @@ export function map<T, T2>(
       return acc;
     },
     matrix,
-    ([]: Matrix)
+    ([]: Matrix<T2>)
   );
 }
 
@@ -162,7 +162,7 @@ export function join(
         joined += horizontalSeparator;
       }
       if (matrix[row] && column in matrix[row]) {
-        joined += matrix[row][column];
+        joined += String(matrix[row][column]);
       }
     }
   }
@@ -170,7 +170,7 @@ export function join(
 }
 
 /** Returns whether the point exists in the matrix or not. */
-export function has(row: number, column: number, matrix: Matrix<*>): boolean {
+export function has(row: number, column: number, matrix: Matrix<any>): boolean {
   const firstRow = matrix[0];
   return (
     firstRow &&

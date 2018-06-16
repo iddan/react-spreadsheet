@@ -42,9 +42,15 @@ export type Props<CellType, Value> = {|
   DataViewer: Types.DataViewer<CellType, Value>,
   DataEditor: Types.DataEditor<CellType, Value>,
   getValue: Types.getValue<CellType, Value>,
-  onKeyDown: (SyntheticKeyboardEvent<HTMLElement>) => void,
-  onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void,
   store: Store
+|};
+
+type Handlers = {|
+  cut: () => void,
+  copy: () => void,
+  paste: () => void,
+  onKeyDown: (SyntheticKeyboardEvent<HTMLElement>) => void,
+  onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void
 |};
 
 type State = {|
@@ -62,7 +68,8 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       data: Matrix.Matrix<CellType>
     |}
   >,
-  ...State
+  ...State,
+  ...Handlers
 |}> {
   static defaultProps = {
     Table,

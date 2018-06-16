@@ -30,9 +30,7 @@ export function unset<T>(
   { row, column }: Types.Point,
   map: PointMap<T>
 ): PointMap<T> {
-  const rowKey = String(row);
-  const columnKey = String(column);
-  if (!(rowKey in map) || !(columnKey in map[rowKey])) {
+  if (!(row in map) || !(column in map[row])) {
     return map;
   }
   const {
@@ -67,10 +65,14 @@ export function from<T>(pairs: [Types.Point, T][]): PointMap<T> {
 
 /** Returns the number of elements in a PointMap object. */
 export function size(map: PointMap<*>): number {
-  return Object.values(map).reduce(
-    (acc, row) => acc + Object.keys(row).length,
-    0
-  );
+  let acc = 0;
+  const _map_keys = Object.keys(map);
+  for (let i = 0; i < _map_keys.length; i++) {
+    const row = Number(_map_keys[i]);
+    const columns = map[row];
+    acc += Object.keys(columns).length;
+  }
+  return acc;
 }
 
 /** Applies a function against an accumulator and each value and point in the map (from left to right) to reduce it to a single value */

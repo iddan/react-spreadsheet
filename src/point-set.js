@@ -62,6 +62,7 @@ export function filter(func: Point => boolean, set: PointSet): PointSet {
 }
 
 const minKey = (object: { [key: number]: any }): number =>
+  // $FlowFixMe
   Math.min(...Object.keys(object));
 
 /** Returns the point on the minimal row in the minimal column in the set */
@@ -71,6 +72,7 @@ export function min(set: PointSet): Point {
 }
 
 const maxKey = (object: { [key: number]: any }): number =>
+  // $FlowFixMe
   Math.max(...Object.keys(object));
 
 /** Returns the point on the maximal row in the maximal column in the set */

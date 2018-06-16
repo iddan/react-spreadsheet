@@ -73,10 +73,6 @@ export const cut = (state: Types.StoreState<*>) => ({
 });
 
 export const paste = (state: Types.StoreState<*>) => {
-  if (!state.active) {
-    return null;
-  }
-
   const minPoint = PointSet.min(state.copied);
 
   type Accumulator = {|
@@ -86,6 +82,10 @@ export const paste = (state: Types.StoreState<*>) => {
 
   const { data, selected } = PointMap.reduce(
     (acc: Accumulator, value, { row, column }): Accumulator => {
+      if (!state.active) {
+        return acc;
+      }
+
       const nextRow = row - minPoint.row + state.active.row;
       const nextColumn = column - minPoint.column + state.active.column;
 
