@@ -7,8 +7,15 @@ import "./index.css";
 
 const initialData = range(INITIAL_ROWS).map(() => Array(INITIAL_COLUMNS));
 
+/**
+ * Removes cells not matching the filter from matrix while maintaining the
+ * minimum size that includes all of the matching cells.
+ */
 function filterMatrix(matrix, filter) {
   const filtered = [];
+  if (matrix.length === 0) {
+    return matrix;
+  }
   for (let row = 0; row < matrix.length; row++) {
     if (matrix.length !== 0) {
       for (let column = 0; column < matrix[0].length; column++) {
