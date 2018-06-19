@@ -67,7 +67,7 @@ export default class SpreadsheetStateProvider<
     this.unsubscribe = this.store.subscribe(
       (state: Types.StoreState<CellType>) => {
         const { prevState } = this;
-        if (state.data !== prevState.data) {
+        if (state.data !== prevState.data && state.data !== this.props.data) {
           onChange(state.data);
         }
         if (state.mode !== prevState.mode) {
