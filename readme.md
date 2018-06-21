@@ -9,13 +9,13 @@ Simple, customizable yet performant spreadsheet for React.
 [![Coverage Status](https://coveralls.io/repos/github/iddan/react-spreadsheet/badge.svg?branch=master)](https://coveralls.io/github/iddan/react-spreadsheet?branch=master)
 
 ```bash
-npm install @iddan/react-spreadsheet
+npm install react-spreadsheet
 ```
 
 _or_
 
 ```bash
-yarn add @iddan/react-spreadsheet
+yarn add react-spreadsheet
 ```
 
 ### Features
