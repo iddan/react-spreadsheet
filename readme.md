@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="./assets/logo.svg" height="120">
+</div>
+
 # React Spreadsheet
 
 Simple, customizable yet performant spreadsheet for React.
