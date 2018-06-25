@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./assets/logo.svg" height="120">
+  <img src="https://raw.githubusercontent.com/iddan/react-spreadsheet/master/assets/logo.svg?sanitize=true" height="120">
 </div>
 
 # React Spreadsheet
