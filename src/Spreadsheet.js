@@ -21,6 +21,7 @@ import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
+import { getBindingsForCell } from "./bindings";
 import { range, writeTextToClipboard } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
@@ -42,6 +43,7 @@ export type Props<CellType, Value> = {|
   DataViewer: Types.DataViewer<CellType, Value>,
   DataEditor: Types.DataEditor<CellType, Value>,
   getValue: Types.getValue<CellType, Value>,
+  getBindingsForCell: Types.getBindingsForCell<CellType>,
   store: Store
 |};
 
@@ -79,7 +81,8 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     Cell: enhanceCell(Cell),
     DataViewer,
     DataEditor,
-    getValue
+    getValue,
+    getBindingsForCell
   };
 
   formulaParser = new FormulaParser();
@@ -204,7 +207,8 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       getValue,
       rows,
       columns,
-      onKeyPress
+      onKeyPress,
+      getBindingsForCell
     } = this.props;
     return (
       <div
@@ -237,7 +241,11 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
             </Row>
           ))}
         </Table>
-        <ActiveCell DataEditor={DataEditor} getValue={getValue} />
+        <ActiveCell
+          DataEditor={DataEditor}
+          getValue={getValue}
+          getBindingsForCell={getBindingsForCell}
+        />
         <Selected />
         <Copied />
       </div>

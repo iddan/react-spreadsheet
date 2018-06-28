@@ -31,10 +31,22 @@ export const activate: Action = (state, cellPointer: Types.Point) => ({
   mode: isActive(state.active, cellPointer) ? "edit" : "view"
 });
 
-export const setData: Action = (state, data: *) => ({
-  mode: "edit",
-  data: setCell(state, data)
-});
+export function setData<Cell>(
+  state: Types.StoreState<Cell>,
+  data: Cell,
+  bindings: Types.Point[]
+): $Shape<Types.StoreState<Cell>> {
+  return {
+    mode: "edit",
+    data: setCell(state, data),
+    lastChanged: state.active,
+    bindings: PointMap.set(
+      state.active,
+      PointSet.from(bindings),
+      state.bindings
+    )
+  };
+}
 
 export function setCellDimensions(
   state: Types.StoreState<*>,

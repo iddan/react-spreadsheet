@@ -27,11 +27,11 @@ type State<Data> = {|
   copied: boolean,
   dragging: boolean,
   mode: Types.Mode,
-  data: ?Data
+  data: ?Data,
+  _bindingChanged: ?Object
 |};
 
-type Handlers<Data> = {|
-  setData: (data: Data) => void,
+type Handlers = {|
   select: (cellPointer: Types.Point) => void,
   activate: (cellPointer: Types.Point) => void,
   setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void
@@ -40,7 +40,7 @@ type Handlers<Data> = {|
 type Props<Data, Value> = {|
   ...StaticProps<Data, Value>,
   ...State<Data>,
-  ...Handlers<Data>
+  ...Handlers
 |};
 
 export class Cell<
@@ -80,11 +80,6 @@ export class Cell<
       setCellDimensions({ row, column }, getOffsetRect(e.currentTarget));
       select({ row, column });
     }
-  };
-
-  handleChange = (cell: Data) => {
-    const { setData } = this.props;
-    setData(cell);
   };
 
   componentDidUpdate() {
@@ -141,12 +136,16 @@ function mapStateToProps<Data>(
     copied,
     hasPasted,
     mode,
-    dragging
+    dragging,
+    lastChanged,
+    bindings
   }: Types.StoreState<Data>,
   { column, row }: Props<Data, *>
 ): State<Data> {
   const point = { row, column };
   const cellIsActive = isActive(active, point);
+
+  const cellBindings = PointMap.get(point, bindings);
 
   return {
     active: cellIsActive,
@@ -154,7 +153,12 @@ function mapStateToProps<Data>(
     copied: PointMap.has(point, copied),
     mode: cellIsActive ? mode : "view",
     data: Matrix.get(row, column, data),
-    dragging
+    dragging,
+    /** @todo refactor */
+    _bindingChanged:
+      cellBindings && lastChanged && PointSet.has(cellBindings, lastChanged)
+        ? {}
+        : null
   };
 }
 
@@ -163,7 +167,6 @@ export const enhance = connect(
   () => ({
     select: Actions.select,
     activate: Actions.activate,
-    setData: Actions.setData,
     setCellDimensions: Actions.setCellDimensions
   })
 );

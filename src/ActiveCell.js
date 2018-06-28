@@ -1,5 +1,5 @@
 // @flow
-import React from "react";
+import React, { Component } from "react";
 import classnames from "classnames";
 import { connect } from "unistore/react";
 import * as Matrix from "./matrix";
@@ -13,48 +13,56 @@ type Props<Cell, Value> = {|
   DataEditor: Types.DataEditor<Cell, Value>,
   getValue: Types.getValue<Cell, Value>,
   onChange: (data: Cell) => void,
-  setData: (data: Cell) => void,
+  setData: (data: Cell, bindings: Types.Point[]) => void,
   cell: Cell,
   hidden: boolean,
   mode: Types.Mode,
-  edit: () => void
+  edit: () => void,
+  getBindingsForCell: Types.getBindingsForCell<Cell>
 |};
 
-const ActiveCell = ({
-  DataEditor,
-  getValue,
-  onChange,
-  row,
-  column,
-  cell,
-  width,
-  height,
-  top,
-  left,
-  setData,
-  hidden,
-  mode,
-  edit
-}: Props<*, *>) => {
-  DataEditor = (cell && cell.DataEditor) || DataEditor;
-  return hidden ? null : (
-    <div
-      className={classnames("ActiveCell", mode)}
-      style={{ width, height, top, left }}
-      onClick={mode === "view" ? edit : undefined}
-    >
-      {mode === "edit" && (
-        <DataEditor
-          row={row}
-          column={column}
-          cell={cell}
-          onChange={setData}
-          getValue={getValue}
-        />
-      )}
-    </div>
-  );
-};
+class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
+  handleChange = cell => {
+    const { setData, getBindingsForCell } = this.props;
+    const bindings = getBindingsForCell(cell);
+    setData(cell, bindings);
+  };
+
+  render() {
+    let { DataEditor } = this.props;
+    const {
+      getValue,
+      row,
+      column,
+      cell,
+      width,
+      height,
+      top,
+      left,
+      hidden,
+      mode,
+      edit
+    } = this.props;
+    DataEditor = (cell && cell.DataEditor) || DataEditor;
+    return hidden ? null : (
+      <div
+        className={classnames("ActiveCell", mode)}
+        style={{ width, height, top, left }}
+        onClick={mode === "view" ? edit : undefined}
+      >
+        {mode === "edit" && (
+          <DataEditor
+            row={row}
+            column={column}
+            cell={cell}
+            onChange={this.handleChange}
+            getValue={getValue}
+          />
+        )}
+      </div>
+    );
+  }
+}
 
 const EmptyDimensions = {
   width: 0,
@@ -86,8 +94,6 @@ export default connect(
   mapStateToProps,
   {
     setData: Actions.setData,
-    edit: () => ({
-      mode: "edit"
-    })
+    edit: Actions.edit
   }
 )(ActiveCell);
