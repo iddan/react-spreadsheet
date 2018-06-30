@@ -21,7 +21,17 @@ type Props<Cell, Value> = {|
   getBindingsForCell: Types.getBindingsForCell<Cell>
 |};
 
-class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
+type State<Cell> = {
+  value: ?Cell
+};
+
+class ActiveCell<Cell, Value> extends Component<
+  Props<Cell, Value>,
+  State<Cell>
+> {
+  /** @todo update API */
+  state: State<Cell> = { value: undefined };
+
   handleChange = cell => {
     const { setData, getBindingsForCell } = this.props;
     const bindings = getBindingsForCell(cell);
