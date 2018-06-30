@@ -30,13 +30,19 @@ class ActiveCell<Cell, Value> extends Component<
   State<Cell>
 > {
   /** @todo update API */
-  state: State<Cell> = { value: undefined };
+  state: State<Cell> = { localCell: undefined };
 
   handleChange = cell => {
     const { setData, getBindingsForCell } = this.props;
     const bindings = getBindingsForCell(cell);
+    this.setState({ localCell: cell });
     setData(cell, bindings);
   };
+
+  componentDidUpdate(prevProps) {
+    if (this.props.mode === "edit" && prevProps.mode === "view") {
+    }
+  }
 
   render() {
     let { DataEditor } = this.props;
