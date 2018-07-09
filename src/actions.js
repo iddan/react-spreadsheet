@@ -3,7 +3,7 @@ import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
-import { isActive, setCell, updateData } from "./util";
+import { isActive, updateData } from "./util";
 
 type Action = <Cell>(
   state: Types.StoreState<Cell>,
@@ -33,18 +33,18 @@ export const activate: Action = (state, cellPointer: Types.Point) => ({
 
 export function setData<Cell>(
   state: Types.StoreState<Cell>,
+  point: Types.Point,
   data: Cell,
   bindings: Types.Point[]
 ): $Shape<Types.StoreState<Cell>> {
+  console.log(point, data, bindings);
   return {
-    mode: "edit",
-    data: setCell(state, data),
+    data: updateData(state.data, {
+      ...point,
+      data: data
+    }),
     lastChanged: state.active,
-    bindings: PointMap.set(
-      state.active,
-      PointSet.from(bindings),
-      state.bindings
-    )
+    bindings: PointMap.set(point, PointSet.from(bindings), state.bindings)
   };
 }
 

@@ -22,7 +22,7 @@ type Props<Cell, Value> = {|
 |};
 
 type State<Cell> = {
-  value: ?Cell
+  localCell: ?Cell
 };
 
 class ActiveCell<Cell, Value> extends Component<
@@ -33,14 +33,23 @@ class ActiveCell<Cell, Value> extends Component<
   state: State<Cell> = { localCell: undefined };
 
   handleChange = cell => {
-    const { setData, getBindingsForCell } = this.props;
-    const bindings = getBindingsForCell(cell);
     this.setState({ localCell: cell });
-    setData(cell, bindings);
   };
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.cell !== this.props.cell) {
+      this.setState({ localCell: nextProps.cell });
+    }
+  }
+
   componentDidUpdate(prevProps) {
-    if (this.props.mode === "edit" && prevProps.mode === "view") {
+    if (this.props.mode === "view" && prevProps.mode === "edit") {
+      const { setData, getBindingsForCell } = this.props;
+      const { row, column } = prevProps;
+      const { localCell } = this.state;
+      const bindings = getBindingsForCell(localCell);
+      setData({ row, column }, localCell, bindings);
+      this.setState({ localCell: undefined });
     }
   }
 
@@ -50,7 +59,6 @@ class ActiveCell<Cell, Value> extends Component<
       getValue,
       row,
       column,
-      cell,
       width,
       height,
       top,
@@ -59,6 +67,7 @@ class ActiveCell<Cell, Value> extends Component<
       mode,
       edit
     } = this.props;
+    const cell = this.state.localCell || this.props.cell;
     DataEditor = (cell && cell.DataEditor) || DataEditor;
     return hidden ? null : (
       <div
@@ -88,12 +97,14 @@ const EmptyDimensions = {
 };
 
 const mapStateToProps = (state: Types.StoreState<*>) => {
+  const { mode } = state;
   if (!state.active || !PointMap.has(state.active, state.cellDimensions)) {
-    return { hidden: true };
+    return { mode, hidden: true };
   }
   const dimensions =
     PointMap.get(state.active, state.cellDimensions) || EmptyDimensions;
   return {
+    mode,
     hidden: false,
     ...state.active,
     // $FlowFixMe
@@ -101,8 +112,7 @@ const mapStateToProps = (state: Types.StoreState<*>) => {
     width: dimensions.width,
     height: dimensions.height,
     top: dimensions.top,
-    left: dimensions.left,
-    mode: state.mode
+    left: dimensions.left
   };
 };
 

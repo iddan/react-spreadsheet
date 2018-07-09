@@ -44,16 +44,6 @@ export function updateData<Cell>(
   return nextData;
 }
 
-export function setCell<Cell>(
-  state: { data: Matrix<Cell>, active: Types.Point },
-  cell: Cell
-): Matrix<Cell> {
-  return updateData(state.data, {
-    ...state.active,
-    data: cell
-  });
-}
-
 export function isActive(
   active: $PropertyType<Types.StoreState<*>, "active">,
   { row, column }: Types.Point
