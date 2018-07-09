@@ -13,7 +13,7 @@ type Props<Cell, Value> = {|
   DataEditor: Types.DataEditor<Cell, Value>,
   getValue: Types.getValue<Cell, Value>,
   onChange: (data: Cell) => void,
-  setData: (data: Cell, bindings: Types.Point[]) => void,
+  setActiveLocalCell: (data: Cell, bindings: Types.Point[]) => void,
   cell: Cell,
   hidden: boolean,
   mode: Types.Mode,
@@ -21,37 +21,14 @@ type Props<Cell, Value> = {|
   getBindingsForCell: Types.getBindingsForCell<Cell>
 |};
 
-type State<Cell> = {
-  localCell: ?Cell
-};
-
-class ActiveCell<Cell, Value> extends Component<
-  Props<Cell, Value>,
-  State<Cell>
-> {
+class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
   /** @todo update API */
-  state: State<Cell> = { localCell: undefined };
 
   handleChange = cell => {
-    this.setState({ localCell: cell });
+    const { setActiveLocalCell, getBindingsForCell } = this.props;
+    const bindings = getBindingsForCell(cell);
+    setActiveLocalCell(cell, bindings);
   };
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.cell !== this.props.cell) {
-      this.setState({ localCell: nextProps.cell });
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.mode === "view" && prevProps.mode === "edit") {
-      const { setData, getBindingsForCell } = this.props;
-      const { row, column } = prevProps;
-      const { localCell } = this.state;
-      const bindings = getBindingsForCell(localCell);
-      setData({ row, column }, localCell, bindings);
-      this.setState({ localCell: undefined });
-    }
-  }
 
   render() {
     let { DataEditor } = this.props;
@@ -63,11 +40,11 @@ class ActiveCell<Cell, Value> extends Component<
       height,
       top,
       left,
+      cell,
       hidden,
       mode,
       edit
     } = this.props;
-    const cell = this.state.localCell || this.props.cell;
     DataEditor = (cell && cell.DataEditor) || DataEditor;
     return hidden ? null : (
       <div
@@ -97,18 +74,18 @@ const EmptyDimensions = {
 };
 
 const mapStateToProps = (state: Types.StoreState<*>) => {
-  const { mode } = state;
+  const { mode, activeLocalCell } = state;
   if (!state.active || !PointMap.has(state.active, state.cellDimensions)) {
     return { mode, hidden: true };
   }
   const dimensions =
     PointMap.get(state.active, state.cellDimensions) || EmptyDimensions;
+  const cell = Matrix.get(state.active.row, state.active.column, state.data);
   return {
     mode,
     hidden: false,
-    ...state.active,
-    // $FlowFixMe
-    cell: Matrix.get(state.active.row, state.active.column, state.data),
+    ...state.active, // $FlowFixMe
+    cell: activeLocalCell || cell,
     width: dimensions.width,
     height: dimensions.height,
     top: dimensions.top,
@@ -119,7 +96,7 @@ const mapStateToProps = (state: Types.StoreState<*>) => {
 export default connect(
   mapStateToProps,
   {
-    setData: Actions.setData,
+    setActiveLocalCell: Actions.setActiveLocalCell,
     edit: Actions.edit
   }
 )(ActiveCell);

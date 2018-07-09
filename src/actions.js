@@ -10,6 +10,34 @@ type Action = <Cell>(
   ...*
 ) => $Shape<Types.StoreState<Cell>>;
 
+/**
+ * Encapsulates state mode modification
+ */
+export function setMode<Cell>(state: Types.StoreState<Cell>, mode: Types.Mode) {
+  if (
+    state.mode === "edit" &&
+    mode === "view" &&
+    state.activeLocalCell !== undefined
+  ) {
+    return {
+      mode,
+      data: updateData(state.data, {
+        ...state.active,
+        data: state.activeLocalCell
+      }),
+      lastChanged: state.active,
+      bindings: PointMap.set(
+        state.active,
+        state.activeLocalBindings,
+        state.bindings
+      ),
+      activeLocalCell: undefined,
+      activeLocalBindings: undefined
+    };
+  }
+  return { mode };
+}
+
 export const select: Action = (state, cellPointer: Types.Point) => {
   if (state.active && !isActive(state.active, cellPointer)) {
     return {
@@ -19,7 +47,7 @@ export const select: Action = (state, cellPointer: Types.Point) => {
           { row: state.active.row, column: state.active.column }
         )
       ),
-      mode: "view"
+      ...setMode(state, "view")
     };
   }
   return null;
@@ -28,25 +56,8 @@ export const select: Action = (state, cellPointer: Types.Point) => {
 export const activate: Action = (state, cellPointer: Types.Point) => ({
   selected: PointSet.from([cellPointer]),
   active: cellPointer,
-  mode: isActive(state.active, cellPointer) ? "edit" : "view"
+  ...setMode(state, isActive(state.active, cellPointer) ? "edit" : "view")
 });
-
-export function setData<Cell>(
-  state: Types.StoreState<Cell>,
-  point: Types.Point,
-  data: Cell,
-  bindings: Types.Point[]
-): $Shape<Types.StoreState<Cell>> {
-  console.log(point, data, bindings);
-  return {
-    data: updateData(state.data, {
-      ...point,
-      data: data
-    }),
-    lastChanged: state.active,
-    bindings: PointMap.set(point, PointSet.from(bindings), state.bindings)
-  };
-}
 
 export function setCellDimensions(
   state: Types.StoreState<*>,
@@ -125,17 +136,13 @@ export const paste = (state: Types.StoreState<*>) => {
     selected,
     cut: false,
     hasPasted: true,
-    mode: "view"
+    ...setMode(state, "view")
   };
 };
 
-export const edit = () => ({
-  mode: "edit"
-});
+export const edit = state => setMode(state, "edit");
 
-export const view = () => ({
-  mode: "view"
-});
+export const view = state => setMode(state, "view");
 
 export const unfocus = (state: Types.StoreState<*>) => {
   if (!state.active) {
@@ -171,12 +178,12 @@ export const go = (
     column: state.active.column + columnDelta
   };
   if (!Matrix.has(nextActive.row, nextActive.column, state.data)) {
-    return { mode: "view" };
+    return setMode(state, "view");
   }
   return {
     active: nextActive,
     selected: PointSet.from([nextActive]),
-    mode: "view"
+    ...setMode(state, "view")
   };
 };
 
@@ -240,7 +247,7 @@ export function keyPress(
   event: SyntheticKeyboardEvent<HTMLElement>
 ) {
   if (state.mode === "view" && state.active) {
-    return { mode: "edit" };
+    return setMode(state, "edit");
   }
   return null;
 }
@@ -276,6 +283,17 @@ export function keyDown(
 export function setDragging<T>(
   state: Types.StoreState<T>,
   dragging: boolean
-): Types.StoreState<T> {
-  return { ...state, dragging };
+): $Shape<Types.StoreState<T>> {
+  return { dragging };
+}
+
+export function setActiveLocalCell<T>(
+  state: Types.StoreState<T>,
+  localCell: T,
+  bindings: Types.Point[]
+) {
+  return {
+    activeLocalCell: localCell,
+    activeLocalBindings: PointSet.from(bindings)
+  };
 }

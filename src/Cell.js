@@ -85,7 +85,6 @@ export class Cell<
   componentDidUpdate() {
     const { row, column, active, mode, setCellDimensions } = this.props;
     if (this.root) {
-      console.log({ row, column });
       setCellDimensions({ row, column }, getOffsetRect(this.root));
     }
     if (this.root && active && mode === "view") {
