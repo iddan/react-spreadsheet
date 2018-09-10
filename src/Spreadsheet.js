@@ -53,7 +53,9 @@ type Handlers = {|
   paste: () => void,
   setDragging: boolean => void,
   onKeyDown: (SyntheticKeyboardEvent<HTMLElement>) => void,
-  onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void
+  onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void,
+  onDragStart: () => void,
+  onDragEnd: () => void
 |};
 
 type State = {|
@@ -181,13 +183,13 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
   };
 
   handleMouseUp = () => {
-    this.props.setDragging(false);
+    this.props.onDragEnd();
     document.removeEventListener("mouseup", this.handleMouseUp);
   };
 
   handleMouseMove = event => {
     if (!this.props.store.getState().dragging && event.buttons === 1) {
-      this.props.setDragging(true);
+      this.props.onDragStart();
       document.addEventListener("mouseup", this.handleMouseUp);
     }
   };
@@ -264,6 +266,7 @@ export default connect(
     paste: Actions.paste,
     onKeyDown: Actions.keyDown,
     onKeyPress: Actions.keyPress,
-    setDragging: Actions.setDragging
+    onDragStart: Actions.dragStart,
+    onDragEnd: Actions.dragEnd
   }
 )(Spreadsheet);

@@ -22,7 +22,7 @@ type Props<Cell, Value> = {|
 |};
 
 class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
-  handleChange = cell => {
+  handleChange = (cell: Cell) => {
     const { setData, getBindingsForCell } = this.props;
     const bindings = getBindingsForCell(cell);
     setData(cell, bindings);

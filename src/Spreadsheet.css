@@ -20,6 +20,11 @@
 }
 
 .Spreadsheet td,
+.Spreadsheet .ActiveCell {
+  cursor: cell;
+}
+
+.Spreadsheet td,
 .Spreadsheet td input {
   outline: none;
 }
@@ -84,7 +89,3 @@
 .Spreadsheet .boolean {
   text-align: center;
 }
-
-/* .Spreadsheet .Selection.copied {
-  border-style: dashed;
-} */
