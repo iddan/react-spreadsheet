@@ -33,6 +33,7 @@
 .Spreadsheet th {
   min-width: 6em;
   min-height: 1.9em;
+  height: 1.9em;
   max-height: 1.9em;
   padding: 4px;
   border: 1px solid rgb(231, 231, 231);

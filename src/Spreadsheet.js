@@ -38,6 +38,8 @@ const getValue = ({ data }: { data: ?DefaultCellType }) =>
 export type Props<CellType, Value> = {|
   data: Matrix.Matrix<CellType>,
   columnLabels?: string[],
+  hideRowIndicators?: boolean,
+  hideColumnIndicators?: boolean,
   Table: ComponentType<TableProps>,
   Row: ComponentType<RowProps>,
   Cell: ComponentType<CellProps<CellType, Value>>,
@@ -64,8 +66,18 @@ type State = {|
   columns: number
 |};
 
-const ColumnIndicator = ({ column, hasLabel }) =>
-  hasLabel ? <th>{column}</th> : <th>{columnIndexToLabel(column)}</th>;
+type ColumnIndicatorProps = {
+  column: number,
+  label?: string | null
+};
+
+const ColumnIndicator = ({ column, label }: ColumnIndicatorProps) =>
+  label !== undefined ? (
+    <th>{label}</th>
+  ) : (
+    <th>{columnIndexToLabel(column)}</th>
+  );
+
 const RowIndicator = ({ row }) => <th>{row + 1}</th>;
 
 class Spreadsheet<CellType, Value> extends PureComponent<{|
@@ -213,7 +225,9 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       rows,
       columns,
       onKeyPress,
-      getBindingsForCell
+      getBindingsForCell,
+      hideColumnIndicators,
+      hideRowIndicators
     } = this.props;
     return (
       <div
@@ -225,20 +239,29 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       >
         <Table>
           <tr>
-            <th />
-            {range(columns).map(columnNumber => (
-              <ColumnIndicator
-                hasLabel={Boolean(columnLabels)}
-                key={columnNumber}
-                column={
-                  columnLabels ? columnLabels[columnNumber] : columnNumber
-                }
-              />
-            ))}
+            {!hideRowIndicators && !hideColumnIndicators && <th />}
+            {!hideColumnIndicators &&
+              range(columns).map(columnNumber =>
+                columnLabels ? (
+                  <ColumnIndicator
+                    key={columnNumber}
+                    column={columnNumber}
+                    label={
+                      columnNumber in columnLabels
+                        ? columnLabels[columnNumber]
+                        : null
+                    }
+                  />
+                ) : (
+                  <ColumnIndicator key={columnNumber} column={columnNumber} />
+                )
+              )}
           </tr>
           {range(rows).map(rowNumber => (
             <Row key={rowNumber}>
-              <RowIndicator key={rowNumber} row={rowNumber} />
+              {!hideRowIndicators && (
+                <RowIndicator key={rowNumber} row={rowNumber} />
+              )}
               {range(columns).map(columnNumber => (
                 <Cell
                   key={columnNumber}
