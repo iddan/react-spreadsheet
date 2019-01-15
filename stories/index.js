@@ -7,6 +7,7 @@ import CustomCell from "./CustomCell";
 import SelectCell from "./SelectCell";
 import Filter from "./Filter";
 import WithColumnLabls from "./withColumnLabels";
+import WithoutRowAndColumnIndicators from "./WithoutRowAndColumnIndicators";
 
 storiesOf("Spreadsheet", Spreadsheet)
   .add("Basic", () => <Basic />)
@@ -14,4 +15,7 @@ storiesOf("Spreadsheet", Spreadsheet)
   .add("CustomCell", () => <CustomCell />)
   .add("Filter", () => <Filter />)
   .add("Select Cell", () => <SelectCell />)
-  .add("With Column Labels", () => <WithColumnLabls />);
+  .add("With Column Labels", () => <WithColumnLabls />)
+  .add("Without column and row indicators", () => (
+    <WithoutRowAndColumnIndicators />
+  ));
