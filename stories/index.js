@@ -6,10 +6,12 @@ import Controlled from "./Controlled";
 import CustomCell from "./CustomCell";
 import SelectCell from "./SelectCell";
 import Filter from "./Filter";
+import WithColumnLabls from "./withColumnLabels";
 
 storiesOf("Spreadsheet", Spreadsheet)
   .add("Basic", () => <Basic />)
   .add("Controlled", () => <Controlled />)
   .add("CustomCell", () => <CustomCell />)
   .add("Filter", () => <Filter />)
-  .add("Select Cell", () => <SelectCell />);
+  .add("Select Cell", () => <SelectCell />)
+  .add("With Column Labels", () => <WithColumnLabls />);
