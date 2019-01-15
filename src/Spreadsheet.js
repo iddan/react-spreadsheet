@@ -37,6 +37,7 @@ const getValue = ({ data }: { data: ?DefaultCellType }) =>
 
 export type Props<CellType, Value> = {|
   data: Matrix.Matrix<CellType>,
+  columnLabels?: string[],
   Table: ComponentType<TableProps>,
   Row: ComponentType<RowProps>,
   Cell: ComponentType<CellProps<CellType, Value>>,
@@ -63,7 +64,8 @@ type State = {|
   columns: number
 |};
 
-const ColumnIndicator = ({ column }) => <th>{columnIndexToLabel(column)}</th>;
+const ColumnIndicator = ({ column, hasLabel }) =>
+  hasLabel ? <th>{column}</th> : <th>{columnIndexToLabel(column)}</th>;
 const RowIndicator = ({ row }) => <th>{row + 1}</th>;
 
 class Spreadsheet<CellType, Value> extends PureComponent<{|
@@ -205,6 +207,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       Table,
       Row,
       Cell,
+      columnLabels,
       DataViewer,
       getValue,
       rows,
@@ -224,7 +227,13 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
           <tr>
             <th />
             {range(columns).map(columnNumber => (
-              <ColumnIndicator key={columnNumber} column={columnNumber} />
+              <ColumnIndicator
+                hasLabel={Boolean(columnLabels)}
+                key={columnNumber}
+                column={
+                  columnLabels ? columnLabels[columnNumber] : columnNumber
+                }
+              />
             ))}
           </tr>
           {range(rows).map(rowNumber => (
