@@ -18,7 +18,8 @@ type Props<Cell, Value> = {|
   hidden: boolean,
   mode: Types.Mode,
   edit: () => void,
-  getBindingsForCell: Types.getBindingsForCell<Cell>
+  getBindingsForCell: Types.getBindingsForCell<Cell>,
+  setCellCommit: ({ before: Cell | null, after: Cell | null }) => void
 |};
 
 class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
@@ -26,6 +27,11 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
     const { setData, getBindingsForCell } = this.props;
     const bindings = getBindingsForCell(cell);
     setData(cell, bindings);
+  };
+
+  onCellCommit = (before: Cell, after: Cell) => {
+    const { setCellCommit } = this.props;
+    setCellCommit({ before, after });
   };
 
   render() {
@@ -51,12 +57,14 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
         onClick={mode === "view" ? edit : undefined}
       >
         {mode === "edit" && (
+          // $FlowFixMe
           <DataEditor
             row={row}
             column={column}
             cell={cell}
             onChange={this.handleChange}
             getValue={getValue}
+            onCellCommit={this.onCellCommit}
           />
         )}
       </div>
@@ -94,6 +102,7 @@ export default connect(
   mapStateToProps,
   {
     setData: Actions.setData,
-    edit: Actions.edit
+    edit: Actions.edit,
+    setCellCommit: Actions.setCellCommit
   }
 )(ActiveCell);

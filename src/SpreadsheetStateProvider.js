@@ -17,7 +17,8 @@ export type Props<CellType, Value> = {|
   onChange: (data: Matrix.Matrix<CellType>) => void,
   onModeChange: (mode: Types.Mode) => void,
   onSelect: (selected: Types.Point[]) => void,
-  onActivate: (active: Types.Point) => void
+  onActivate: (active: Types.Point) => void,
+  onCellCommit: (oldCell?: CellType | null, newCell?: CellType | null) => void
 |};
 
 const initialState: $Shape<Types.StoreState<any>> = {
@@ -42,7 +43,8 @@ export default class SpreadsheetStateProvider<
     onChange: () => {},
     onModeChange: () => {},
     onSelect: () => {},
-    onActivate: () => {}
+    onActivate: () => {},
+    onCellCommit: () => {}
   };
 
   constructor(props: Props<CellType, Value>) {
@@ -65,10 +67,17 @@ export default class SpreadsheetStateProvider<
   }
 
   componentDidMount() {
-    const { onChange, onModeChange, onSelect, onActivate } = this.props;
+    const {
+      onChange,
+      onModeChange,
+      onSelect,
+      onActivate,
+      onCellCommit
+    } = this.props;
     this.unsubscribe = this.store.subscribe(
       (state: Types.StoreState<CellType>) => {
         const { prevState } = this;
+
         if (state.data !== prevState.data && state.data !== this.props.data) {
           onChange(state.data);
         }
@@ -80,6 +89,9 @@ export default class SpreadsheetStateProvider<
         }
         if (state.active !== prevState.active && state.active) {
           onActivate(state.active);
+        }
+        if (state.cell !== prevState.cell) {
+          onCellCommit(state.cell.before, state.cell.after);
         }
         this.prevState = state;
       }

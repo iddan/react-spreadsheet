@@ -33,6 +33,7 @@ export type StoreState<Cell> = {|
   active: Point | null,
   mode: Mode,
   cellDimensions: PointMap<Dimensions>,
+  cell?: { before?: Cell | null, after?: Cell | null },
   dragging: boolean,
   lastChanged: Point | null,
   bindings: PointMap<PointSet>
@@ -53,7 +54,8 @@ export type DataViewer<Cell, Value> = ComponentType<
 >;
 
 export type DataEditorProps<Cell, Value> = CellComponentProps<Cell, Value> & {
-  onChange: Cell => void
+  onChange: Cell => void,
+  onCellCommit: (before?: Cell | null, after?: Cell | null) => void
 };
 
 export type DataEditor<Cell, Value> = ComponentType<

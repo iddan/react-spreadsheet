@@ -10,6 +10,13 @@ type Action = <Cell>(
   ...*
 ) => $Shape<Types.StoreState<Cell>>;
 
+export function setCellCommit<Cell>(
+  state: *,
+  cell: { before?: Cell, after?: Cell }
+) {
+  return { cell: { before: cell.before, after: cell.after } };
+}
+
 export const select: Action = (state, cellPointer: Types.Point) => {
   if (state.active && !isActive(state.active, cellPointer)) {
     return {
