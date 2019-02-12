@@ -10,11 +10,10 @@ type Action = <Cell>(
   ...*
 ) => $Shape<Types.StoreState<Cell>>;
 
-export function setCellCommit<Cell>(
-  state: *,
-  cell: { before?: Cell, after?: Cell }
-) {
-  return { cell: { before: cell.before, after: cell.after } };
+
+
+export function setCellCommit(state: Types.StoreState<*>, lastCommit: Types.Commit) {
+  return { lastCommit: { before: lastCommit.before, after: lastCommit.after } };
 }
 
 export const select: Action = (state, cellPointer: Types.Point) => {

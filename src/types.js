@@ -24,6 +24,11 @@ export type Dimensions = {|
   left: number
 |};
 
+export type Commit<Cell> = {
+  before: Cell | null,
+  after: Cell | null
+};
+
 export type StoreState<Cell> = {|
   data: Matrix<Cell>,
   selected: PointSet,
@@ -33,7 +38,7 @@ export type StoreState<Cell> = {|
   active: Point | null,
   mode: Mode,
   cellDimensions: PointMap<Dimensions>,
-  cell?: { before?: Cell | null, after?: Cell | null },
+  lastCommit?: Commit,
   dragging: boolean,
   lastChanged: Point | null,
   bindings: PointMap<PointSet>
