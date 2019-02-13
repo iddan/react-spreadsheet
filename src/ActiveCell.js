@@ -18,15 +18,56 @@ type Props<Cell, Value> = {|
   hidden: boolean,
   mode: Types.Mode,
   edit: () => void,
-  getBindingsForCell: Types.getBindingsForCell<Cell>
+  getBindingsForCell: Types.getBindingsForCell<Cell>,
+  setCellCommit: Types.Commit => void
 |};
 
 class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
+  state = { cellBeforeUpdate: null };
   handleChange = (cell: Cell) => {
     const { setData, getBindingsForCell } = this.props;
     const bindings = getBindingsForCell(cell);
     setData(cell, bindings);
   };
+
+  handleCellCommit = (before: Cell | null, after: Cell | null) => {
+    const { onCellCommit } = this.props;
+    onCellCommit(before, after);
+  };
+
+  // NOTE: Currently all logics belongs to onCellCommit event
+  componentDidUpdate(prevProps) {
+    // On each ActiveCell mode transition we set previous cell value
+    if (this.props.mode !== "edit" && prevProps.mode === "edit") {
+      this.setState({ cellBeforeUpdate: prevProps.cell });
+    }
+    /* On each time we move between cells && on cell selection 
+    (before it goes into "edit" mode) we set the previous cell value */
+    if (
+      (this.props.row !== prevProps.row ||
+        this.props.column !== prevProps.column) &&
+      this.props.mode === "view" &&
+      this.props.cell
+    ) {
+      this.setState({ cellBeforeUpdate: this.props.cell });
+    }
+    // On each ActiveCell's mode transition we invoke handleCellCommit
+    if (
+      this.props.mode === "view" &&
+      (prevProps.mode === "edit" || !prevProps.mode)
+    ) {
+      // When our needed arguments are both falsy we pass
+      if (!this.state.cellBeforeUpdate && !prevProps.cell) {
+        return;
+        /* A falsy prevProps.cell is an exceptional case where a cell does not yet exists,
+        so it must be passed as a first argument to represent the "before" state of the cell */
+      } else if (!prevProps.cell) {
+        this.handleCellCommit(prevProps.cell, this.state.cellBeforeUpdate);
+      } else {
+        this.handleCellCommit(this.state.cellBeforeUpdate, prevProps.cell);
+      }
+    }
+  }
 
   render() {
     let { DataEditor } = this.props;
@@ -43,6 +84,7 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
       mode,
       edit
     } = this.props;
+
     DataEditor = (cell && cell.DataEditor) || DataEditor;
     return hidden ? null : (
       <div

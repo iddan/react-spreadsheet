@@ -8,6 +8,7 @@ import SelectCell from "./SelectCell";
 import Filter from "./Filter";
 import WithColumnLabls from "./withColumnLabels";
 import WithoutRowAndColumnIndicators from "./WithoutRowAndColumnIndicators";
+import CellCommit from "./CellCommit";
 
 storiesOf("Spreadsheet", Spreadsheet)
   .add("Basic", () => <Basic />)
@@ -18,4 +19,5 @@ storiesOf("Spreadsheet", Spreadsheet)
   .add("With Column Labels", () => <WithColumnLabls />)
   .add("Without column and row indicators", () => (
     <WithoutRowAndColumnIndicators />
-  ));
+  ))
+  .add("With onCellCommit event", () => <CellCommit />);

@@ -47,7 +47,8 @@ export type Props<CellType, Value> = {|
   DataEditor: Types.DataEditor<CellType, Value>,
   getValue: Types.getValue<CellType, Value>,
   getBindingsForCell: Types.getBindingsForCell<CellType>,
-  store: Store
+  store: Store,
+  onCellCommit(prevCell: CellType | null, nextCell: CellType | null): void
 |};
 
 type Handlers = {|
@@ -225,6 +226,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       rows,
       columns,
       onKeyPress,
+      onCellCommit,
       getBindingsForCell,
       hideColumnIndicators,
       hideRowIndicators
@@ -276,6 +278,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
           ))}
         </Table>
         <ActiveCell
+          onCellCommit={onCellCommit}
           DataEditor={DataEditor}
           getValue={getValue}
           getBindingsForCell={getBindingsForCell}
