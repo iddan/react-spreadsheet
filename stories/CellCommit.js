@@ -9,6 +9,7 @@ export const INITIAL_ROWS = 6;
 export const INITIAL_COLUMNS = 4;
 
 const initialData = range(INITIAL_ROWS).map(() => Array(INITIAL_COLUMNS));
+initialData[0][1] = { value: "some text" };
 
 const CellCommit = props => (
   <Spreadsheet data={initialData} onCellCommit={action("onCellCommit event")} />

@@ -35,36 +35,17 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
     onCellCommit(before, after);
   };
 
-  // NOTE: Currently all logics belongs to onCellCommit event
+  // NOTE: Currently all logics here belongs to onCellCommit event
   componentDidUpdate(prevProps) {
-    // On each ActiveCell mode transition we set previous cell value
-    if (this.props.mode !== "edit" && prevProps.mode === "edit") {
-      this.setState({ cellBeforeUpdate: prevProps.cell });
-    }
-    /* On each time we move between cells && on cell selection 
-    (before it goes into "edit" mode) we set the previous cell value */
-    if (
-      (this.props.row !== prevProps.row ||
-        this.props.column !== prevProps.column) &&
-      this.props.mode === "view" &&
-      this.props.cell
-    ) {
-      this.setState({ cellBeforeUpdate: this.props.cell });
-    }
-    // On each ActiveCell's mode transition we invoke handleCellCommit
-    if (
-      this.props.mode === "view" &&
-      (prevProps.mode === "edit" || !prevProps.mode)
-    ) {
-      // When our needed arguments are both falsy we pass
-      if (!this.state.cellBeforeUpdate && !prevProps.cell) {
-        return;
-        /* A falsy prevProps.cell is an exceptional case where a cell does not yet exists,
-        so it must be passed as a first argument to represent the "before" state of the cell */
-      } else if (!prevProps.cell) {
-        this.handleCellCommit(prevProps.cell, this.state.cellBeforeUpdate);
-      } else {
-        this.handleCellCommit(this.state.cellBeforeUpdate, prevProps.cell);
+    const { cell, mode, row, column, onCellCommit } = this.props;
+    if (cell || cell === undefined) {
+      if (prevProps.mode === "view" && mode === "edit") {
+        this.setState({ cellBeforeUpdate: prevProps.cell });
+      } else if (
+        prevProps.mode === "edit" &&
+        (prevProps.row !== row || prevProps.column !== column)
+      ) {
+        onCellCommit(this.state.cellBeforeUpdate, prevProps.cell);
       }
     }
   }
