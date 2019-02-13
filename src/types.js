@@ -24,11 +24,6 @@ export type Dimensions = {|
   left: number
 |};
 
-export type Commit<Cell> = {
-  before: Cell | null,
-  after: Cell | null
-};
-
 export type StoreState<Cell> = {|
   data: Matrix<Cell>,
   selected: PointSet,
@@ -38,7 +33,6 @@ export type StoreState<Cell> = {|
   active: Point | null,
   mode: Mode,
   cellDimensions: PointMap<Dimensions>,
-  lastCommit?: Commit,
   dragging: boolean,
   lastChanged: Point | null,
   bindings: PointMap<PointSet>
@@ -59,8 +53,7 @@ export type DataViewer<Cell, Value> = ComponentType<
 >;
 
 export type DataEditorProps<Cell, Value> = CellComponentProps<Cell, Value> & {
-  onChange: Cell => void,
-  onCellCommit: (before?: Cell | null, after?: Cell | null) => void
+  onChange: Cell => void
 };
 
 export type DataEditor<Cell, Value> = ComponentType<

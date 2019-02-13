@@ -30,23 +30,19 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
     setData(cell, bindings);
   };
 
-  handleCellCommit = (before: Cell, after: Cell) => {
-    const { setCellCommit } = this.props;
-    const beforeValue = before && before.value;
-    const afterValue = after && after.value;
-
-    if (afterValue !== beforeValue) {
-      setCellCommit({ before, after });
-    }
+  handleCellCommit = (before: Cell | null, after: Cell | null) => {
+    const { onCellCommit } = this.props;
+    onCellCommit(before, after);
   };
 
-  // All logics here belong to onCellCommit event
+  // NOTE: Currently all logics belongs to onCellCommit event
   componentDidUpdate(prevProps) {
-    // Set previous cell value
+    // On each ActiveCell mode transition we set previous cell value
     if (this.props.mode !== "edit" && prevProps.mode === "edit") {
       this.setState({ cellBeforeUpdate: prevProps.cell });
     }
-    //Update cellBeforeUpdate once again with the most updated cell value
+    /* On each time we move between cells && on cell selection 
+    (before it goes into "edit" mode) we set the previous cell value */
     if (
       (this.props.row !== prevProps.row ||
         this.props.column !== prevProps.column) &&
@@ -55,14 +51,16 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
     ) {
       this.setState({ cellBeforeUpdate: this.props.cell });
     }
-
+    // On each ActiveCell's mode transition we invoke handleCellCommit
     if (
       this.props.mode === "view" &&
       (prevProps.mode === "edit" || !prevProps.mode)
     ) {
-      // Invoke handleCellCommit
+      // When our needed arguments are both falsy we pass
       if (!this.state.cellBeforeUpdate && !prevProps.cell) {
         return;
+        /* A falsy prevProps.cell is an exceptional case where a cell does not yet exists,
+        so it must be passed as a first argument to represent the "before" state of the cell */
       } else if (!prevProps.cell) {
         this.handleCellCommit(prevProps.cell, this.state.cellBeforeUpdate);
       } else {
@@ -95,7 +93,6 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
         onClick={mode === "view" ? edit : undefined}
       >
         {mode === "edit" && (
-          // $FlowFixMe
           <DataEditor
             row={row}
             column={column}
@@ -139,7 +136,6 @@ export default connect(
   mapStateToProps,
   {
     setData: Actions.setData,
-    edit: Actions.edit,
-    setCellCommit: Actions.setCellCommit
+    edit: Actions.edit
   }
 )(ActiveCell);
