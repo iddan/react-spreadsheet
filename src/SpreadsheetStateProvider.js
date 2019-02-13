@@ -103,7 +103,6 @@ export default class SpreadsheetStateProvider<
 
   render() {
     const { data, ...rest } = this.props;
-    console.log("rest:", rest);
     return (
       <Provider store={this.store}>
         <Spreadsheet
