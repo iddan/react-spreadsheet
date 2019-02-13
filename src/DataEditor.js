@@ -12,15 +12,13 @@ type Cell = {
 type Value = string | number;
 
 export default class DataEditor extends PureComponent<
-  Types.DataEditorProps<Cell, Value>,
-  { cellValue: any }
+  Types.DataEditorProps<Cell, Value>
 > {
   input: ?HTMLInputElement;
 
   static defaultProps = {
     value: ""
   };
-  state = { cellValue: null };
 
   handleChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
     const { onChange, cell } = this.props;
@@ -32,16 +30,9 @@ export default class DataEditor extends PureComponent<
   };
 
   componentDidMount() {
-    this.setState({ cellValue: this.props.cell });
-
     if (this.input) {
       moveCursorToEnd(this.input);
     }
-  }
-
-  componentWillUnmount() {
-    const { onCellCommit } = this.props;
-    onCellCommit(this.state.cellValue, this.props.cell);
   }
 
   render() {

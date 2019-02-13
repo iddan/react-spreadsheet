@@ -19,20 +19,57 @@ type Props<Cell, Value> = {|
   mode: Types.Mode,
   edit: () => void,
   getBindingsForCell: Types.getBindingsForCell<Cell>,
-  setCellCommit: ({ before: Cell | null, after: Cell | null }) => void
+  setCellCommit: Types.Commit => void
 |};
 
 class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
+  state = { cellBeforeUpdate: null };
   handleChange = (cell: Cell) => {
     const { setData, getBindingsForCell } = this.props;
     const bindings = getBindingsForCell(cell);
     setData(cell, bindings);
   };
 
-  onCellCommit = (before: Cell, after: Cell) => {
+  handleCellCommit = (before: Cell, after: Cell) => {
     const { setCellCommit } = this.props;
-    setCellCommit({ before, after });
+    const beforeValue = before && before.value;
+    const afterValue = after && after.value;
+
+    if (afterValue !== beforeValue) {
+      setCellCommit({ before, after });
+    }
   };
+
+  // All logics here belong to onCellCommit event
+  componentDidUpdate(prevProps) {
+    // Set previous cell value
+    if (this.props.mode !== "edit" && prevProps.mode === "edit") {
+      this.setState({ cellBeforeUpdate: prevProps.cell });
+    }
+    //Update cellBeforeUpdate once again with the most updated cell value
+    if (
+      (this.props.row !== prevProps.row ||
+        this.props.column !== prevProps.column) &&
+      this.props.mode === "view" &&
+      this.props.cell
+    ) {
+      this.setState({ cellBeforeUpdate: this.props.cell });
+    }
+
+    if (
+      this.props.mode === "view" &&
+      (prevProps.mode === "edit" || !prevProps.mode)
+    ) {
+      // Invoke handleCellCommit
+      if (!this.state.cellBeforeUpdate && !prevProps.cell) {
+        return;
+      } else if (!prevProps.cell) {
+        this.handleCellCommit(prevProps.cell, this.state.cellBeforeUpdate);
+      } else {
+        this.handleCellCommit(this.state.cellBeforeUpdate, prevProps.cell);
+      }
+    }
+  }
 
   render() {
     let { DataEditor } = this.props;
@@ -49,6 +86,7 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
       mode,
       edit
     } = this.props;
+
     DataEditor = (cell && cell.DataEditor) || DataEditor;
     return hidden ? null : (
       <div
@@ -64,7 +102,6 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
             cell={cell}
             onChange={this.handleChange}
             getValue={getValue}
-            onCellCommit={this.onCellCommit}
           />
         )}
       </div>
