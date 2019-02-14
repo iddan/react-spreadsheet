@@ -43,6 +43,8 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
         this.setState({ cellBeforeUpdate: prevProps.cell });
       } else if (
         prevProps.mode === "edit" &&
+        prevProps.cell &&
+        prevProps.cell !== this.state.cellBeforeUpdate &&
         (prevProps.row !== row || prevProps.column !== column)
       ) {
         onCellCommit(this.state.cellBeforeUpdate, prevProps.cell);
