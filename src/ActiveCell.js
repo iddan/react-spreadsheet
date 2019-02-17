@@ -37,15 +37,15 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
 
   // NOTE: Currently all logics here belongs to onCellCommit event
   componentDidUpdate(prevProps) {
-    const { cell, mode, row, column, onCellCommit } = this.props;
+    const { cell, mode, onCellCommit } = this.props;
     if (cell || cell === undefined) {
       if (prevProps.mode === "view" && mode === "edit") {
         this.setState({ cellBeforeUpdate: prevProps.cell });
       } else if (
         prevProps.mode === "edit" &&
+        prevProps.mode !== this.props.mode &&
         prevProps.cell &&
-        prevProps.cell !== this.state.cellBeforeUpdate &&
-        (prevProps.row !== row || prevProps.column !== column)
+        prevProps.cell !== this.state.cellBeforeUpdate
       ) {
         onCellCommit(this.state.cellBeforeUpdate, prevProps.cell);
       }
