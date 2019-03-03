@@ -137,16 +137,20 @@ export const view = () => ({
   mode: "view"
 });
 
-export const unfocus = (state: Types.StoreState<*>) => {
+export const backspace = (state: Types.StoreState<*>) => {
   if (!state.active) {
     return null;
   }
+
+  const { row, column } = state.active;
+  const cell = Matrix.get(row, column, state.data);
+  const value = cell && typeof cell.value === "number" ? 0 : "";
   return {
     data: PointSet.reduce(
       (acc, point) =>
         updateData(acc, {
           ...point,
-          data: undefined
+          data: { ...cell, value }
         }),
       state.selected,
       state.data
@@ -219,7 +223,7 @@ const keyDownHandlers: KeyDownHandlers<*> = {
   ArrowRight: go(0, +1),
   Tab: go(0, +1),
   Enter: edit,
-  Backspace: unfocus
+  Backspace: backspace
 };
 
 const editKeyDownHandlers: KeyDownHandlers<*> = {
