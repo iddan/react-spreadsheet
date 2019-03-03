@@ -22,7 +22,7 @@ import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
 import { getBindingsForCell } from "./bindings";
-import { range, writeTextToClipboard } from "./util";
+import { range, writeTextToClipboard, resolveFalsyValues } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -33,7 +33,7 @@ type DefaultCellType = {
 };
 
 const getValue = ({ data }: { data: ?DefaultCellType }) =>
-  data ? data.value : null;
+  data ? resolveFalsyValues(data.value) : null;
 
 export type Props<CellType, Value> = {|
   data: Matrix.Matrix<CellType>,
