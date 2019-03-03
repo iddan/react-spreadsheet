@@ -42,6 +42,10 @@ export type getValue<Cell, Value> = (CellDescriptor<Cell>) => Value;
 
 export type getBindingsForCell<Cell> = (cell: Cell) => Point[];
 
+export type onCellCommit<CellType> = (
+  prevCell: CellType | null,
+  nextCell: CellType | null
+) => void;
 export type CellComponentProps<Cell, Value> = {
   ...Point,
   cell: ?Cell,
