@@ -137,7 +137,7 @@ export const view = () => ({
   mode: "view"
 });
 
-export const backspace = (state: Types.StoreState<*>) => {
+export const clear = (state: Types.StoreState<*>) => {
   if (!state.active) {
     return null;
   }
@@ -223,7 +223,7 @@ const keyDownHandlers: KeyDownHandlers<*> = {
   ArrowRight: go(0, +1),
   Tab: go(0, +1),
   Enter: edit,
-  Backspace: backspace
+  Backspace: clear
 };
 
 const editKeyDownHandlers: KeyDownHandlers<*> = {
