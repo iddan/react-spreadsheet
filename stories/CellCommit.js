@@ -40,6 +40,8 @@ initialData[5][2] = {
   DataViewer: Viewer
 };
 
+initialData[3][3] = { value: 10 };
+
 const CellCommit = props => (
   <Spreadsheet data={initialData} onCellCommit={action("onCellCommit event")} />
 );

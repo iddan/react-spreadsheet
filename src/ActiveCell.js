@@ -7,6 +7,10 @@ import * as PointMap from "./point-map";
 import * as Actions from "./actions";
 import * as Types from "./types";
 
+type State<Cell> = {
+  cellBeforeUpdate: Cell
+};
+
 type Props<Cell, Value> = {|
   ...Types.Point,
   ...Types.Dimensions,
@@ -19,10 +23,10 @@ type Props<Cell, Value> = {|
   mode: Types.Mode,
   edit: () => void,
   getBindingsForCell: Types.getBindingsForCell<Cell>,
-  setCellCommit: Types.Commit => void
+  onCellCommit: Types.onCellCommit<Cell>
 |};
 
-class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>> {
+class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>, State<*>> {
   state = { cellBeforeUpdate: null };
   handleChange = (cell: Cell) => {
     const { setData, getBindingsForCell } = this.props;

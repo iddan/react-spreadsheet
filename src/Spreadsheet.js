@@ -22,7 +22,7 @@ import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
 import { getBindingsForCell } from "./bindings";
-import { range, writeTextToClipboard } from "./util";
+import { range, writeTextToClipboard, resolveFalsyValues } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -47,8 +47,8 @@ export type Props<CellType, Value> = {|
   DataEditor: Types.DataEditor<CellType, Value>,
   getValue: Types.getValue<CellType, Value>,
   getBindingsForCell: Types.getBindingsForCell<CellType>,
-  store: Store,
-  onCellCommit(prevCell: CellType | null, nextCell: CellType | null): void
+  onCellCommit: Types.onCellCommit<CellType>,
+  store: Store
 |};
 
 type Handlers = {|
