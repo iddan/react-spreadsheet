@@ -144,13 +144,12 @@ export const clear = (state: Types.StoreState<*>) => {
 
   const { row, column } = state.active;
   const cell = Matrix.get(row, column, state.data);
-  const value = cell && typeof cell.value === "number" ? 0 : "";
   return {
     data: PointSet.reduce(
       (acc, point) =>
         updateData(acc, {
           ...point,
-          data: { ...cell, value }
+          data: { ...cell, value: "" }
         }),
       state.selected,
       state.data

@@ -33,7 +33,7 @@ type DefaultCellType = {
 };
 
 const getValue = ({ data }: { data: ?DefaultCellType }) =>
-  data ? resolveFalsyValues(data.value) : null;
+  data ? data.value : null;
 
 export type Props<CellType, Value> = {|
   data: Matrix.Matrix<CellType>,

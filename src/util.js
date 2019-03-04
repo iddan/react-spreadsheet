@@ -91,10 +91,3 @@ export const writeTextToClipboard = (string: string) => {
     write();
   }
 };
-
-export const resolveFalsyValues = (value: string | number | boolean | null) => {
-  if (typeof value === "boolean") return value;
-  if (value === 0) return 0;
-  if (value === "") return "";
-  return value;
-};
