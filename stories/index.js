@@ -9,7 +9,7 @@ import Filter from "./Filter";
 import WithColumnLabls from "./withColumnLabels";
 import WithoutRowAndColumnIndicators from "./WithoutRowAndColumnIndicators";
 import CellCommit from "./CellCommit";
-
+import AsyncCell from "./AsyncCell";
 storiesOf("Spreadsheet", Spreadsheet)
   .add("Basic", () => <Basic />)
   .add("Controlled", () => <Controlled />)
@@ -20,4 +20,5 @@ storiesOf("Spreadsheet", Spreadsheet)
   .add("Without column and row indicators", () => (
     <WithoutRowAndColumnIndicators />
   ))
-  .add("With onCellCommit event", () => <CellCommit />);
+  .add("With onCellCommit event", () => <CellCommit />)
+  .add("Async cell", () => <AsyncCell />);

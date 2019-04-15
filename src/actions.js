@@ -33,18 +33,15 @@ export const activate: Action = (state, cellPointer: Types.Point) => ({
 
 export function setData<Cell>(
   state: Types.StoreState<Cell>,
+  active: Types.Point,
   data: Cell,
   bindings: Types.Point[]
 ): $Shape<Types.StoreState<Cell>> {
   return {
     mode: "edit",
-    data: setCell(state, data),
-    lastChanged: state.active,
-    bindings: PointMap.set(
-      state.active,
-      PointSet.from(bindings),
-      state.bindings
-    )
+    data: setCell(state, active, data),
+    lastChanged: active,
+    bindings: PointMap.set(active, PointSet.from(bindings), state.bindings)
   };
 }
 
