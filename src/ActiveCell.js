@@ -20,7 +20,6 @@ type Props<Cell, Value> = {|
   setData: (active: Types.Point, data: Cell, bindings: Types.Point[]) => void,
   cell: Cell,
   hidden: boolean,
-  active: Types.Point,
   mode: Types.Mode,
   edit: () => void,
   getBindingsForCell: Types.getBindingsForCell<Cell>,
