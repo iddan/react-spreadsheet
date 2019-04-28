@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from "react";
+import { createFixture } from "react-cosmos";
 
 import Spreadsheet from "../src/SpreadsheetStateProvider";
 import { range } from "../src/util";
@@ -38,7 +39,7 @@ function filterMatrix(matrix, filter) {
   return filtered;
 }
 
-export default class Filter extends Component {
+class Filter extends Component {
   state = { data: initialData, filter: "" };
 
   handleChange = data => {
@@ -53,12 +54,14 @@ export default class Filter extends Component {
     const { data, filter } = this.state;
     return (
       <Fragment>
-        <input
-          type="text"
-          placeholder="Filter"
-          value={this.state.filter}
-          onChange={this.handleFilterChange}
-        />
+        <div>
+          <input
+            type="text"
+            placeholder="Filter"
+            value={this.state.filter}
+            onChange={this.handleFilterChange}
+          />
+        </div>
         <Spreadsheet
           data={filter ? filterMatrix(data, filter) : data}
           onChange={this.handleChange}
@@ -67,3 +70,9 @@ export default class Filter extends Component {
     );
   }
 }
+
+Filter.displayName = "Spreadsheet";
+
+export default createFixture({
+  component: Filter
+});

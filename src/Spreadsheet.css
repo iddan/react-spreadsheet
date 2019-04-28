@@ -1,6 +1,8 @@
 .Spreadsheet {
   position: relative;
   overflow: visible;
+  background: white;
+  display: inline-block;
 }
 
 .Spreadsheet .ActiveCell {

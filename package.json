@@ -13,12 +13,12 @@
   "main": "dist/SpreadsheetStateProvider.js",
   "scripts": {
     "test": "jest",
-    "start": "cross-env NODE_ENV=development yarn storybook",
+    "start": "yarn run cosmos",
     "build": "rm dist/*; babel src --out-dir dist --copy-files",
     "prepack": "cross-env NODE_ENV=production yarn build",
-    "storybook": "start-storybook -p 9001 -c .storybook",
-    "deploy-storybook": "storybook-to-ghpages",
-    "push-coverage": "jest --coverage --coverageReporters=text-lcov | coveralls"
+    "push-coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",
+    "cosmos": "cosmos",
+    "cosmos:export": "cosmos-export"
   },
   "dependencies": {
     "classnames": "^2.2.6",
@@ -30,15 +30,13 @@
   "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.3.4",
-    "@storybook/addon-actions": "^5.0.1",
-    "@storybook/react": "^5.0.1",
-    "@storybook/storybook-deployer": "^2.8.1",
     "babel-eslint": "9.x",
     "babel-jest": "^24.3.1",
     "babel-loader": "^8.0.5",
     "babel-preset-react-app": "^7.0.2",
     "coveralls": "^3.0.1",
     "cross-env": "^5.1.4",
+    "css-loader": "^2.1.1",
     "eslint": "5.x",
     "eslint-config-react-app": "^3.0.8",
     "eslint-plugin-flowtype": "2.x",
@@ -46,10 +44,13 @@
     "eslint-plugin-jsx-a11y": "6.x",
     "eslint-plugin-react": "7.x",
     "flow-bin": "^0.94.0",
+    "html-webpack-plugin": "^3.2.0",
     "jest": "^22.4.3",
     "react": "^16.5.0",
+    "react-cosmos": "^4.8.1",
     "react-dom": "^16.5.0",
     "react-select": "^1.2.1",
+    "style-loader": "^0.23.1",
     "webpack": "^4.29.6"
   },
   "repository": {

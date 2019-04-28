@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { createFixture } from "react-cosmos";
 
 import Spreadsheet from "../src/SpreadsheetStateProvider";
 import { range } from "../src/util";
@@ -16,7 +17,12 @@ const OPTIONS = [
 ];
 
 const SelectView = ({ cell, getValue }) => (
-  <Select value={getValue({ data: cell })} options={OPTIONS} disabled style={{ width: 200 }} />
+  <Select
+    value={getValue({ data: cell })}
+    options={OPTIONS}
+    disabled
+    style={{ width: 200 }}
+  />
 );
 
 class SelectEdit extends Component {
@@ -45,6 +51,11 @@ initialData[2][2] = {
   DataEditor: SelectEdit
 };
 
-const CustomCell = () => <Spreadsheet data={initialData} />;
+Spreadsheet.displayName = "Spreadsheet";
 
-export default CustomCell;
+export default createFixture({
+  component: Spreadsheet,
+  props: {
+    data: initialData
+  }
+});

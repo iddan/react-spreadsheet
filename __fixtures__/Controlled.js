@@ -1,14 +1,15 @@
 import React, { Component, Fragment } from "react";
 
+import { createFixture } from "react-cosmos";
 import Spreadsheet from "../src/SpreadsheetStateProvider";
-import * as Matrix from "../src/matrix";
 import { range } from "../src/util";
+import * as Matrix from "../src/matrix";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
 import "./index.css";
 
 const initialData = range(INITIAL_ROWS).map(() => Array(INITIAL_COLUMNS));
 
-export default class Controlled extends Component {
+class Controlled extends Component {
   state = {
     data: initialData
   };
@@ -39,10 +40,22 @@ export default class Controlled extends Component {
   render() {
     return (
       <Fragment>
-        <button onClick={this.addColumn}>Add column</button>
-        <button onClick={this.addRow}>Add row</button>
+        <div>
+          <button onClick={this.addColumn}>Add column</button>
+          <button onClick={this.addRow}>Add row</button>
+        </div>
         <Spreadsheet data={this.state.data} onChange={this.handleChange} />
       </Fragment>
     );
   }
 }
+
+Controlled.displayName = "Spreadsheet";
+
+export default createFixture({
+  component: Controlled,
+  name: "Controlled",
+  props: {
+    data: range(INITIAL_ROWS).map(() => Array(INITIAL_COLUMNS))
+  }
+});
