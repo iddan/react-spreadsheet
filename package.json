@@ -18,7 +18,8 @@
     "prepack": "cross-env NODE_ENV=production yarn build",
     "push-coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",
     "cosmos": "cosmos",
-    "cosmos:export": "cosmos-export"
+    "cosmos:export": "cosmos-export",
+    "deploy": "yarn cosmos:export; gh-pages -d cosmos-export"
   },
   "dependencies": {
     "classnames": "^2.2.6",
@@ -44,6 +45,7 @@
     "eslint-plugin-jsx-a11y": "6.x",
     "eslint-plugin-react": "7.x",
     "flow-bin": "^0.94.0",
+    "gh-pages": "^2.0.1",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^22.4.3",
     "react": "^16.5.0",
