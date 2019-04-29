@@ -25,7 +25,14 @@ class RangeEdit extends Component {
   render() {
     const { getValue, column, row, cell } = this.props;
     const value = getValue({ column, row, data: cell }) || 0;
-    return <input type="range" onChange={this.handleChange} value={value} />;
+    return (
+      <input
+        autoFocus
+        type="range"
+        onChange={this.handleChange}
+        value={value}
+      />
+    );
   }
 }
 

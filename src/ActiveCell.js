@@ -17,7 +17,7 @@ type Props<Cell, Value> = {|
   DataEditor: Types.DataEditor<Cell, Value>,
   getValue: Types.getValue<Cell, Value>,
   onChange: (data: Cell) => void,
-  setData: (data: Cell, bindings: Types.Point[]) => void,
+  setData: (active: Types.Point, data: Cell, bindings: Types.Point[]) => void,
   cell: Cell,
   hidden: boolean,
   mode: Types.Mode,
@@ -28,20 +28,18 @@ type Props<Cell, Value> = {|
 
 class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>, State<*>> {
   state = { cellBeforeUpdate: null };
-  handleChange = (cell: Cell) => {
+
+  handleChange = (row: number, column: number, cell: Cell) => {
     const { setData, getBindingsForCell } = this.props;
     const bindings = getBindingsForCell(cell);
-    setData(cell, bindings);
-  };
 
-  handleCellCommit = (before: Cell | null, after: Cell | null) => {
-    const { onCellCommit } = this.props;
-    onCellCommit(before, after);
+    setData({ row, column }, cell, bindings);
   };
 
   // NOTE: Currently all logics here belongs to onCellCommit event
   componentDidUpdate(prevProps) {
     const { cell, mode, onCellCommit } = this.props;
+
     if (cell || cell === undefined) {
       if (prevProps.mode === "view" && mode === "edit") {
         this.setState({ cellBeforeUpdate: prevProps.cell });
@@ -71,7 +69,6 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>, State<*>> {
       mode,
       edit
     } = this.props;
-
     DataEditor = (cell && cell.DataEditor) || DataEditor;
     return hidden ? null : (
       <div
@@ -84,7 +81,7 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>, State<*>> {
             row={row}
             column={column}
             cell={cell}
-            onChange={this.handleChange}
+            onChange={(...args) => this.handleChange(row, column, ...args)}
             getValue={getValue}
           />
         )}

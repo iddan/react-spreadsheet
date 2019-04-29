@@ -1,7 +1,7 @@
 // @flow
 
 import React, { PureComponent } from "react";
-import type { ComponentType } from "react";
+import type { ComponentType, Node } from "react";
 import devtools from "unistore/devtools";
 import { connect } from "unistore/react";
 import type { Store } from "unistore";
@@ -38,6 +38,7 @@ const getValue = ({ data }: { data: ?DefaultCellType }) =>
 export type Props<CellType, Value> = {|
   data: Matrix.Matrix<CellType>,
   columnLabels?: string[],
+  rowLabels?: string[],
   hideRowIndicators?: boolean,
   hideColumnIndicators?: boolean,
   Table: ComponentType<TableProps>,
@@ -69,7 +70,7 @@ type State = {|
 
 type ColumnIndicatorProps = {
   column: number,
-  label?: string | null
+  label?: Node | null
 };
 
 const ColumnIndicator = ({ column, label }: ColumnIndicatorProps) =>
@@ -79,7 +80,13 @@ const ColumnIndicator = ({ column, label }: ColumnIndicatorProps) =>
     <th>{columnIndexToLabel(column)}</th>
   );
 
-const RowIndicator = ({ row }) => <th>{row + 1}</th>;
+type RowIndicatorProps = {
+  column: number,
+  label?: Node | null
+};
+
+const RowIndicator = ({ row, label }: RowIndicatorProps) =>
+  label !== undefined ? <th>{label}</th> : <th>{row + 1}</th>;
 
 class Spreadsheet<CellType, Value> extends PureComponent<{|
   ...$Diff<
@@ -221,6 +228,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       Row,
       Cell,
       columnLabels,
+      rowLabels,
       DataViewer,
       getValue,
       rows,
@@ -261,9 +269,16 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
           </tr>
           {range(rows).map(rowNumber => (
             <Row key={rowNumber}>
-              {!hideRowIndicators && (
-                <RowIndicator key={rowNumber} row={rowNumber} />
-              )}
+              {!hideRowIndicators &&
+                (rowLabels ? (
+                  <RowIndicator
+                    key={rowNumber}
+                    row={rowNumber}
+                    label={rowNumber in rowLabels ? rowLabels[rowNumber] : null}
+                  />
+                ) : (
+                  <RowIndicator key={rowNumber} row={rowNumber} />
+                ))}
               {range(columns).map(columnNumber => (
                 <Cell
                   key={columnNumber}
