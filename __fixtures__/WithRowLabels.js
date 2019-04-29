@@ -1,4 +1,5 @@
 import React from "react";
+import { createFixture } from "react-cosmos";
 
 import Spreadsheet from "../src/SpreadsheetStateProvider";
 import { range } from "../src/util";
@@ -9,8 +10,12 @@ export const INITIAL_COLUMNS = 6;
 const rowLabels = ["Name", "Age", "Email", "Address"];
 const initialData = range(rowLabels.length).map(() => Array(INITIAL_COLUMNS));
 
-const withRowLabels = () => (
-  <Spreadsheet data={initialData} rowLabels={rowLabels} />
-);
+Spreadsheet.displayName = "Spreadsheet";
 
-export default withRowLabels;
+export default createFixture({
+  component: Spreadsheet,
+  props: {
+    data: initialData,
+    rowLabels
+  }
+});

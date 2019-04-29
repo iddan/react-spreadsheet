@@ -1,6 +1,6 @@
 import React, { Component } from "react";
+import { createFixture } from "react-cosmos";
 import Spreadsheet from "../src/SpreadsheetStateProvider";
-import { action } from "@storybook/addon-actions";
 import { range } from "../src/util";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
 import "./index.css";
@@ -41,12 +41,11 @@ initialData[2][2] = {
   DataEditor: AsyncCell
 };
 
-const AsyncData = () => (
-  <Spreadsheet
-    data={initialData}
-    onCellCommit={action("onCellCommit")}
-    onChange={action("onChange")}
-  />
-);
-
-export default AsyncData;
+export default createFixture({
+  component: Spreadsheet,
+  props: {
+    data: initialData,
+    onCellCommit: event => console.log("onCellCommit", event),
+    onChange: event => console.log("onChange", event)
+  }
+});

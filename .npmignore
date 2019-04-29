@@ -68,11 +68,6 @@ src/
 
 __tests__/
 
-# Storybook
-
-.storybook/
-stories/
-
 # Scripts
 
 scripts/

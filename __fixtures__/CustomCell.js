@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-
+import { createFixture } from "react-cosmos";
 import Spreadsheet from "../src/SpreadsheetStateProvider";
 import { range } from "../src/util";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
@@ -38,6 +38,12 @@ class RangeEdit extends Component {
 
 initialData[2][2] = { value: 0, DataViewer: RangeView, DataEditor: RangeEdit };
 
-const CustomCell = () => <Spreadsheet data={initialData} />;
+Spreadsheet.displayName = "Spreadsheet";
 
-export default CustomCell;
+export default createFixture({
+  component: Spreadsheet,
+  name: "CustomCell",
+  props: {
+    data: initialData
+  }
+});
