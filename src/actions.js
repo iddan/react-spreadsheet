@@ -205,6 +205,10 @@ export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
   };
 };
 
+export const blur = (state: Types.StoreState<*>) => ({
+  active: null
+});
+
 // Key Bindings
 
 type KeyDownHandlers<Cell> = {
@@ -219,7 +223,8 @@ const keyDownHandlers: KeyDownHandlers<*> = {
   ArrowRight: go(0, +1),
   Tab: go(0, +1),
   Enter: edit,
-  Backspace: clear
+  Backspace: clear,
+  Escape: blur
 };
 
 const editKeyDownHandlers: KeyDownHandlers<*> = {
