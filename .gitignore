@@ -63,5 +63,3 @@ typings/
 # Compiled
 
 dist/
-cosmos-export/*
-!cosmos-export/.nojekyll

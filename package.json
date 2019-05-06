@@ -17,9 +17,7 @@
     "build": "rm dist/*; babel src --out-dir dist --copy-files",
     "prepack": "cross-env NODE_ENV=production yarn build",
     "push-coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",
-    "cosmos": "cosmos",
-    "cosmos:export": "cosmos-export",
-    "deploy": "yarn cosmos:export; gh-pages -d cosmos-export"
+    "cosmos": "cosmos"
   },
   "dependencies": {
     "classnames": "^2.2.6",
