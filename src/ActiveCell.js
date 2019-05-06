@@ -37,7 +37,7 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>, State<*>> {
   };
 
   // NOTE: Currently all logics here belongs to onCellCommit event
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props<Cell, Value>) {
     const { cell, mode, onCellCommit } = this.props;
 
     if (cell || cell === undefined) {
@@ -81,7 +81,7 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>, State<*>> {
             row={row}
             column={column}
             cell={cell}
-            onChange={(...args) => this.handleChange(row, column, ...args)}
+            onChange={(cell: Cell) => this.handleChange(row, column, cell)}
             getValue={getValue}
           />
         )}
