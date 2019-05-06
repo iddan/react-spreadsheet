@@ -9,6 +9,7 @@ import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import Spreadsheet, { type Props as SpreadsheetProps } from "./Spreadsheet";
+export { createEmptyMatrix } from "./util";
 
 type Unsubscribe = () => void;
 
@@ -105,10 +106,7 @@ export default class SpreadsheetStateProvider<
     const { data, ...rest } = this.props;
     return (
       <Provider store={this.store}>
-        <Spreadsheet
-          {...rest}
-          store={this.store}
-        />
+        <Spreadsheet {...rest} store={this.store} />
       </Provider>
     );
   }

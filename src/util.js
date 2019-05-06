@@ -92,3 +92,7 @@ export const writeTextToClipboard = (string: string) => {
     write();
   }
 };
+
+export function createEmptyMatrix<T>(rows: number, columns: number): Matrix<T> {
+  return range(rows).map(() => Array(columns));
+}

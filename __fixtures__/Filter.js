@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from "react";
 import { createFixture } from "react-cosmos";
-
-import Spreadsheet from "../src/SpreadsheetStateProvider";
-import { range } from "../src/util";
+import Spreadsheet, {
+  createEmptyMatrix
+} from "../src/SpreadsheetStateProvider";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
 import "./index.css";
 
-const initialData = range(INITIAL_ROWS).map(() => Array(INITIAL_COLUMNS));
+const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
 /**
  * Removes cells not matching the filter from matrix while maintaining the

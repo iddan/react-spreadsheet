@@ -1,14 +1,12 @@
-import React from "react";
 import { createFixture } from "react-cosmos";
-
-import Spreadsheet from "../src/SpreadsheetStateProvider";
-import { range } from "../src/util";
+import Spreadsheet, {
+  createEmptyMatrix
+} from "../src/SpreadsheetStateProvider";
+import { INITIAL_COLUMNS } from "./Basic";
 import "./index.css";
 
-export const INITIAL_COLUMNS = 6;
-
 const rowLabels = ["Name", "Age", "Email", "Address"];
-const initialData = range(rowLabels.length).map(() => Array(INITIAL_COLUMNS));
+const initialData = createEmptyMatrix(rowLabels.length, INITIAL_COLUMNS);
 
 Spreadsheet.displayName = "Spreadsheet";
 

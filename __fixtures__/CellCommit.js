@@ -1,11 +1,10 @@
 import React from "react";
 import { createFixture } from "react-cosmos";
-import Spreadsheet from "../src/SpreadsheetStateProvider";
-import { range } from "../src/util";
+import Spreadsheet, {
+  createEmptyMatrix
+} from "../src/SpreadsheetStateProvider";
+import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
 import "./index.css";
-
-export const INITIAL_ROWS = 6;
-export const INITIAL_COLUMNS = 4;
 
 const noop = () => {};
 
@@ -26,7 +25,8 @@ class Editor extends React.Component {
   }
 }
 
-const initialData = range(INITIAL_ROWS).map(() => Array(INITIAL_COLUMNS));
+const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
+
 initialData[0][1] = { value: "some text" };
 initialData[2][2] = {
   value: "more text",

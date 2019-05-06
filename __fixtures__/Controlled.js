@@ -1,13 +1,15 @@
 import React, { Component, Fragment } from "react";
 
 import { createFixture } from "react-cosmos";
-import Spreadsheet from "../src/SpreadsheetStateProvider";
+import Spreadsheet, {
+  createEmptyMatrix
+} from "../src/SpreadsheetStateProvider";
 import { range } from "../src/util";
 import * as Matrix from "../src/matrix";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
 import "./index.css";
 
-const initialData = range(INITIAL_ROWS).map(() => Array(INITIAL_COLUMNS));
+const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
 class Controlled extends Component {
   state = {
@@ -56,6 +58,6 @@ export default createFixture({
   component: Controlled,
   name: "Controlled",
   props: {
-    data: range(INITIAL_ROWS).map(() => Array(INITIAL_COLUMNS))
+    data: initialData
   }
 });
