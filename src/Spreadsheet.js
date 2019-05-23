@@ -38,7 +38,9 @@ const getValue = ({ data }: { data: ?DefaultCellType }) =>
 export type Props<CellType, Value> = {|
   data: Matrix.Matrix<CellType>,
   columnLabels?: string[],
+  ColumnIndicator?: ComponentType<ColumnIndicatorProps>,
   rowLabels?: string[],
+  RowIndicator?: ComponentType<RowIndicatorProps>,
   hideRowIndicators?: boolean,
   hideColumnIndicators?: boolean,
   Table: ComponentType<TableProps>,
@@ -73,7 +75,7 @@ type ColumnIndicatorProps = {
   label?: Node | null
 };
 
-const ColumnIndicator = ({ column, label }: ColumnIndicatorProps) =>
+const DefaultColumnIndicator = ({ column, label }: ColumnIndicatorProps) =>
   label !== undefined ? (
     <th>{label}</th>
   ) : (
@@ -85,7 +87,7 @@ type RowIndicatorProps = {
   label?: Node | null
 };
 
-const RowIndicator = ({ row, label }: RowIndicatorProps) =>
+const DefaultRowIndicator = ({ row, label }: RowIndicatorProps) =>
   label !== undefined ? <th>{label}</th> : <th>{row + 1}</th>;
 
 class Spreadsheet<CellType, Value> extends PureComponent<{|
@@ -239,6 +241,11 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       hideColumnIndicators,
       hideRowIndicators
     } = this.props;
+
+    const ColumnIndicator =
+      this.props.ColumnIndicator || DefaultColumnIndicator;
+    const RowIndicator = this.props.RowIndicator || DefaultRowIndicator;
+
     return (
       <div
         ref={this.handleRoot}
