@@ -32,7 +32,7 @@
     "babel-eslint": "9.x",
     "babel-jest": "^24.3.1",
     "babel-loader": "^8.0.5",
-    "babel-preset-react-app": "^7.0.2",
+    "babel-preset-react-app": "^9.0.0",
     "coveralls": "^3.0.1",
     "cross-env": "^5.1.4",
     "css-loader": "^2.1.1",
