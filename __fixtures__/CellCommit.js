@@ -48,6 +48,6 @@ export default createFixture({
   name: "onCellCommit",
   props: {
     data: initialData,
-    onCellCommit: event => console.log("onCellCommit event", event)
+    onCellCommit: (...args) => console.log("onCellCommit event", ...args)
   }
 });

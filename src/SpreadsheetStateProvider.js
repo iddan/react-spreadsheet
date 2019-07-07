@@ -68,10 +68,22 @@ export default class SpreadsheetStateProvider<
   }
 
   componentDidMount() {
-    const { onChange, onModeChange, onSelect, onActivate } = this.props;
+    const {
+      onChange,
+      onModeChange,
+      onSelect,
+      onActivate,
+      onCellCommit
+    } = this.props;
     this.unsubscribe = this.store.subscribe(
       (state: Types.StoreState<CellType>) => {
         const { prevState } = this;
+
+        if (state.lastCommit && state.lastCommit !== prevState.lastCommit) {
+          for (const change of state.lastCommit) {
+            onCellCommit(change.prevCell, change.nextCell);
+          }
+        }
 
         if (state.data !== prevState.data && state.data !== this.props.data) {
           onChange(state.data);

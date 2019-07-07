@@ -22,8 +22,8 @@ type Props<Cell, Value> = {|
   hidden: boolean,
   mode: Types.Mode,
   edit: () => void,
-  getBindingsForCell: Types.getBindingsForCell<Cell>,
-  onCellCommit: Types.onCellCommit<Cell>
+  commit: Types.commit<Cell>,
+  getBindingsForCell: Types.getBindingsForCell<Cell>
 |};
 
 class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>, State<*>> {
@@ -36,9 +36,9 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>, State<*>> {
     setData({ row, column }, cell, bindings);
   };
 
-  // NOTE: Currently all logics here belongs to onCellCommit event
+  // NOTE: Currently all logics here belongs to commit event
   componentDidUpdate(prevProps: Props<Cell, Value>) {
-    const { cell, mode, onCellCommit } = this.props;
+    const { cell, mode, commit } = this.props;
 
     if (cell || cell === undefined) {
       if (prevProps.mode === "view" && mode === "edit") {
@@ -49,7 +49,9 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>, State<*>> {
         prevProps.cell &&
         prevProps.cell !== this.state.cellBeforeUpdate
       ) {
-        onCellCommit(this.state.cellBeforeUpdate, prevProps.cell);
+        commit([
+          { prevCell: this.state.cellBeforeUpdate, nextCell: prevProps.cell }
+        ]);
       }
     }
   }
@@ -120,6 +122,7 @@ export default connect(
   mapStateToProps,
   {
     setData: Actions.setData,
-    edit: Actions.edit
+    edit: Actions.edit,
+    commit: Actions.commit
   }
 )(ActiveCell);

@@ -150,6 +150,16 @@ export const clear = (state: Types.StoreState<*>) => {
         }),
       state.selected,
       state.data
+    ),
+    ...commit(
+      state,
+      PointSet.toArray(state.selected).map(point => {
+        const cell = Matrix.get(point.row, point.column, state.data);
+        return {
+          prevCell: cell,
+          nextCell: { ...cell, value: "" }
+        };
+      })
     )
   };
 };
@@ -284,4 +294,11 @@ export function dragStart<T>(state: Types.StoreState<T>) {
 
 export function dragEnd<T>(state: Types.StoreState<T>) {
   return { dragging: false };
+}
+
+export function commit<T>(
+  state: Types.StoreState<T>,
+  changes: Array<{ prevCell: T | null, nextCell: T | null }>
+) {
+  return { lastCommit: changes };
 }

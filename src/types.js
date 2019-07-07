@@ -35,17 +35,24 @@ export type StoreState<Cell> = {|
   cellDimensions: PointMap<Dimensions>,
   dragging: boolean,
   lastChanged: Point | null,
-  bindings: PointMap<PointSet>
+  bindings: PointMap<PointSet>,
+  lastCommit: null | Array<{
+    prevCell: Cell,
+    nextCell: Cell
+  }>
 |};
 
 export type getValue<Cell, Value> = (CellDescriptor<Cell>) => Value;
 
 export type getBindingsForCell<Cell> = (cell: Cell) => Point[];
 
-export type onCellCommit<CellType> = (
+type CellChange<CellType> = {
   prevCell: CellType | null,
   nextCell: CellType | null
-) => void;
+};
+
+export type commit<CellType> = (changes: CellChange<CellType>[]) => void;
+
 export type CellComponentProps<Cell, Value> = {
   ...Point,
   cell: ?Cell,
