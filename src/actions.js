@@ -86,15 +86,17 @@ export const paste = (state: Types.StoreState<*>) => {
 
   type Accumulator = {|
     data: typeof state.data,
-    selected: typeof state.selected
+    selected: typeof state.selected,
+    commit: typeof state.lastCommit
   |};
 
-  const { data, selected } = PointMap.reduce(
+  const { data, selected, commit } = PointMap.reduce(
     (acc: Accumulator, value, { row, column }): Accumulator => {
       if (!state.active) {
         return acc;
       }
 
+      let commit = acc.commit;
       const nextRow = row - minPoint.row + state.active.row;
       const nextColumn = column - minPoint.column + state.active.column;
 
@@ -102,27 +104,41 @@ export const paste = (state: Types.StoreState<*>) => {
         ? Matrix.unset(row, column, acc.data)
         : acc.data;
 
-      if (!Matrix.has(nextRow, nextColumn, state.data)) {
-        return { data: nextData, selected: acc.selected };
+      if (state.cut) {
+        commit = [...commit, { prevCell: value, nextCell: undefined }];
       }
+
+      if (!Matrix.has(nextRow, nextColumn, state.data)) {
+        return { data: nextData, selected: acc.selected, commit };
+      }
+
+      commit = [
+        ...commit,
+        {
+          prevCell: Matrix.get(nextRow, nextColumn, nextData),
+          nextCell: value
+        }
+      ];
 
       return {
         data: Matrix.set(nextRow, nextColumn, value, nextData),
         selected: PointSet.add(acc.selected, {
           row: nextRow,
           column: nextColumn
-        })
+        }),
+        commit
       };
     },
     state.copied,
-    { data: state.data, selected: PointSet.from([]) }
+    { data: state.data, selected: PointSet.from([]), commit: [] }
   );
   return {
     data,
     selected,
     cut: false,
     hasPasted: true,
-    mode: "view"
+    mode: "view",
+    lastCommit: commit
   };
 };
 
