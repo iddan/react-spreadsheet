@@ -31,7 +31,7 @@ export const mapStateToProps = cells => state => {
   );
   return {
     ...dimensions,
-    hidden: PointSet.size(cells) <= 1
+    hidden: PointSet.size(cells) === 0
   };
 };
 
