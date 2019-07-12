@@ -82,7 +82,7 @@ const DefaultColumnIndicator = ({ column, label }: ColumnIndicatorProps) =>
   );
 
 type RowIndicatorProps = {
-  column: number,
+  row: number,
   label?: Node | null
 };
 

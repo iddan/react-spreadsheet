@@ -45,7 +45,7 @@ export function updateData<Cell>(
 }
 
 export function setCell<Cell>(
-  state: { data: Matrix<Cell>, active: Types.Point },
+  state: { data: Matrix<Cell> },
   active: Types.Point,
   cell: Cell
 ): Matrix<Cell> {

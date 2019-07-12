@@ -8,7 +8,7 @@ import { isActive, setCell, updateData } from "./util";
 type Action = <Cell>(
   state: Types.StoreState<Cell>,
   ...*
-) => $Shape<Types.StoreState<Cell>>;
+) => $Shape<Types.StoreState<Cell>> | null;
 
 export const select: Action = (state, cellPointer: Types.Point) => {
   if (state.active && !isActive(state.active, cellPointer)) {
@@ -90,13 +90,13 @@ export const cut = (state: Types.StoreState<*>) => ({
   cut: true
 });
 
-export const paste = (state: Types.StoreState<*>) => {
+export function paste<Cell>(state: Types.StoreState<Cell>) {
   const minPoint = PointSet.min(state.copied);
 
   type Accumulator = {|
-    data: typeof state.data,
-    selected: typeof state.selected,
-    commit: typeof state.lastCommit
+    data: $PropertyType<Types.StoreState<Cell>, "data">,
+    selected: $PropertyType<Types.StoreState<Cell>, "selected">,
+    commit: $PropertyType<Types.StoreState<Cell>, "lastCommit">
   |};
 
   const { data, selected, commit } = PointMap.reduce(
@@ -105,7 +105,8 @@ export const paste = (state: Types.StoreState<*>) => {
         return acc;
       }
 
-      let commit = acc.commit;
+      let commit =
+        acc.commit || ([]: $PropertyType<Types.StoreState<Cell>, "lastCommit">);
       const nextRow = row - minPoint.row + state.active.row;
       const nextColumn = column - minPoint.column + state.active.column;
 
@@ -149,7 +150,7 @@ export const paste = (state: Types.StoreState<*>) => {
     mode: "view",
     lastCommit: commit
   };
-};
+}
 
 export const edit = () => ({
   mode: "edit"
@@ -192,7 +193,7 @@ export const clear = (state: Types.StoreState<*>) => {
 export type KeyDownHandler<Cell> = (
   state: Types.StoreState<Cell>,
   event: SyntheticKeyboardEvent<*>
-) => $Shape<Types.StoreState<Cell>>;
+) => $Shape<Types.StoreState<Cell>> | null;
 
 export const go = (
   rowDelta: number,
