@@ -103,7 +103,6 @@ export const getCellDimensions = (
 ): ?Types.Dimensions => {
   const rowDimensions = state.rowDimensions[point.row];
   const columnDimensions = state.columnDimensions[point.column];
-  console.log(point, rowDimensions, columnDimensions)
   return (
     rowDimensions &&
     columnDimensions && { ...rowDimensions, ...columnDimensions }

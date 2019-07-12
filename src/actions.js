@@ -91,7 +91,6 @@ export const cut = (state: Types.StoreState<*>) => ({
 });
 
 export const paste = (state: Types.StoreState<*>) => {
-  console.log("paste");
   const minPoint = PointSet.min(state.copied);
 
   type Accumulator = {|
