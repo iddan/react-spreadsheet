@@ -13,7 +13,7 @@ type Cell = {
   }>
 };
 
-type Props = Types.CellComponentProps<Cell, Node> & {
+export type Props = Types.CellComponentProps<Cell, Node> & {
   formulaParser: FormulaParser
 };
 
