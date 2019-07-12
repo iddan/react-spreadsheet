@@ -46,7 +46,7 @@ export default createFixture({
   component: Spreadsheet,
   props: {
     data: initialData,
-    onCellCommit: args => console.log("onCellCommit", ...args),
-    onChange: args => console.log("onChange", ...args)
+    onCellCommit: (...args) => console.log("onCellCommit", ...args),
+    onChange: (...args) => console.log("onChange", ...args)
   }
 });
