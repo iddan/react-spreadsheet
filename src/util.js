@@ -96,3 +96,16 @@ export const writeTextToClipboard = (string: string) => {
 export function createEmptyMatrix<T>(rows: number, columns: number): Matrix<T> {
   return range(rows).map(() => Array(columns));
 }
+
+export const getCellDimensions = (
+  point: Types.Point,
+  state: Types.StoreState<*>
+): ?Types.Dimensions => {
+  const rowDimensions = state.rowDimensions[point.row];
+  const columnDimensions = state.columnDimensions[point.column];
+  console.log(point, rowDimensions, columnDimensions)
+  return (
+    rowDimensions &&
+    columnDimensions && { ...rowDimensions, ...columnDimensions }
+  );
+};

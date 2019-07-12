@@ -49,19 +49,28 @@ export function setCellDimensions(
   state: Types.StoreState<*>,
   point: Types.Point,
   dimensions: Types.Dimensions
-) {
-  const prevDimensions = PointMap.get(point, state.cellDimensions);
+): $Shape<Types.StoreState<*>> | null {
+  const prevRowDimensions = state.rowDimensions[point.row];
+  const prevColumnDimensions = state.columnDimensions[point.column];
   if (
-    prevDimensions &&
-    prevDimensions.width === dimensions.width &&
-    prevDimensions.height === dimensions.height &&
-    prevDimensions.top === dimensions.top &&
-    prevDimensions.left === dimensions.left
+    prevRowDimensions &&
+    prevColumnDimensions &&
+    prevRowDimensions.top === dimensions.top &&
+    prevRowDimensions.height === dimensions.height &&
+    prevColumnDimensions.left === dimensions.left &&
+    prevColumnDimensions.width === dimensions.width
   ) {
     return null;
   }
   return {
-    cellDimensions: PointMap.set(point, dimensions, state.cellDimensions)
+    rowDimensions: {
+      ...state.rowDimensions,
+      [point.row]: { top: dimensions.top, height: dimensions.height }
+    },
+    columnDimensions: {
+      ...state.columnDimensions,
+      [point.column]: { left: dimensions.left, width: dimensions.width }
+    }
   };
 }
 

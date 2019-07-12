@@ -27,7 +27,8 @@ const initialState: $Shape<Types.StoreState<any>> = {
   copied: PointMap.from([]),
   active: null,
   mode: "view",
-  cellDimensions: PointMap.from([]),
+  rowDimensions: {},
+  columnDimensions: {},
   lastChanged: null,
   bindings: PointMap.from([])
 };
