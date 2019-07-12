@@ -57,6 +57,16 @@ export function has<T>(point: Types.Point, map: PointMap<T>): boolean {
   return point.row in map && point.column in map[point.row];
 }
 
+export function getRow<T>(row: number, map: PointMap<T>): T[] {
+  return row in map
+    ? Object.keys(map[row]).map(column => map[row][column])
+    : [];
+}
+
+export function getColumn<T>(column: number, map: PointMap<T>): T[] {
+  return Object.keys(map).map(row => map[row][column]);
+}
+
 const EMPTY: PointMap<any> = ({}: any);
 
 /** Creates a new PointMap instance from an array-like or iterable object. */

@@ -99,12 +99,29 @@ const EmptyDimensions = {
   left: 0
 };
 
+const getDimensions = (
+  point: Types.Point,
+  cellDimensions: PointMap.PointMap<Types.Dimensions>
+): Types.Dimensions => {
+  const { top, left } = PointMap.get(point, cellDimensions) || EmptyDimensions;
+  const rowDimensions = PointMap.getRow(point.row, cellDimensions);
+  const columnDimensions = PointMap.getColumn(point.column, cellDimensions);
+  const rowHeight = rowDimensions.reduce(
+    (acc, dimensions) => (dimensions ? Math.max(acc, dimensions.height) : acc),
+    0
+  );
+  const columnWidth = columnDimensions.reduce(
+    (acc, dimensions) => (dimensions ? Math.max(acc, dimensions.width) : acc),
+    0
+  );
+  return { top, left, height: rowHeight, width: columnWidth };
+};
+
 const mapStateToProps = (state: Types.StoreState<*>) => {
   if (!state.active || !PointMap.has(state.active, state.cellDimensions)) {
     return { hidden: true };
   }
-  const dimensions =
-    PointMap.get(state.active, state.cellDimensions) || EmptyDimensions;
+  const dimensions = getDimensions(state.active, state.cellDimensions);
   return {
     hidden: false,
     ...state.active,
