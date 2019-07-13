@@ -19,9 +19,9 @@ type Props = DataViewerProps & {
   columnMaxValue: number,
   columnMinValue: number,
   columnSize: number,
-  minPoint: ColorScalePoint | { type: "minimum", color: string },
-  midPoint: ColorScalePoint,
-  maxPoint: ColorScalePoint | { type: "maximum", color: string }
+  minPoint: MinPoint,
+  midPoint: MidPoint,
+  maxPoint: MaxPoint
 };
 
 const resolveColor = (props: Props): ?string => {
@@ -55,9 +55,9 @@ const resolveColor = (props: Props): ?string => {
 const ColorScaleDataViewer = (props: Props) => {
   const color = resolveColor(props);
   return (
-      <div style={{ backgroundColor: color }}>
-        <DataViewer {...props} />
-      </div>
+    <div style={{ backgroundColor: color }}>
+      <DataViewer {...props} />
+    </div>
   );
 };
 
