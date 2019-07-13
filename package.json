@@ -23,8 +23,8 @@
     "classnames": "^2.2.6",
     "clipboard-polyfill": "^2.4.7",
     "fbjs": "^1.0.0",
-    "gradstop": "^2.2.3",
     "hot-formula-parser": "^3.0.0",
+    "tinygradient": "^1.0.0",
     "unistore": "^3.4.1"
   },
   "devDependencies": {

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { connect } from "unistore/react";
-import gradstop from "gradstop";
+import tinygradient from "tinygradient";
 import DataViewer from "./DataViewer";
 import type { Props as DataViewerProps } from "./DataViewer";
 
@@ -38,18 +38,19 @@ const resolveColor = (props: Props): ?string => {
     return null;
   }
   const { value } = cell;
-  /** @todo handle midPoint  */
-  const gradient = gradstop({
-    stops: columnSize,
-    inputFormat: "hex",
-    colorArray: midPoint
-      ? [minPoint.color, midPoint.color, maxPoint.color]
-      : [minPoint.color, maxPoint.color]
-  });
+
+  const colors = midPoint
+    ? [
+        { color: minPoint.color, pos: 0 },
+        { color: midPoint.color, pos: 0.5 },
+        { color: maxPoint.color, pos: 1 }
+      ]
+    : [{ color: minPoint.color, pos: 0 }, { color: maxPoint.color, pos: 1 }];
+
+  const gradient = tinygradient(colors);
   const relativeValue =
     (value - columnMinValue) / (columnMaxValue - columnMinValue);
-  const index = Math.floor(relativeValue * (columnSize - 1));
-  return gradient[index];
+  return gradient.rgbAt(relativeValue);
 };
 
 const ColorScaleDataViewer = (props: Props) => {
@@ -79,11 +80,11 @@ const mapStateToProps = (state, props) => {
 const createColorScaleDataViewer = ({
   minPoint,
   maxPoint,
-  midPoint = null
+  midPoint
 }: {
   minPoint: MinPoint,
   maxPoint: MaxPoint,
-  midPoint: MidPoint
+  midPoint?: MidPoint
 }) => {
   const BoundScaleDataViewer = props => {
     return (
