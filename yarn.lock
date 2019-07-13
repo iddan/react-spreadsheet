@@ -4148,6 +4148,11 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.6
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.15.tgz#ffb703e1066e8a0eeaa4c8b80ba9253eeefbfb00"
   integrity sha512-6uHUhOPEBgQ24HM+r6b/QwWfZq+yiFcipKFrOFiBEnWdy5sdzYoi+pJeQaPI5qOLRFqWmAXUPQNsielzdLoecA==
 
+gradstop@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/gradstop/-/gradstop-2.2.3.tgz#b60922677d31cef479587f976f97f43222e80a5a"
+  integrity sha512-omtiHZCI/vykWcXNDYdrHhe7VUnnZvya94wAHRLI8ciDkAviXYrT+pwP7ybYqK7uwYir59auBCY5ggwBlVSmsg==
+
 "growl@~> 1.10.0":
   version "1.10.5"
   resolved "https://registry.yarnpkg.com/growl/-/growl-1.10.5.tgz#f2735dc2283674fa67478b10181059355c369e5e"

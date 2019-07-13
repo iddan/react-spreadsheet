@@ -4,6 +4,7 @@ import React from "react";
 import type { ComponentType, Node } from "react";
 import type { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
+import './DataViewer.css';
 
 type Cell = {
   component?: ComponentType<{
@@ -33,7 +34,7 @@ const DataViewer = ({ getValue, cell, column, row, formulaParser }: Props) => {
     const { result, error } = formulaParser.parse(rawValue.slice(1));
     return error || toView(result);
   }
-  return toView(rawValue);
+  return <div className="DataViewer">{toView(rawValue)}</div>;
 };
 
 export default DataViewer;
