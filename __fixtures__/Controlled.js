@@ -4,7 +4,6 @@ import { createFixture } from "react-cosmos";
 import Spreadsheet, {
   createEmptyMatrix
 } from "../src/SpreadsheetStateProvider";
-import { range } from "../src/util";
 import * as Matrix from "../src/matrix";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
 import "./index.css";
