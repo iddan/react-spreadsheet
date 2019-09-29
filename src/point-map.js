@@ -59,11 +59,13 @@ export function has<T>(point: Types.Point, map: PointMap<T>): boolean {
 
 export function getRow<T>(row: number, map: PointMap<T>): T[] {
   return row in map
-    ? Object.keys(map[row]).map(column => map[row][column])
+    ? // $FlowFixMe
+      Object.keys(map[row]).map(column => map[row][column])
     : [];
 }
 
 export function getColumn<T>(column: number, map: PointMap<T>): T[] {
+  // $FlowFixMe
   return Object.keys(map).map(row => map[row][column]);
 }
 

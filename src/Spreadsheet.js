@@ -4,6 +4,7 @@ import React, { PureComponent } from "react";
 import type { ComponentType, Node } from "react";
 import devtools from "unistore/devtools";
 import { connect } from "unistore/react";
+// $FlowFixMe
 import type { Store } from "unistore";
 import {
   Parser as FormulaParser,
