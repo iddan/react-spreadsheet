@@ -74,16 +74,22 @@ export function setCellDimensions(
   };
 }
 
-export const copy = (state: Types.StoreState<*>) => ({
-  copied: PointSet.reduce(
-    (acc, point) =>
-      PointMap.set(point, Matrix.get(point.row, point.column, state.data), acc),
-    state.selected,
-    PointMap.from([])
-  ),
-  cut: false,
-  hasPasted: false
-});
+export function copy<T>(state: Types.StoreState<T>) {
+  return {
+    copied: PointSet.reduce(
+      (acc, point) =>
+        PointMap.set<T>(
+          point,
+          Matrix.get<T>(point.row, point.column, state.data),
+          acc
+        ),
+      state.selected,
+      PointMap.from<T>([])
+    ),
+    cut: false,
+    hasPasted: false
+  };
+}
 
 export const cut = (state: Types.StoreState<*>) => ({
   ...copy(state),
