@@ -76,9 +76,9 @@ export const getOffsetRect = (element: HTMLElement): Types.Dimensions => ({
  * Wraps Clipboard.write() with permission check if necessary
  * @param string - The string to be written to the clipboard.
  */
-export const writeToClipboard = (data: DataTransfer) => {
+export const writeTextToClipboard = (data: string): void => {
   const write = () => {
-    clipboard.write(data);
+    clipboard.writeText(data);
   };
   if (navigator.permissions) {
     navigator.permissions
