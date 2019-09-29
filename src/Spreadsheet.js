@@ -24,7 +24,7 @@ import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
 import { getBindingsForCell } from "./bindings";
-import { range, writeToClipboard } from "./util";
+import { range, writeTextToClipboard } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -115,6 +115,12 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
 
   formulaParser = new FormulaParser();
 
+  /**
+   * Internally used value to check if the copied text match the live objects
+   * inside state.copied
+   */
+  _clippedText: string | null = null;
+
   clip = () => {
     const { store, getValue } = this.props;
     const { data, selected } = store.getState();
@@ -129,12 +135,13 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       }
       return getValue({ ...point, data: value });
     }, slicedMatrix);
-    const dataTransfer = new clipboard.DT();
     const csv = Matrix.join(valueMatrix);
-    dataTransfer.setData("text/plain", csv);
-    dataTransfer.setData("text/csv", csv);
-    dataTransfer.setData("application/json", JSON.stringify(valueMatrix));
-    writeToClipboard(dataTransfer);
+    this._clippedText = csv;
+    writeTextToClipboard(csv);
+  };
+
+  unclip = () => {
+    this._clippedText = null;
   };
 
   isFocused(): boolean {
@@ -154,14 +161,16 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     }
   };
 
-  handlePaste = (event: ClipboardEvent) => {
-    if (this.isFocused()) {
-      if (event.clipboardData) {
-        console.log(event.clipboardData.getData("Text"));
-      }
+  handlePaste = async (event: ClipboardEvent) => {
+    if (this.props.mode === "view" && this.isFocused()) {
       event.preventDefault();
       event.stopPropagation();
-      this.props.paste();
+      const text = await clipboard.readText();
+      if (text === this._clippedText) {
+        this.props.paste();
+      } else {
+        this.unclip();
+      }
     }
   };
 
