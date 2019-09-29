@@ -2,7 +2,7 @@
 
 import * as Types from "./types";
 import type { Matrix } from "./matrix";
-import clipboard from "clipboard-polyfill";
+import * as clipboard from "clipboard-polyfill";
 
 export const moveCursorToEnd = (el: HTMLInputElement) => {
   el.selectionStart = el.selectionEnd = el.value.length;
