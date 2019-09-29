@@ -6,11 +6,15 @@ import { range } from "./util";
 
 export type Props = {
   columns: number,
+  hideColumnIndicators: ?boolean,
   children: Node
 };
 
-const Table = ({ children, columns }: Props) => {
-  const columnNodes = range(columns).map(i => <col key={i} />);
+const Table = ({ children, columns, hideColumnIndicators }: Props) => {
+  const columnIndicatorsShown = !hideColumnIndicators;
+  const columnNodes = range(columns + Number(columnIndicatorsShown)).map(i => (
+    <col key={i} />
+  ));
   return (
     <table className="SpreadsheetTable">
       <colgroup>{columnNodes}</colgroup>

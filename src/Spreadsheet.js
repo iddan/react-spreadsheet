@@ -285,7 +285,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
         onKeyDown={this.handleKeyDown}
         onMouseMove={this.handleMouseMove}
       >
-        <Table columns={columns}>
+        <Table columns={columns} hideColumnIndicators={hideColumnIndicators}>
           <tr>
             {!hideRowIndicators && !hideColumnIndicators && <th />}
             {!hideColumnIndicators &&
@@ -342,10 +342,17 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
   }
 }
 
-const mapStateToProps = ({ data, mode }: Types.StoreState<*>): State => ({
-  mode,
-  ...Matrix.getSize(data)
-});
+const mapStateToProps = (
+  { data, mode }: Types.StoreState<*>,
+  { columnLabels }: Props<*, *>
+): State => {
+  const { columns, rows } = Matrix.getSize(data);
+  return {
+    mode,
+    rows,
+    columns: columnLabels ? Math.max(columns, columnLabels.length) : columns
+  };
+};
 
 export default connect(
   mapStateToProps,
