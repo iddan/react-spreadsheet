@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from "react";
 import shallowEqual from "fbjs/lib/shallowEqual";
+// $FlowFixMe
 import createStore from "unistore";
 import devtools from "unistore/devtools";
 import { Provider } from "unistore/react";
