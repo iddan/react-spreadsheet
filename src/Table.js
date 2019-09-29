@@ -10,7 +10,7 @@ export type Props = {
 };
 
 const Table = ({ children, columns }: Props) => {
-  const columnNodes = range(columns).map(() => <col />);
+  const columnNodes = range(columns).map(i => <col key={i} />);
   return (
     <table className="SpreadsheetTable">
       <colgroup>{columnNodes}</colgroup>
