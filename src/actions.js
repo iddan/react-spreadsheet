@@ -97,6 +97,9 @@ export const cut = (state: Types.StoreState<*>) => ({
 });
 
 export function paste<Cell>(state: Types.StoreState<Cell>) {
+  if (PointSet.isEmpty(state.copied)) {
+    return null;
+  }
   const minPoint = PointSet.min(state.copied);
 
   type Accumulator = {|
