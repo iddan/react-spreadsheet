@@ -4,6 +4,7 @@ import React, { PureComponent } from "react";
 import type { ComponentType, Node } from "react";
 import devtools from "unistore/devtools";
 import { connect } from "unistore/react";
+import * as clipboard from "clipboard-polyfill";
 // $FlowFixMe
 import type { Store } from "unistore";
 import {
@@ -23,7 +24,7 @@ import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
 import { getBindingsForCell } from "./bindings";
-import { range, writeTextToClipboard } from "./util";
+import { range, writeToClipboard } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -128,7 +129,12 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       }
       return getValue({ ...point, data: value });
     }, slicedMatrix);
-    writeTextToClipboard(Matrix.join(valueMatrix));
+    const dataTransfer = new clipboard.DT();
+    const csv = Matrix.join(valueMatrix);
+    dataTransfer.setData("text/plain", csv);
+    dataTransfer.setData("text/csv", csv);
+    dataTransfer.setData("application/json", JSON.stringify(valueMatrix));
+    writeToClipboard(dataTransfer);
   };
 
   isFocused(): boolean {
@@ -139,31 +145,46 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       : false;
   }
 
+  handleCopy = (event: ClipboardEvent) => {
+    if (this.isFocused()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.clip();
+      this.props.copy();
+    }
+  };
+
+  handlePaste = (event: ClipboardEvent) => {
+    if (this.isFocused()) {
+      if (event.clipboardData) {
+        console.log(event.clipboardData.getData("Text"));
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      this.props.paste();
+    }
+  };
+
+  handleCut = (event: ClipboardEvent) => {
+    if (this.isFocused()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.clip();
+      this.props.cut();
+    }
+  };
+
+  componentWillUnmount() {
+    document.removeEventListener("cut", this.handleCut);
+    document.removeEventListener("copy", this.handleCopy);
+    document.removeEventListener("paste", this.handlePaste);
+  }
+
   componentDidMount() {
-    const { copy, cut, paste, store } = this.props;
-    document.addEventListener("copy", (event: ClipboardEvent) => {
-      if (this.isFocused()) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.clip();
-        copy();
-      }
-    });
-    document.addEventListener("cut", (event: ClipboardEvent) => {
-      if (this.isFocused()) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.clip();
-        cut();
-      }
-    });
-    document.addEventListener("paste", (event: ClipboardEvent) => {
-      if (this.isFocused()) {
-        event.preventDefault();
-        event.stopPropagation();
-        paste();
-      }
-    });
+    const { store } = this.props;
+    document.addEventListener("cut", this.handleCut);
+    document.addEventListener("copy", this.handleCopy);
+    document.addEventListener("paste", this.handlePaste);
     this.formulaParser.on("callCellValue", (cellCoord, done) => {
       let value;
       /** @todo More sound error, or at least document */
