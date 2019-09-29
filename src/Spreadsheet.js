@@ -67,7 +67,8 @@ type Handlers = {|
 
 type State = {|
   rows: number,
-  columns: number
+  columns: number,
+  mode: Types.Mode
 |};
 
 type ColumnIndicatorProps = {
@@ -132,7 +133,8 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
 
   isFocused(): boolean {
     const { activeElement } = document;
-    return this.root
+
+    return this.props.mode === "view" && this.root
       ? this.root === activeElement || this.root.contains(activeElement)
       : false;
   }
@@ -310,8 +312,10 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
   }
 }
 
-const mapStateToProps = ({ data }: Types.StoreState<*>): State =>
-  Matrix.getSize(data);
+const mapStateToProps = ({ data, mode }: Types.StoreState<*>): State => ({
+  mode,
+  ...Matrix.getSize(data)
+});
 
 export default connect(
   mapStateToProps,
