@@ -7,7 +7,7 @@ import Spreadsheet, {
 import createColorScaleDataViewer from "../src/ColorScaleDataViewer";
 import "./index.css";
 
-const ROWS = 5;
+const ROWS = 10;
 
 const initialData = createEmptyMatrix(ROWS, 4);
 
@@ -16,23 +16,31 @@ const GreenAndWhiteColorScaleDataViewer = createColorScaleDataViewer({
   maxPoint: { type: "maximum", color: "#FFFFFF" }
 });
 
-for (let i = 0; i < ROWS; i++) {
-  console.log(i, initialData[i]);
-  initialData[i][0] = {
-    DataViewer: GreenAndWhiteColorScaleDataViewer,
-    value: i + 1
-  };
-}
-
 const RedYellowGreenColorScaleDataViewer = createColorScaleDataViewer({
   minPoint: { type: "minimum", color: "#57BB8A" },
   midPoint: { type: "percent", color: "#FFD665", value: 0.5 },
   maxPoint: { type: "maximum", color: "#E67B73" }
 });
 
+const UnbalanacedRedYellowGreenColorScaleDataViewer = createColorScaleDataViewer(
+  {
+    minPoint: { type: "minimum", color: "#57BB8A" },
+    midPoint: { type: "percent", color: "#FFD665", value: 0.7 },
+    maxPoint: { type: "maximum", color: "#E67B73" }
+  }
+);
+
 for (let i = 0; i < ROWS; i++) {
+  initialData[i][0] = {
+    DataViewer: GreenAndWhiteColorScaleDataViewer,
+    value: i + 1
+  };
   initialData[i][1] = {
     DataViewer: RedYellowGreenColorScaleDataViewer,
+    value: i + 1
+  };
+  initialData[i][2] = {
+    DataViewer: UnbalanacedRedYellowGreenColorScaleDataViewer,
     value: i + 1
   };
 }

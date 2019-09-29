@@ -42,7 +42,7 @@ const resolveColor = (props: Props): ?string => {
   const colors = midPoint
     ? [
         { color: minPoint.color, pos: 0 },
-        { color: midPoint.color, pos: 0.5 },
+        { color: midPoint.color, pos: midPoint.value },
         { color: maxPoint.color, pos: 1 }
       ]
     : [{ color: minPoint.color, pos: 0 }, { color: maxPoint.color, pos: 1 }];
