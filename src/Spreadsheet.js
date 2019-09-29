@@ -253,7 +253,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
         onKeyDown={this.handleKeyDown}
         onMouseMove={this.handleMouseMove}
       >
-        <Table>
+        <Table columns={columns}>
           <tr>
             {!hideRowIndicators && !hideColumnIndicators && <th />}
             {!hideColumnIndicators &&
