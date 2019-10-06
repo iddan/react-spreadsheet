@@ -50,6 +50,7 @@ export type Props<CellType, Value> = {|
   Cell: ComponentType<CellProps<CellType, Value>>,
   DataViewer: Types.DataViewer<CellType, Value>,
   DataEditor: Types.DataEditor<CellType, Value>,
+  onKeyDown?: (event: SyntheticKeyboardEvent<HTMLElement>) => void,
   getValue: Types.getValue<CellType, Value>,
   getBindingsForCell: Types.getBindingsForCell<CellType>,
   store: Store
@@ -60,7 +61,7 @@ type Handlers = {|
   copy: () => void,
   paste: () => void,
   setDragging: boolean => void,
-  onKeyDown: (SyntheticKeyboardEvent<HTMLElement>) => void,
+  onKeyDownAction: (SyntheticKeyboardEvent<HTMLElement>) => void,
   onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void,
   onDragStart: () => void,
   onDragEnd: () => void
@@ -230,12 +231,18 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
   }
 
   handleKeyDown = event => {
-    const { store, onKeyDown } = this.props;
-    // Only disable default behavior if an handler exist
-    if (Actions.getKeyDownHandler(store.getState(), event)) {
-      event.nativeEvent.preventDefault();
+    const { store, onKeyDown, onKeyDownAction } = this.props;
+    if (onKeyDown) {
+      onKeyDown(event);
     }
-    onKeyDown(event);
+    // Do not use event in case preventDefault() was called inside onKeyDown
+    if (!event.defaultPrevented) {
+      // Only disable default behavior if an handler exist
+      if (Actions.getKeyDownHandler(store.getState(), event)) {
+        event.nativeEvent.preventDefault();
+      }
+      onKeyDownAction(event);
+    }
   };
 
   handleMouseUp = () => {
@@ -360,7 +367,7 @@ export default connect(
     copy: Actions.copy,
     cut: Actions.cut,
     paste: Actions.paste,
-    onKeyDown: Actions.keyDown,
+    onKeyDownAction: Actions.keyDown,
     onKeyPress: Actions.keyPress,
     onDragStart: Actions.dragStart,
     onDragEnd: Actions.dragEnd
