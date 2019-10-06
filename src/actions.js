@@ -285,6 +285,9 @@ const shiftKeyDownHandlers: KeyDownHandlers<*> = {
   ArrowRight: modifyEdge("column", 1)
 };
 
+const shiftMetaKeyDownHandlers: KeyDownHandlers<*> = {};
+const metaKeyDownHandlers: KeyDownHandlers<*> = {};
+
 export function keyPress(
   state: Types.StoreState<*>,
   event: SyntheticKeyboardEvent<HTMLElement>
@@ -304,8 +307,12 @@ export const getKeyDownHandler = (
   // Order matters
   if (state.mode === "edit") {
     handlers = editKeyDownHandlers;
+  } else if (event.shiftKey && event.metaKey) {
+    handlers = shiftMetaKeyDownHandlers;
   } else if (event.shiftKey) {
     handlers = shiftKeyDownHandlers;
+  } else if (event.metaKey) {
+    handlers = metaKeyDownHandlers;
   } else {
     handlers = keyDownHandlers;
   }
