@@ -20,7 +20,7 @@ export type Props<CellType, Value> = {|
   onModeChange: (mode: Types.Mode) => void,
   onSelect: (selected: Types.Point[]) => void,
   onActivate: (active: Types.Point) => void,
-  onCellCommit: (prevCell: null | CellType, nextCell: null | CellType) => void
+  onCellCommit: (prevCell: null | CellType, nextCell: null | CellType, coords: Types.Point) => void
 |};
 
 const initialState: $Shape<Types.StoreState<any>> = {
@@ -83,7 +83,7 @@ export default class SpreadsheetStateProvider<
 
         if (state.lastCommit && state.lastCommit !== prevState.lastCommit) {
           for (const change of state.lastCommit) {
-            onCellCommit(change.prevCell, change.nextCell);
+            onCellCommit(change.prevCell, change.nextCell, state.active);
           }
         }
 
