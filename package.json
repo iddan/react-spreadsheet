@@ -14,7 +14,7 @@
   "scripts": {
     "test": "jest",
     "start": "yarn run cosmos",
-    "build": "rm dist/*; babel src --out-dir dist --copy-files",
+    "build": "rm -f dist/*; babel src --out-dir dist --copy-files",
     "prepack": "cross-env NODE_ENV=production yarn build",
     "push-coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",
     "cosmos": "cosmos"
@@ -32,6 +32,7 @@
     "babel-eslint": "9.x",
     "babel-jest": "^24.3.1",
     "babel-loader": "^8.0.5",
+    "babel-plugin-transform-node-env-inline": "^0.4.3",
     "babel-preset-react-app": "^9.0.0",
     "coveralls": "^3.0.1",
     "cross-env": "^5.1.4",

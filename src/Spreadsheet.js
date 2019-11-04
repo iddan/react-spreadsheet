@@ -2,7 +2,6 @@
 
 import React, { PureComponent } from "react";
 import type { ComponentType, Node } from "react";
-import devtools from "unistore/devtools";
 import { connect } from "unistore/react";
 import * as clipboard from "clipboard-polyfill";
 // $FlowFixMe
