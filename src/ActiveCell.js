@@ -26,7 +26,10 @@ type Props<Cell, Value> = {|
   getBindingsForCell: Types.getBindingsForCell<Cell>
 |};
 
-class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>, State<*>> {
+class ActiveCell<Cell: Types.CellBase, Value> extends Component<
+  Props<Cell, Value>,
+  State<*>
+> {
   state = { cellBeforeUpdate: null };
 
   handleChange = (row: number, column: number, cell: Cell) => {
@@ -72,11 +75,12 @@ class ActiveCell<Cell, Value> extends Component<Props<Cell, Value>, State<*>> {
       edit
     } = this.props;
     DataEditor = (cell && cell.DataEditor) || DataEditor;
+    const readOnly = cell && cell.readOnly;
     return hidden ? null : (
       <div
         className={classnames("ActiveCell", mode)}
         style={{ width, height, top, left }}
-        onClick={mode === "view" ? edit : undefined}
+        onClick={mode === "view" && !readOnly ? edit : undefined}
       >
         {mode === "edit" && (
           <DataEditor

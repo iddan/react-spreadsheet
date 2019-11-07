@@ -31,12 +31,15 @@ export const activate: Action = (state, cellPointer: Types.Point) => ({
   mode: isActive(state.active, cellPointer) ? "edit" : "view"
 });
 
-export function setData<Cell>(
+export function setData<Cell: Types.CellBase>(
   state: Types.StoreState<Cell>,
   active: Types.Point,
   data: Cell,
   bindings: Types.Point[]
-): $Shape<Types.StoreState<Cell>> {
+): $Shape<Types.StoreState<Cell>> | null {
+  if (isActiveReadOnly(state)) {
+    return null;
+  }
   return {
     mode: "edit",
     data: setCell(state, active, data),
@@ -96,7 +99,7 @@ export const cut = (state: Types.StoreState<*>) => ({
   cut: true
 });
 
-export function paste<Cell>(state: Types.StoreState<Cell>) {
+export function paste<Cell: Types.CellBase>(state: Types.StoreState<Cell>) {
   if (PointSet.isEmpty(state.copied)) {
     return null;
   }
@@ -161,9 +164,12 @@ export function paste<Cell>(state: Types.StoreState<Cell>) {
   };
 }
 
-export const edit = () => ({
-  mode: "edit"
-});
+export const edit = <Cell: Types.CellBase>(state: Types.StoreState<Cell>) => {
+  if (isActiveReadOnly(state)) {
+    return null;
+  }
+  return { mode: "edit" };
+};
 
 export const view = () => ({
   mode: "view"
@@ -204,10 +210,10 @@ export type KeyDownHandler<Cell> = (
   event: SyntheticKeyboardEvent<*>
 ) => $Shape<Types.StoreState<Cell>> | null;
 
-export const go = (
+export const go = <Cell: Types.CellBase>(
   rowDelta: number,
   columnDelta: number
-): KeyDownHandler<*> => (state, event) => {
+): KeyDownHandler<Cell> => (state, event) => {
   if (!state.active) {
     return null;
   }
@@ -250,13 +256,13 @@ export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
   };
 };
 
-export const blur = (state: Types.StoreState<*>) => ({
+export const blur = () => ({
   active: null
 });
 
 // Key Bindings
 
-type KeyDownHandlers<Cell> = {
+type KeyDownHandlers<Cell: Types.CellBase> = {
   [eventType: string]: KeyDownHandler<Cell>
 };
 
@@ -288,20 +294,37 @@ const shiftKeyDownHandlers: KeyDownHandlers<*> = {
 const shiftMetaKeyDownHandlers: KeyDownHandlers<*> = {};
 const metaKeyDownHandlers: KeyDownHandlers<*> = {};
 
-export function keyPress(
-  state: Types.StoreState<*>,
+function getActive<Cell: Types.CellBase>(state: Types.StoreState<Cell>): ?Cell {
+  return (
+    state.active &&
+    Matrix.get(state.active.row, state.active.column, state.data)
+  );
+}
+
+const isActiveReadOnly = <Cell: Types.CellBase>(
+  state: Types.StoreState<Cell>
+): boolean => {
+  const activeCell = getActive(state);
+  return Boolean(activeCell && activeCell.readOnly);
+};
+
+export function keyPress<Cell: Types.CellBase>(
+  state: Types.StoreState<Cell>,
   event: SyntheticKeyboardEvent<HTMLElement>
 ) {
+  if (isActiveReadOnly(state)) {
+    return null;
+  }
   if (state.mode === "view" && state.active) {
     return { mode: "edit" };
   }
   return null;
 }
 
-export const getKeyDownHandler = (
-  state: Types.StoreState<*>,
+export function getKeyDownHandler<Cell: Types.CellBase>(
+  state: Types.StoreState<Cell>,
   event: SyntheticKeyboardEvent<HTMLElement>
-) => {
+): KeyDownHandler<Cell> {
   const { key } = event;
   let handlers;
   // Order matters
@@ -317,13 +340,13 @@ export const getKeyDownHandler = (
     handlers = keyDownHandlers;
   }
   return handlers[key];
-};
+}
 
-export function keyDown(
-  state: Types.StoreState<*>,
+export function keyDown<Cell: Types.CellBase>(
+  state: Types.StoreState<Cell>,
   event: SyntheticKeyboardEvent<HTMLElement>
 ) {
-  const handler = getKeyDownHandler(state, event);
+  const handler = getKeyDownHandler<Cell>(state, event);
   if (handler) {
     return handler(state, event);
   }

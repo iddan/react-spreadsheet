@@ -10,6 +10,12 @@ export type Point = {|
   row: number
 |};
 
+export type CellBase = {
+  readOnly?: boolean,
+  DataViewer?: DataViewer<*, *>,
+  DataEditor?: DataEditor<*, *>
+};
+
 export type CellDescriptor<Cell> = {|
   ...Point,
   data: ?Cell
@@ -24,7 +30,7 @@ export type Dimensions = {|
   left: number
 |};
 
-export type StoreState<Cell> = {|
+export type StoreState<Cell: CellBase> = {|
   data: Matrix<Cell>,
   selected: PointSet,
   copied: PointMap<Cell>,

@@ -43,10 +43,9 @@ type Props<Data, Value> = {|
   ...Handlers
 |};
 
-export class Cell<
-  Data: ?{ readOnly?: boolean, DataViewer: Types.DataViewer<*, *> },
-  Value
-> extends PureComponent<Props<Data, Value>> {
+export class Cell<Data: Types.CellBase, Value> extends PureComponent<
+  Props<Data, Value>
+> {
   /** @todo update to new API */
   root: HTMLElement | null;
   handleRoot = (root: HTMLElement | null) => {
