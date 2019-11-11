@@ -30,7 +30,6 @@ export const setData: Action = (state, data) => {
       state.bindings
     )
   );
-  console.log(nextBindings);
   return {
     data,
     active: nextActive,
