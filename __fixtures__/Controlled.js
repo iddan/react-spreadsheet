@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Fragment, useState, useCallback } from "react";
 
 import { createFixture } from "react-cosmos";
 import Spreadsheet, {
@@ -10,46 +10,56 @@ import "./index.css";
 
 const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
-class Controlled extends Component {
-  state = {
-    data: initialData
-  };
+const Controlled = () => {
+  const [data, setData] = useState(initialData);
 
-  handleChange = data => {
-    this.setState({ data });
-  };
-
-  addColumn = () => {
-    this.setState(({ data }) => {
-      return {
-        data: data.map(row => {
+  const addColumn = useCallback(
+    () =>
+      setData(data =>
+        data.map(row => {
           const nextRow = [...row];
           nextRow.length += 1;
           return nextRow;
         })
-      };
-    });
-  };
+      ),
+    [setData]
+  );
 
-  addRow = () => {
-    this.setState(({ data }) => {
-      const { columns } = Matrix.getSize(data);
-      return { data: [...data, Array(columns)] };
-    });
-  };
-
-  render() {
-    return (
-      <Fragment>
-        <div>
-          <button onClick={this.addColumn}>Add column</button>
-          <button onClick={this.addRow}>Add row</button>
-        </div>
-        <Spreadsheet data={this.state.data} onChange={this.handleChange} />
-      </Fragment>
+  const removeColumn = useCallback(() => {
+    setData(data =>
+      data.map(row => {
+        return row.slice(0, row.length - 1);
+      })
     );
-  }
-}
+  }, [setData]);
+
+  const addRow = useCallback(
+    () =>
+      setData(data => {
+        const { columns } = Matrix.getSize(data);
+        return [...data, Array(columns)];
+      }),
+    [setData]
+  );
+
+  const removeRow = useCallback(() => {
+    setData(data => {
+      return data.slice(0, data.length - 1);
+    });
+  }, [setData]);
+
+  return (
+    <Fragment>
+      <div>
+        <button onClick={addColumn}>Add column</button>
+        <button onClick={addRow}>Add row</button>
+        <button onClick={removeColumn}>Remove column</button>
+        <button onClick={removeRow}>Remove row</button>
+      </div>
+      <Spreadsheet data={data} onChange={setData} />
+    </Fragment>
+  );
+};
 
 Controlled.displayName = "Spreadsheet";
 
