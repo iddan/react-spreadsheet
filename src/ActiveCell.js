@@ -17,7 +17,11 @@ type Props<Cell, Value> = {|
   DataEditor: Types.DataEditor<Cell, Value>,
   getValue: Types.getValue<Cell, Value>,
   onChange: (data: Cell) => void,
-  setData: (active: Types.Point, data: Cell, bindings: Types.Point[]) => void,
+  setCellData: (
+    active: Types.Point,
+    data: Cell,
+    bindings: Types.Point[]
+  ) => void,
   cell: Cell,
   hidden: boolean,
   mode: Types.Mode,
@@ -33,10 +37,10 @@ class ActiveCell<Cell: Types.CellBase, Value> extends Component<
   state = { cellBeforeUpdate: null };
 
   handleChange = (row: number, column: number, cell: Cell) => {
-    const { setData, getBindingsForCell } = this.props;
+    const { setCellData, getBindingsForCell } = this.props;
     const bindings = getBindingsForCell(cell);
 
-    setData({ row, column }, cell, bindings);
+    setCellData({ row, column }, cell, bindings);
   };
 
   // NOTE: Currently all logics here belongs to commit event
@@ -117,7 +121,7 @@ const mapStateToProps = (state: Types.StoreState<*>) => {
 export default connect(
   mapStateToProps,
   {
-    setData: Actions.setData,
+    setCellData: Actions.setCellData,
     edit: Actions.edit,
     commit: Actions.commit
   }

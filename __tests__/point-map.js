@@ -70,3 +70,12 @@ describe("PointMap.map()", () => {
     });
   });
 });
+
+describe("PointMap.filter()", () => {
+  test("Creates a new map of all values predicate returns truthy for. The predicate is invoked with two arguments: (value, key)", () => {
+    expect(PointMap.filter((value, point) => point.row > 0, map)).toEqual({
+      1: { 1: 42 },
+      2: { 2: 42 }
+    });
+  });
+});

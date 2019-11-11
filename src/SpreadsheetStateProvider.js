@@ -7,6 +7,7 @@ import devtools from "unistore/devtools";
 import { Provider } from "unistore/react";
 import * as Types from "./types";
 import * as PointSet from "./point-set";
+import * as Actions from "./actions";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import Spreadsheet, { type Props as SpreadsheetProps } from "./Spreadsheet";
@@ -20,7 +21,11 @@ export type Props<CellType, Value> = {|
   onModeChange: (mode: Types.Mode) => void,
   onSelect: (selected: Types.Point[]) => void,
   onActivate: (active: Types.Point) => void,
-  onCellCommit: (prevCell: null | CellType, nextCell: null | CellType, coords: Types.Point) => void
+  onCellCommit: (
+    prevCell: null | CellType,
+    nextCell: null | CellType,
+    coords: Types.Point
+  ) => void
 |};
 
 const initialState: $Shape<Types.StoreState<any>> = {
@@ -35,7 +40,7 @@ const initialState: $Shape<Types.StoreState<any>> = {
 };
 
 export default class SpreadsheetStateProvider<
-  CellType,
+  CellType: Types.CellBase,
   Value
 > extends Component<Props<CellType, Value>> {
   store: Object;
@@ -106,9 +111,9 @@ export default class SpreadsheetStateProvider<
 
   componentDidUpdate(prevProps: Props<CellType, Value>) {
     if (this.props.data !== this.prevState.data) {
-      this.store.setState({
-        data: this.props.data
-      });
+      this.store.setState(
+        Actions.setData(this.store.getState(), this.props.data)
+      );
     }
   }
 

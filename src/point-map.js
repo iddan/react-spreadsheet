@@ -118,6 +118,23 @@ export function map<T1, T2>(func: T1 => T2, map: PointMap<T1>): PointMap<T2> {
   );
 }
 
+/** Creates a new map of all values predicate returns truthy for. The predicate is invoked with two arguments: (value, key) */
+export function filter<T>(
+  predicate: (T, Types.Point) => boolean,
+  map: PointMap<T>
+): PointMap<T> {
+  return reduce(
+    (acc, value, point) => {
+      if (predicate(value, point)) {
+        return set(point, value, acc);
+      }
+      return acc;
+    },
+    map,
+    from([])
+  );
+}
+
 /** Returns whether map has any points set to value */
 export function isEmpty(map: PointMap<any>): boolean {
   return Object.keys(map).length === 0;

@@ -36,7 +36,7 @@ type DefaultCellType = {
 const getValue = ({ data }: { data: ?DefaultCellType }) =>
   data ? data.value : null;
 
-export type Props<CellType, Value> = {|
+export type Props<CellType: Types.CellBase, Value> = {|
   data: Matrix.Matrix<CellType>,
   columnLabels?: string[],
   ColumnIndicator?: ComponentType<ColumnIndicatorProps>,

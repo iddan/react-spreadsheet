@@ -49,16 +49,7 @@ export function map(func: Point => Point, set: PointSet): PointSet {
 
 /** Creates a new set with all points that pass the test implemented by the provided function */
 export function filter(func: Point => boolean, set: PointSet): PointSet {
-  return reduce(
-    (acc, point) => {
-      if (func(point)) {
-        return add(acc, point);
-      }
-      return acc;
-    },
-    set,
-    from([])
-  );
+  return PointMap.filter((_, point) => func(point), set);
 }
 
 const minKey = (object: { [key: number]: any }): number =>

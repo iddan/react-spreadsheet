@@ -5,10 +5,39 @@ import * as Matrix from "./matrix";
 import * as Types from "./types";
 import { isActive, setCell, updateData } from "./util";
 
-type Action = <Cell>(
+type Action = <Cell: Types.CellBase>(
   state: Types.StoreState<Cell>,
   ...*
 ) => $Shape<Types.StoreState<Cell>> | null;
+
+export const setData: Action = (state, data) => {
+  const nextActive =
+    state.active && Matrix.has(state.active.row, state.active.column, data)
+      ? state.active
+      : null;
+  const nextSelected = PointSet.filter(
+    point => Matrix.has(point.row, point.column, data),
+    state.selected
+  );
+  const nextBindings = PointMap.map(
+    bindings =>
+      PointSet.filter(
+        point => Matrix.has(point.row, point.column, data),
+        bindings
+      ),
+    PointMap.filter(
+      (_, point) => Matrix.has(point.row, point.column, data),
+      state.bindings
+    )
+  );
+  console.log(nextBindings);
+  return {
+    data,
+    active: nextActive,
+    selected: nextSelected,
+    bindings: nextBindings
+  };
+};
 
 export const select: Action = (state, cellPointer: Types.Point) => {
   if (state.active && !isActive(state.active, cellPointer)) {
@@ -31,7 +60,7 @@ export const activate: Action = (state, cellPointer: Types.Point) => ({
   mode: isActive(state.active, cellPointer) ? "edit" : "view"
 });
 
-export function setData<Cell: Types.CellBase>(
+export function setCellData<Cell: Types.CellBase>(
   state: Types.StoreState<Cell>,
   active: Types.Point,
   data: Cell,
@@ -175,7 +204,7 @@ export const view = () => ({
   mode: "view"
 });
 
-export const clear = (state: Types.StoreState<*>) => {
+export const clear = <Cell: Types.CellBase>(state: Types.StoreState<Cell>) => {
   if (!state.active) {
     return null;
   }
@@ -185,7 +214,7 @@ export const clear = (state: Types.StoreState<*>) => {
   return {
     data: PointSet.reduce(
       (acc, point) =>
-        updateData(acc, {
+        updateData<Cell>(acc, {
           ...point,
           data: { ...cell, value: "" }
         }),
@@ -205,7 +234,7 @@ export const clear = (state: Types.StoreState<*>) => {
   };
 };
 
-export type KeyDownHandler<Cell> = (
+export type KeyDownHandler<Cell: Types.CellBase> = (
   state: Types.StoreState<Cell>,
   event: SyntheticKeyboardEvent<*>
 ) => $Shape<Types.StoreState<Cell>> | null;

@@ -32,7 +32,7 @@ export function range(
   return array;
 }
 
-export function updateData<Cell>(
+export function updateData<Cell: Types.CellBase>(
   data: Matrix<Cell>,
   cellDescriptor: Types.CellDescriptor<Cell>
 ): Matrix<Cell> {
@@ -44,7 +44,7 @@ export function updateData<Cell>(
   return nextData;
 }
 
-export function setCell<Cell>(
+export function setCell<Cell: Types.CellBase>(
   state: { data: Matrix<Cell> },
   active: Types.Point,
   cell: Cell
