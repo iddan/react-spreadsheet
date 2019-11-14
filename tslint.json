@@ -1,0 +1,35 @@
+{
+  "extends": [
+    "tslint:latest",
+    "tslint-config-prettier",
+    "tslint-eslint-rules",
+    "tslint-consistent-codestyle",
+    "tslint-react"
+  ],
+  "rules": {
+    "jsx-boolean-value": ["never"],
+    "no-console": false,
+    "ordered-imports": true,
+    "object-literal-sort-keys": true,
+    "no-constant-condition": true,
+    "no-implicit-dependencies": false,
+    "no-submodule-imports": false,
+    "jsx-no-lambda": false,
+    "jsx-no-multiline-js": false,
+    "jsx-wrap-multiline": false,
+    "no-this-assignment": false,
+    "member-ordering": false,
+    "max-line-length": {
+      "severity": "error",
+      "options": [120]
+    }
+  },
+  "rulesDirectory": [
+    "node_modules/tslint-eslint-rules/dist/rules"
+  ],
+  "linterOptions": {
+    "exclude": [
+      "node_modules/**"
+    ]
+  }
+}
