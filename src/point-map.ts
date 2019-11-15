@@ -1,19 +1,18 @@
 /**
  * Immutable unordered Map like interface of point to value pairs.
  *
- * @flow
  */
 import * as Types from "./types";
 
-export type PointMap<T> = {|
-  [row: number]: {|
-    [column: number]: T
-  |}
-|};
+export type PointMap<T> = {
+  [row: number]: {
+    [column: number]: T;
+  };
+};
 
 /** Sets the value for point in map */
 export function set<T>(
-  point: Types.Point,
+  point: Types.IPoint,
   value: T,
   map: PointMap<T>
 ): PointMap<T> {
@@ -27,15 +26,14 @@ export function set<T>(
 }
 
 export function unset<T>(
-  { row, column }: Types.Point,
+  { row, column }: Types.IPoint,
   map: PointMap<T>
 ): PointMap<T> {
   if (!(row in map) || !(column in map[row])) {
     return map;
   }
   const {
-    // $FlowFixMe
-    [String(row)]: { [String(column)]: _, ...nextRow },
+    [row]: { [column]: _, ...nextRow },
     ...nextMap
   } = map;
   if (Object.keys(nextRow).length === 0) {
@@ -46,38 +44,38 @@ export function unset<T>(
 
 /** Gets the value for point in map */
 export function get<T>(
-  point: Types.Point,
+  point: Types.IPoint,
   map: PointMap<T>
 ): typeof undefined | T {
   return map[point.row] && map[point.row][point.column];
 }
 
 /** Checks if map has point assigned to value */
-export function has<T>(point: Types.Point, map: PointMap<T>): boolean {
+export function has<T>(point: Types.IPoint, map: PointMap<T>): boolean {
   return point.row in map && point.column in map[point.row];
 }
 
 export function getRow<T>(row: number, map: PointMap<T>): T[] {
   return row in map
     ? // $FlowFixMe
-      Object.keys(map[row]).map(column => map[row][column])
+    Object.keys(map[row]).map((column: any) => map[row][column])
     : [];
 }
 
 export function getColumn<T>(column: number, map: PointMap<T>): T[] {
   // $FlowFixMe
-  return Object.keys(map).map(row => map[row][column]);
+  return Object.keys(map).map((row: any) => map[row][column]);
 }
 
-const EMPTY: PointMap<any> = ({}: any);
+const EMPTY: PointMap<any> = {} as any;
 
 /** Creates a new PointMap instance from an array-like or iterable object. */
-export function from<T>(pairs: [Types.Point, T][]): PointMap<T> {
+export function from<T>(pairs: [Types.IPoint, T][]): PointMap<T> {
   return pairs.reduce((acc, [point, value]) => set(point, value, acc), EMPTY);
 }
 
 /** Returns the number of elements in a PointMap object. */
-export function size(map: PointMap<*>): number {
+export function size(map: PointMap<any>): number {
   let acc = 0;
   const _map_keys = Object.keys(map);
   for (let i = 0; i < _map_keys.length; i++) {
@@ -90,7 +88,7 @@ export function size(map: PointMap<*>): number {
 
 /** Applies a function against an accumulator and each value and point in the map (from left to right) to reduce it to a single value */
 export function reduce<A, T>(
-  func: (A, value: T, point: Types.Point) => A,
+  func: (_: A, value: T, point: Types.IPoint) => A,
   map: PointMap<T>,
   initialValue: A
 ): A {
@@ -110,7 +108,10 @@ export function reduce<A, T>(
 }
 
 /** Creates a new map with the results of calling a provided function on every value in the calling map */
-export function map<T1, T2>(func: T1 => T2, map: PointMap<T1>): PointMap<T2> {
+export function map<T1, T2>(
+  func: (_: T1) => T2,
+  map: PointMap<T1>
+): PointMap<T2> {
   return reduce(
     (acc, value, point) => set(point, func(value), acc),
     map,
@@ -120,7 +121,7 @@ export function map<T1, T2>(func: T1 => T2, map: PointMap<T1>): PointMap<T2> {
 
 /** Creates a new map of all values predicate returns truthy for. The predicate is invoked with two arguments: (value, key) */
 export function filter<T>(
-  predicate: (T, Types.Point) => boolean,
+  predicate: (_: T, __:Types.IPoint) => boolean,
   map: PointMap<T>
 ): PointMap<T> {
   return reduce(

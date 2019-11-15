@@ -1,22 +1,17 @@
-// @flow
-
-import React, { PureComponent } from "react";
-import type { ComponentType, Node } from "react";
+import React from "react";
 import { connect } from "unistore/react";
 import * as clipboard from "clipboard-polyfill";
-// $FlowFixMe
-import type { Store } from "unistore";
 import {
-  Parser as FormulaParser,
-  columnIndexToLabel
+  columnIndexToLabel,
+  Parser as FormulaParser
 } from "hot-formula-parser";
+import { Store } from "unistore";
+
 import * as Types from "./types";
-import Table from "./Table";
-import type { Props as TableProps } from "./Table";
-import Row from "./Row";
-import type { Props as RowProps } from "./Row";
-import { Cell, enhance as enhanceCell } from "./Cell";
-import type { Props as CellProps } from "./Cell";
+import { IStoreState } from "./types";
+import Table, { Props as TableProps } from "./Table";
+import Row, { Props as RowProps } from "./Row";
+import { Cell, enhance as enhanceCell, Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
@@ -30,51 +25,51 @@ import * as Actions from "./actions";
 import "./Spreadsheet.css";
 
 type DefaultCellType = {
-  value: string | number | boolean | null
+  value: string | number | boolean | null;
 };
 
-const getValue = ({ data }: { data: ?DefaultCellType }) =>
+const getValue = ({ data }: { data?: DefaultCellType }) =>
   data ? data.value : null;
 
-export type Props<CellType: Types.CellBase, Value> = {|
-  data: Matrix.Matrix<CellType>,
-  columnLabels?: string[],
-  ColumnIndicator?: ComponentType<ColumnIndicatorProps>,
-  rowLabels?: string[],
-  RowIndicator?: ComponentType<RowIndicatorProps>,
-  hideRowIndicators?: boolean,
-  hideColumnIndicators?: boolean,
-  Table: ComponentType<TableProps>,
-  Row: ComponentType<RowProps>,
-  Cell: ComponentType<CellProps<CellType, Value>>,
-  DataViewer: Types.DataViewer<CellType, Value>,
-  DataEditor: Types.DataEditor<CellType, Value>,
-  onKeyDown?: (event: SyntheticKeyboardEvent<HTMLElement>) => void,
-  getValue: Types.getValue<CellType, Value>,
-  getBindingsForCell: Types.getBindingsForCell<CellType>,
-  store: Store
-|};
+export type Props<CellType, Value> = {
+  data: Matrix.Matrix<CellType>;
+  columnLabels?: string[];
+  ColumnIndicator?: React.Component<ColumnIndicatorProps>;
+  rowLabels?: string[];
+  RowIndicator?: React.Component<RowIndicatorProps>;
+  hideRowIndicators?: boolean;
+  hideColumnIndicators?: boolean;
+  Table: React.Component<TableProps>;
+  Row: React.Component<RowProps>;
+  Cell: React.Component<CellProps<CellType, Value>>;
+  DataViewer: Types.DataViewer<CellType, Value>;
+  DataEditor: Types.DataEditor<CellType, Value>;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  getValue: Types.getValue<CellType, Value>;
+  getBindingsForCell: Types.getBindingsForCell<CellType>;
+  store: Store;
+};
 
-type Handlers = {|
-  cut: () => void,
-  copy: () => void,
-  paste: () => void,
-  setDragging: boolean => void,
-  onKeyDownAction: (SyntheticKeyboardEvent<HTMLElement>) => void,
-  onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void,
-  onDragStart: () => void,
-  onDragEnd: () => void
-|};
+type Handlers = {
+  cut?: () => void;
+  copy?: () => void;
+  paste?: () => void;
+  setDragging?: (_: boolean) => void;
+  onKeyDownAction?: (_: React.SyntheticEvent<HTMLElement>) => void;
+  onKeyPress?: (_: React.SyntheticEvent<HTMLElement>) => void;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
+};
 
-type State = {|
-  rows: number,
-  columns: number,
-  mode: Types.Mode
-|};
+type State = {
+  rows: number;
+  columns: number;
+  mode: Types.Mode;
+};
 
 type ColumnIndicatorProps = {
-  column: number,
-  label?: Node | null
+  column: number;
+  label?: React.ReactChildren | null;
 };
 
 const DefaultColumnIndicator = ({ column, label }: ColumnIndicatorProps) =>
@@ -85,23 +80,23 @@ const DefaultColumnIndicator = ({ column, label }: ColumnIndicatorProps) =>
   );
 
 type RowIndicatorProps = {
-  row: number,
-  label?: Node | null
+  row: number;
+  label?: React.ReactChildren | null;
 };
 
 const DefaultRowIndicator = ({ row, label }: RowIndicatorProps) =>
   label !== undefined ? <th>{label}</th> : <th>{row + 1}</th>;
 
-class Spreadsheet<CellType, Value> extends PureComponent<{|
-  ...$Diff<
-    Props<CellType, Value>,
-    {|
-      data: Matrix.Matrix<CellType>
-    |}
-  >,
-  ...State,
-  ...Handlers
-|}> {
+interface SpreadsheetProps<CellType, Value>
+  extends Props<CellType, Value>,
+    State,
+    Handlers {
+  data: Matrix.Matrix<CellType>;
+}
+
+class Spreadsheet<CellType, Value> extends React.Component<
+  SpreadsheetProps<CellType, Value>
+> {
   static defaultProps = {
     Table,
     Row,
@@ -112,6 +107,10 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     getValue,
     getBindingsForCell
   };
+
+  constructor(props: SpreadsheetProps<CellType, Value>) {
+    super(props);
+  }
 
   formulaParser = new FormulaParser();
 
@@ -157,7 +156,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       event.preventDefault();
       event.stopPropagation();
       this.clip();
-      this.props.copy();
+      this.props.copy && this.props.copy();
     }
   };
 
@@ -167,7 +166,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       event.stopPropagation();
       const text = await clipboard.readText();
       if (text === this._clippedText) {
-        this.props.paste();
+        this.props.paste && this.props.paste();
       } else {
         this.unclip();
       }
@@ -179,7 +178,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       event.preventDefault();
       event.stopPropagation();
       this.clip();
-      this.props.cut();
+      this.props.cut && this.props.cut();
     }
   };
 
@@ -194,25 +193,33 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     document.addEventListener("cut", this.handleCut);
     document.addEventListener("copy", this.handleCopy);
     document.addEventListener("paste", this.handlePaste);
-    this.formulaParser.on("callCellValue", (cellCoord, done) => {
-      let value;
-      /** @todo More sound error, or at least document */
-      try {
-        const cell = Matrix.get(
-          cellCoord.row.index,
-          cellCoord.column.index,
-          store.getState().data
-        );
-        value = getValue({ data: cell });
-      } catch (error) {
-        console.error(error);
-      } finally {
-        done(value);
+    this.formulaParser.on(
+      "callCellValue",
+      (
+        cellCoord,
+        done: (
+          _: string | boolean | number | boolean | null | undefined
+        ) => void
+      ) => {
+        let value;
+        /** @todo More sound error, or at least document */
+        try {
+          const cell = Matrix.get(
+            cellCoord.row.index,
+            cellCoord.column.index,
+            store.getState().data
+          );
+          value = getValue({ data: cell });
+        } catch (error) {
+          console.error(error);
+        } finally {
+          done(value);
+        }
       }
-    });
+    );
     this.formulaParser.on(
       "callRangeValue",
-      (startCellCoord, endCellCoord, done) => {
+      (startCellCoord: any, endCellCoord: any, done: (_: string) => void) => {
         const startPoint = {
           row: startCellCoord.row.index,
           column: startCellCoord.column.index
@@ -223,13 +230,13 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
         };
         const values = Matrix.toArray(
           Matrix.slice(startPoint, endPoint, store.getState().data)
-        ).map(cell => getValue({ data: cell }));
+        ).map((cell: any) => getValue({ data: cell }));
         done(values);
       }
     );
   }
 
-  handleKeyDown = event => {
+  handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const { store, onKeyDown, onKeyDownAction } = this.props;
     if (onKeyDown) {
       onKeyDown(event);
@@ -240,25 +247,25 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       if (Actions.getKeyDownHandler(store.getState(), event)) {
         event.nativeEvent.preventDefault();
       }
-      onKeyDownAction(event);
+      onKeyDownAction && onKeyDownAction(event);
     }
   };
 
   handleMouseUp = () => {
-    this.props.onDragEnd();
+    this.props.onDragEnd && this.props.onDragEnd();
     document.removeEventListener("mouseup", this.handleMouseUp);
   };
 
-  handleMouseMove = event => {
+  handleMouseMove = (event: MouseEvent) => {
     if (!this.props.store.getState().dragging && event.buttons === 1) {
-      this.props.onDragStart();
+      this.props.onDragStart && this.props.onDragStart();
       document.addEventListener("mouseup", this.handleMouseUp);
     }
   };
 
-  root: HTMLDivElement | null;
+  root?: HTMLDivElement;
 
-  handleRoot = (root: HTMLDivElement | null) => {
+  handleRoot = (root?: HTMLDivElement) => {
     this.root = root;
   };
 
@@ -286,7 +293,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     return (
       <div
         ref={this.handleRoot}
-        className="Spreadsheet"
+        className='Spreadsheet'
         onKeyPress={onKeyPress}
         onKeyDown={this.handleKeyDown}
         onMouseMove={this.handleMouseMove}
@@ -349,8 +356,8 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
 }
 
 const mapStateToProps = (
-  { data, mode }: Types.StoreState<*>,
-  { columnLabels }: Props<*, *>
+  { data, mode }: IStoreState<any>,
+  { columnLabels }: Props<any, any>
 ): State => {
   const { columns, rows } = Matrix.getSize(data);
   return {
@@ -360,15 +367,12 @@ const mapStateToProps = (
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    copy: Actions.copy,
-    cut: Actions.cut,
-    paste: Actions.paste,
-    onKeyDownAction: Actions.keyDown,
-    onKeyPress: Actions.keyPress,
-    onDragStart: Actions.dragStart,
-    onDragEnd: Actions.dragEnd
-  }
-)(Spreadsheet);
+export default connect(mapStateToProps, {
+  copy: Actions.copy,
+  cut: Actions.cut,
+  paste: Actions.paste,
+  onKeyDownAction: Actions.keyDown,
+  onKeyPress: Actions.keyPress,
+  onDragStart: Actions.dragStart,
+  onDragEnd: Actions.dragEnd
+})(Spreadsheet);

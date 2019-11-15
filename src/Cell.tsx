@@ -1,58 +1,63 @@
-// @flow
-
-import React, { PureComponent } from "react";
+import React, {PureComponent, SyntheticEvent} from "react";
 import classnames from "classnames";
-import { connect } from "unistore/react";
-import type { Parser as FormulaParser } from "hot-formula-parser";
+import {connect} from "unistore/react";
+
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
+import {DataViewer, IDimensions, IPoint} from "./types";
 import * as Actions from "./actions";
-import { isActive, getOffsetRect } from "./util";
+import {getOffsetRect, isActive} from "./util";
 
-type StaticProps<Data, Value> = {|
-  row: number,
-  column: number,
-  DataViewer: Types.DataViewer<Data, Value>,
-  getValue: Types.getValue<Data, Value>,
-  formulaParser: FormulaParser
-|};
+type StaticProps<Data, Value> = {
+  row: number;
+  column: number;
+  DataViewer: Types.DataViewer<Data, Value>;
+  getValue: Types.getValue<Data, Value>;
+  formulaParser: any;
+};
 
-export type { StaticProps as Props };
+export { StaticProps as Props };
 
-type State<Data> = {|
-  selected: boolean,
-  active: boolean,
-  copied: boolean,
-  dragging: boolean,
-  mode: Types.Mode,
-  data: ?Data,
-  _bindingChanged: ?Object
-|};
+type State<Data> = {
+  selected: boolean;
+  active: boolean;
+  copied: boolean;
+  dragging: boolean;
+  mode: Types.Mode;
+  data?: Data;
+  _bindingChanged?: Object;
+};
 
-type Handlers = {|
-  select: (cellPointer: Types.Point) => void,
-  activate: (cellPointer: Types.Point) => void,
-  setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void
-|};
+type Handlers = {
+  select: (cellPointer: IPoint) => void;
+  activate: (cellPointer: IPoint) => void;
+  setCellDimensions: (point: IPoint, dimensions: IDimensions) => void;
+};
 
-type Props<Data, Value> = {|
-  ...StaticProps<Data, Value>,
-  ...State<Data>,
-  ...Handlers
-|};
+type Props<Data, Value> = StaticProps<Data, Value> & State<Data> & Handlers;
 
-export class Cell<Data: Types.CellBase, Value> extends PureComponent<
-  Props<Data, Value>
-> {
+export class Cell<
+  Data extends
+    | { readOnly?: boolean; DataViewer: DataViewer<any, any> }
+    | null
+    | undefined,
+  Value
+> extends PureComponent<Props<Data, Value>> {
   /** @todo update to new API */
   root: HTMLElement | null;
+
+  constructor(props: Props<Data, Value>) {
+    super(props);
+    this.root = null;
+  }
+
   handleRoot = (root: HTMLElement | null) => {
     this.root = root;
   };
 
-  handleMouseDown = (e: SyntheticMouseEvent<HTMLElement>) => {
+  handleMouseDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const {
       row,
       column,
@@ -73,7 +78,7 @@ export class Cell<Data: Types.CellBase, Value> extends PureComponent<
     }
   };
 
-  handleMouseOver = (e: SyntheticMouseEvent<*>) => {
+  handleMouseOver = (e: SyntheticEvent<any>) => {
     const { row, column, dragging, setCellDimensions, select } = this.props;
     if (dragging) {
       setCellDimensions({ row, column }, getOffsetRect(e.currentTarget));
@@ -133,18 +138,17 @@ function mapStateToProps<Data>(
     active,
     selected,
     copied,
-    hasPasted,
     mode,
     dragging,
     lastChanged,
     bindings
-  }: Types.StoreState<Data>,
-  { column, row }: Props<Data, *>
+  }: Types.IStoreState<Data>,
+  { column, row }: Props<Data, any>
 ): State<Data> {
   const point = { row, column };
   const cellIsActive = isActive(active, point);
 
-  const cellBindings = PointMap.get(point, bindings);
+  const cellBindings: = PointMap.get(point, bindings);
 
   return {
     active: cellIsActive,
@@ -157,15 +161,12 @@ function mapStateToProps<Data>(
     _bindingChanged:
       cellBindings && lastChanged && PointSet.has(cellBindings, lastChanged)
         ? {}
-        : null
+        : undefined
   };
 }
 
-export const enhance = connect(
-  mapStateToProps,
-  () => ({
-    select: Actions.select,
-    activate: Actions.activate,
-    setCellDimensions: Actions.setCellDimensions
-  })
-);
+export const enhance = connect(mapStateToProps, () => ({
+  select: Actions.select,
+  activate: Actions.activate,
+  setCellDimensions: Actions.setCellDimensions
+}));

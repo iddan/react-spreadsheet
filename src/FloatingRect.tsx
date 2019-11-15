@@ -1,7 +1,4 @@
-// @flow
-
 import React from "react";
-import * as PointMap from "./point-map";
 import * as PointSet from "./point-set";
 import * as Types from "./types";
 import classnames from "classnames";
@@ -9,10 +6,9 @@ import { getCellDimensions } from "./util";
 import "./FloatingRect.css";
 
 type Props = {
-  ...Types.Dimensions,
-  className: string,
-  hidden: boolean
-};
+  className: string;
+  hidden?: boolean;
+} & Types.IDimensions;
 
 const FloatingRect = ({
   width,
@@ -30,8 +26,8 @@ const FloatingRect = ({
 
 const getRangeDimensions = (
   points: PointSet.PointSet,
-  state: Types.StoreState<*>
-): Types.Dimensions => {
+  state: Types.IStoreState<any>
+): Types.IDimensions => {
   const { width, height, left, top } = PointSet.reduce(
     (acc, point) => {
       const isOnEdge = PointSet.onEdge(points, point);
@@ -53,7 +49,7 @@ const getRangeDimensions = (
 };
 
 export const mapStateToProps = (cells: PointSet.PointSet) => (
-  state: Types.StoreState<*>
+  state: Types.IStoreState<any>
 ) => {
   return {
     ...getRangeDimensions(cells, state),

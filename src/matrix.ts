@@ -1,9 +1,8 @@
 /**
  * Immutable interface for Matrices
  *
- * @todo use Types.Point for all point references
+ * @todo use Types.IPoint for all point references
  *
- * @flow
  */
 
 import { range as _range } from "./util";
@@ -26,11 +25,11 @@ export function get<T>(
 
 /** Creates a slice of matrix from startPoint up to, but not including, endPoint. */
 export function slice<T>(
-  startPoint: Types.Point,
-  endPoint: Types.Point,
+  startPoint: Types.IPoint,
+  endPoint: Types.IPoint,
   matrix: Matrix<T>
 ): Matrix<T> {
-  let sliced = [];
+  let sliced: any[] = [];
   const columns = endPoint.column - startPoint.column;
   for (let row = startPoint.row; row <= endPoint.row; row++) {
     const slicedRow = row - startPoint.row;
@@ -108,7 +107,7 @@ export function unset<T>(
 }
 
 export function reduce<T, A>(
-  func: (A, T | typeof undefined, Types.Point) => A,
+  func: (_: A, __: T | typeof undefined, arg2: Types.IPoint) => A,
   matrix: Matrix<T>,
   initialValue: A
 ): A {
@@ -129,7 +128,7 @@ export function reduce<T, A>(
 
 /** Creates an array of values by running each element in collection thru iteratee. */
 export function map<T, T2>(
-  func: (T | typeof undefined, Types.Point) => T2,
+  func: (_: T | typeof undefined, arg1: Types.IPoint) => T2,
   matrix: Matrix<T>
 ): Matrix<T2> {
   return reduce(
@@ -138,7 +137,7 @@ export function map<T, T2>(
       return acc;
     },
     matrix,
-    ([]: Matrix<T2>)
+    [] as Matrix<T2>
   );
 }
 
@@ -147,7 +146,7 @@ export function map<T, T2>(
  * to string separated by verticalSeparator
  */
 export function join(
-  matrix: Matrix<*>,
+  matrix: Matrix<any>,
   horizontalSeparator: string = ", ",
   verticalSeparator: string = "\n"
 ): string {
@@ -185,7 +184,7 @@ export function has(row: number, column: number, matrix: Matrix<any>): boolean {
   );
 }
 
-type Size = $Exact<{ columns: number, rows: number }>;
+type Size = { columns: number; rows: number };
 
 /** Gets the size of matrix by returning its number of rows and columns */
 export function getSize(matrix: Matrix<any>): Size {
@@ -198,23 +197,23 @@ export function getSize(matrix: Matrix<any>): Size {
 
 /** Creates an array of points (positive and/or negative) progressing from startPoint up to, but not including, endPoint. */
 export function range(
-  endPoint: Types.Point,
-  startPoint: Types.Point
-): Types.Point[] {
+  endPoint: Types.IPoint,
+  startPoint: Types.IPoint
+): Types.IPoint[] {
   const points = [];
   const columnsRange =
     startPoint.column !== endPoint.column
       ? _range(endPoint.column, startPoint.column)
       : startPoint.row !== endPoint.row
-        ? [startPoint.column]
-        : [];
+      ? [startPoint.column]
+      : [];
 
   const rowsRange =
     startPoint.row !== endPoint.row
       ? _range(endPoint.row, startPoint.row)
       : startPoint.column !== endPoint.column
-        ? [startPoint.row]
-        : [];
+      ? [startPoint.row]
+      : [];
 
   for (let i = 0; i < rowsRange.length; i++) {
     const row = rowsRange[i];
@@ -238,8 +237,8 @@ export const inclusiveRange: typeof range = (endPoint, startPoint) =>
   );
 
 export function toArray<T1, T2>(
-  matrix: Matrix<T1>,
-  transform: ?(T1 | typeof undefined) => T2
+  matrix: string,
+  transform?: (_: T1 | typeof undefined) => T2
 ): Array<T1> | Array<T2> {
   let array = [];
   for (let row = 0; row < matrix.length; row++) {

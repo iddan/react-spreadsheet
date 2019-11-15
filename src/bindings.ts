@@ -1,8 +1,8 @@
-// @flow
-import * as Types from "./types";
 import { extractLabel } from "hot-formula-parser/lib/helper/cell";
 
-function isFormulaCell<Cell: ?{ value: any }>(cell: Cell): boolean {
+import * as Types from "./types";
+
+function isFormulaCell<Cell extends { value?: string }>(cell: Cell): boolean {
   return Boolean(
     cell &&
       cell.value &&
@@ -14,7 +14,7 @@ function isFormulaCell<Cell: ?{ value: any }>(cell: Cell): boolean {
 const FORMULA_CELL_REFERENCES = /\$?[A-Z]+\$?[0-9]+/g;
 
 /** @todo move me */
-export function getBindingsForCell<Cell>(cell: Cell): Types.Point[] {
+export function getBindingsForCell<Cell>(cell: Cell): Types.IPoint[] {
   if (!isFormulaCell(cell)) {
     return [];
   }
@@ -25,7 +25,7 @@ export function getBindingsForCell<Cell>(cell: Cell): Types.Point[] {
     return [];
   }
   // Normalize references to points
-  return match.map(substr => {
+  return match.map((substr: string) => {
     const [row, column] = extractLabel(substr);
     return { row: row.index, column: column.index };
   }, {});

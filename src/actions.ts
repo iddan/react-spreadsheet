@@ -1,14 +1,13 @@
-// @flow
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
-import { isActive, setCell, updateData } from "./util";
+import {isActive, setCell, updateData} from "./util";
 
-type Action = <Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>,
-  ...*
-) => $Shape<Types.StoreState<Cell>> | null;
+type Action = <Cell>(
+  state: Types.IStoreState<Cell>,
+  cellPointer: Types.IPoint
+) => Partial<Types.IStoreState<Cell>> | null;
 
 export const setData: Action = (state, data) => {
   const nextActive =
@@ -20,7 +19,7 @@ export const setData: Action = (state, data) => {
     state.selected
   );
   const nextBindings = PointMap.map(
-    bindings =>
+    (bindings) =>
       PointSet.filter(
         point => Matrix.has(point.row, point.column, data),
         bindings
@@ -38,7 +37,7 @@ export const setData: Action = (state, data) => {
   };
 };
 
-export const select: Action = (state, cellPointer: Types.Point) => {
+export const select: Action = (state: any, cellPointer: Types.IPoint) => {
   if (state.active && !isActive(state.active, cellPointer)) {
     return {
       selected: PointSet.from(
@@ -53,21 +52,18 @@ export const select: Action = (state, cellPointer: Types.Point) => {
   return null;
 };
 
-export const activate: Action = (state, cellPointer: Types.Point) => ({
+export const activate = (state: any, cellPointer: Types.IPoint) => ({
   selected: PointSet.from([cellPointer]),
   active: cellPointer,
   mode: isActive(state.active, cellPointer) ? "edit" : "view"
 });
 
-export function setCellData<Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>,
-  active: Types.Point,
+export function setCellData<Cell>(
+  state: Types.IStoreState<Cell>,
+  active: Types.IPoint,
   data: Cell,
-  bindings: Types.Point[]
-): $Shape<Types.StoreState<Cell>> | null {
-  if (isActiveReadOnly(state)) {
-    return null;
-  }
+  bindings: Types.IPoint[]
+): Partial<Types.IStoreState<Cell>> {
   return {
     mode: "edit",
     data: setCell(state, active, data),
@@ -77,10 +73,10 @@ export function setCellData<Cell: Types.CellBase>(
 }
 
 export function setCellDimensions(
-  state: Types.StoreState<*>,
-  point: Types.Point,
-  dimensions: Types.Dimensions
-): $Shape<Types.StoreState<*>> | null {
+  state: Types.IStoreState<any>,
+  point: Types.IPoint,
+  dimensions: Types.IDimensions
+): Partial<Types.IStoreState<any>> | null {
   const prevRowDimensions = state.rowDimensions[point.row];
   const prevColumnDimensions = state.columnDimensions[point.column];
   if (
@@ -105,7 +101,7 @@ export function setCellDimensions(
   };
 }
 
-export function copy<T>(state: Types.StoreState<T>) {
+export function copy<T>(state: Types.IStoreState<T>) {
   return {
     copied: PointSet.reduce(
       (acc, point) =>
@@ -122,31 +118,30 @@ export function copy<T>(state: Types.StoreState<T>) {
   };
 }
 
-export const cut = (state: Types.StoreState<*>) => ({
+export const cut = (state: Types.IStoreState<any>) => ({
   ...copy(state),
   cut: true
 });
 
-export function paste<Cell: Types.CellBase>(state: Types.StoreState<Cell>) {
+export function paste<Cell>(state: Types.IStoreState<Cell>) {
   if (PointSet.isEmpty(state.copied)) {
     return null;
   }
   const minPoint = PointSet.min(state.copied);
 
-  type Accumulator = {|
-    data: $PropertyType<Types.StoreState<Cell>, "data">,
-    selected: $PropertyType<Types.StoreState<Cell>, "selected">,
-    commit: $PropertyType<Types.StoreState<Cell>, "lastCommit">
-  |};
+  type Accumulator = {
+    data: Types.IStoreState<Cell>["data"];
+    selected: Types.IStoreState<Cell>["selected"];
+    commit: Types.IStoreState<Cell>["lastCommit"];
+  };
 
   const { data, selected, commit } = PointMap.reduce(
-    (acc: Accumulator, value, { row, column }): Accumulator => {
+    (acc: Accumulator, value, { row, column }): any => {
       if (!state.active) {
         return acc;
       }
 
-      let commit =
-        acc.commit || ([]: $PropertyType<Types.StoreState<Cell>, "lastCommit">);
+      let commit: Types.IStoreState<Cell>["lastCommit"] = acc.commit || [];
       const nextRow = row - minPoint.row + state.active.row;
       const nextColumn = column - minPoint.column + state.active.column;
 
@@ -154,21 +149,23 @@ export function paste<Cell: Types.CellBase>(state: Types.StoreState<Cell>) {
         ? Matrix.unset(row, column, acc.data)
         : acc.data;
 
-      if (state.cut) {
-        commit = [...commit, { prevCell: value, nextCell: undefined }];
+      if (state.cut && commit) {
+        commit = [...commit, { prevCell: value, nextCell: null }];
       }
 
       if (!Matrix.has(nextRow, nextColumn, state.data)) {
         return { data: nextData, selected: acc.selected, commit };
       }
 
-      commit = [
-        ...commit,
-        {
-          prevCell: Matrix.get(nextRow, nextColumn, nextData),
-          nextCell: value
-        }
-      ];
+      if (commit) {
+        commit = [
+          ...commit,
+          {
+            prevCell: Matrix.get(nextRow, nextColumn, nextData),
+            nextCell: value
+          }
+        ];
+      }
 
       return {
         data: Matrix.set(nextRow, nextColumn, value, nextData),
@@ -192,18 +189,18 @@ export function paste<Cell: Types.CellBase>(state: Types.StoreState<Cell>) {
   };
 }
 
-export const edit = <Cell: Types.CellBase>(state: Types.StoreState<Cell>) => {
+export const edit = <Cell: Types.CellBase>(state: Types.IStoreState<Cell>) => {
   if (isActiveReadOnly(state)) {
     return null;
   }
   return { mode: "edit" };
-};
+}
 
 export const view = () => ({
   mode: "view"
 });
 
-export const clear = <Cell: Types.CellBase>(state: Types.StoreState<Cell>) => {
+export const clear = (state: Types.IStoreState<any>) => {
   if (!state.active) {
     return null;
   }
@@ -213,7 +210,7 @@ export const clear = <Cell: Types.CellBase>(state: Types.StoreState<Cell>) => {
   return {
     data: PointSet.reduce(
       (acc, point) =>
-        updateData<Cell>(acc, {
+        updateData(acc, {
           ...point,
           data: { ...cell, value: "" }
         }),
@@ -233,15 +230,15 @@ export const clear = <Cell: Types.CellBase>(state: Types.StoreState<Cell>) => {
   };
 };
 
-export type KeyDownHandler<Cell: Types.CellBase> = (
-  state: Types.StoreState<Cell>,
-  event: SyntheticKeyboardEvent<*>
-) => $Shape<Types.StoreState<Cell>> | null;
+export type KeyDownHandler<Cell> = (
+  state: Types.IStoreState<Cell>,
+  event: KeyboardEvent
+) => Partial<Types.IStoreState<Cell>> | null;
 
-export const go = <Cell: Types.CellBase>(
+export const go = (
   rowDelta: number,
   columnDelta: number
-): KeyDownHandler<Cell> => (state, event) => {
+): KeyDownHandler<any> => (state, _) => {
   if (!state.active) {
     return null;
   }
@@ -259,9 +256,8 @@ export const go = <Cell: Types.CellBase>(
   };
 };
 
-export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
-  state: Types.StoreState<*>,
-  event: *
+export const modifyEdge = (field: keyof Types.IPoint, delta: number) => (
+  state: Types.IStoreState<any>
 ) => {
   if (!state.active) {
     return null;
@@ -290,12 +286,12 @@ export const blur = () => ({
 
 // Key Bindings
 
-type KeyDownHandlers<Cell: Types.CellBase> = {
-  [eventType: string]: KeyDownHandler<Cell>
+type KeyDownHandlers<Cell> = {
+  [eventType: string]: KeyDownHandler<Cell>;
 };
 
 /** @todo handle inactive state? */
-const keyDownHandlers: KeyDownHandlers<*> = {
+const keyDownHandlers: KeyDownHandlers<any> = {
   ArrowUp: go(-1, 0),
   ArrowDown: go(+1, 0),
   ArrowLeft: go(0, -1),
@@ -306,53 +302,47 @@ const keyDownHandlers: KeyDownHandlers<*> = {
   Escape: blur
 };
 
-const editKeyDownHandlers: KeyDownHandlers<*> = {
+const editKeyDownHandlers: KeyDownHandlers<any> = {
   Escape: view,
   Tab: keyDownHandlers.Tab,
   Enter: keyDownHandlers.ArrowDown
 };
 
-const shiftKeyDownHandlers: KeyDownHandlers<*> = {
+const shiftKeyDownHandlers: KeyDownHandlers<any> = {
   ArrowUp: modifyEdge("row", -1),
   ArrowDown: modifyEdge("row", 1),
   ArrowLeft: modifyEdge("column", -1),
   ArrowRight: modifyEdge("column", 1)
 };
 
-const shiftMetaKeyDownHandlers: KeyDownHandlers<*> = {};
-const metaKeyDownHandlers: KeyDownHandlers<*> = {};
+const shiftMetaKeyDownHandlers: KeyDownHandlers<any> = {};
+const metaKeyDownHandlers: KeyDownHandlers<any> = {};
 
-function getActive<Cell: Types.CellBase>(state: Types.StoreState<Cell>): ?Cell {
+function getActive<Cell>(state: Types.IStoreState<Cell>): any {
   return (
     state.active &&
     Matrix.get(state.active.row, state.active.column, state.data)
-  );
+);
 }
 
-const isActiveReadOnly = <Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>
+const isActiveReadOnly = <Cell>(
+  state: Types.IStoreState<Cell>
 ): boolean => {
   const activeCell = getActive(state);
   return Boolean(activeCell && activeCell.readOnly);
 };
 
-export function keyPress<Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>,
-  event: SyntheticKeyboardEvent<HTMLElement>
-) {
-  if (isActiveReadOnly(state)) {
-    return null;
-  }
+export function keyPress(state: Types.IStoreState<any>, _: KeyboardEvent) {
   if (state.mode === "view" && state.active) {
     return { mode: "edit" };
   }
   return null;
 }
 
-export function getKeyDownHandler<Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>,
-  event: SyntheticKeyboardEvent<HTMLElement>
-): KeyDownHandler<Cell> {
+export const getKeyDownHandler = (
+  state: Types.IStoreState<any>,
+  event: React.KeyboardEvent<HTMLInputElement>
+) => {
   const { key } = event;
   let handlers;
   // Order matters
@@ -368,30 +358,27 @@ export function getKeyDownHandler<Cell: Types.CellBase>(
     handlers = keyDownHandlers;
   }
   return handlers[key];
-}
+};
 
-export function keyDown<Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>,
-  event: SyntheticKeyboardEvent<HTMLElement>
-) {
-  const handler = getKeyDownHandler<Cell>(state, event);
+export function keyDown(state: Types.IStoreState<any>, event: KeyboardEvent) {
+  const handler = getKeyDownHandler(state, event);
   if (handler) {
     return handler(state, event);
   }
   return null;
 }
 
-export function dragStart<T>(state: Types.StoreState<T>) {
+export function dragStart() {
   return { dragging: true };
 }
 
-export function dragEnd<T>(state: Types.StoreState<T>) {
+export function dragEnd() {
   return { dragging: false };
 }
 
 export function commit<T>(
-  state: Types.StoreState<T>,
-  changes: Array<{ prevCell: T | null, nextCell: T | null }>
+  _: Types.IStoreState<T>,
+  changes: Array<{ prevCell: T | null; nextCell: T | null }>
 ) {
   return { lastCommit: changes };
 }

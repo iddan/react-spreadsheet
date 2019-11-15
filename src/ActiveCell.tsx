@@ -1,4 +1,3 @@
-// @flow
 import React, { Component } from "react";
 import classnames from "classnames";
 import { connect } from "unistore/react";
@@ -8,39 +7,34 @@ import * as Types from "./types";
 import { getCellDimensions } from "./util";
 
 type State<Cell> = {
-  cellBeforeUpdate: Cell
+  cellBeforeUpdate: Cell;
 };
 
-type Props<Cell, Value> = {|
-  ...Types.Point,
-  ...Types.Dimensions,
-  DataEditor: Types.DataEditor<Cell, Value>,
-  getValue: Types.getValue<Cell, Value>,
-  onChange: (data: Cell) => void,
-  setCellData: (
-    active: Types.Point,
-    data: Cell,
-    bindings: Types.Point[]
-  ) => void,
-  cell: Cell,
-  hidden: boolean,
-  mode: Types.Mode,
-  edit: () => void,
-  commit: Types.commit<Cell>,
-  getBindingsForCell: Types.getBindingsForCell<Cell>
-|};
+type Props<Cell, Value> = {
+  DataEditor: Types.DataEditor<Cell, Value>;
+  getValue: Types.getValue<Cell, Value>;
+  onChange: (data: Cell) => void;
+  setData: (active: Types.IPoint, data: Cell, bindings: Types.IPoint[]) => void;
+  cell: Cell;
+  hidden: boolean;
+  mode: Types.Mode;
+  edit: () => void;
+  commit: Types.commit<Cell>;
+  getBindingsForCell: Types.getBindingsForCell<Cell>;
+} & Types.IPoint &
+  Types.IDimensions;
 
-class ActiveCell<Cell: Types.CellBase, Value> extends Component<
+class ActiveCell<Cell, Value> extends Component<
   Props<Cell, Value>,
-  State<*>
+  State<any>
 > {
   state = { cellBeforeUpdate: null };
 
   handleChange = (row: number, column: number, cell: Cell) => {
-    const { setCellData, getBindingsForCell } = this.props;
+    const { setData, getBindingsForCell } = this.props;
     const bindings = getBindingsForCell(cell);
 
-    setCellData({ row, column }, cell, bindings);
+    setData({ row, column }, cell, bindings);
   };
 
   // NOTE: Currently all logics here belongs to commit event
@@ -79,12 +73,11 @@ class ActiveCell<Cell: Types.CellBase, Value> extends Component<
       edit
     } = this.props;
     DataEditor = (cell && cell.DataEditor) || DataEditor;
-    const readOnly = cell && cell.readOnly;
     return hidden ? null : (
       <div
         className={classnames("ActiveCell", mode)}
         style={{ width, height, top, left }}
-        onClick={mode === "view" && !readOnly ? edit : undefined}
+        onClick={mode === "view" ? edit : undefined}
       >
         {mode === "edit" && (
           <DataEditor
@@ -100,7 +93,7 @@ class ActiveCell<Cell: Types.CellBase, Value> extends Component<
   }
 }
 
-const mapStateToProps = (state: Types.StoreState<*>) => {
+const mapStateToProps = (state: Types.IStoreState<any>) => {
   const dimensions = state.active && getCellDimensions(state.active, state);
   if (!state.active || !dimensions) {
     return { hidden: true };
@@ -118,11 +111,8 @@ const mapStateToProps = (state: Types.StoreState<*>) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    setCellData: Actions.setCellData,
-    edit: Actions.edit,
-    commit: Actions.commit
-  }
-)(ActiveCell);
+export default connect(mapStateToProps, {
+  setData: Actions.setData,
+  edit: Actions.edit,
+  commit: Actions.commit
+})(ActiveCell);

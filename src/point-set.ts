@@ -1,79 +1,85 @@
 /**
  * Immutable Set like interface of points
  *
- * @flow
  */
 
-import type { Point } from "./types";
+import { IPoint } from "./types";
 import * as PointMap from "./point-map";
 
 export type PointSet = PointMap.PointMap<boolean>;
 
-export type Descriptor<T> = {|
-  ...Point,
-  data: T
-|};
+export interface IDescriptor<T> extends IPoint {
+  data: T;
+}
 
-/** Appends a new point to the Set object */
-export const add = (set: PointSet, point: Point): PointSet =>
-  PointMap.set(point, true, set);
+/** Appends a new IPoint to the Set object */
+export const add = (set: PointSet, IPoint: IPoint): PointSet =>
+  PointMap.set(IPoint, true, set);
 
-/** Removes the point from the Set object */
-export const remove = (set: PointSet, point: Point): PointSet =>
-  PointMap.unset(point, set);
+/** Removes the IPoint from the Set object */
+export const remove = (set: PointSet, IPoint: IPoint): PointSet =>
+  PointMap.unset(IPoint, set);
 
-/** Returns a boolean asserting whether an point is present with the given value in the Set object or not */
-export const has = (set: PointSet, point: Point): boolean =>
-  PointMap.has(point, set);
+/** Returns a boolean asserting whether an IPoint is present with the given value in the Set object or not */
+export const has = (set: PointSet, IPoint: IPoint): boolean =>
+  PointMap.has(IPoint, set);
 
 /** Returns the number of points in a PointSet object */
 export const size = (set: PointSet) => PointMap.size(set);
 
-/** Applies a function against an accumulator and each point in the set (from left to right) to reduce it to a single value */
+/** Applies a function against an accumulator and each IPoint in the set (from left to right) to reduce it to a single value */
 export function reduce<T>(
-  func: (T, Point) => T,
+  func: (_: T, __: IPoint) => T,
   set: PointSet,
   initialValue: T
 ): T {
   return PointMap.reduce(
-    (acc, _, point) => func(acc, point),
+    (acc, _, IPoint) => func(acc, IPoint),
     set,
     initialValue
   );
 }
 
-/** Creates a new set with the results of calling a provided function on every point in the calling set */
-export function map(func: Point => Point, set: PointSet): PointSet {
-  return reduce((acc, point) => add(acc, func(point)), set, from([]));
+/** Creates a new set with the results of calling a provided function on every IPoint in the calling set */
+export function map(func: (_: IPoint) => IPoint, set: PointSet): PointSet {
+  return reduce((acc, IPoint) => add(acc, func(IPoint)), set, from([]));
 }
 
 /** Creates a new set with all points that pass the test implemented by the provided function */
-export function filter(func: Point => boolean, set: PointSet): PointSet {
-  return PointMap.filter((_, point) => func(point), set);
+export function filter(func: (_: IPoint) => boolean, set: PointSet): PointSet {
+  return reduce(
+    (acc, IPoint) => {
+      if (func(IPoint)) {
+        return add(acc, IPoint);
+      }
+      return acc;
+    },
+    set,
+    from([])
+  );
 }
 
 const minKey = (object: { [key: number]: any }): number =>
-  // $FlowFixMe
-  Math.min(...Object.keys(object));
+  Math.min(...(Object.keys(object) as any));
 
-/** Returns the point on the minimal row in the minimal column in the set */
-export function min(set: PointSet): Point {
+/** Returns the IPoint on the minimal row in the minimal column in the set */
+export function min(set: PointSet): IPoint {
   const row = minKey(set);
   return { row, column: minKey(set[row]) };
 }
 
 const maxKey = (object: { [key: number]: any }): number =>
   // $FlowFixMe
-  Math.max(...Object.keys(object));
+  Math.max(...(Object.keys(object) as any));
 
-/** Returns the point on the maximal row in the maximal column in the set */
-export function max(set: PointSet): Point {
+/** Returns the IPoint on the maximal row in the maximal column in the set */
+export function max(set: PointSet): IPoint {
   const row = maxKey(set);
   return { row, column: maxKey(set[row]) };
 }
 
 /** Creates a new PointSet instance from an array-like or iterable object */
-export function from(points: Point[]): PointSet {
+export function from(points: IPoint[]): PointSet {
   return points.reduce(add, PointMap.from([]));
 }
 
@@ -81,16 +87,16 @@ export function from(points: Point[]): PointSet {
 export const isEmpty = (set: PointSet) => PointMap.isEmpty(set);
 
 /** Returns an array of the set points */
-export function toArray(set: PointSet): Point[] {
-  return reduce((acc: Point[], point: Point) => [...acc, point], set, []);
+export function toArray(set: PointSet): IPoint[] {
+  return reduce((acc: IPoint[], IPoint: IPoint) => [...acc, IPoint], set, []);
 }
 
-type OnEdge = {|
-  left: boolean,
-  right: boolean,
-  top: boolean,
-  bottom: boolean
-|};
+type OnEdge = {
+  left: boolean;
+  right: boolean;
+  top: boolean;
+  bottom: boolean;
+};
 
 const NO_EDGE: OnEdge = {
   left: false,
@@ -99,15 +105,15 @@ const NO_EDGE: OnEdge = {
   bottom: false
 };
 
-export function onEdge(set: PointSet, point: Point): OnEdge {
-  if (!has(set, point)) {
+export function onEdge(set: PointSet, IPoint: IPoint): OnEdge {
+  if (!has(set, IPoint)) {
     return NO_EDGE;
   }
 
-  let hasNot = (rowDelta, columnDelta) =>
+  let hasNot = (rowDelta: number, columnDelta: number) =>
     !has(set, {
-      row: point.row + rowDelta,
-      column: point.column + columnDelta
+      row: IPoint.row + rowDelta,
+      column: IPoint.column + columnDelta
     });
 
   return {
@@ -120,16 +126,15 @@ export function onEdge(set: PointSet, point: Point): OnEdge {
 
 export function getEdgeValue(
   set: PointSet,
-  field: $Keys<Point>,
+  field: keyof IPoint,
   delta: number
 ): number {
   const compare = Math.sign(delta) === -1 ? Math.min : Math.max;
   if (size(set) === 0) {
     throw new Error("getEdgeValue() should never be called with an empty set");
   }
-  // $FlowFixMe
   return reduce(
-    (acc, point) => {
+    (acc: any, point: any) => {
       if (acc === null) {
         return point[field];
       }
@@ -142,18 +147,18 @@ export function getEdgeValue(
 
 export function extendEdge(
   set: PointSet,
-  field: $Keys<Point>,
+  field: keyof IPoint,
   delta: number
 ): PointSet {
   const oppositeField = field === "row" ? "column" : "row";
   const edgeValue = getEdgeValue(set, field, delta);
   return reduce(
-    (acc, point) => {
+    (acc: any, point: any) => {
       if (point[field] === edgeValue) {
         return add(acc, {
           [field]: edgeValue + delta,
           [oppositeField]: point[oppositeField]
-        });
+        } as IPoint);
       }
       return acc;
     },
@@ -164,14 +169,14 @@ export function extendEdge(
 
 export function shrinkEdge(
   set: PointSet,
-  field: $Keys<Point>,
+  field: keyof IPoint,
   delta: number
 ): PointSet {
   const edgeValue = getEdgeValue(set, field, delta);
   return reduce(
-    (acc, point) => {
-      if (point[field] === edgeValue) {
-        return remove(acc, point);
+    (acc, IPoint) => {
+      if (IPoint[field] === edgeValue) {
+        return remove(acc, IPoint);
       }
       return acc;
     },

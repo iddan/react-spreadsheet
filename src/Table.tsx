@@ -1,13 +1,10 @@
-// @flow
-
 import React from "react";
-import type { Node } from "react";
 import { range } from "./util";
 
 export type Props = {
-  columns: number,
-  hideColumnIndicators: ?boolean,
-  children: Node
+  columns: number;
+  hideColumnIndicators?: boolean;
+  children: React.ReactChildren;
 };
 
 const Table = ({ children, columns, hideColumnIndicators }: Props) => {

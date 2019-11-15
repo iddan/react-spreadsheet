@@ -1,12 +1,9 @@
-// @flow
-
 import React, { PureComponent } from "react";
-import type { Node } from "react";
 import * as Types from "./types";
 import { moveCursorToEnd } from "./util";
 
 type Cell = {
-  value: Node
+  value: Node | string;
 };
 
 type Value = string | number;
@@ -14,18 +11,18 @@ type Value = string | number;
 export default class DataEditor extends PureComponent<
   Types.DataEditorProps<Cell, Value>
 > {
-  input: ?HTMLInputElement;
+  input?: HTMLInputElement;
 
   static defaultProps = {
     value: ""
   };
 
-  handleChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
+  handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { onChange, cell } = this.props;
     onChange({ ...cell, value: e.target.value });
   };
 
-  handleInput = (input: ?HTMLInputElement) => {
+  handleInput = (input: HTMLInputElement) => {
     this.input = input;
   };
 
