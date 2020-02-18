@@ -169,6 +169,19 @@ export function join(
   return joined;
 }
 
+/* Parses a CSV separated by a horizontalSeparator and verticalSeparator into a Matrix */
+export function parse(
+  csv: string,
+  horizontalSeparator: string = "\t",
+  verticalSeparator: string = "\n"
+): Matrix<{| value: string |}> {
+  return csv
+    .split(verticalSeparator)
+    .map(row =>
+      row.split(horizontalSeparator).map((value, column) => ({ value }))
+    );
+}
+
 /** Returns whether the point exists in the matrix or not. */
 export function has(row: number, column: number, matrix: Matrix<any>): boolean {
   const firstRow = matrix[0];

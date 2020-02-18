@@ -2,9 +2,8 @@
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
-import * as clipboard from "clipboard-polyfill";
 import * as Types from "./types";
-import { isActive, setCell, updateData } from "./util";
+import { isActive, setCell, updateData, readTextFromClipboard } from "./util";
 
 type Action = <Cell: Types.CellBase>(
   state: Types.StoreState<Cell>,
@@ -128,14 +127,14 @@ export const cut = (state: Types.StoreState<*>) => ({
   cut: true
 });
 
-export async function paste<Cell: Types.CellBase>(state: Types.StoreState<Cell>) {
-  const text = await clipboard.readText();
+export async function paste<Cell: Types.CellBase>(
+  state: Types.StoreState<Cell>
+) {
+  const text = await readTextFromClipboard();
   if (!text) return null;
-  const cells = text.split('\n')
-    .map((rowText, row) => rowText.split('\t').map((value, column) => [{row, column}, {value}]))
-    .reduce((res, v) => [...res, ...v], []);
+  const matrix = Matrix.parse(text);
+  const copied = PointMap.fromMatrix<any>(matrix);
 
-  const copied = PointMap.from<Cell>(cells);
   const minPoint = PointSet.min(copied);
 
   type Accumulator = {|

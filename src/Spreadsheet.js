@@ -114,12 +114,6 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
 
   formulaParser = new FormulaParser();
 
-  /**
-   * Internally used value to check if the copied text match the live objects
-   * inside state.copied
-   */
-  _clippedText: string | null = null;
-
   clip = () => {
     const { store, getValue } = this.props;
     const { data, selected } = store.getState();
@@ -135,12 +129,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       return getValue({ ...point, data: value });
     }, slicedMatrix);
     const csv = Matrix.join(valueMatrix);
-    this._clippedText = csv;
     writeTextToClipboard(csv);
-  };
-
-  unclip = () => {
-    this._clippedText = null;
   };
 
   isFocused(): boolean {
@@ -165,12 +154,6 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       event.preventDefault();
       event.stopPropagation();
       this.props.paste();
-
-      // if (text === this._clippedText) {
-      //   this.props.paste();
-      // } else {
-      //   this.unclip();
-      // }
     }
   };
 
