@@ -2,6 +2,7 @@
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
+import * as clipboard from "clipboard-polyfill";
 import * as Types from "./types";
 import { isActive, setCell, updateData } from "./util";
 
@@ -127,11 +128,15 @@ export const cut = (state: Types.StoreState<*>) => ({
   cut: true
 });
 
-export function paste<Cell: Types.CellBase>(state: Types.StoreState<Cell>) {
-  if (PointSet.isEmpty(state.copied)) {
-    return null;
-  }
-  const minPoint = PointSet.min(state.copied);
+export async function paste<Cell: Types.CellBase>(state: Types.StoreState<Cell>) {
+  const text = await clipboard.readText();
+  if (!text) return null;
+  const cells = text.split('\n')
+    .map((rowText, row) => rowText.split('\t').map((value, column) => [{row, column}, {value}]))
+    .reduce((res, v) => [...res, ...v], []);
+
+  const copied = PointMap.from<Cell>(cells);
+  const minPoint = PointSet.min(copied);
 
   type Accumulator = {|
     data: $PropertyType<Types.StoreState<Cell>, "data">,
@@ -179,7 +184,7 @@ export function paste<Cell: Types.CellBase>(state: Types.StoreState<Cell>) {
         commit
       };
     },
-    state.copied,
+    copied,
     { data: state.data, selected: PointSet.from([]), commit: [] }
   );
   return {

@@ -3,7 +3,6 @@
 import React, { PureComponent } from "react";
 import type { ComponentType, Node } from "react";
 import { connect } from "unistore/react";
-import * as clipboard from "clipboard-polyfill";
 // $FlowFixMe
 import type { Store } from "unistore";
 import {
@@ -165,12 +164,13 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     if (this.props.mode === "view" && this.isFocused()) {
       event.preventDefault();
       event.stopPropagation();
-      const text = await clipboard.readText();
-      if (text === this._clippedText) {
-        this.props.paste();
-      } else {
-        this.unclip();
-      }
+      this.props.paste();
+
+      // if (text === this._clippedText) {
+      //   this.props.paste();
+      // } else {
+      //   this.unclip();
+      // }
     }
   };
 
