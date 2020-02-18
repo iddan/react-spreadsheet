@@ -148,7 +148,7 @@ export function map<T, T2>(
  */
 export function join(
   matrix: Matrix<*>,
-  horizontalSeparator: string = ", ",
+  horizontalSeparator: string = "\t",
   verticalSeparator: string = "\n"
 ): string {
   let joined = "";
