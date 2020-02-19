@@ -108,9 +108,10 @@ export class Cell<Data: Types.CellBase, Value> extends PureComponent<
     return (
       <td
         ref={this.handleRoot}
-        className={classnames({
-          readonly: data && data.readOnly
-        })}
+        className={classnames(
+          { readonly: data && data.readOnly },
+          data && data.className
+        )}
         onMouseOver={this.handleMouseOver}
         onMouseDown={this.handleMouseDown}
         tabIndex={0}
