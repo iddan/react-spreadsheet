@@ -143,6 +143,9 @@ export async function paste<Cell: Types.CellBase>(
     commit: $PropertyType<Types.StoreState<Cell>, "lastCommit">
   |};
 
+  const requiredRows = state.active.row + Matrix.getSize(copiedMatrix).rows;
+  const paddedData = Matrix.padMatrix(state.data, requiredRows);
+
   const { data, selected, commit } = PointMap.reduce(
     (acc: Accumulator, value, { row, column }): Accumulator => {
       if (!state.active) {
@@ -162,7 +165,7 @@ export async function paste<Cell: Types.CellBase>(
         commit = [...commit, { prevCell: value, nextCell: undefined }];
       }
 
-      if (!Matrix.has(nextRow, nextColumn, state.data)) {
+      if (!Matrix.has(nextRow, nextColumn, paddedData)) {
         return { data: nextData, selected: acc.selected, commit };
       }
       const currentValue = Matrix.get(nextRow, nextColumn, nextData) || {};
@@ -190,7 +193,7 @@ export async function paste<Cell: Types.CellBase>(
       };
     },
     copied,
-    { data: state.data, selected: PointSet.from([]), commit: [] }
+    { data: paddedData, selected: PointSet.from([]), commit: [] }
   );
   return {
     data,

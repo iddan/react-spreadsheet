@@ -208,6 +208,18 @@ export function getSize(matrix: Matrix<any>): Size {
   };
 }
 
+export function padMatrix<T>(
+  matrix: Matrix<T>,
+  desiredRows: number
+): Matrix<T> {
+  const { rows } = getSize(matrix);
+  const missingRows = desiredRows - rows;
+  if (rows === 0 || missingRows < 0) return matrix;
+
+  const paddingRow = matrix.slice(-1)[0].map(v => ({ ...v, value: "" }));
+  return [...matrix, ...Array(missingRows).fill(paddingRow)];
+}
+
 /** Creates an array of points (positive and/or negative) progressing from startPoint up to, but not including, endPoint. */
 export function range(
   endPoint: Types.Point,
