@@ -12,6 +12,7 @@ export type Point = {|
 
 export type CellBase = {
   readOnly?: boolean,
+  className?: String,
   DataViewer?: DataViewer<*, *>,
   DataEditor?: DataEditor<*, *>
 };
