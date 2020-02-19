@@ -165,17 +165,23 @@ export async function paste<Cell: Types.CellBase>(
       if (!Matrix.has(nextRow, nextColumn, state.data)) {
         return { data: nextData, selected: acc.selected, commit };
       }
+      const currentValue = Matrix.get(nextRow, nextColumn, nextData) || {};
 
       commit = [
         ...commit,
         {
-          prevCell: Matrix.get(nextRow, nextColumn, nextData),
+          prevCell: currentValue,
           nextCell: value
         }
       ];
 
       return {
-        data: Matrix.set(nextRow, nextColumn, value, nextData),
+        data: Matrix.set(
+          nextRow,
+          nextColumn,
+          { ...currentValue, ...value },
+          nextData
+        ),
         selected: PointSet.add(acc.selected, {
           row: nextRow,
           column: nextColumn
