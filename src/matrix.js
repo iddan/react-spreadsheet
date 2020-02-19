@@ -206,15 +206,15 @@ export function range(
     startPoint.column !== endPoint.column
       ? _range(endPoint.column, startPoint.column)
       : startPoint.row !== endPoint.row
-        ? [startPoint.column]
-        : [];
+      ? [startPoint.column]
+      : [];
 
   const rowsRange =
     startPoint.row !== endPoint.row
       ? _range(endPoint.row, startPoint.row)
       : startPoint.column !== endPoint.column
-        ? [startPoint.row]
-        : [];
+      ? [startPoint.row]
+      : [];
 
   for (let i = 0; i < rowsRange.length; i++) {
     const row = rowsRange[i];

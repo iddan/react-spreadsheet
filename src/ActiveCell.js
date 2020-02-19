@@ -118,11 +118,8 @@ const mapStateToProps = (state: Types.StoreState<*>) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    setCellData: Actions.setCellData,
-    edit: Actions.edit,
-    commit: Actions.commit
-  }
-)(ActiveCell);
+export default connect(mapStateToProps, {
+  setCellData: Actions.setCellData,
+  edit: Actions.edit,
+  commit: Actions.commit
+})(ActiveCell);

@@ -161,11 +161,8 @@ function mapStateToProps<Data>(
   };
 }
 
-export const enhance = connect(
-  mapStateToProps,
-  () => ({
-    select: Actions.select,
-    activate: Actions.activate,
-    setCellDimensions: Actions.setCellDimensions
-  })
-);
+export const enhance = connect(mapStateToProps, () => ({
+  select: Actions.select,
+  activate: Actions.activate,
+  setCellDimensions: Actions.setCellDimensions
+}));
