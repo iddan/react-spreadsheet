@@ -360,15 +360,12 @@ const mapStateToProps = (
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    copy: Actions.copy,
-    cut: Actions.cut,
-    paste: Actions.paste,
-    onKeyDownAction: Actions.keyDown,
-    onKeyPress: Actions.keyPress,
-    onDragStart: Actions.dragStart,
-    onDragEnd: Actions.dragEnd
-  }
-)(Spreadsheet);
+export default connect(mapStateToProps, {
+  copy: Actions.copy,
+  cut: Actions.cut,
+  paste: Actions.paste,
+  onKeyDownAction: Actions.keyDown,
+  onKeyPress: Actions.keyPress,
+  onDragStart: Actions.dragStart,
+  onDragEnd: Actions.dragEnd
+})(Spreadsheet);

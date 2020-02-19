@@ -1,6 +1,10 @@
 import * as Matrix from "../src/matrix";
 
-const matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+const matrix = [
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9]
+];
 
 describe("Matrix.get()", () => {
   test("Gets value", () => {
@@ -16,11 +20,21 @@ describe("Matrix.getSize()", () => {
     expect(Matrix.getSize(matrix)).toEqual({ rows: 3, columns: 3 });
   });
   test("Relies on first row for columns", () => {
-    expect(Matrix.getSize([[1, 2, 3, 4], [1, 2, 3]])).toEqual({
+    expect(
+      Matrix.getSize([
+        [1, 2, 3, 4],
+        [1, 2, 3]
+      ])
+    ).toEqual({
       rows: 2,
       columns: 4
     });
-    expect(Matrix.getSize([[1, 2, 3], [1, 2, 3, 4]])).toEqual({
+    expect(
+      Matrix.getSize([
+        [1, 2, 3],
+        [1, 2, 3, 4]
+      ])
+    ).toEqual({
       rows: 2,
       columns: 3
     });
@@ -61,10 +75,18 @@ describe("Matrix.slice()", () => {
   test("Creates a slice of matrix from startPoint up to, but not including, endPoint", () => {
     expect(
       Matrix.slice({ row: 1, column: 2 }, { row: 3, column: 3 }, matrix)
-    ).toEqual([[13, 14], [23, 24], [33, 34]]);
+    ).toEqual([
+      [13, 14],
+      [23, 24],
+      [33, 34]
+    ]);
     expect(
       Matrix.slice({ row: 2, column: 2 }, { row: 4, column: 3 }, matrix)
-    ).toEqual([[23, 24], [33, 34], [43, 44]]);
+    ).toEqual([
+      [23, 24],
+      [33, 34],
+      [43, 44]
+    ]);
   });
 });
 
