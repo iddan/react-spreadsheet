@@ -173,7 +173,7 @@ export function join(
 export function split(
   csv: string,
   horizontalSeparator: string = "\t",
-  verticalSeparator: string = "\n"
+  verticalSeparator: string | RegExp = /\r\n|\n|\r/
 ): Matrix<{| value: string |}> {
   return csv
     .split(verticalSeparator)
