@@ -57,7 +57,7 @@ export type Props<CellType: Types.CellBase, Value> = {|
 type Handlers = {|
   cut: () => void,
   copy: () => void,
-  paste: () => void,
+  paste: (text: string) => void,
   setDragging: boolean => void,
   onKeyDownAction: (SyntheticKeyboardEvent<HTMLElement>) => void,
   onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void,
@@ -153,7 +153,10 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     if (this.props.mode === "view" && this.isFocused()) {
       event.preventDefault();
       event.stopPropagation();
-      this.props.paste();
+      if (event.clipboardData) {
+        const text = event.clipboardData.getData("text/plain");
+        this.props.paste(text);
+      }
     }
   };
 

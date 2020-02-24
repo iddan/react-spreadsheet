@@ -3,7 +3,7 @@ import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
-import { isActive, setCell, updateData, readTextFromClipboard } from "./util";
+import { isActive, setCell, updateData } from "./util";
 
 type Action = <Cell: Types.CellBase>(
   state: Types.StoreState<Cell>,
@@ -128,9 +128,9 @@ export const cut = (state: Types.StoreState<*>) => ({
 });
 
 export async function paste<Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>
+  state: Types.StoreState<Cell>,
+  text: string
 ) {
-  const text = await readTextFromClipboard();
   if (!text) return null;
   const matrix = Matrix.parse(text);
   const copied = PointMap.fromMatrix<any>(matrix);

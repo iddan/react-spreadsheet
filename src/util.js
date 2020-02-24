@@ -95,9 +95,6 @@ export const writeTextToClipboard = (data: string): void => {
   }
 };
 
-export const readTextFromClipboard = (): Promise<string> =>
-  clipboard.readText();
-
 export function createEmptyMatrix<T>(rows: number, columns: number): Matrix<T> {
   return range(rows).map(() => Array(columns));
 }
