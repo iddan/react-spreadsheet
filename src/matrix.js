@@ -170,7 +170,7 @@ export function join(
 }
 
 /* Parses a CSV separated by a horizontalSeparator and verticalSeparator into a Matrix */
-export function parse(
+export function split(
   csv: string,
   horizontalSeparator: string = "\t",
   verticalSeparator: string = "\n"
