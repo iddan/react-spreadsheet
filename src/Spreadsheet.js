@@ -22,7 +22,7 @@ import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
 import { getBindingsForCell } from "./bindings";
-import { range, writeTextToClipboard } from "./util";
+import { range } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -114,7 +114,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
 
   formulaParser = new FormulaParser();
 
-  clip = () => {
+  clip = (event: ClipboardEvent) => {
     const { store, getValue } = this.props;
     const { data, selected } = store.getState();
     const startPoint = PointSet.min(selected);
@@ -129,7 +129,9 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       return getValue({ ...point, data: value });
     }, slicedMatrix);
     const csv = Matrix.join(valueMatrix);
-    writeTextToClipboard(csv);
+    if (event.clipboardData) {
+      event.clipboardData.setData("text/plain", csv);
+    }
   };
 
   isFocused(): boolean {
@@ -144,7 +146,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     if (this.isFocused()) {
       event.preventDefault();
       event.stopPropagation();
-      this.clip();
+      this.clip(event);
       this.props.copy();
     }
   };
@@ -164,7 +166,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     if (this.isFocused()) {
       event.preventDefault();
       event.stopPropagation();
-      this.clip();
+      this.clip(event);
       this.props.cut();
     }
   };

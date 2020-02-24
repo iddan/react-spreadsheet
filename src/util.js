@@ -2,7 +2,6 @@
 
 import * as Types from "./types";
 import type { Matrix } from "./matrix";
-import * as clipboard from "clipboard-polyfill";
 
 export const moveCursorToEnd = (el: HTMLInputElement) => {
   el.selectionStart = el.selectionEnd = el.value.length;
@@ -68,32 +67,6 @@ export const getOffsetRect = (element: HTMLElement): Types.Dimensions => ({
   left: element.offsetLeft,
   top: element.offsetTop
 });
-
-/**
- * @todo better error management
- */
-/**
- * Wraps Clipboard.write() with permission check if necessary
- * @param string - The string to be written to the clipboard.
- */
-export const writeTextToClipboard = (data: string): void => {
-  const write = () => {
-    clipboard.writeText(data);
-  };
-  if (navigator.permissions) {
-    navigator.permissions
-      .query({
-        name: "clipboard-read"
-      })
-      .then(readClipboardStatus => {
-        if (readClipboardStatus.state) {
-          write();
-        }
-      });
-  } else {
-    write();
-  }
-};
 
 export function createEmptyMatrix<T>(rows: number, columns: number): Matrix<T> {
   return range(rows).map(() => Array(columns));
