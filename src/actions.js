@@ -350,7 +350,7 @@ export function keyPress<Cell: Types.CellBase>(
   state: Types.StoreState<Cell>,
   event: SyntheticKeyboardEvent<HTMLElement>
 ) {
-  if (isActiveReadOnly(state)) {
+  if (isActiveReadOnly(state) || event.metaKey) {
     return null;
   }
   if (state.mode === "view" && state.active) {
