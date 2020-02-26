@@ -22,7 +22,7 @@ import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
 import { getBindingsForCell } from "./bindings";
-import { range } from "./util";
+import { range, readTextFromClipboard, writeTextToClipboard } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -129,9 +129,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       return getValue({ ...point, data: value });
     }, slicedMatrix);
     const csv = Matrix.join(valueMatrix);
-    if (event.clipboardData) {
-      event.clipboardData.setData("text/plain", csv);
-    }
+    writeTextToClipboard(event, csv);
   };
 
   isFocused(): boolean {
@@ -156,7 +154,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       event.preventDefault();
       event.stopPropagation();
       if (event.clipboardData) {
-        const text = event.clipboardData.getData("text/plain");
+        const text = readTextFromClipboard(event);
         this.props.paste(text);
       }
     }

@@ -68,6 +68,25 @@ export const getOffsetRect = (element: HTMLElement): Types.Dimensions => ({
   top: element.offsetTop
 });
 
+export const writeTextToClipboard = (
+  event: ClipboardEvent,
+  data: string
+): void => {
+  if (event.clipboardData) {
+    event.clipboardData.setData("text/plain", data);
+  }
+};
+
+export const readTextFromClipboard = (event: ClipboardEvent): string => {
+  if (window.clipboardData && window.clipboardData.getData) {
+    return window.clipboardData.getData("Text");
+  }
+  if (event.clipboardData && event.clipboardData.getData) {
+    return event.clipboardData.getData("text/plain");
+  }
+  return "";
+};
+
 export function createEmptyMatrix<T>(rows: number, columns: number): Matrix<T> {
   return range(rows).map(() => Array(columns));
 }
