@@ -132,7 +132,7 @@ export async function paste<Cell: Types.CellBase>(
   text: string
 ) {
   if (!text) return null;
-  const copiedMatrix = Matrix.split(text);
+  const copiedMatrix = Matrix.split(text, value => ({ value }));
   const copied = PointMap.fromMatrix<any>(copiedMatrix);
 
   const minPoint = PointSet.min(copied);

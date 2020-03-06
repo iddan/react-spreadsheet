@@ -170,16 +170,15 @@ export function join(
 }
 
 /* Parses a CSV separated by a horizontalSeparator and verticalSeparator into a Matrix */
-export function split(
+export function split<T: *>(
   csv: string,
+  getValue: (value: string) => T,
   horizontalSeparator: string = "\t",
   verticalSeparator: string | RegExp = /\r\n|\n|\r/
 ): Matrix<{| value: string |}> {
   return csv
     .split(verticalSeparator)
-    .map(row =>
-      row.split(horizontalSeparator).map((value, column) => ({ value }))
-    );
+    .map(row => row.split(horizontalSeparator).map(getValue));
 }
 
 /** Returns whether the point exists in the matrix or not. */
