@@ -4,6 +4,7 @@
  * @flow
  */
 import * as Types from "./types";
+import { type Matrix } from "./matrix";
 
 export type PointMap<T> = {|
   [row: number]: {|
@@ -74,6 +75,19 @@ const EMPTY: PointMap<any> = ({}: any);
 /** Creates a new PointMap instance from an array-like or iterable object. */
 export function from<T>(pairs: [Types.Point, T][]): PointMap<T> {
   return pairs.reduce((acc, [point, value]) => set(point, value, acc), EMPTY);
+}
+
+/** Creates a new PointMap instance from a Matrix. */
+export function fromMatrix<T>(matrix: Matrix<T>): PointMap<T> {
+  return matrix.reduce(
+    (rowAcc, data, row) =>
+      data.reduce(
+        (colAcc, cell, column) =>
+          cell ? set({ row, column }, cell, colAcc) : colAcc,
+        rowAcc
+      ),
+    EMPTY
+  );
 }
 
 /** Returns the number of elements in a PointMap object. */

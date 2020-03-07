@@ -3,7 +3,6 @@
 import React, { PureComponent } from "react";
 import type { ComponentType, Node } from "react";
 import { connect } from "unistore/react";
-import * as clipboard from "clipboard-polyfill";
 // $FlowFixMe
 import type { Store } from "unistore";
 import {
@@ -23,7 +22,7 @@ import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
 import { getBindingsForCell } from "./bindings";
-import { range, writeTextToClipboard } from "./util";
+import { range, readTextFromClipboard, writeTextToClipboard } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -58,7 +57,7 @@ export type Props<CellType: Types.CellBase, Value> = {|
 type Handlers = {|
   cut: () => void,
   copy: () => void,
-  paste: () => void,
+  paste: (text: string) => void,
   setDragging: boolean => void,
   onKeyDownAction: (SyntheticKeyboardEvent<HTMLElement>) => void,
   onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void,
@@ -115,13 +114,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
 
   formulaParser = new FormulaParser();
 
-  /**
-   * Internally used value to check if the copied text match the live objects
-   * inside state.copied
-   */
-  _clippedText: string | null = null;
-
-  clip = () => {
+  clip = (event: ClipboardEvent) => {
     const { store, getValue } = this.props;
     const { data, selected } = store.getState();
     const startPoint = PointSet.min(selected);
@@ -136,12 +129,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       return getValue({ ...point, data: value });
     }, slicedMatrix);
     const csv = Matrix.join(valueMatrix);
-    this._clippedText = csv;
-    writeTextToClipboard(csv);
-  };
-
-  unclip = () => {
-    this._clippedText = null;
+    writeTextToClipboard(event, csv);
   };
 
   isFocused(): boolean {
@@ -156,7 +144,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     if (this.isFocused()) {
       event.preventDefault();
       event.stopPropagation();
-      this.clip();
+      this.clip(event);
       this.props.copy();
     }
   };
@@ -165,11 +153,9 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     if (this.props.mode === "view" && this.isFocused()) {
       event.preventDefault();
       event.stopPropagation();
-      const text = await clipboard.readText();
-      if (text === this._clippedText) {
-        this.props.paste();
-      } else {
-        this.unclip();
+      if (event.clipboardData) {
+        const text = readTextFromClipboard(event);
+        this.props.paste(text);
       }
     }
   };
@@ -178,7 +164,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     if (this.isFocused()) {
       event.preventDefault();
       event.stopPropagation();
-      this.clip();
+      this.clip(event);
       this.props.cut();
     }
   };

@@ -6,6 +6,8 @@ const matrix = [
   [7, 8, 9]
 ];
 
+const csv = "1\t2\t3\n4\t5\t6\n7\t8\t9";
+
 describe("Matrix.get()", () => {
   test("Gets value", () => {
     expect(Matrix.get(2, 2, matrix)).toBe(9);
@@ -38,6 +40,18 @@ describe("Matrix.getSize()", () => {
       rows: 2,
       columns: 3
     });
+  });
+});
+
+describe("Matrix.join()", () => {
+  test("Constructs a CSV string from a matrix", () => {
+    expect(Matrix.join(matrix)).toEqual(csv);
+  });
+});
+
+describe("Matrix.split()", () => {
+  test("Constructs a matrix from a CSV string", () => {
+    expect(Matrix.split(csv, value => Number(value))).toEqual(matrix);
   });
 });
 

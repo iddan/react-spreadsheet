@@ -127,11 +127,15 @@ export const cut = (state: Types.StoreState<*>) => ({
   cut: true
 });
 
-export function paste<Cell: Types.CellBase>(state: Types.StoreState<Cell>) {
-  if (PointSet.isEmpty(state.copied)) {
-    return null;
-  }
-  const minPoint = PointSet.min(state.copied);
+export async function paste<Cell: Types.CellBase>(
+  state: Types.StoreState<Cell>,
+  text: string
+) {
+  if (!text) return null;
+  const copiedMatrix = Matrix.split(text, value => ({ value }));
+  const copied = PointMap.fromMatrix<any>(copiedMatrix);
+
+  const minPoint = PointSet.min(copied);
 
   type Accumulator = {|
     data: $PropertyType<Types.StoreState<Cell>, "data">,
@@ -161,17 +165,23 @@ export function paste<Cell: Types.CellBase>(state: Types.StoreState<Cell>) {
       if (!Matrix.has(nextRow, nextColumn, state.data)) {
         return { data: nextData, selected: acc.selected, commit };
       }
+      const currentValue = Matrix.get(nextRow, nextColumn, nextData) || {};
 
       commit = [
         ...commit,
         {
-          prevCell: Matrix.get(nextRow, nextColumn, nextData),
+          prevCell: currentValue,
           nextCell: value
         }
       ];
 
       return {
-        data: Matrix.set(nextRow, nextColumn, value, nextData),
+        data: Matrix.set(
+          nextRow,
+          nextColumn,
+          { ...currentValue, ...value },
+          nextData
+        ),
         selected: PointSet.add(acc.selected, {
           row: nextRow,
           column: nextColumn
@@ -179,7 +189,7 @@ export function paste<Cell: Types.CellBase>(state: Types.StoreState<Cell>) {
         commit
       };
     },
-    state.copied,
+    copied,
     { data: state.data, selected: PointSet.from([]), commit: [] }
   );
   return {
@@ -340,7 +350,7 @@ export function keyPress<Cell: Types.CellBase>(
   state: Types.StoreState<Cell>,
   event: SyntheticKeyboardEvent<HTMLElement>
 ) {
-  if (isActiveReadOnly(state)) {
+  if (isActiveReadOnly(state) || event.metaKey) {
     return null;
   }
   if (state.mode === "view" && state.active) {
