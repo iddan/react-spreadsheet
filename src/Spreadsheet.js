@@ -110,9 +110,10 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     DataViewer,
     DataEditor,
     getValue,
-    getBindingsForCell,
-    formulaParser: new FormulaParser()
+    getBindingsForCell
   };
+
+  formulaParser = this.props.formulaParser || new FormulaParser();
 
   clip = (event: ClipboardEvent) => {
     const { store, getValue } = this.props;
