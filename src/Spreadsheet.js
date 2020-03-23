@@ -37,6 +37,7 @@ const getValue = ({ data }: { data: ?DefaultCellType }) =>
 
 export type Props<CellType: Types.CellBase, Value> = {|
   data: Matrix.Matrix<CellType>,
+  formulaParser: FormulaParser,
   columnLabels?: string[],
   ColumnIndicator?: ComponentType<ColumnIndicatorProps>,
   rowLabels?: string[],
@@ -109,10 +110,9 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     DataViewer,
     DataEditor,
     getValue,
-    getBindingsForCell
+    getBindingsForCell,
+    formulaParser: new FormulaParser()
   };
-
-  formulaParser = new FormulaParser();
 
   clip = (event: ClipboardEvent) => {
     const { store, getValue } = this.props;
@@ -180,7 +180,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     document.addEventListener("cut", this.handleCut);
     document.addEventListener("copy", this.handleCopy);
     document.addEventListener("paste", this.handlePaste);
-    this.formulaParser.on("callCellValue", (cellCoord, done) => {
+    this.props.formulaParser.on("callCellValue", (cellCoord, done) => {
       let value;
       /** @todo More sound error, or at least document */
       try {
@@ -196,7 +196,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
         done(value);
       }
     });
-    this.formulaParser.on(
+    this.props.formulaParser.on(
       "callRangeValue",
       (startCellCoord, endCellCoord, done) => {
         const startPoint = {
@@ -316,7 +316,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
                   column={columnNumber}
                   DataViewer={DataViewer}
                   getValue={getValue}
-                  formulaParser={this.formulaParser}
+                  formulaParser={this.props.formulaParser}
                 />
               ))}
             </Row>
@@ -346,12 +346,15 @@ const mapStateToProps = (
   };
 };
 
-export default connect(mapStateToProps, {
-  copy: Actions.copy,
-  cut: Actions.cut,
-  paste: Actions.paste,
-  onKeyDownAction: Actions.keyDown,
-  onKeyPress: Actions.keyPress,
-  onDragStart: Actions.dragStart,
-  onDragEnd: Actions.dragEnd
-})(Spreadsheet);
+export default connect(
+  mapStateToProps,
+  {
+    copy: Actions.copy,
+    cut: Actions.cut,
+    paste: Actions.paste,
+    onKeyDownAction: Actions.keyDown,
+    onKeyPress: Actions.keyPress,
+    onDragStart: Actions.dragStart,
+    onDragEnd: Actions.dragEnd
+  }
+)(Spreadsheet);
