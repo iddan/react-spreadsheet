@@ -110,9 +110,10 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     DataViewer,
     DataEditor,
     getValue,
-    getBindingsForCell,
-    formulaParser: new FormulaParser()
+    getBindingsForCell
   };
+
+  formulaParser = this.props.formulaParser || new FormulaParser();
 
   clip = (event: ClipboardEvent) => {
     const { store, getValue } = this.props;
@@ -346,15 +347,12 @@ const mapStateToProps = (
   };
 };
 
-export default connect(
-  mapStateToProps,
-  {
-    copy: Actions.copy,
-    cut: Actions.cut,
-    paste: Actions.paste,
-    onKeyDownAction: Actions.keyDown,
-    onKeyPress: Actions.keyPress,
-    onDragStart: Actions.dragStart,
-    onDragEnd: Actions.dragEnd
-  }
-)(Spreadsheet);
+export default connect(mapStateToProps, {
+  copy: Actions.copy,
+  cut: Actions.cut,
+  paste: Actions.paste,
+  onKeyDownAction: Actions.keyDown,
+  onKeyPress: Actions.keyPress,
+  onDragStart: Actions.dragStart,
+  onDragEnd: Actions.dragEnd
+})(Spreadsheet);
