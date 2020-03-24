@@ -181,7 +181,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     document.addEventListener("cut", this.handleCut);
     document.addEventListener("copy", this.handleCopy);
     document.addEventListener("paste", this.handlePaste);
-    this.props.formulaParser.on("callCellValue", (cellCoord, done) => {
+    this.formulaParser.on("callCellValue", (cellCoord, done) => {
       let value;
       /** @todo More sound error, or at least document */
       try {
@@ -197,7 +197,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
         done(value);
       }
     });
-    this.props.formulaParser.on(
+    this.formulaParser.on(
       "callRangeValue",
       (startCellCoord, endCellCoord, done) => {
         const startPoint = {
@@ -317,7 +317,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
                   column={columnNumber}
                   DataViewer={DataViewer}
                   getValue={getValue}
-                  formulaParser={this.props.formulaParser}
+                  formulaParser={this.formulaParser}
                 />
               ))}
             </Row>
