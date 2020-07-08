@@ -17,6 +17,7 @@ type Unsubscribe = () => void;
 
 export type Props<CellType, Value> = {|
   ...SpreadsheetProps<CellType, Value>,
+  selected: Array<Types.Point>,
   onChange: (data: Matrix.Matrix<CellType>) => void,
   onModeChange: (mode: Types.Mode) => void,
   onSelect: (selected: Types.Point[]) => void,
@@ -52,7 +53,8 @@ export default class SpreadsheetStateProvider<
     onModeChange: () => {},
     onSelect: () => {},
     onActivate: () => {},
-    onCellCommit: () => {}
+    onCellCommit: () => {},
+    selected: []
   };
 
   constructor(props: Props<CellType, Value>) {
@@ -74,18 +76,25 @@ export default class SpreadsheetStateProvider<
     return !shallowEqual(rest, nextRest) || nextData !== this.prevState.data;
   }
 
+  setSelected(selected: Array<Types.Point>) {
+    if (selected.length != 2) {
+      return;
+    }
+    const [start, end] = selected;
+    this.store.setState(Actions.setSelected(this.store.getState(), start, end));
+  }
   componentDidMount() {
     const {
       onChange,
       onModeChange,
       onSelect,
       onActivate,
-      onCellCommit
+      onCellCommit,
+      selected
     } = this.props;
     this.unsubscribe = this.store.subscribe(
       (state: Types.StoreState<CellType>) => {
         const { prevState } = this;
-
         if (state.lastCommit && state.lastCommit !== prevState.lastCommit) {
           for (const change of state.lastCommit) {
             onCellCommit(change.prevCell, change.nextCell, state.active);
@@ -107,6 +116,9 @@ export default class SpreadsheetStateProvider<
         this.prevState = state;
       }
     );
+    if (selected.length == 2) {
+      this.setSelected(selected);
+    }
   }
 
   componentDidUpdate(prevProps: Props<CellType, Value>) {
@@ -114,6 +126,10 @@ export default class SpreadsheetStateProvider<
       this.store.setState(
         Actions.setData(this.store.getState(), this.props.data)
       );
+    }
+
+    if (!shallowEqual(this.props.selected, prevProps.selected)) {
+      this.setSelected(this.props.selected);
     }
   }
 

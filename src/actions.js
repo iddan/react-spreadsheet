@@ -40,17 +40,24 @@ export const setData: Action = (state, data) => {
 
 export const select: Action = (state, cellPointer: Types.Point) => {
   if (state.active && !isActive(state.active, cellPointer)) {
-    return {
-      selected: PointSet.from(
-        Matrix.inclusiveRange(
-          { row: cellPointer.row, column: cellPointer.column },
-          { row: state.active.row, column: state.active.column }
-        )
-      ),
-      mode: "view"
-    };
+    return setSelected(
+      state,
+      { row: cellPointer.row, column: cellPointer.column },
+      { row: state.active.row, column: state.active.column }
+    );
   }
   return null;
+};
+
+export const setSelected: Action = (
+  state,
+  start: Types.Point,
+  end: Types.Point
+) => {
+  return {
+    selected: PointSet.from(Matrix.inclusiveRange(start, end)),
+    mode: "view"
+  };
 };
 
 export const activate: Action = (state, cellPointer: Types.Point) => ({
