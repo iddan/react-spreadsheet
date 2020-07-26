@@ -71,6 +71,8 @@ declare module 'react-spreadsheet' {
     formulaParser: IFormulaParser,
   };
 
+  export type CornerIndicatorProps = {};
+
   export type ColumnIndicatorProps = {
     column: number,
     label?: React.ReactNode,
@@ -107,6 +109,7 @@ declare module 'react-spreadsheet' {
     formulaParser?: IFormulaParser,
     columnLabels?: string[]
     ColumnIndicator?: React.ComponentType<ColumnIndicatorProps>,
+    CornerIndicator?: React.ComponentType<CornerIndicatorProps>,
     rowLabels?: string[],
     RowIndicator?: React.ComponentType<RowIndicatorProps>,
     hideRowIndicators?: boolean,

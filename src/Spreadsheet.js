@@ -14,6 +14,8 @@ import Table from "./Table";
 import type { Props as TableProps } from "./Table";
 import Row from "./Row";
 import type { Props as RowProps } from "./Row";
+import CornerIndicator from "./CornerIndicator";
+import type { Props as CornerIndicatorProps } from "./CornerIndicator";
 import { Cell, enhance as enhanceCell } from "./Cell";
 import type { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
@@ -40,6 +42,7 @@ export type Props<CellType: Types.CellBase, Value> = {|
   formulaParser: FormulaParser,
   columnLabels?: string[],
   ColumnIndicator?: ComponentType<ColumnIndicatorProps>,
+  CornerIndicator?: ComponentType<CornerIndicatorProps>,
   rowLabels?: string[],
   RowIndicator?: ComponentType<RowIndicatorProps>,
   hideRowIndicators?: boolean,
@@ -106,6 +109,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     Table,
     Row,
     Cell: enhanceCell(Cell),
+    CornerIndicator,
     DataViewer,
     DataEditor,
     getValue,
@@ -253,6 +257,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       Table,
       Row,
       Cell,
+      CornerIndicator,
       columnLabels,
       rowLabels,
       DataViewer,
@@ -279,7 +284,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       >
         <Table columns={columns} hideColumnIndicators={hideColumnIndicators}>
           <Row>
-            {!hideRowIndicators && !hideColumnIndicators && <th />}
+            {!hideRowIndicators && !hideColumnIndicators && <CornerIndicator />}
             {!hideColumnIndicators &&
               range(columns).map(columnNumber =>
                 columnLabels ? (
