@@ -52,7 +52,12 @@ declare module 'react-spreadsheet' {
     getValue: CellGetter<Cell, Value>,
   }
 
-  export type DataViewerProps<Cell, Value> = CellComponentProps<Cell, Value>;
+  export type DataViewerProps<Cell, Value> = CellComponentProps<Cell, Value> & {
+    column: number,
+    formulaParser: IFormulaParser,
+    row: number,
+    getValue: CellGetter<Cell, Value>,
+  };
 
   export type DataEditorProps<Cell, Value> = CellComponentProps<Cell, Value> & {
     onChange: (cell: Cell) => void,
@@ -88,8 +93,8 @@ declare module 'react-spreadsheet' {
     className?: string,
     readOnly?: boolean,
 
-    DataViewer?: any,
-    DataEditor?: any,
+    DataViewer?: React.ComponentType<DataViewerProps<any, any>>,
+    DataEditor?: React.ComponentType<DataEditorProps<any, any>>,
   }
 
   export interface DefaultCellValue {
@@ -98,7 +103,7 @@ declare module 'react-spreadsheet' {
 
   export type SpreadsheetProps<Cell, Value> = {
     // Spreadsheet
-    data: Matrix<Cell>,
+    data: Matrix<Value>,
     formulaParser?: IFormulaParser,
     columnLabels?: string[]
     ColumnIndicator?: React.ComponentType<ColumnIndicatorProps>,
