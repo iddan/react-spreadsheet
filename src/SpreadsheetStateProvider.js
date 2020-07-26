@@ -13,7 +13,6 @@ import * as Matrix from "./matrix";
 import Spreadsheet, { type Props as SpreadsheetProps } from "./Spreadsheet";
 
 export { createEmptyMatrix } from "./util";
-export { enhance as enhanceCell } from "./Cell";
 
 type Unsubscribe = () => void;
 

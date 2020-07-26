@@ -24,7 +24,7 @@ import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
 import { getBindingsForCell } from "./bindings";
-import { range, readTextFromClipboard, writeTextToClipboard } from "./util";
+import { memoizeOne, range, readTextFromClipboard, writeTextToClipboard } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -108,7 +108,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
   static defaultProps = {
     Table,
     Row,
-    Cell: enhanceCell(Cell),
+    Cell,
     CornerIndicator,
     DataViewer,
     DataEditor,
@@ -252,11 +252,12 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     this.root = root;
   };
 
+  getCellComponent = memoizeOne(enhanceCell);
+
   render() {
     const {
       Table,
       Row,
-      Cell,
       CornerIndicator,
       columnLabels,
       rowLabels,
@@ -270,6 +271,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       hideRowIndicators
     } = this.props;
 
+    const Cell = this.getCellComponent(this.props.Cell);
     const ColumnIndicator =
       this.props.ColumnIndicator || DefaultColumnIndicator;
     const RowIndicator = this.props.RowIndicator || DefaultRowIndicator;
