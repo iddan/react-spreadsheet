@@ -105,7 +105,6 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
   static defaultProps = {
     Table,
     Row,
-    /** @todo enhance incoming Cell prop */
     Cell: enhanceCell(Cell),
     DataViewer,
     DataEditor,
