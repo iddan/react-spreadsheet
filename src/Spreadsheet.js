@@ -279,7 +279,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
         onMouseMove={this.handleMouseMove}
       >
         <Table columns={columns} hideColumnIndicators={hideColumnIndicators}>
-          <tr>
+          <Row>
             {!hideRowIndicators && !hideColumnIndicators && <th />}
             {!hideColumnIndicators &&
               range(columns).map(columnNumber =>
@@ -297,7 +297,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
                   <ColumnIndicator key={columnNumber} column={columnNumber} />
                 )
               )}
-          </tr>
+          </Row>
           {range(rows).map(rowNumber => (
             <Row key={rowNumber}>
               {!hideRowIndicators &&
