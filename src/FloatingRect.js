@@ -6,7 +6,6 @@ import * as PointSet from "./point-set";
 import * as Types from "./types";
 import classnames from "classnames";
 import { getCellDimensions } from "./util";
-import "./FloatingRect.css";
 
 type Props = {
   ...Types.Dimensions,
