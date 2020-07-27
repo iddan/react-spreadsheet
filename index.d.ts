@@ -1,12 +1,20 @@
 declare module 'react-spreadsheet' {
   import * as React from 'react';
 
-  interface Point {
+  interface IDimensions {
+    width: number,
+    height: number,
+    top: number,
+    left: number,
+  }
+
+  interface IPoint {
     column: number,
     row: number,
   }
 
   type Matrix<T> = Array<Array<T | typeof undefined>>;
+  type Mode = 'edit' | 'view';
 
   // see: https://stackoverflow.com/a/50375286
   type UnionToIntersection<U> =
@@ -41,7 +49,7 @@ declare module 'react-spreadsheet' {
     parse: (formula: string) => FormulaParserResult,
   }
 
-  interface CellDescriptor<Cell> extends Point {
+  interface CellDescriptor<Cell> extends IPoint {
     data?: Cell,
   }
 
@@ -69,6 +77,18 @@ declare module 'react-spreadsheet' {
     DataViewer: React.ComponentType<DataViewerProps<Data, Value>>,
     getValue: CellGetter<Data, Value>,
     formulaParser: IFormulaParser,
+
+    // From connect()
+    selected: boolean,
+    active: boolean,
+    copied: boolean,
+    dragging: boolean,
+    mode: Mode,
+    data?: Data,
+
+    activate: (point: IPoint) => void,
+    select: (point: IPoint) => void,
+    setCellDimensions: (point: IPoint, dimensions: IDimensions) => void,
   };
 
   export type CornerIndicatorProps = {};
@@ -122,14 +142,14 @@ declare module 'react-spreadsheet' {
 
     onKeyDown?: (event: React.SyntheticEvent<HTMLElement, KeyboardEvent>) => void,
     getValue?: CellGetter<Cell, Value>,
-    getBindingsForCell?: CellGetter<Cell, Point[]>,
+    getBindingsForCell?: CellGetter<Cell, IPoint[]>,
 
     // SpreadsheetStateProvider
-    onActivate?: (active: Point) => void,
-    onCellCommit?: (prevCell: Cell, nextCell: Cell, coords: Point) => void,
+    onActivate?: (active: IPoint) => void,
+    onCellCommit?: (prevCell: Cell, nextCell: Cell, coords: IPoint) => void,
     onChange?: (data: Matrix<Value>) => void,
-    onModeChange?: (mode: 'edit' | 'view') => void,
-    onSelect?: (selected: Point[]) => void,
+    onModeChange?: (mode: Mode) => void,
+    onSelect?: (selected: IPoint[]) => void,
   };
 
   export function createEmptyMatrix<T = DefaultCellValue>(rows: number, columns: number): Matrix<T>;
