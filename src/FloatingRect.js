@@ -1,7 +1,6 @@
 // @flow
 
 import React from "react";
-import * as PointMap from "./point-map";
 import * as PointSet from "./point-set";
 import * as Types from "./types";
 import classnames from "classnames";
