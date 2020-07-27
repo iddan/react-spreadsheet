@@ -1,5 +1,8 @@
 // @flow
+import React from 'react';
 
 export type Props = {};
 
-export default "th";
+export default function CornerIndicator(props: Props) {
+  return <th className="Spreadsheet__header" />;
+}

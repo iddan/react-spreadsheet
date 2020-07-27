@@ -82,7 +82,10 @@ class ActiveCell<Cell: Types.CellBase, Value> extends Component<
     const readOnly = cell && cell.readOnly;
     return hidden ? null : (
       <div
-        className={classnames("ActiveCell", mode)}
+        className={classnames(
+          "Spreadsheet__active-cell",
+          `Spreadsheet__active-cell--${mode}`
+        )}
         style={{ width, height, top, left }}
         onClick={mode === "view" && !readOnly ? edit : undefined}
       >

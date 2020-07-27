@@ -14,6 +14,7 @@ Spreadsheet.displayName = "Spreadsheet";
 function CornerIndicator() {
   return (
     <th
+      className="Spreadsheet__header"
       style={{ position: 'relative' }}
       onClick={() => alert('You clicked the corner indicator!')}
     >

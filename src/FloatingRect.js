@@ -10,7 +10,9 @@ import { getCellDimensions } from "./util";
 type Props = {
   ...Types.Dimensions,
   className: string,
-  hidden: boolean
+  dragging: ?boolean,
+  hidden: boolean,
+  variant: 'copied' | 'selected'
 };
 
 const FloatingRect = ({
@@ -19,10 +21,16 @@ const FloatingRect = ({
   top,
   left,
   className,
-  hidden
+  dragging,
+  hidden,
+  variant
 }: Props) => (
   <div
-    className={classnames("FloatingRect", { hidden }, className)}
+    className={classnames("Spreadsheet__floating-rect", {
+      [`Spreadsheet__floating-rect--${variant}`]: variant,
+      "Spreadsheet__floating-rect--dragging": dragging,
+      "Spreadsheet__floating-rect--hidden": hidden,
+    })}
     style={{ width, height, top, left }}
   />
 );

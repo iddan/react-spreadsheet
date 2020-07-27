@@ -19,10 +19,10 @@ type Props = Types.CellComponentProps<Cell, Node> & {
 
 const toView = (value: Node | boolean): Node => {
   if (value === false) {
-    return <div className="boolean">FALSE</div>;
+    return <div className="Spreadsheet__data-viewer--boolean">FALSE</div>;
   }
   if (value === true) {
-    return <div className="boolean">TRUE</div>;
+    return <div className="Spreadsheet__data-viewer--boolean">TRUE</div>;
   }
   return value;
 };

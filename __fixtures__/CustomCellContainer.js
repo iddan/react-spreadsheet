@@ -71,7 +71,8 @@ class Cell extends Component {
       <td
         ref={this.root}
         className={classnames(
-          { readonly: data && data.readOnly },
+          "Spreadsheet__cell",
+          data && data.readOnly && "Spreadsheet__cell--readonly",
           data && data.className
         )}
         style={{

@@ -81,11 +81,9 @@ type ColumnIndicatorProps = {
 };
 
 const DefaultColumnIndicator = ({ column, label }: ColumnIndicatorProps) =>
-  label !== undefined ? (
-    <th>{label}</th>
-  ) : (
-    <th>{columnIndexToLabel(column)}</th>
-  );
+  <th className="Spreadsheet__header">
+    {label !== undefined ? label : columnIndexToLabel(column)}
+  </th>;
 
 type RowIndicatorProps = {
   row: number,
@@ -93,7 +91,9 @@ type RowIndicatorProps = {
 };
 
 const DefaultRowIndicator = ({ row, label }: RowIndicatorProps) =>
-  label !== undefined ? <th>{label}</th> : <th>{row + 1}</th>;
+  <th className="Spreadsheet__header">
+    {label !== undefined ? label : row + 1}
+  </th>;
 
 class Spreadsheet<CellType, Value> extends PureComponent<{|
   ...$Diff<
