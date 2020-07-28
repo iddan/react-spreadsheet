@@ -7,6 +7,20 @@ export const moveCursorToEnd = (el: HTMLInputElement) => {
   el.selectionStart = el.selectionEnd = el.value.length;
 };
 
+export function memoizeOne<Input, Output>(fn: (arg: Input) => Output) {
+  let lastArgument: Input;
+  let lastResult: Output;
+
+  return function (argument: Input) {
+    if (lastArgument !== argument) {
+      lastArgument = argument;
+      lastResult = fn.call(this, argument);
+    }
+
+    return lastResult;
+  }
+}
+
 /**
  * Creates an array of numbers (positive and/or negative) progressing from start up to, but not including, end. A step of -1 is used if a negative start is specified without an end or step. If end is not specified, it's set to start with start then set to 0.
  * @param end

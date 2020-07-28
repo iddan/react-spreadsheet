@@ -14,6 +14,8 @@ import Table from "./Table";
 import type { Props as TableProps } from "./Table";
 import Row from "./Row";
 import type { Props as RowProps } from "./Row";
+import CornerIndicator from "./CornerIndicator";
+import type { Props as CornerIndicatorProps } from "./CornerIndicator";
 import { Cell, enhance as enhanceCell } from "./Cell";
 import type { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
@@ -22,7 +24,7 @@ import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
 import { getBindingsForCell } from "./bindings";
-import { range, readTextFromClipboard, writeTextToClipboard } from "./util";
+import { memoizeOne, range, readTextFromClipboard, writeTextToClipboard } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -40,6 +42,7 @@ export type Props<CellType: Types.CellBase, Value> = {|
   formulaParser: FormulaParser,
   columnLabels?: string[],
   ColumnIndicator?: ComponentType<ColumnIndicatorProps>,
+  CornerIndicator?: ComponentType<CornerIndicatorProps>,
   rowLabels?: string[],
   RowIndicator?: ComponentType<RowIndicatorProps>,
   hideRowIndicators?: boolean,
@@ -78,11 +81,9 @@ type ColumnIndicatorProps = {
 };
 
 const DefaultColumnIndicator = ({ column, label }: ColumnIndicatorProps) =>
-  label !== undefined ? (
-    <th>{label}</th>
-  ) : (
-    <th>{columnIndexToLabel(column)}</th>
-  );
+  <th className="Spreadsheet__header">
+    {label !== undefined ? label : columnIndexToLabel(column)}
+  </th>;
 
 type RowIndicatorProps = {
   row: number,
@@ -90,7 +91,9 @@ type RowIndicatorProps = {
 };
 
 const DefaultRowIndicator = ({ row, label }: RowIndicatorProps) =>
-  label !== undefined ? <th>{label}</th> : <th>{row + 1}</th>;
+  <th className="Spreadsheet__header">
+    {label !== undefined ? label : row + 1}
+  </th>;
 
 class Spreadsheet<CellType, Value> extends PureComponent<{|
   ...$Diff<
@@ -105,8 +108,8 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
   static defaultProps = {
     Table,
     Row,
-    /** @todo enhance incoming Cell prop */
-    Cell: enhanceCell(Cell),
+    Cell,
+    CornerIndicator,
     DataViewer,
     DataEditor,
     getValue,
@@ -249,11 +252,19 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     this.root = root;
   };
 
+  /**
+   * The component inside the Cell prop is automatically enhanced with the enhance()
+   * function inside Cell.js. This method is a small wrapper which memoizes the application
+   * of enhance() to the user-provided Cell prop, in order to avoid creating new component
+   * types on every re-render.
+   */
+  getCellComponent = memoizeOne(enhanceCell);
+
   render() {
     const {
       Table,
       Row,
-      Cell,
+      CornerIndicator,
       columnLabels,
       rowLabels,
       DataViewer,
@@ -266,6 +277,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       hideRowIndicators
     } = this.props;
 
+    const Cell = this.getCellComponent(this.props.Cell);
     const ColumnIndicator =
       this.props.ColumnIndicator || DefaultColumnIndicator;
     const RowIndicator = this.props.RowIndicator || DefaultRowIndicator;
@@ -279,8 +291,8 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
         onMouseMove={this.handleMouseMove}
       >
         <Table columns={columns} hideColumnIndicators={hideColumnIndicators}>
-          <tr>
-            {!hideRowIndicators && !hideColumnIndicators && <th />}
+          <Row>
+            {!hideRowIndicators && !hideColumnIndicators && <CornerIndicator />}
             {!hideColumnIndicators &&
               range(columns).map(columnNumber =>
                 columnLabels ? (
@@ -297,7 +309,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
                   <ColumnIndicator key={columnNumber} column={columnNumber} />
                 )
               )}
-          </tr>
+          </Row>
           {range(rows).map(rowNumber => (
             <Row key={rowNumber}>
               {!hideRowIndicators &&
