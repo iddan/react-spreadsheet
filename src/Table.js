@@ -11,12 +11,12 @@ export type Props = {
 };
 
 const Table = ({ children, columns, hideColumnIndicators }: Props) => {
-  const columnIndicatorsShown = !hideColumnIndicators;
-  const columnNodes = range(columns + Number(columnIndicatorsShown)).map(i => (
+  const columnCount = columns + (hideColumnIndicators ? 0 : 1);
+  const columnNodes = range(columnCount).map(i => (
     <col key={i} />
   ));
   return (
-    <table className="SpreadsheetTable">
+    <table className="Spreadsheet__table">
       <colgroup>{columnNodes}</colgroup>
       <tbody>{children}</tbody>
     </table>

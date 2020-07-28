@@ -11,6 +11,7 @@ import * as Actions from "./actions";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import Spreadsheet, { type Props as SpreadsheetProps } from "./Spreadsheet";
+
 export { createEmptyMatrix } from "./util";
 
 type Unsubscribe = () => void;

@@ -6,34 +6,39 @@
   display: inline-block;
 }
 
-.Spreadsheet .ActiveCell {
+.Spreadsheet__active-cell {
   padding: 4px;
   position: absolute;
   border: 2px solid #4285f4;
   box-sizing: border-box;
 }
 
-.Spreadsheet .ActiveCell.edit {
+.Spreadsheet__active-cell--edit {
   background: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
-.SpreadsheetTable {
+.Spreadsheet__table {
   border-collapse: collapse;
   table-layout: fixed;
 }
 
-.Spreadsheet td,
-.Spreadsheet .ActiveCell {
+.Spreadsheet__cell,
+.Spreadsheet__active-cell {
   cursor: cell;
 }
 
-.Spreadsheet td,
-.Spreadsheet td input {
+.Spreadsheet__cell,
+.Spreadsheet__cell input {
   outline: none;
 }
 
-.Spreadsheet td,
-.Spreadsheet th {
+.Spreadsheet__cell--readonly {
+  color: #999;
+}
+
+.Spreadsheet__cell,
+.Spreadsheet__header {
   min-width: 6em;
   min-height: 1.9em;
   height: 1.9em;
@@ -48,28 +53,20 @@
   user-select: none;
 }
 
-.Spreadsheet th {
+.Spreadsheet__header {
   background: #f5f5f5;
   color: #999;
   text-align: center;
   font: inherit;
 }
 
-.Spreadsheet .ActiveCell.edit {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-}
-
-.Spreadsheet td.readonly {
-  color: #999;
-}
-
-.Spreadsheet .DataEditor,
-.Spreadsheet .DataEditor input {
+.Spreadsheet__data-editor,
+.Spreadsheet__data-editor input {
   width: 98%;
   height: 98%;
 }
 
-.Spreadsheet .DataEditor input {
+.Spreadsheet__data-editor input {
   font: inherit;
   background: none;
   border: none;
@@ -77,19 +74,28 @@
   margin: 0;
 }
 
-.Spreadsheet .selected {
+.Spreadsheet__data-viewer--boolean {
+  text-align: center;
+}
+
+.Spreadsheet__floating-rect {
+  position: absolute;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.Spreadsheet__floating-rect--hidden {
+  display: none;
+}
+
+.Spreadsheet__floating-rect--selected {
   background: rgba(160, 195, 255, 0.2);
   border: 2px #4285f4 solid;
 }
-
-.Spreadsheet .selected.dragging {
+.Spreadsheet__floating-rect--dragging {
   border: none;
 }
 
-.Spreadsheet .copied {
+.Spreadsheet__floating-rect--copied {
   border: 2px #4285f4 dashed;
-}
-
-.Spreadsheet .boolean {
-  text-align: center;
 }

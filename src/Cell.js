@@ -109,7 +109,8 @@ export class Cell<Data: Types.CellBase, Value> extends PureComponent<
       <td
         ref={this.handleRoot}
         className={classnames(
-          { readonly: data && data.readOnly },
+          "Spreadsheet__cell",
+          data && data.readOnly && "Spreadsheet__cell--readonly",
           data && data.className
         )}
         onMouseOver={this.handleMouseOver}
