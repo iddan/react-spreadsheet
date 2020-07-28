@@ -252,6 +252,12 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     this.root = root;
   };
 
+  /**
+   * The component inside the Cell prop is automatically enhanced with the enhance()
+   * function inside Cell.js. This method is a small wrapper which memoizes the application
+   * of enhance() to the user-provided Cell prop, in order to avoid creating new component
+   * types on every re-render.
+   */
   getCellComponent = memoizeOne(enhanceCell);
 
   render() {
