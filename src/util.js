@@ -116,3 +116,18 @@ export const getCellDimensions = (
     columnDimensions && { ...rowDimensions, ...columnDimensions }
   );
 };
+
+export const getComputedValue = ({
+  getValue,
+  cell,
+  column,
+  row,
+  formulaParser
+}) => {
+  const rawValue = getValue({ data: cell, column, row });
+  if (typeof rawValue === "string" && rawValue.startsWith("=")) {
+    const { result, error } = formulaParser.parse(rawValue.slice(1));
+    return error || result;
+  }
+  return rawValue;
+};

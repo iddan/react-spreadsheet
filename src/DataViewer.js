@@ -4,6 +4,7 @@ import React from "react";
 import type { ComponentType, Node } from "react";
 import type { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
+import { getComputedValue } from "./util";
 
 type Cell = {
   component?: ComponentType<{
@@ -28,12 +29,7 @@ const toView = (value: Node | boolean): Node => {
 };
 
 const DataViewer = ({ getValue, cell, column, row, formulaParser }: Props) => {
-  const rawValue = getValue({ data: cell, column, row });
-  if (typeof rawValue === "string" && rawValue.startsWith("=")) {
-    const { result, error } = formulaParser.parse(rawValue.slice(1));
-    return error || toView(result);
-  }
-  return toView(rawValue);
+  return toView(getComputedValue({ getValue, cell, column, row, formulaParser }));
 };
 
 export default DataViewer;
