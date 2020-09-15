@@ -24,7 +24,13 @@ import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
 import { getBindingsForCell } from "./bindings";
-import { memoizeOne, range, readTextFromClipboard, writeTextToClipboard } from "./util";
+import {
+  memoizeOne,
+  range,
+  readTextFromClipboard,
+  writeTextToClipboard,
+  getComputedValue
+} from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
@@ -193,7 +199,13 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
           cellCoord.column.index,
           store.getState().data
         );
-        value = getValue({ data: cell });
+        value = getComputedValue({
+          getValue,
+          cell,
+          column: cellCoord.column.index,
+          row: cellCoord.row.index,
+          formulaParser: this.formulaParser
+        });
       } catch (error) {
         console.error(error);
       } finally {
@@ -213,7 +225,13 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
         };
         const values = Matrix.toArray(
           Matrix.slice(startPoint, endPoint, store.getState().data)
-        ).map(cell => getValue({ data: cell }));
+        ).map(cell =>
+          getComputedValue({
+            getValue,
+            cell,
+            formulaParser: this.formulaParser
+          })
+        );
         done(values);
       }
     );
