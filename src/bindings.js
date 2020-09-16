@@ -14,7 +14,11 @@ function isFormulaCell<Cell: ?{ value: any }>(cell: Cell): boolean {
 const FORMULA_CELL_REFERENCES = /\$?[A-Z]+\$?[0-9]+/g;
 
 /** @todo move me */
-export function getBindingsForCell<Cell>(cell: Cell): Types.Point[] {
+export function getBindingsForCell<Cell>(
+  cell: Cell,
+  getCell: (row: number, column: number, data: Matrix<T>) => T,
+  data: Matrix<T>
+): Types.Point[] {
   if (!isFormulaCell(cell)) {
     return [];
   }
@@ -25,8 +29,18 @@ export function getBindingsForCell<Cell>(cell: Cell): Types.Point[] {
     return [];
   }
   // Normalize references to points
-  return match.map(substr => {
-    const [row, column] = extractLabel(substr);
-    return { row: row.index, column: column.index };
-  }, {});
+  return match
+    .map((substr) => {
+      const [row, column] = extractLabel(substr);
+      const bindingsForDependentCell = getBindingsForCell(
+        getCell(row.index, column.index, data),
+        getCell,
+        data
+      );
+      return [
+        { row: row.index, column: column.index },
+        ...bindingsForDependentCell
+      ];
+    }, {})
+    .flat();
 }
