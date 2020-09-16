@@ -36,9 +36,15 @@ class ActiveCell<Cell: Types.CellBase, Value> extends Component<
 > {
   state = { cellBeforeUpdate: null };
 
-  handleChange = (row: number, column: number, cell: Cell) => {
+  handleChange = (
+    row: number,
+    column: number,
+    cell: Cell,
+    getCell: (row: number, column: number, data: Matrix<T>) => {},
+    data: Matrix<T>
+  ) => {
     const { setCellData, getBindingsForCell } = this.props;
-    const bindings = getBindingsForCell(cell);
+    const bindings = getBindingsForCell(cell, getCell, data);
 
     setCellData({ row, column }, cell, bindings);
   };
@@ -63,6 +69,10 @@ class ActiveCell<Cell: Types.CellBase, Value> extends Component<
     }
   }
 
+  getCell(row: number, column: number, data: Matrix<T>) {
+    return Matrix.get(row, column, data);
+  }
+
   render() {
     let { DataEditor } = this.props;
     const {
@@ -76,7 +86,8 @@ class ActiveCell<Cell: Types.CellBase, Value> extends Component<
       left,
       hidden,
       mode,
-      edit
+      edit,
+      data
     } = this.props;
     DataEditor = (cell && cell.DataEditor) || DataEditor;
     const readOnly = cell && cell.readOnly;
@@ -94,7 +105,9 @@ class ActiveCell<Cell: Types.CellBase, Value> extends Component<
             row={row}
             column={column}
             cell={cell}
-            onChange={(cell: Cell) => this.handleChange(row, column, cell)}
+            onChange={(cell: Cell) =>
+              this.handleChange(row, column, cell, this.getCell, data)
+            }
             getValue={getValue}
           />
         )}
@@ -117,7 +130,8 @@ const mapStateToProps = (state: Types.StoreState<*>) => {
     height: dimensions.height,
     top: dimensions.top,
     left: dimensions.left,
-    mode: state.mode
+    mode: state.mode,
+    data: state.data
   };
 };
 
