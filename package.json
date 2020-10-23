@@ -14,7 +14,7 @@
   "types": "index.d.ts",
   "scripts": {
     "lint": "yarn run eslint .",
-    "check-formatting": "yarn run prettier --check .",
+    "check-format": "yarn run prettier --check .",
     "format": "yarn run prettier --write .",
     "test": "jest",
     "start": "yarn run cosmos",
