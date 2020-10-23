@@ -28,7 +28,7 @@ const toView = (value: Node | boolean): Node => {
   return value;
 };
 
-const DataViewer = ({ getValue, cell, column, row, formulaParser }: Props) => {
+const DataViewer = ({ getValue, cell, column, row, formulaParser }: Props): Node => {
   return toView(
     getComputedValue({ getValue, cell, column, row, formulaParser })
   );

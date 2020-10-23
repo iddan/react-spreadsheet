@@ -7,7 +7,7 @@ export const moveCursorToEnd = (el: HTMLInputElement) => {
   el.selectionStart = el.selectionEnd = el.value.length;
 };
 
-export function memoizeOne<Input, Output>(fn: (arg: Input) => Output) {
+export function memoizeOne<Input, Output>(fn: (arg: Input) => Output): (arg: Input) => Output {
   let lastArgument: Input;
   let lastResult: Output;
 
@@ -117,13 +117,13 @@ export const getCellDimensions = (
   );
 };
 
-export const getComputedValue = ({
+export function getComputedValue<V, T>({
   getValue,
   cell,
   column,
   row,
   formulaParser,
-}) => {
+}: { getValue({ data: T, column: number, row: number }): V, cell: T, column: number, row: number, formulaParser: FormulaParser }): V {
   const rawValue = getValue({ data: cell, column, row });
   if (typeof rawValue === "string" && rawValue.startsWith("=")) {
     const { result, error } = formulaParser.parse(rawValue.slice(1));
