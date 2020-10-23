@@ -16,7 +16,7 @@ type StaticProps<Data, Value> = {|
   column: number,
   DataViewer: Types.DataViewer<Data, Value>,
   getValue: Types.getValue<Data, Value>,
-  formulaParser: FormulaParser
+  formulaParser: FormulaParser,
 |};
 
 export type { StaticProps as Props };
@@ -28,19 +28,19 @@ type State<Data> = {|
   dragging: boolean,
   mode: Types.Mode,
   data: ?Data,
-  _bindingChanged: ?Object
+  _bindingChanged: ?Object,
 |};
 
 type Handlers = {|
   select: (cellPointer: Types.Point) => void,
   activate: (cellPointer: Types.Point) => void,
-  setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void
+  setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void,
 |};
 
 type Props<Data, Value> = {|
   ...StaticProps<Data, Value>,
   ...State<Data>,
-  ...Handlers
+  ...Handlers,
 |};
 
 export class Cell<Data: Types.CellBase, Value> extends PureComponent<
@@ -59,7 +59,7 @@ export class Cell<Data: Types.CellBase, Value> extends PureComponent<
       setCellDimensions,
       select,
       activate,
-      mode
+      mode,
     } = this.props;
     if (mode === "view") {
       setCellDimensions({ row, column }, getOffsetRect(e.currentTarget));
@@ -88,7 +88,7 @@ export class Cell<Data: Types.CellBase, Value> extends PureComponent<
       active,
       selected,
       mode,
-      setCellDimensions
+      setCellDimensions,
     } = this.props;
     if (selected && this.root) {
       setCellDimensions({ row, column }, getOffsetRect(this.root));
@@ -139,7 +139,7 @@ function mapStateToProps<Data>(
     mode,
     dragging,
     lastChanged,
-    bindings
+    bindings,
   }: Types.StoreState<Data>,
   { column, row }: Props<Data, *>
 ): State<Data> {
@@ -159,12 +159,12 @@ function mapStateToProps<Data>(
     _bindingChanged:
       cellBindings && lastChanged && PointSet.has(cellBindings, lastChanged)
         ? {}
-        : null
+        : null,
   };
 }
 
 export const enhance = connect(mapStateToProps, () => ({
   select: Actions.select,
   activate: Actions.activate,
-  setCellDimensions: Actions.setCellDimensions
+  setCellDimensions: Actions.setCellDimensions,
 }));

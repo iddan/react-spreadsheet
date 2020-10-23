@@ -8,7 +8,7 @@ import * as Types from "./types";
 import { getCellDimensions } from "./util";
 
 type State<Cell> = {
-  cellBeforeUpdate: Cell
+  cellBeforeUpdate: Cell,
 };
 
 type Props<Cell, Value> = {|
@@ -27,7 +27,7 @@ type Props<Cell, Value> = {|
   mode: Types.Mode,
   edit: () => void,
   commit: Types.commit<Cell>,
-  getBindingsForCell: Types.getBindingsForCell<Cell>
+  getBindingsForCell: Types.getBindingsForCell<Cell>,
 |};
 
 class ActiveCell<Cell: Types.CellBase, Value> extends Component<
@@ -63,7 +63,7 @@ class ActiveCell<Cell: Types.CellBase, Value> extends Component<
         prevProps.cell !== this.state.cellBeforeUpdate
       ) {
         commit([
-          { prevCell: this.state.cellBeforeUpdate, nextCell: prevProps.cell }
+          { prevCell: this.state.cellBeforeUpdate, nextCell: prevProps.cell },
         ]);
       }
     }
@@ -87,7 +87,7 @@ class ActiveCell<Cell: Types.CellBase, Value> extends Component<
       hidden,
       mode,
       edit,
-      data
+      data,
     } = this.props;
     DataEditor = (cell && cell.DataEditor) || DataEditor;
     const readOnly = cell && cell.readOnly;
@@ -131,12 +131,12 @@ const mapStateToProps = (state: Types.StoreState<*>) => {
     top: dimensions.top,
     left: dimensions.left,
     mode: state.mode,
-    data: state.data
+    data: state.data,
   };
 };
 
 export default connect(mapStateToProps, {
   setCellData: Actions.setCellData,
   edit: Actions.edit,
-  commit: Actions.commit
+  commit: Actions.commit,
 })(ActiveCell);

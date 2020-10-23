@@ -178,7 +178,7 @@ export function split<T: *>(
 ): Matrix<{| value: string |}> {
   return csv
     .split(verticalSeparator)
-    .map(row => row.split(horizontalSeparator).map(getValue));
+    .map((row) => row.split(horizontalSeparator).map(getValue));
 }
 
 /** Returns whether the point exists in the matrix or not. */
@@ -204,7 +204,7 @@ export function getSize(matrix: Matrix<any>): Size {
   const firstRow = matrix[0];
   return {
     columns: firstRow ? firstRow.length : 0,
-    rows: matrix.length
+    rows: matrix.length,
   };
 }
 
@@ -216,7 +216,7 @@ export function padMatrix<T>(
   const missingRows = desiredRows - rows;
   if (rows === 0 || missingRows < 0) return matrix;
 
-  const paddingRow = matrix.slice(-1)[0].map(v => ({ ...v, value: "" }));
+  const paddingRow = matrix.slice(-1)[0].map((v) => ({ ...v, value: "" }));
   return [...matrix, ...Array(missingRows).fill(paddingRow)];
 }
 
@@ -256,7 +256,7 @@ export const inclusiveRange: typeof range = (endPoint, startPoint) =>
   range(
     {
       row: endPoint.row + Math.sign(endPoint.row - startPoint.row),
-      column: endPoint.column + Math.sign(endPoint.column - startPoint.column)
+      column: endPoint.column + Math.sign(endPoint.column - startPoint.column),
     },
     startPoint
   );

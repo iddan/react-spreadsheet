@@ -7,19 +7,19 @@ import type { Matrix } from "./matrix";
 
 export type Point = {|
   column: number,
-  row: number
+  row: number,
 |};
 
 export type CellBase = {
   readOnly?: boolean,
   className?: string,
   DataViewer?: DataViewer<*, *>,
-  DataEditor?: DataEditor<*, *>
+  DataEditor?: DataEditor<*, *>,
 };
 
 export type CellDescriptor<Cell> = {|
   ...Point,
-  data: ?Cell
+  data: ?Cell,
 |};
 
 export type Mode = "view" | "edit";
@@ -28,7 +28,7 @@ export type Dimensions = {|
   width: number,
   height: number,
   top: number,
-  left: number
+  left: number,
 |};
 
 export type StoreState<Cell: CellBase> = {|
@@ -46,8 +46,8 @@ export type StoreState<Cell: CellBase> = {|
   bindings: PointMap<PointSet>,
   lastCommit: null | Array<{
     prevCell: Cell,
-    nextCell: Cell
-  }>
+    nextCell: Cell,
+  }>,
 |};
 
 export type getValue<Cell, Value> = (CellDescriptor<Cell>) => Value;
@@ -56,7 +56,7 @@ export type getBindingsForCell<Cell> = (cell: Cell) => Point[];
 
 type CellChange<CellType> = {
   prevCell: CellType | null,
-  nextCell: CellType | null
+  nextCell: CellType | null,
 };
 
 export type commit<CellType> = (changes: CellChange<CellType>[]) => void;
@@ -64,7 +64,7 @@ export type commit<CellType> = (changes: CellChange<CellType>[]) => void;
 export type CellComponentProps<Cell, Value> = {
   ...Point,
   cell: ?Cell,
-  getValue: getValue<Cell, Value>
+  getValue: getValue<Cell, Value>,
 };
 
 export type DataViewer<Cell, Value> = ComponentType<
@@ -72,7 +72,7 @@ export type DataViewer<Cell, Value> = ComponentType<
 >;
 
 export type DataEditorProps<Cell, Value> = CellComponentProps<Cell, Value> & {
-  onChange: Cell => void
+  onChange: (Cell) => void,
 };
 
 export type DataEditor<Cell, Value> = ComponentType<

@@ -4,7 +4,7 @@ const map = PointMap.from([
   [{ row: 0, column: 0 }, 42],
   [{ row: 0, column: 1 }, 42],
   [{ row: 1, column: 1 }, 42],
-  [{ row: 2, column: 2 }, 42]
+  [{ row: 2, column: 2 }, 42],
 ]);
 
 describe("PointMap.from()", () => {
@@ -12,7 +12,7 @@ describe("PointMap.from()", () => {
     expect(map).toEqual({
       0: { 0: 42, 1: 42 },
       1: { 1: 42 },
-      2: { 2: 42 }
+      2: { 2: 42 },
     });
   });
 });
@@ -56,17 +56,17 @@ describe("PointMap.reduce()", () => {
       [{ row: 0, column: 0 }, 42],
       [{ row: 0, column: 1 }, 42],
       [{ row: 1, column: 1 }, 42],
-      [{ row: 2, column: 2 }, 42]
+      [{ row: 2, column: 2 }, 42],
     ]);
   });
 });
 
 describe("PointMap.map()", () => {
   test("Creates a new map with the results of calling a provided function on every value in the calling map", () => {
-    expect(PointMap.map(value => value + 1, map)).toEqual({
+    expect(PointMap.map((value) => value + 1, map)).toEqual({
       0: { 0: 43, 1: 43 },
       1: { 1: 43 },
-      2: { 2: 43 }
+      2: { 2: 43 },
     });
   });
 });
@@ -75,7 +75,7 @@ describe("PointMap.filter()", () => {
   test("Creates a new map of all values predicate returns truthy for. The predicate is invoked with two arguments: (value, key)", () => {
     expect(PointMap.filter((value, point) => point.row > 0, map)).toEqual({
       1: { 1: 42 },
-      2: { 2: 42 }
+      2: { 2: 42 },
     });
   });
 });

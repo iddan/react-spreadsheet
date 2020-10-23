@@ -1,6 +1,6 @@
 import { createFixture } from "react-cosmos";
 import Spreadsheet, {
-  createEmptyMatrix
+  createEmptyMatrix,
 } from "../src/SpreadsheetStateProvider";
 import "./index.css";
 
@@ -14,10 +14,10 @@ export default createFixture({
   name: "KeyDown",
   props: {
     data: createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS),
-    onKeyDown: event => {
+    onKeyDown: (event) => {
       if (event.altKey) {
         event.preventDefault();
       }
-    }
-  }
+    },
+  },
 });

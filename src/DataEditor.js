@@ -6,7 +6,7 @@ import * as Types from "./types";
 import { moveCursorToEnd } from "./util";
 
 type Cell = {
-  value: Node
+  value: Node,
 };
 
 type Value = string | number;
@@ -17,7 +17,7 @@ export default class DataEditor extends PureComponent<
   input: ?HTMLInputElement;
 
   static defaultProps = {
-    value: ""
+    value: "",
   };
 
   handleChange = (e: SyntheticInputEvent<HTMLInputElement>) => {

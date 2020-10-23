@@ -18,7 +18,7 @@ export function memoizeOne<Input, Output>(fn: (arg: Input) => Output) {
     }
 
     return lastResult;
-  }
+  };
 }
 
 /**
@@ -64,7 +64,7 @@ export function setCell<Cell: Types.CellBase>(
 ): Matrix<Cell> {
   return updateData(state.data, {
     ...active,
-    data: cell
+    data: cell,
   });
 }
 
@@ -79,7 +79,7 @@ export const getOffsetRect = (element: HTMLElement): Types.Dimensions => ({
   width: element.offsetWidth,
   height: element.offsetHeight,
   left: element.offsetLeft,
-  top: element.offsetTop
+  top: element.offsetTop,
 });
 
 export const writeTextToClipboard = (
@@ -122,7 +122,7 @@ export const getComputedValue = ({
   cell,
   column,
   row,
-  formulaParser
+  formulaParser,
 }) => {
   const rawValue = getValue({ data: cell, column, row });
   if (typeof rawValue === "string" && rawValue.startsWith("=")) {

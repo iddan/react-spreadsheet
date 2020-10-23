@@ -11,7 +11,7 @@ type Props = {
   className: string,
   dragging: ?boolean,
   hidden: boolean,
-  variant: 'copied' | 'selected'
+  variant: "copied" | "selected",
 };
 
 const FloatingRect = ({
@@ -22,7 +22,7 @@ const FloatingRect = ({
   className,
   dragging,
   hidden,
-  variant
+  variant,
 }: Props) => (
   <div
     className={classnames("Spreadsheet__floating-rect", {
@@ -63,7 +63,7 @@ export const mapStateToProps = (cells: PointSet.PointSet) => (
 ) => {
   return {
     ...getRangeDimensions(cells, state),
-    hidden: PointSet.size(cells) === 0
+    hidden: PointSet.size(cells) === 0,
   };
 };
 

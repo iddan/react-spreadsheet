@@ -4,7 +4,7 @@ const set = PointSet.from([
   { row: 0, column: 0 },
   { row: 0, column: 1 },
   { row: 1, column: 1 },
-  { row: 2, column: 2 }
+  { row: 2, column: 2 },
 ]);
 
 describe("PointSet.from()", () => {
@@ -12,7 +12,7 @@ describe("PointSet.from()", () => {
     expect(set).toEqual({
       0: { 0: true, 1: true },
       1: { 1: true },
-      2: { 2: true }
+      2: { 2: true },
     });
   });
 });
@@ -23,7 +23,7 @@ describe("PointSet.add()", () => {
       0: { 0: true, 1: true },
       1: { 1: true },
       2: { 2: true },
-      3: { 3: true }
+      3: { 3: true },
     });
   });
 });
@@ -32,7 +32,7 @@ describe("PointSet.remove()", () => {
   test("Removes the point from the Set object", () => {
     expect(PointSet.remove(set, { row: 2, column: 2 })).toEqual({
       0: { 0: true, 1: true },
-      1: { 1: true }
+      1: { 1: true },
     });
   });
 });
@@ -55,7 +55,7 @@ describe("PointSet.reduce()", () => {
       { row: 0, column: 0 },
       { row: 0, column: 1 },
       { row: 1, column: 1 },
-      { row: 2, column: 2 }
+      { row: 2, column: 2 },
     ]);
   });
 });
@@ -70,7 +70,7 @@ describe("PointSet.map()", () => {
     ).toEqual({
       1: { 1: true, 2: true },
       2: { 2: true },
-      3: { 3: true }
+      3: { 3: true },
     });
   });
 });
@@ -81,7 +81,7 @@ describe("PointSet.filter()", () => {
       PointSet.filter(({ row, column }) => row > 0 && column > 0, set)
     ).toEqual({
       1: { 1: true },
-      2: { 2: true }
+      2: { 2: true },
     });
   });
 });
@@ -105,7 +105,7 @@ describe("PointSet.toArray()", () => {
       { row: 0, column: 0 },
       { row: 0, column: 1 },
       { row: 1, column: 1 },
-      { row: 2, column: 2 }
+      { row: 2, column: 2 },
     ]);
   });
 });

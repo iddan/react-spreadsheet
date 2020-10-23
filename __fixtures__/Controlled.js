@@ -2,7 +2,7 @@ import React, { Fragment, useState, useCallback } from "react";
 
 import { createFixture } from "react-cosmos";
 import Spreadsheet, {
-  createEmptyMatrix
+  createEmptyMatrix,
 } from "../src/SpreadsheetStateProvider";
 import * as Matrix from "../src/matrix";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
@@ -15,8 +15,8 @@ const Controlled = () => {
 
   const addColumn = useCallback(
     () =>
-      setData(data =>
-        data.map(row => {
+      setData((data) =>
+        data.map((row) => {
           const nextRow = [...row];
           nextRow.length += 1;
           return nextRow;
@@ -26,8 +26,8 @@ const Controlled = () => {
   );
 
   const removeColumn = useCallback(() => {
-    setData(data =>
-      data.map(row => {
+    setData((data) =>
+      data.map((row) => {
         return row.slice(0, row.length - 1);
       })
     );
@@ -35,7 +35,7 @@ const Controlled = () => {
 
   const addRow = useCallback(
     () =>
-      setData(data => {
+      setData((data) => {
         const { columns } = Matrix.getSize(data);
         return [...data, Array(columns)];
       }),
@@ -43,7 +43,7 @@ const Controlled = () => {
   );
 
   const removeRow = useCallback(() => {
-    setData(data => {
+    setData((data) => {
       return data.slice(0, data.length - 1);
     });
   }, [setData]);
@@ -67,6 +67,6 @@ export default createFixture({
   component: Controlled,
   name: "Controlled",
   props: {
-    data: initialData
-  }
+    data: initialData,
+  },
 });

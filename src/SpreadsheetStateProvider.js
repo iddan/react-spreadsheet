@@ -26,7 +26,7 @@ export type Props<CellType, Value> = {|
     prevCell: null | CellType,
     nextCell: null | CellType,
     coords: Types.Point
-  ) => void
+  ) => void,
 |};
 
 const initialState: $Shape<Types.StoreState<any>> = {
@@ -37,7 +37,7 @@ const initialState: $Shape<Types.StoreState<any>> = {
   rowDimensions: {},
   columnDimensions: {},
   lastChanged: null,
-  bindings: PointMap.from([])
+  bindings: PointMap.from([]),
 };
 
 export default class SpreadsheetStateProvider<
@@ -53,14 +53,14 @@ export default class SpreadsheetStateProvider<
     onModeChange: () => {},
     onSelect: () => {},
     onActivate: () => {},
-    onCellCommit: () => {}
+    onCellCommit: () => {},
   };
 
   constructor(props: Props<CellType, Value>) {
     super(props);
     const state: Types.StoreState<CellType> = {
       ...initialState,
-      data: this.props.data
+      data: this.props.data,
     };
     this.store =
       process.env.NODE_ENV === "production"
@@ -81,7 +81,7 @@ export default class SpreadsheetStateProvider<
       onModeChange,
       onSelect,
       onActivate,
-      onCellCommit
+      onCellCommit,
     } = this.props;
     this.unsubscribe = this.store.subscribe(
       (state: Types.StoreState<CellType>) => {

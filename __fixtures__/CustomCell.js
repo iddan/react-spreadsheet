@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { createFixture } from "react-cosmos";
 import Spreadsheet, {
-  createEmptyMatrix
+  createEmptyMatrix,
 } from "../src/SpreadsheetStateProvider";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
 import "./index.css";
@@ -45,6 +45,6 @@ export default createFixture({
   component: Spreadsheet,
   name: "CustomCell",
   props: {
-    data: initialData
-  }
+    data: initialData,
+  },
 });

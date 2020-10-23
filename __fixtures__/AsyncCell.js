@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { createFixture } from "react-cosmos";
 import Spreadsheet, {
-  createEmptyMatrix
+  createEmptyMatrix,
 } from "../src/SpreadsheetStateProvider";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
 import "./index.css";
@@ -39,7 +39,7 @@ class AsyncCell extends Component {
 initialData[2][2] = {
   value: 1,
   DataViewer: AsyncCell,
-  DataEditor: AsyncCell
+  DataEditor: AsyncCell,
 };
 
 export default createFixture({
@@ -47,6 +47,6 @@ export default createFixture({
   props: {
     data: initialData,
     onCellCommit: (...args) => console.log("onCellCommit", ...args),
-    onChange: (...args) => console.log("onChange", ...args)
-  }
+    onChange: (...args) => console.log("onChange", ...args),
+  },
 });

@@ -39,7 +39,7 @@ export function getBindingsForCell<Cell>(
       );
       return [
         { row: row.index, column: column.index },
-        ...bindingsForDependentCell
+        ...bindingsForDependentCell,
       ];
     }, {})
     .flat();
