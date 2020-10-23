@@ -1,6 +1,6 @@
 import { createFixture } from "react-cosmos";
 import Spreadsheet, {
-  createEmptyMatrix
+  createEmptyMatrix,
 } from "../src/SpreadsheetStateProvider";
 import "./index.css";
 
@@ -13,6 +13,6 @@ export default createFixture({
   component: Spreadsheet,
   name: "Basic",
   props: {
-    data: createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS)
-  }
+    data: createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS),
+  },
 });

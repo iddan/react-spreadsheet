@@ -7,7 +7,7 @@ import { connect } from "unistore/react";
 import type { Store } from "unistore";
 import {
   Parser as FormulaParser,
-  columnIndexToLabel
+  columnIndexToLabel,
 } from "hot-formula-parser";
 import * as Types from "./types";
 import Table from "./Table";
@@ -29,7 +29,7 @@ import {
   range,
   readTextFromClipboard,
   writeTextToClipboard,
-  getComputedValue
+  getComputedValue,
 } from "./util";
 import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
@@ -37,7 +37,7 @@ import * as Actions from "./actions";
 import "./Spreadsheet.css";
 
 type DefaultCellType = {
-  value: string | number | boolean | null
+  value: string | number | boolean | null,
 };
 
 const getValue = ({ data }: { data: ?DefaultCellType }) =>
@@ -61,55 +61,57 @@ export type Props<CellType: Types.CellBase, Value> = {|
   onKeyDown?: (event: SyntheticKeyboardEvent<HTMLElement>) => void,
   getValue: Types.getValue<CellType, Value>,
   getBindingsForCell: Types.getBindingsForCell<CellType>,
-  store: Store
+  store: Store,
 |};
 
 type Handlers = {|
   cut: () => void,
   copy: () => void,
   paste: (text: string) => void,
-  setDragging: boolean => void,
+  setDragging: (boolean) => void,
   onKeyDownAction: (SyntheticKeyboardEvent<HTMLElement>) => void,
   onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void,
   onDragStart: () => void,
-  onDragEnd: () => void
+  onDragEnd: () => void,
 |};
 
 type State = {|
   rows: number,
   columns: number,
-  mode: Types.Mode
+  mode: Types.Mode,
 |};
 
 type ColumnIndicatorProps = {
   column: number,
-  label?: Node | null
+  label?: Node | null,
 };
 
-const DefaultColumnIndicator = ({ column, label }: ColumnIndicatorProps) =>
+const DefaultColumnIndicator = ({ column, label }: ColumnIndicatorProps) => (
   <th className="Spreadsheet__header">
     {label !== undefined ? label : columnIndexToLabel(column)}
-  </th>;
+  </th>
+);
 
 type RowIndicatorProps = {
   row: number,
-  label?: Node | null
+  label?: Node | null,
 };
 
-const DefaultRowIndicator = ({ row, label }: RowIndicatorProps) =>
+const DefaultRowIndicator = ({ row, label }: RowIndicatorProps) => (
   <th className="Spreadsheet__header">
     {label !== undefined ? label : row + 1}
-  </th>;
+  </th>
+);
 
 class Spreadsheet<CellType, Value> extends PureComponent<{|
   ...$Diff<
     Props<CellType, Value>,
     {|
-      data: Matrix.Matrix<CellType>
+      data: Matrix.Matrix<CellType>,
     |}
   >,
   ...State,
-  ...Handlers
+  ...Handlers,
 |}> {
   static defaultProps = {
     Table,
@@ -119,7 +121,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     DataViewer,
     DataEditor,
     getValue,
-    getBindingsForCell
+    getBindingsForCell,
   };
 
   formulaParser = this.props.formulaParser || new FormulaParser();
@@ -204,7 +206,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
           cell,
           column: cellCoord.column.index,
           row: cellCoord.row.index,
-          formulaParser: this.formulaParser
+          formulaParser: this.formulaParser,
         });
       } catch (error) {
         console.error(error);
@@ -217,19 +219,19 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       (startCellCoord, endCellCoord, done) => {
         const startPoint = {
           row: startCellCoord.row.index,
-          column: startCellCoord.column.index
+          column: startCellCoord.column.index,
         };
         const endPoint = {
           row: endCellCoord.row.index,
-          column: endCellCoord.column.index
+          column: endCellCoord.column.index,
         };
         const values = Matrix.toArray(
           Matrix.slice(startPoint, endPoint, store.getState().data)
-        ).map(cell =>
+        ).map((cell) =>
           getComputedValue({
             getValue,
             cell,
-            formulaParser: this.formulaParser
+            formulaParser: this.formulaParser,
           })
         );
         done(values);
@@ -237,7 +239,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     );
   }
 
-  handleKeyDown = event => {
+  handleKeyDown = (event) => {
     const { store, onKeyDown, onKeyDownAction } = this.props;
     if (onKeyDown) {
       onKeyDown(event);
@@ -257,7 +259,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     document.removeEventListener("mouseup", this.handleMouseUp);
   };
 
-  handleMouseMove = event => {
+  handleMouseMove = (event) => {
     if (!this.props.store.getState().dragging && event.buttons === 1) {
       this.props.onDragStart();
       document.addEventListener("mouseup", this.handleMouseUp);
@@ -292,7 +294,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
       onKeyPress,
       getBindingsForCell,
       hideColumnIndicators,
-      hideRowIndicators
+      hideRowIndicators,
     } = this.props;
 
     const Cell = this.getCellComponent(this.props.Cell);
@@ -312,7 +314,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
           <Row>
             {!hideRowIndicators && !hideColumnIndicators && <CornerIndicator />}
             {!hideColumnIndicators &&
-              range(columns).map(columnNumber =>
+              range(columns).map((columnNumber) =>
                 columnLabels ? (
                   <ColumnIndicator
                     key={columnNumber}
@@ -328,7 +330,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
                 )
               )}
           </Row>
-          {range(rows).map(rowNumber => (
+          {range(rows).map((rowNumber) => (
             <Row key={rowNumber}>
               {!hideRowIndicators &&
                 (rowLabels ? (
@@ -340,7 +342,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
                 ) : (
                   <RowIndicator key={rowNumber} row={rowNumber} />
                 ))}
-              {range(columns).map(columnNumber => (
+              {range(columns).map((columnNumber) => (
                 <Cell
                   key={columnNumber}
                   row={rowNumber}
@@ -373,7 +375,7 @@ const mapStateToProps = (
   return {
     mode,
     rows,
-    columns: columnLabels ? Math.max(columns, columnLabels.length) : columns
+    columns: columnLabels ? Math.max(columns, columnLabels.length) : columns,
   };
 };
 
@@ -384,5 +386,5 @@ export default connect(mapStateToProps, {
   onKeyDownAction: Actions.keyDown,
   onKeyPress: Actions.keyPress,
   onDragStart: Actions.dragStart,
-  onDragEnd: Actions.dragEnd
+  onDragEnd: Actions.dragEnd,
 })(Spreadsheet);

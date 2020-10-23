@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { createFixture } from "react-cosmos";
 
 import Spreadsheet, {
-  createEmptyMatrix
+  createEmptyMatrix,
 } from "../src/SpreadsheetStateProvider";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
 import Select from "react-select";
@@ -14,7 +14,7 @@ const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 const OPTIONS = [
   { value: "vanilla", label: "Vanilla" },
   { value: "chocolate", label: "Chocolate" },
-  { value: "caramel", label: "Caramel" }
+  { value: "caramel", label: "Caramel" },
 ];
 
 const SelectView = ({ cell, getValue }) => (
@@ -27,7 +27,7 @@ const SelectView = ({ cell, getValue }) => (
 );
 
 class SelectEdit extends Component {
-  handleChange = selection => {
+  handleChange = (selection) => {
     const { onChange, cell } = this.props;
     onChange({ ...cell, value: selection ? selection.value : null });
   };
@@ -49,7 +49,7 @@ class SelectEdit extends Component {
 initialData[2][2] = {
   value: 0,
   DataViewer: SelectView,
-  DataEditor: SelectEdit
+  DataEditor: SelectEdit,
 };
 
 Spreadsheet.displayName = "Spreadsheet";
@@ -57,6 +57,6 @@ Spreadsheet.displayName = "Spreadsheet";
 export default createFixture({
   component: Spreadsheet,
   props: {
-    data: initialData
-  }
+    data: initialData,
+  },
 });

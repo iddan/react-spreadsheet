@@ -8,8 +8,8 @@ import { type Matrix } from "./matrix";
 
 export type PointMap<T> = {|
   [row: number]: {|
-    [column: number]: T
-  |}
+    [column: number]: T,
+  |},
 |};
 
 /** Sets the value for point in map */
@@ -22,8 +22,8 @@ export function set<T>(
     ...map,
     [point.row]: {
       ...map[point.row],
-      [point.column]: value
-    }
+      [point.column]: value,
+    },
   };
 }
 
@@ -61,13 +61,13 @@ export function has<T>(point: Types.Point, map: PointMap<T>): boolean {
 export function getRow<T>(row: number, map: PointMap<T>): T[] {
   return row in map
     ? // $FlowFixMe
-      Object.keys(map[row]).map(column => map[row][column])
+      Object.keys(map[row]).map((column) => map[row][column])
     : [];
 }
 
 export function getColumn<T>(column: number, map: PointMap<T>): T[] {
   // $FlowFixMe
-  return Object.keys(map).map(row => map[row][column]);
+  return Object.keys(map).map((row) => map[row][column]);
 }
 
 const EMPTY: PointMap<any> = ({}: any);
@@ -124,7 +124,7 @@ export function reduce<A, T>(
 }
 
 /** Creates a new map with the results of calling a provided function on every value in the calling map */
-export function map<T1, T2>(func: T1 => T2, map: PointMap<T1>): PointMap<T2> {
+export function map<T1, T2>(func: (T1) => T2, map: PointMap<T1>): PointMap<T2> {
   return reduce(
     (acc, value, point) => set(point, func(value), acc),
     map,

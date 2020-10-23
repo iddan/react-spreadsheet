@@ -11,7 +11,7 @@ export type PointSet = PointMap.PointMap<boolean>;
 
 export type Descriptor<T> = {|
   ...Point,
-  data: T
+  data: T,
 |};
 
 /** Appends a new point to the Set object */
@@ -43,12 +43,12 @@ export function reduce<T>(
 }
 
 /** Creates a new set with the results of calling a provided function on every point in the calling set */
-export function map(func: Point => Point, set: PointSet): PointSet {
+export function map(func: (Point) => Point, set: PointSet): PointSet {
   return reduce((acc, point) => add(acc, func(point)), set, from([]));
 }
 
 /** Creates a new set with all points that pass the test implemented by the provided function */
-export function filter(func: Point => boolean, set: PointSet): PointSet {
+export function filter(func: (Point) => boolean, set: PointSet): PointSet {
   return PointMap.filter((_, point) => func(point), set);
 }
 
@@ -89,14 +89,14 @@ type OnEdge = {|
   left: boolean,
   right: boolean,
   top: boolean,
-  bottom: boolean
+  bottom: boolean,
 |};
 
 const NO_EDGE: OnEdge = {
   left: false,
   right: false,
   top: false,
-  bottom: false
+  bottom: false,
 };
 
 export function onEdge(set: PointSet, point: Point): OnEdge {
@@ -107,14 +107,14 @@ export function onEdge(set: PointSet, point: Point): OnEdge {
   let hasNot = (rowDelta, columnDelta) =>
     !has(set, {
       row: point.row + rowDelta,
-      column: point.column + columnDelta
+      column: point.column + columnDelta,
     });
 
   return {
     left: hasNot(0, -1),
     right: hasNot(0, 1),
     top: hasNot(-1, 0),
-    bottom: hasNot(1, 0)
+    bottom: hasNot(1, 0),
   };
 }
 
@@ -152,7 +152,7 @@ export function extendEdge(
       if (point[field] === edgeValue) {
         return add(acc, {
           [field]: edgeValue + delta,
-          [oppositeField]: point[oppositeField]
+          [oppositeField]: point[oppositeField],
         });
       }
       return acc;

@@ -1,7 +1,7 @@
 import React from "react";
 import { createFixture } from "react-cosmos";
 import Spreadsheet, {
-  createEmptyMatrix
+  createEmptyMatrix,
 } from "../src/SpreadsheetStateProvider";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
 import "./index.css";
@@ -14,7 +14,7 @@ const Viewer = ({ getValue, cell }) => {
 };
 
 class Editor extends React.Component {
-  handleOnChange = event => {
+  handleOnChange = (event) => {
     const { onChange, cell } = this.props;
     onChange({ ...cell, value: event.target.value });
   };
@@ -31,12 +31,12 @@ initialData[0][1] = { value: "some text" };
 initialData[2][2] = {
   value: "more text",
   DataEditor: Editor,
-  DataViewer: Viewer
+  DataViewer: Viewer,
 };
 initialData[5][2] = {
   value: "even more text!",
   DataEditor: Editor,
-  DataViewer: Viewer
+  DataViewer: Viewer,
 };
 
 initialData[3][3] = { value: 10 };
@@ -48,6 +48,6 @@ export default createFixture({
   name: "onCellCommit",
   props: {
     data: initialData,
-    onCellCommit: (...args) => console.log("onCellCommit event", ...args)
-  }
+    onCellCommit: (...args) => console.log("onCellCommit event", ...args),
+  },
 });

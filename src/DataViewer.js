@@ -10,12 +10,12 @@ type Cell = {
   component?: ComponentType<{
     row: number,
     column: number,
-    value: Node
-  }>
+    value: Node,
+  }>,
 };
 
 type Props = Types.CellComponentProps<Cell, Node> & {
-  formulaParser: FormulaParser
+  formulaParser: FormulaParser,
 };
 
 const toView = (value: Node | boolean): Node => {
@@ -29,7 +29,9 @@ const toView = (value: Node | boolean): Node => {
 };
 
 const DataViewer = ({ getValue, cell, column, row, formulaParser }: Props) => {
-  return toView(getComputedValue({ getValue, cell, column, row, formulaParser }));
+  return toView(
+    getComputedValue({ getValue, cell, column, row, formulaParser })
+  );
 };
 
 export default DataViewer;

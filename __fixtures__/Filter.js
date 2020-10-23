@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from "react";
 import { createFixture } from "react-cosmos";
 import Spreadsheet, {
-  createEmptyMatrix
+  createEmptyMatrix,
 } from "../src/SpreadsheetStateProvider";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
 import "./index.css";
@@ -42,11 +42,11 @@ function filterMatrix(matrix, filter) {
 class Filter extends Component {
   state = { data: initialData, filter: "" };
 
-  handleChange = data => {
+  handleChange = (data) => {
     this.setState({ data });
   };
 
-  handleFilterChange = event => {
+  handleFilterChange = (event) => {
     this.setState({ filter: event.target.value });
   };
 
@@ -74,5 +74,5 @@ class Filter extends Component {
 Filter.displayName = "Spreadsheet";
 
 export default createFixture({
-  component: Filter
+  component: Filter,
 });

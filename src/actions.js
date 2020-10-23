@@ -16,13 +16,13 @@ export const setData: Action = (state, data) => {
       ? state.active
       : null;
   const nextSelected = PointSet.filter(
-    point => Matrix.has(point.row, point.column, data),
+    (point) => Matrix.has(point.row, point.column, data),
     state.selected
   );
   const nextBindings = PointMap.map(
-    bindings =>
+    (bindings) =>
       PointSet.filter(
-        point => Matrix.has(point.row, point.column, data),
+        (point) => Matrix.has(point.row, point.column, data),
         bindings
       ),
     PointMap.filter(
@@ -34,7 +34,7 @@ export const setData: Action = (state, data) => {
     data,
     active: nextActive,
     selected: nextSelected,
-    bindings: nextBindings
+    bindings: nextBindings,
   };
 };
 
@@ -47,7 +47,7 @@ export const select: Action = (state, cellPointer: Types.Point) => {
           { row: state.active.row, column: state.active.column }
         )
       ),
-      mode: "view"
+      mode: "view",
     };
   }
   return null;
@@ -56,7 +56,7 @@ export const select: Action = (state, cellPointer: Types.Point) => {
 export const activate: Action = (state, cellPointer: Types.Point) => ({
   selected: PointSet.from([cellPointer]),
   active: cellPointer,
-  mode: isActive(state.active, cellPointer) ? "edit" : "view"
+  mode: isActive(state.active, cellPointer) ? "edit" : "view",
 });
 
 export function setCellData<Cell: Types.CellBase>(
@@ -72,7 +72,7 @@ export function setCellData<Cell: Types.CellBase>(
     mode: "edit",
     data: setCell(state, active, data),
     lastChanged: active,
-    bindings: PointMap.set(active, PointSet.from(bindings), state.bindings)
+    bindings: PointMap.set(active, PointSet.from(bindings), state.bindings),
   };
 }
 
@@ -96,12 +96,12 @@ export function setCellDimensions(
   return {
     rowDimensions: {
       ...state.rowDimensions,
-      [point.row]: { top: dimensions.top, height: dimensions.height }
+      [point.row]: { top: dimensions.top, height: dimensions.height },
     },
     columnDimensions: {
       ...state.columnDimensions,
-      [point.column]: { left: dimensions.left, width: dimensions.width }
-    }
+      [point.column]: { left: dimensions.left, width: dimensions.width },
+    },
   };
 }
 
@@ -118,13 +118,13 @@ export function copy<T>(state: Types.StoreState<T>) {
       PointMap.from<T>([])
     ),
     cut: false,
-    hasPasted: false
+    hasPasted: false,
   };
 }
 
 export const cut = (state: Types.StoreState<*>) => ({
   ...copy(state),
-  cut: true
+  cut: true,
 });
 
 export async function paste<Cell: Types.CellBase>(
@@ -132,7 +132,7 @@ export async function paste<Cell: Types.CellBase>(
   text: string
 ) {
   if (!text) return null;
-  const copiedMatrix = Matrix.split(text, value => ({ value }));
+  const copiedMatrix = Matrix.split(text, (value) => ({ value }));
   const copied = PointMap.fromMatrix<any>(copiedMatrix);
 
   const minPoint = PointSet.min(copied);
@@ -140,7 +140,7 @@ export async function paste<Cell: Types.CellBase>(
   type Accumulator = {|
     data: $PropertyType<Types.StoreState<Cell>, "data">,
     selected: $PropertyType<Types.StoreState<Cell>, "selected">,
-    commit: $PropertyType<Types.StoreState<Cell>, "lastCommit">
+    commit: $PropertyType<Types.StoreState<Cell>, "lastCommit">,
   |};
 
   const requiredRows = state.active.row + Matrix.getSize(copiedMatrix).rows;
@@ -174,8 +174,8 @@ export async function paste<Cell: Types.CellBase>(
         ...commit,
         {
           prevCell: currentValue,
-          nextCell: value
-        }
+          nextCell: value,
+        },
       ];
 
       return {
@@ -187,9 +187,9 @@ export async function paste<Cell: Types.CellBase>(
         ),
         selected: PointSet.add(acc.selected, {
           row: nextRow,
-          column: nextColumn
+          column: nextColumn,
         }),
-        commit
+        commit,
       };
     },
     copied,
@@ -201,7 +201,7 @@ export async function paste<Cell: Types.CellBase>(
     cut: false,
     hasPasted: true,
     mode: "view",
-    lastCommit: commit
+    lastCommit: commit,
   };
 }
 
@@ -213,7 +213,7 @@ export const edit = <Cell: Types.CellBase>(state: Types.StoreState<Cell>) => {
 };
 
 export const view = () => ({
-  mode: "view"
+  mode: "view",
 });
 
 export const clear = <Cell: Types.CellBase>(state: Types.StoreState<Cell>) => {
@@ -228,21 +228,21 @@ export const clear = <Cell: Types.CellBase>(state: Types.StoreState<Cell>) => {
       (acc, point) =>
         updateData<Cell>(acc, {
           ...point,
-          data: { ...cell, value: "" }
+          data: { ...cell, value: "" },
         }),
       state.selected,
       state.data
     ),
     ...commit(
       state,
-      PointSet.toArray(state.selected).map(point => {
+      PointSet.toArray(state.selected).map((point) => {
         const cell = Matrix.get(point.row, point.column, state.data);
         return {
           prevCell: cell,
-          nextCell: { ...cell, value: "" }
+          nextCell: { ...cell, value: "" },
         };
       })
-    )
+    ),
   };
 };
 
@@ -260,7 +260,7 @@ export const go = <Cell: Types.CellBase>(
   }
   const nextActive = {
     row: state.active.row + rowDelta,
-    column: state.active.column + columnDelta
+    column: state.active.column + columnDelta,
   };
   if (!Matrix.has(nextActive.row, nextActive.column, state.data)) {
     return { mode: "view" };
@@ -268,7 +268,7 @@ export const go = <Cell: Types.CellBase>(
   return {
     active: nextActive,
     selected: PointSet.from([nextActive]),
-    mode: "view"
+    mode: "view",
   };
 };
 
@@ -282,7 +282,7 @@ export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
 
   const edgeOffsets = PointSet.has(state.selected, {
     ...state.active,
-    [field]: state.active[field] + delta * -1
+    [field]: state.active[field] + delta * -1,
   });
 
   const nextSelected = edgeOffsets
@@ -291,20 +291,20 @@ export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
 
   return {
     selected: PointSet.filter(
-      point => Matrix.has(point.row, point.column, state.data),
+      (point) => Matrix.has(point.row, point.column, state.data),
       nextSelected
-    )
+    ),
   };
 };
 
 export const blur = () => ({
-  active: null
+  active: null,
 });
 
 // Key Bindings
 
 type KeyDownHandlers<Cell: Types.CellBase> = {
-  [eventType: string]: KeyDownHandler<Cell>
+  [eventType: string]: KeyDownHandler<Cell>,
 };
 
 /** @todo handle inactive state? */
@@ -316,20 +316,20 @@ const keyDownHandlers: KeyDownHandlers<*> = {
   Tab: go(0, +1),
   Enter: edit,
   Backspace: clear,
-  Escape: blur
+  Escape: blur,
 };
 
 const editKeyDownHandlers: KeyDownHandlers<*> = {
   Escape: view,
   Tab: keyDownHandlers.Tab,
-  Enter: keyDownHandlers.ArrowDown
+  Enter: keyDownHandlers.ArrowDown,
 };
 
 const shiftKeyDownHandlers: KeyDownHandlers<*> = {
   ArrowUp: modifyEdge("row", -1),
   ArrowDown: modifyEdge("row", 1),
   ArrowLeft: modifyEdge("column", -1),
-  ArrowRight: modifyEdge("column", 1)
+  ArrowRight: modifyEdge("column", 1),
 };
 
 const shiftMetaKeyDownHandlers: KeyDownHandlers<*> = {};

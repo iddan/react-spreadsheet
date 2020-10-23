@@ -3,7 +3,7 @@
 import type { Node } from "react";
 
 export type Props = {
-  children: Node
+  children: Node,
 };
 
 export default "tr";

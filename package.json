@@ -13,6 +13,9 @@
   "main": "dist/SpreadsheetStateProvider.js",
   "types": "index.d.ts",
   "scripts": {
+    "lint": "yarn run eslint .",
+    "check-format": "yarn run prettier --check .",
+    "format": "yarn run prettier --write .",
     "test": "jest",
     "start": "yarn run cosmos",
     "build": "rm -f dist/*; babel src --out-dir dist --copy-files",

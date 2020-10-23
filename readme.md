@@ -40,7 +40,7 @@ import Spreadsheet from "react-spreadsheet";
 
 const data = [
   [{ value: "Vanilla" }, { value: "Chocolate" }],
-  [{ value: "Strawberry" }, { value: "Cookies" }]
+  [{ value: "Strawberry" }, { value: "Cookies" }],
 ];
 
 const MyComponent = () => <Spreadsheet data={data} />;
@@ -64,7 +64,7 @@ const RangeView = ({ cell, getValue }) => (
 const RangeEdit = ({ getValue, cell, onChange }) => (
   <input
     type="range"
-    onChange={e => {
+    onChange={(e) => {
       onChange({ ...cell, value: e.target.value });
     }}
     value={getValue({ data: cell }) || 0}
@@ -78,8 +78,8 @@ const data = [
   [{ value: "Strawberry" }, { value: "Cookies" }],
   [
     { value: "How much do you like ice cream?" },
-    { value: 100, DataViewer: RangeView, DataEditor: RangeEdit }
-  ]
+    { value: 100, DataViewer: RangeView, DataEditor: RangeEdit },
+  ],
 ];
 
 const MyComponent = () => <Spreadsheet data={data} />;

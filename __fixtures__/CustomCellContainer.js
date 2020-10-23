@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { createFixture } from "react-cosmos";
 import classnames from "classnames";
 import Spreadsheet, {
-  createEmptyMatrix
+  createEmptyMatrix,
 } from "../src/SpreadsheetStateProvider";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
 import "./index.css";
@@ -19,12 +19,15 @@ class Cell extends Component {
 
     const height = 30;
     const width = 96;
-    setCellDimensions({ row, column }, {
-      height,
-      width,
-      left: width * (column + 1),
-      top: height * (row + 1)
-    });
+    setCellDimensions(
+      { row, column },
+      {
+        height,
+        width,
+        left: width * (column + 1),
+        top: height * (row + 1),
+      }
+    );
   }
 
   componentDidUpdate() {
@@ -36,13 +39,7 @@ class Cell extends Component {
   }
 
   handleMouseDown = (e) => {
-    const {
-      row,
-      column,
-      select,
-      activate,
-      mode
-    } = this.props;
+    const { row, column, select, activate, mode } = this.props;
     if (mode === "view") {
       if (e.shiftKey) {
         select({ row, column });
@@ -76,10 +73,9 @@ class Cell extends Component {
           data && data.className
         )}
         style={{
-          borderColor: !active && 'black',
+          borderColor: !active && "black",
         }}
         tabIndex={0}
-
         onMouseOver={this.handleMouseOver}
         onMouseDown={this.handleMouseDown}
       >
@@ -100,6 +96,6 @@ export default createFixture({
   name: "CustomCellContainer",
   props: {
     data: initialData,
-    Cell
-  }
+    Cell,
+  },
 });
