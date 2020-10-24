@@ -67,6 +67,7 @@ src/
 # Test files
 
 __tests__/
+__fixtures__/
 
 # Scripts
 
@@ -77,4 +78,5 @@ scripts/
 .vscode/
 .eslint*
 babel.config*
-.github
+.github/
+rollup.config.js
