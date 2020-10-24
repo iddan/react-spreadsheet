@@ -19,7 +19,7 @@
     "format": "yarn run prettier --write .",
     "test": "jest",
     "start": "yarn run cosmos",
-    "build": "rm -f dist/*; babel src --out-dir dist --copy-files",
+    "build": "rollup -c",
     "prepack": "cross-env NODE_ENV=production yarn build",
     "push-coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",
     "cosmos": "cosmos"
