@@ -75,5 +75,6 @@ scripts/
 # Configuration
 
 .vscode/
-.eslintrc
-.babelrc
+.eslint*
+babel.config*
+.github
