@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { createFixture } from "react-cosmos";
 
 import Spreadsheet, {
@@ -26,7 +26,7 @@ const SelectView = ({ cell, getValue }) => (
   />
 );
 
-class SelectEdit extends Component {
+class SelectEdit extends React.Component {
   handleChange = (selection) => {
     const { onChange, cell } = this.props;
     onChange({ ...cell, value: selection ? selection.value : null });

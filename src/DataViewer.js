@@ -2,7 +2,7 @@
 
 import React from "react";
 import type { ComponentType, Node } from "react";
-import type { Parser as FormulaParser } from "hot-formula-parser";
+import { type Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
 import { getComputedValue } from "./util";
 
@@ -28,7 +28,13 @@ const toView = (value: Node | boolean): Node => {
   return value;
 };
 
-const DataViewer = ({ getValue, cell, column, row, formulaParser }: Props): Node => {
+const DataViewer = ({
+  getValue,
+  cell,
+  column,
+  row,
+  formulaParser,
+}: Props): Node => {
   return toView(
     getComputedValue({ getValue, cell, column, row, formulaParser })
   );

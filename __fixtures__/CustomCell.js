@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { createFixture } from "react-cosmos";
 import Spreadsheet, {
   createEmptyMatrix,
@@ -17,7 +17,7 @@ const RangeView = ({ cell, getValue }) => (
   />
 );
 
-class RangeEdit extends Component {
+class RangeEdit extends React.Component {
   handleChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
     const { onChange, cell } = this.props;
     onChange({ ...cell, value: e.target.value });

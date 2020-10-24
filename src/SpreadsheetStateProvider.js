@@ -1,18 +1,16 @@
 // @flow
-import React, { Component } from "react";
+import React from "react";
 import shallowEqual from "fbjs/lib/shallowEqual";
 // $FlowFixMe
 import createStore from "unistore";
 import devtools from "unistore/devtools";
-import { Provider } from "unistore/react";
+import unistoreReact from "unistore/react";
 import * as Types from "./types";
 import * as PointSet from "./point-set";
 import * as Actions from "./actions";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import Spreadsheet, { type Props as SpreadsheetProps } from "./Spreadsheet";
-
-export { createEmptyMatrix } from "./util";
 
 type Unsubscribe = () => void;
 
@@ -43,7 +41,7 @@ const initialState: $Shape<Types.StoreState<any>> = {
 export default class SpreadsheetStateProvider<
   CellType: Types.CellBase,
   Value
-> extends Component<Props<CellType, Value>> {
+> extends React.Component<Props<CellType, Value>> {
   store: Object;
   unsubscribe: Unsubscribe;
   prevState: Types.StoreState<CellType>;
@@ -125,9 +123,9 @@ export default class SpreadsheetStateProvider<
   render() {
     const { data, ...rest } = this.props;
     return (
-      <Provider store={this.store}>
+      <unistoreReact.Provider store={this.store}>
         <Spreadsheet {...rest} store={this.store} />
-      </Provider>
+      </unistoreReact.Provider>
     );
   }
 }

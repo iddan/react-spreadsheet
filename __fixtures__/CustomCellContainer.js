@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { createFixture } from "react-cosmos";
 import classnames from "classnames";
 import Spreadsheet, {
@@ -11,7 +11,7 @@ const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
 Spreadsheet.displayName = "Spreadsheet";
 
-class Cell extends Component {
+class Cell extends React.Component {
   root = React.createRef();
 
   componentDidMount() {

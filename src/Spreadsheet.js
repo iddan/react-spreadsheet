@@ -1,14 +1,11 @@
 // @flow
 
-import React, { PureComponent } from "react";
+import React from "react";
 import type { ComponentType, Node } from "react";
-import { connect } from "unistore/react";
+import unistoreReact from "unistore/react";
 // $FlowFixMe
 import type { Store } from "unistore";
-import {
-  Parser as FormulaParser,
-  columnIndexToLabel,
-} from "hot-formula-parser";
+import hotFormulaParser from "hot-formula-parser";
 import * as Types from "./types";
 import Table from "./Table";
 import type { Props as TableProps } from "./Table";
@@ -45,7 +42,7 @@ const getValue = ({ data }: { data: ?DefaultCellType }) =>
 
 export type Props<CellType: Types.CellBase, Value> = {|
   data: Matrix.Matrix<CellType>,
-  formulaParser: FormulaParser,
+  formulaParser: hotFormulaParser.Parser,
   columnLabels?: string[],
   ColumnIndicator?: ComponentType<ColumnIndicatorProps>,
   CornerIndicator?: ComponentType<CornerIndicatorProps>,
@@ -88,7 +85,7 @@ type ColumnIndicatorProps = {
 
 const DefaultColumnIndicator = ({ column, label }: ColumnIndicatorProps) => (
   <th className="Spreadsheet__header">
-    {label !== undefined ? label : columnIndexToLabel(column)}
+    {label !== undefined ? label : hotFormulaParser.columnIndexToLabel(column)}
   </th>
 );
 
@@ -103,7 +100,7 @@ const DefaultRowIndicator = ({ row, label }: RowIndicatorProps) => (
   </th>
 );
 
-class Spreadsheet<CellType, Value> extends PureComponent<{|
+class Spreadsheet<CellType, Value> extends React.PureComponent<{|
   ...$Diff<
     Props<CellType, Value>,
     {|
@@ -124,7 +121,7 @@ class Spreadsheet<CellType, Value> extends PureComponent<{|
     getBindingsForCell,
   };
 
-  formulaParser = this.props.formulaParser || new FormulaParser();
+  formulaParser = this.props.formulaParser || new hotFormulaParser.Parser();
 
   clip = (event: ClipboardEvent) => {
     const { store, getValue } = this.props;
@@ -379,7 +376,7 @@ const mapStateToProps = (
   };
 };
 
-export default connect(mapStateToProps, {
+export default unistoreReact.connect(mapStateToProps, {
   copy: Actions.copy,
   cut: Actions.cut,
   paste: Actions.paste,

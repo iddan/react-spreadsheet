@@ -1,8 +1,8 @@
 // @flow
 
-import React, { PureComponent } from "react";
+import React from "react";
 import classnames from "classnames";
-import { connect } from "unistore/react";
+import unistoreReact from "unistore/react";
 import type { Parser as FormulaParser } from "hot-formula-parser";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
@@ -43,7 +43,7 @@ type Props<Data, Value> = {|
   ...Handlers,
 |};
 
-export class Cell<Data: Types.CellBase, Value> extends PureComponent<
+export class Cell<Data: Types.CellBase, Value> extends React.PureComponent<
   Props<Data, Value>
 > {
   /** @todo update to new API */
@@ -163,7 +163,7 @@ function mapStateToProps<Data>(
   };
 }
 
-export const enhance = connect(mapStateToProps, () => ({
+export const enhance = unistoreReact.connect(mapStateToProps, () => ({
   select: Actions.select,
   activate: Actions.activate,
   setCellDimensions: Actions.setCellDimensions,

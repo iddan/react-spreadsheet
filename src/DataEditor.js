@@ -1,6 +1,6 @@
 // @flow
 
-import React, { PureComponent } from "react";
+import React from "react";
 import type { Node } from "react";
 import * as Types from "./types";
 import { moveCursorToEnd } from "./util";
@@ -11,7 +11,7 @@ type Cell = {
 
 type Value = string | number;
 
-export default class DataEditor extends PureComponent<
+export default class DataEditor extends React.PureComponent<
   Types.DataEditorProps<Cell, Value>
 > {
   input: ?HTMLInputElement;

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { createFixture } from "react-cosmos";
 import Spreadsheet, {
   createEmptyMatrix,
@@ -8,7 +8,7 @@ import "./index.css";
 
 const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
-class AsyncCell extends Component {
+class AsyncCell extends React.Component {
   state = { loading: false };
 
   handleClick = () => {

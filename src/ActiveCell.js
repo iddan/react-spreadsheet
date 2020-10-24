@@ -1,7 +1,7 @@
 // @flow
-import React, { Component } from "react";
+import React from "react";
 import classnames from "classnames";
-import { connect } from "unistore/react";
+import unistoreReact from "unistore/react";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
 import * as Types from "./types";
@@ -30,7 +30,7 @@ type Props<Cell, Value> = {|
   getBindingsForCell: Types.getBindingsForCell<Cell>,
 |};
 
-class ActiveCell<Cell: Types.CellBase, Value> extends Component<
+class ActiveCell<Cell: Types.CellBase, Value> extends React.Component<
   Props<Cell, Value>,
   State<*>
 > {
@@ -135,7 +135,7 @@ const mapStateToProps = (state: Types.StoreState<*>) => {
   };
 };
 
-export default connect(mapStateToProps, {
+export default unistoreReact.connect(mapStateToProps, {
   setCellData: Actions.setCellData,
   edit: Actions.edit,
   commit: Actions.commit,
