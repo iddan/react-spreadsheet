@@ -15,5 +15,7 @@ declare module "hot-formula-parser" {
 }
 
 declare module "hot-formula-parser/lib/helper/cell" {
-  declare export function extractLabel(value: string): [number, number];
+  declare export function extractLabel(
+    value: string
+  ): [{ index: number }, { index: number }];
 }
