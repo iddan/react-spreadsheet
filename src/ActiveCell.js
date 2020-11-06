@@ -24,6 +24,7 @@ type Props<Cell, Value> = {|
   edit: () => void,
   commit: Types.commit<Cell>,
   getBindingsForCell: Types.getBindingsForCell<Cell>,
+  data: Matrix.Matrix<Cell>,
 |};
 
 function ActiveCell<Cell: Types.CellBase, Value>(props: Props<Cell, Value>) {
@@ -42,13 +43,14 @@ function ActiveCell<Cell: Types.CellBase, Value>(props: Props<Cell, Value>) {
     setCellData,
     getBindingsForCell,
     commit,
+    data,
   } = props;
   const initialCellRef = useRef<Cell | null>(null);
   const prevPropsRef = useRef<Props<Cell, Value> | null>(null);
 
   const handleChange = useCallback(
     (cell: Cell) => {
-      const bindings = getBindingsForCell(cell);
+      const bindings = getBindingsForCell(cell, data);
       setCellData({ row, column }, cell, bindings);
     },
     [getBindingsForCell, setCellData, row, column]
@@ -129,6 +131,7 @@ function mapStateToProps<Cell: Types.CellBase>(
     top: dimensions.top,
     left: dimensions.left,
     mode: state.mode,
+    data: state.data,
   };
 }
 

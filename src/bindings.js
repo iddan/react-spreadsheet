@@ -1,9 +1,11 @@
 // @flow
 import * as Types from "./types";
-import { type Matrix } from "./matrix";
+import * as Matrix from "./matrix";
 import { extractLabel } from "hot-formula-parser/lib/helper/cell";
 
-function isFormulaCell<Cell: ?{ value: any }>(cell: Cell): boolean {
+function isFormulaCell<Cell: Types.CellBase & { value: any }>(
+  cell: Cell
+): boolean {
   return Boolean(
     cell &&
       cell.value &&
@@ -15,10 +17,9 @@ function isFormulaCell<Cell: ?{ value: any }>(cell: Cell): boolean {
 const FORMULA_CELL_REFERENCES = /\$?[A-Z]+\$?[0-9]+/g;
 
 /** @todo move me */
-export function getBindingsForCell<T, Cell: { value: T }>(
+export function getBindingsForCell<Cell: Types.CellBase & { value: any }>(
   cell: Cell,
-  getCell: (row: number, column: number, data: Matrix<T>) => T,
-  data: Matrix<T>
+  data: Matrix.Matrix<Cell>
 ): Types.Point[] {
   if (!isFormulaCell(cell)) {
     return [];
@@ -36,11 +37,10 @@ export function getBindingsForCell<T, Cell: { value: T }>(
   return match
     .map((substr) => {
       const [row, column] = extractLabel(substr);
-      const bindingsForDependentCell = getBindingsForCell(
-        getCell(row.index, column.index, data),
-        getCell,
-        data
-      );
+      const dependentCell = Matrix.get(row.index, column.index, data);
+      const bindingsForDependentCell = dependentCell
+        ? getBindingsForCell(dependentCell, data)
+        : [];
       return [
         { row: row.index, column: column.index },
         ...bindingsForDependentCell,
