@@ -5,7 +5,7 @@ import type { ComponentType, Node } from "react";
 import unistoreReact from "unistore/react";
 // $FlowFixMe
 import type { Store } from "unistore";
-import * as hotFormulaParser from "hot-formula-parser";
+import { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
 import Table from "./Table";
 import type { Props as TableProps } from "./Table";
@@ -42,7 +42,7 @@ const getValue = ({ data }: { data: ?DefaultCellType }) =>
 
 export type Props<CellType: Types.CellBase, Value> = {|
   data: Matrix.Matrix<CellType>,
-  formulaParser: hotFormulaParser.Parser,
+  formulaParser: FormulaParser,
   columnLabels?: string[],
   ColumnIndicator?: ComponentType<ColumnIndicatorProps>,
   CornerIndicator?: ComponentType<CornerIndicatorProps>,
@@ -85,7 +85,7 @@ type ColumnIndicatorProps = {
 
 const DefaultColumnIndicator = ({ column, label }: ColumnIndicatorProps) => (
   <th className="Spreadsheet__header">
-    {label !== undefined ? label : hotFormulaParser.columnIndexToLabel(column)}
+    {label !== undefined ? label : FormulaParser.columnIndexToLabel(column)}
   </th>
 );
 
@@ -121,7 +121,7 @@ class Spreadsheet<CellType, Value> extends React.PureComponent<{|
     getBindingsForCell,
   };
 
-  formulaParser = this.props.formulaParser || new hotFormulaParser.Parser();
+  formulaParser = this.props.formulaParser || new FormulaParser();
 
   clip = (event: ClipboardEvent) => {
     const { store, getValue } = this.props;
