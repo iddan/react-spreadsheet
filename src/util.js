@@ -134,7 +134,7 @@ export function getComputedValue<V, T>({
   column: number,
   row: number,
   formulaParser: FormulaParser,
-}): V {
+}): V | string {
   const rawValue = getValue({ data: cell, column, row });
   if (typeof rawValue === "string" && rawValue.startsWith("=")) {
     const { result, error } = formulaParser.parse(rawValue.slice(1));
