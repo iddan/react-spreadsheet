@@ -1,5 +1,6 @@
 // @flow
 import * as Types from "./types";
+import { type Matrix } from "./matrix"
 import cellHelper from "hot-formula-parser/lib/helper/cell";
 
 function isFormulaCell<Cell: ?{ value: any }>(cell: Cell): boolean {
@@ -14,7 +15,7 @@ function isFormulaCell<Cell: ?{ value: any }>(cell: Cell): boolean {
 const FORMULA_CELL_REFERENCES = /\$?[A-Z]+\$?[0-9]+/g;
 
 /** @todo move me */
-export function getBindingsForCell<Cell>(
+export function getBindingsForCell<T, Cell: { value: T }>(
   cell: Cell,
   getCell: (row: number, column: number, data: Matrix<T>) => T,
   data: Matrix<T>
@@ -23,6 +24,9 @@ export function getBindingsForCell<Cell>(
     return [];
   }
   const { value } = cell;
+  if (typeof value !== "string") {
+    return [];
+  }
   // Get raw cell references from formula
   const match = value.match(FORMULA_CELL_REFERENCES);
   if (!match) {
@@ -33,6 +37,7 @@ export function getBindingsForCell<Cell>(
     .map((substr) => {
       const [row, column] = cellHelper.extractLabel(substr);
       const bindingsForDependentCell = getBindingsForCell(
+        // $FlowFixMe
         getCell(row.index, column.index, data),
         getCell,
         data

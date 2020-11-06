@@ -205,18 +205,22 @@ export async function paste<Cell: Types.CellBase>(
   };
 }
 
-export const edit = <Cell: Types.CellBase>(state: Types.StoreState<Cell>) => {
+export const edit = <Cell: Types.CellBase>(
+  state: Types.StoreState<Cell>
+): $Shape<Types.StoreState<*>> | null => {
   if (isActiveReadOnly(state)) {
     return null;
   }
   return { mode: "edit" };
 };
 
-export const view = () => ({
+export const view = (): $Shape<Types.StoreState<*>> => ({
   mode: "view",
 });
 
-export const clear = <Cell: Types.CellBase>(state: Types.StoreState<Cell>) => {
+export const clear = <Cell: Types.CellBase>(
+  state: Types.StoreState<Cell>
+): $Shape<Types.StoreState<*>> | null => {
   if (!state.active) {
     return null;
   }
@@ -226,7 +230,10 @@ export const clear = <Cell: Types.CellBase>(state: Types.StoreState<Cell>) => {
   return {
     data: PointSet.reduce(
       (acc, point) =>
-        updateData<Cell>(acc, {
+        updateData <
+        Cell >
+        (acc,
+        {
           ...point,
           data: { ...cell, value: "" },
         }),
@@ -297,7 +304,7 @@ export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
   };
 };
 
-export const blur = () => ({
+export const blur = (): $Shape<Types.StoreState<*>> => ({
   active: null,
 });
 
@@ -352,7 +359,7 @@ const isActiveReadOnly = <Cell: Types.CellBase>(
 export function keyPress<Cell: Types.CellBase>(
   state: Types.StoreState<Cell>,
   event: SyntheticKeyboardEvent<HTMLElement>
-) {
+): $Shape<Types.StoreState<*>> | null {
   if (isActiveReadOnly(state) || event.metaKey) {
     return null;
   }
@@ -386,25 +393,29 @@ export function getKeyDownHandler<Cell: Types.CellBase>(
 export function keyDown<Cell: Types.CellBase>(
   state: Types.StoreState<Cell>,
   event: SyntheticKeyboardEvent<HTMLElement>
-) {
-  const handler = getKeyDownHandler<Cell>(state, event);
+): $Shape<Types.StoreState<*>> | null {
+  const handler = getKeyDownHandler < Cell > (state, event);
   if (handler) {
     return handler(state, event);
   }
   return null;
 }
 
-export function dragStart<T>(state: Types.StoreState<T>) {
+export function dragStart<T>(
+  state: Types.StoreState<T>
+): $Shape<Types.StoreState<*>> {
   return { dragging: true };
 }
 
-export function dragEnd<T>(state: Types.StoreState<T>) {
+export function dragEnd<T>(
+  state: Types.StoreState<T>
+): $Shape<Types.StoreState<*>> {
   return { dragging: false };
 }
 
 export function commit<T>(
   state: Types.StoreState<T>,
   changes: Array<{ prevCell: T | null, nextCell: T | null }>
-) {
+): $Shape<Types.StoreState<*>> {
   return { lastCommit: changes };
 }

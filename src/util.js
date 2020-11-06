@@ -2,6 +2,7 @@
 
 import * as Types from "./types";
 import type { Matrix } from "./matrix";
+import type { Parser as FormulaParser } from "hot-formula-parser";
 
 export const moveCursorToEnd = (el: HTMLInputElement) => {
   el.selectionStart = el.selectionEnd = el.value.length;

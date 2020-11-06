@@ -272,5 +272,6 @@ export function toArray<T1, T2>(
       array.push(transform ? transform(value) : value);
     }
   }
+  // $FlowFixMe
   return array;
 }

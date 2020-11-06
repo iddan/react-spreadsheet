@@ -16,8 +16,10 @@ export default class DataEditor extends React.PureComponent<
 > {
   input: ?HTMLInputElement;
 
-  static defaultProps = {
-    value: "",
+  static defaultProps: $Shape<Types.DataEditorProps<Cell, Value>> = {
+    cell: {
+      value: "",
+    }
   };
 
   handleChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
