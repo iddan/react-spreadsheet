@@ -1,8 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { createFixture } from "react-cosmos";
-import Spreadsheet, {
-  createEmptyMatrix,
-} from "../src/SpreadsheetStateProvider";
+import Spreadsheet, { createEmptyMatrix } from "../src";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
 import "./index.css";
 

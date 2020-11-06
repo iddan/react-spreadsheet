@@ -5,7 +5,7 @@ import type { ComponentType, Node } from "react";
 import unistoreReact from "unistore/react";
 // $FlowFixMe
 import type { Store } from "unistore";
-import hotFormulaParser from "hot-formula-parser";
+import * as hotFormulaParser from "hot-formula-parser";
 import * as Types from "./types";
 import Table from "./Table";
 import type { Props as TableProps } from "./Table";
