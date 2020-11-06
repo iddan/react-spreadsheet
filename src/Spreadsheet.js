@@ -2,10 +2,13 @@
 
 import React from "react";
 import type { ComponentType, Node } from "react";
-import unistoreReact from "unistore/react";
+import { connect } from "unistore/react";
 // $FlowFixMe
 import type { Store } from "unistore";
-import { Parser as FormulaParser } from "hot-formula-parser";
+import {
+  Parser as FormulaParser,
+  columnIndexToLabel,
+} from "hot-formula-parser";
 import * as Types from "./types";
 import Table from "./Table";
 import type { Props as TableProps } from "./Table";
@@ -85,7 +88,7 @@ type ColumnIndicatorProps = {
 
 const DefaultColumnIndicator = ({ column, label }: ColumnIndicatorProps) => (
   <th className="Spreadsheet__header">
-    {label !== undefined ? label : FormulaParser.columnIndexToLabel(column)}
+    {label !== undefined ? label : columnIndexToLabel(column)}
   </th>
 );
 
@@ -376,7 +379,8 @@ const mapStateToProps = (
   };
 };
 
-export default unistoreReact.connect(mapStateToProps, {
+// $FlowFixMe
+export default connect(mapStateToProps, {
   copy: Actions.copy,
   cut: Actions.cut,
   paste: Actions.paste,
