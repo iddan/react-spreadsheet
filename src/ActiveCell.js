@@ -1,15 +1,11 @@
 // @flow
-import React from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import classnames from "classnames";
-import unistoreReact from "unistore/react";
+import { connect } from "unistore/react";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
 import * as Types from "./types";
 import { getCellDimensions } from "./util";
-
-type State<Cell> = {
-  cellBeforeUpdate: Cell,
-};
 
 type Props<Cell, Value> = {|
   ...Types.Point,
@@ -30,93 +26,95 @@ type Props<Cell, Value> = {|
   getBindingsForCell: Types.getBindingsForCell<Cell>,
 |};
 
-class ActiveCell<Cell: Types.CellBase, Value> extends React.Component<
-  Props<Cell, Value>,
-  State<*>
-> {
-  state = { cellBeforeUpdate: null };
+function ActiveCell<Cell: Types.CellBase, Value>(props: Props<Cell, Value>) {
+  const {
+    getValue,
+    row,
+    column,
+    cell,
+    width,
+    height,
+    top,
+    left,
+    hidden,
+    mode,
+    edit,
+    setCellData,
+    getBindingsForCell,
+    commit,
+  } = props;
+  const initialCellRef = useRef<Cell | null>(null);
+  const prevPropsRef = useRef<Props<Cell, Value> | null>(null);
 
-  handleChange = (
-    row: number,
-    column: number,
-    cell: Cell,
-    getCell: (row: number, column: number, data: Matrix<T>) => {},
-    data: Matrix<T>
-  ) => {
-    const { setCellData, getBindingsForCell } = this.props;
-    const bindings = getBindingsForCell(cell, getCell, data);
+  const handleChange = useCallback(
+    (cell: Cell) => {
+      const bindings = getBindingsForCell(cell);
+      setCellData({ row, column }, cell, bindings);
+    },
+    [getBindingsForCell, setCellData, row, column]
+  );
 
-    setCellData({ row, column }, cell, bindings);
-  };
+  useEffect(() => {
+    const prevProps = prevPropsRef.current;
+    prevPropsRef.current = props;
 
-  // NOTE: Currently all logics here belongs to commit event
-  componentDidUpdate(prevProps: Props<Cell, Value>) {
-    const { cell, mode, commit } = this.props;
+    if (!prevProps) {
+      return;
+    }
 
-    if (cell || cell === undefined) {
-      if (prevProps.mode === "view" && mode === "edit") {
-        this.setState({ cellBeforeUpdate: prevProps.cell });
-      } else if (
-        prevProps.mode === "edit" &&
-        prevProps.mode !== this.props.mode &&
-        prevProps.cell &&
-        prevProps.cell !== this.state.cellBeforeUpdate
-      ) {
+    // Commit
+    const coordsChanged = row !== prevProps.row || column !== prevProps.column;
+    const exitedEditMode = mode !== "edit";
+
+    if (coordsChanged || exitedEditMode) {
+      const initialCell = initialCellRef.current;
+      if (prevProps.cell !== initialCell) {
         commit([
-          { prevCell: this.state.cellBeforeUpdate, nextCell: prevProps.cell },
+          {
+            prevCell: initialCell,
+            nextCell: prevProps.cell,
+          },
+        ]);
+      } else if (!coordsChanged && cell !== prevProps.cell) {
+        commit([
+          {
+            prevCell: prevProps.cell,
+            nextCell: cell,
+          },
         ]);
       }
+      initialCellRef.current = cell;
     }
-  }
+  });
 
-  getCell(row: number, column: number, data: Matrix<T>) {
-    return Matrix.get(row, column, data);
-  }
+  const DataEditor = (cell && cell.DataEditor) || props.DataEditor;
+  const readOnly = cell && cell.readOnly;
 
-  render() {
-    let { DataEditor } = this.props;
-    const {
-      getValue,
-      row,
-      column,
-      cell,
-      width,
-      height,
-      top,
-      left,
-      hidden,
-      mode,
-      edit,
-      data,
-    } = this.props;
-    DataEditor = (cell && cell.DataEditor) || DataEditor;
-    const readOnly = cell && cell.readOnly;
-    return hidden ? null : (
-      <div
-        className={classnames(
-          "Spreadsheet__active-cell",
-          `Spreadsheet__active-cell--${mode}`
-        )}
-        style={{ width, height, top, left }}
-        onClick={mode === "view" && !readOnly ? edit : undefined}
-      >
-        {mode === "edit" && (
-          <DataEditor
-            row={row}
-            column={column}
-            cell={cell}
-            onChange={(cell: Cell) =>
-              this.handleChange(row, column, cell, this.getCell, data)
-            }
-            getValue={getValue}
-          />
-        )}
-      </div>
-    );
-  }
+  return hidden ? null : (
+    <div
+      className={classnames(
+        "Spreadsheet__active-cell",
+        `Spreadsheet__active-cell--${mode}`
+      )}
+      style={{ width, height, top, left }}
+      onClick={mode === "view" && !readOnly ? edit : undefined}
+    >
+      {mode === "edit" && (
+        <DataEditor
+          row={row}
+          column={column}
+          cell={cell}
+          onChange={handleChange}
+          getValue={getValue}
+        />
+      )}
+    </div>
+  );
 }
 
-const mapStateToProps = (state: Types.StoreState<*>) => {
+function mapStateToProps<Cell: Types.CellBase>(
+  state: Types.StoreState<Cell>
+): $Shape<Props<Cell, *>> {
   const dimensions = state.active && getCellDimensions(state.active, state);
   if (!state.active || !dimensions) {
     return { hidden: true };
@@ -131,11 +129,11 @@ const mapStateToProps = (state: Types.StoreState<*>) => {
     top: dimensions.top,
     left: dimensions.left,
     mode: state.mode,
-    data: state.data,
   };
-};
+}
 
-export default unistoreReact.connect(mapStateToProps, {
+// $FlowFixMe
+export default connect(mapStateToProps, {
   setCellData: Actions.setCellData,
   edit: Actions.edit,
   commit: Actions.commit,
