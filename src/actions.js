@@ -230,10 +230,7 @@ export const clear = <Cell: Types.CellBase>(
   return {
     data: PointSet.reduce(
       (acc, point) =>
-        updateData <
-        Cell >
-        (acc,
-        {
+        updateData<Cell>(acc, {
           ...point,
           data: { ...cell, value: "" },
         }),
@@ -394,7 +391,7 @@ export function keyDown<Cell: Types.CellBase>(
   state: Types.StoreState<Cell>,
   event: SyntheticKeyboardEvent<HTMLElement>
 ): $Shape<Types.StoreState<*>> | null {
-  const handler = getKeyDownHandler < Cell > (state, event);
+  const handler = getKeyDownHandler<Cell>(state, event);
   if (handler) {
     return handler(state, event);
   }
