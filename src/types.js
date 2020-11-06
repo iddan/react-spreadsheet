@@ -52,7 +52,10 @@ export type StoreState<Cell: CellBase> = {|
 
 export type getValue<Cell, Value> = (CellDescriptor<Cell>) => Value;
 
-export type getBindingsForCell<Cell> = (cell: Cell) => Point[];
+export type getBindingsForCell<Cell> = (
+  cell: Cell,
+  data: Matrix<Cell>
+) => Point[];
 
 type CellChange<CellType> = {
   prevCell: CellType | null,
