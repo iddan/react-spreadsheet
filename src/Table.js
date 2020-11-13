@@ -10,7 +10,11 @@ export type Props = {
   children: Node,
 };
 
-const Table = ({ children, columns, hideColumnIndicators }: Props): React.Node => {
+const Table = ({
+  children,
+  columns,
+  hideColumnIndicators,
+}: Props): React.Node => {
   const columnCount = columns + (hideColumnIndicators ? 0 : 1);
   const columnNodes = range(columnCount).map((i) => <col key={i} />);
   return (
