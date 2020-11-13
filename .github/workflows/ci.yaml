@@ -28,8 +28,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - run: yarn
+      - run: yarn check-format
       - run: yarn check-typing
-      - run: yarn type-check
       - run: yarn lint
       - run: yarn test
       - run: yarn build
