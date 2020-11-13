@@ -105,16 +105,21 @@ export function setCellDimensions(
   };
 }
 
-export function copy<T>(state: Types.StoreState<T>) {
+export function copy<Cell: Types.CellBase>(
+  state: Types.StoreState<Cell>
+): $Shape<Types.StoreState<Cell>> {
   return {
     copied: PointSet.reduce(
+      // $FlowFixMe
       (acc, point) =>
-        PointMap.set<T>(
+        PointMap.set(
           point,
-          Matrix.get<T>(point.row, point.column, state.data),
+          // $FlowFixMe
+          Matrix.get(point.row, point.column, state.data),
           acc
         ),
       state.selected,
+      // $FlowFixMe
       PointMap.from<T>([])
     ),
     cut: false,
@@ -122,16 +127,23 @@ export function copy<T>(state: Types.StoreState<T>) {
   };
 }
 
-export const cut = (state: Types.StoreState<*>) => ({
-  ...copy(state),
-  cut: true,
-});
+export function cut<Cell: Types.CellBase>(
+  state: Types.StoreState<Cell>
+): $Shape<Types.StoreState<Cell>> {
+  return {
+    ...copy(state),
+    cut: true,
+  };
+}
 
 export async function paste<Cell: Types.CellBase>(
   state: Types.StoreState<Cell>,
   text: string
-) {
-  if (!text) return null;
+): Promise<$Shape<Types.StoreState<Cell>> | null> {
+  const { active } = state;
+  if (!text || !active) {
+    return null;
+  }
   const copiedMatrix = Matrix.split(text, (value) => ({ value }));
   const copied = PointMap.fromMatrix<any>(copiedMatrix);
 
@@ -143,19 +155,14 @@ export async function paste<Cell: Types.CellBase>(
     commit: $PropertyType<Types.StoreState<Cell>, "lastCommit">,
   |};
 
-  const requiredRows = state.active.row + Matrix.getSize(copiedMatrix).rows;
+  const requiredRows = active.row + Matrix.getSize(copiedMatrix).rows;
   const paddedData = Matrix.padMatrix(state.data, requiredRows);
 
   const { data, selected, commit } = PointMap.reduce(
     (acc: Accumulator, value, { row, column }): Accumulator => {
-      if (!state.active) {
-        return acc;
-      }
-
-      let commit =
-        acc.commit || ([]: $PropertyType<Types.StoreState<Cell>, "lastCommit">);
-      const nextRow = row - minPoint.row + state.active.row;
-      const nextColumn = column - minPoint.column + state.active.column;
+      let commit = acc.commit || [];
+      const nextRow = row - minPoint.row + active.row;
+      const nextColumn = column - minPoint.column + active.column;
 
       const nextData = state.cut
         ? Matrix.unset(row, column, acc.data)
@@ -166,6 +173,7 @@ export async function paste<Cell: Types.CellBase>(
       }
 
       if (!Matrix.has(nextRow, nextColumn, paddedData)) {
+        // $FlowFixMe
         return { data: nextData, selected: acc.selected, commit };
       }
       const currentValue = Matrix.get(nextRow, nextColumn, nextData) || {};
@@ -189,6 +197,7 @@ export async function paste<Cell: Types.CellBase>(
           row: nextRow,
           column: nextColumn,
         }),
+        // $FlowFixMe
         commit,
       };
     },
@@ -238,10 +247,12 @@ export const clear = <Cell: Types.CellBase>(
       state.data
     ),
     ...commit(
+      // $FlowFixMe
       state,
       PointSet.toArray(state.selected).map((point) => {
         const cell = Matrix.get(point.row, point.column, state.data);
         return {
+          // $FlowFixMe
           prevCell: cell,
           nextCell: { ...cell, value: "" },
         };
@@ -276,17 +287,20 @@ export const go = <Cell: Types.CellBase>(
   };
 };
 
+// $FlowFixMe
 export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
   state: Types.StoreState<*>,
   event: *
 ) => {
-  if (!state.active) {
+  const { active } = state;
+  if (!active) {
     return null;
   }
 
   const edgeOffsets = PointSet.has(state.selected, {
-    ...state.active,
-    [field]: state.active[field] + delta * -1,
+    ...active,
+    // $FlowFixMe
+    [field]: active[field] + delta * -1,
   });
 
   const nextSelected = edgeOffsets
@@ -384,6 +398,7 @@ export function getKeyDownHandler<Cell: Types.CellBase>(
   } else {
     handlers = keyDownHandlers;
   }
+  // $FlowFixMe
   return handlers[key];
 }
 
@@ -414,5 +429,6 @@ export function commit<T>(
   state: Types.StoreState<T>,
   changes: Array<{ prevCell: T | null, nextCell: T | null }>
 ): $Shape<Types.StoreState<*>> {
+  // $FlowFixMe
   return { lastCommit: changes };
 }

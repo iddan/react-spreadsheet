@@ -5,10 +5,7 @@ import type { ComponentType, Node } from "react";
 import { connect } from "unistore/react";
 // $FlowFixMe
 import type { Store } from "unistore";
-import {
-  Parser as FormulaParser,
-  columnIndexToLabel,
-} from "hot-formula-parser";
+import { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
 import Table from "./Table";
 import type { Props as TableProps } from "./Table";
@@ -16,6 +13,10 @@ import Row from "./Row";
 import type { Props as RowProps } from "./Row";
 import CornerIndicator from "./CornerIndicator";
 import type { Props as CornerIndicatorProps } from "./CornerIndicator";
+import ColumnIndicator from "./ColumnIndicator";
+import type { Props as ColumnIndicatorProps } from "./ColumnIndicator";
+import RowIndicator from "./RowIndicator";
+import type { Props as RowIndicatorProps } from "./RowIndicator";
 import { Cell, enhance as enhanceCell } from "./Cell";
 import type { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
@@ -48,7 +49,7 @@ export type Props<CellType: Types.CellBase, Value> = {|
   formulaParser: FormulaParser,
   columnLabels?: string[],
   ColumnIndicator?: ComponentType<ColumnIndicatorProps>,
-  CornerIndicator?: ComponentType<CornerIndicatorProps>,
+  CornerIndicator: ComponentType<CornerIndicatorProps>,
   rowLabels?: string[],
   RowIndicator?: ComponentType<RowIndicatorProps>,
   hideRowIndicators?: boolean,
@@ -81,29 +82,10 @@ type State = {|
   mode: Types.Mode,
 |};
 
-type ColumnIndicatorProps = {
-  column: number,
-  label?: Node | null,
-};
-
-const DefaultColumnIndicator = ({ column, label }: ColumnIndicatorProps) => (
-  <th className="Spreadsheet__header">
-    {label !== undefined ? label : columnIndexToLabel(column)}
-  </th>
-);
-
-type RowIndicatorProps = {
-  row: number,
-  label?: Node | null,
-};
-
-const DefaultRowIndicator = ({ row, label }: RowIndicatorProps) => (
-  <th className="Spreadsheet__header">
-    {label !== undefined ? label : row + 1}
-  </th>
-);
-
-class Spreadsheet<CellType, Value> extends React.PureComponent<{|
+class Spreadsheet<
+  CellType: Types.CellBase,
+  Value
+> extends React.PureComponent<{|
   ...$Diff<
     Props<CellType, Value>,
     {|
@@ -118,6 +100,8 @@ class Spreadsheet<CellType, Value> extends React.PureComponent<{|
     Row,
     Cell,
     CornerIndicator,
+    ColumnIndicator,
+    RowIndicator,
     DataViewer,
     DataEditor,
     getValue,
@@ -228,12 +212,14 @@ class Spreadsheet<CellType, Value> extends React.PureComponent<{|
         const values = Matrix.toArray(
           Matrix.slice(startPoint, endPoint, store.getState().data)
         ).map((cell) =>
+          // $FlowFixMe
           getComputedValue({
             getValue,
             cell,
             formulaParser: this.formulaParser,
           })
         );
+        // $FlowFixMe
         done(values);
       }
     );
@@ -297,10 +283,8 @@ class Spreadsheet<CellType, Value> extends React.PureComponent<{|
       hideRowIndicators,
     } = this.props;
 
+    // $FlowFixMe
     const Cell = this.getCellComponent(this.props.Cell);
-    const ColumnIndicator =
-      this.props.ColumnIndicator || DefaultColumnIndicator;
-    const RowIndicator = this.props.RowIndicator || DefaultRowIndicator;
 
     return (
       <div

@@ -3,9 +3,17 @@
 declare module "hot-formula-parser" {
   declare export class Parser {
     on(
-      event: string,
+      event: "callCellValue",
       callback: (
         coords: { row: { index: number }, column: { index: number } },
+        done: (value: any) => void
+      ) => void
+    ): void;
+    on(
+      event: "callRangeValue",
+      callback: (
+        startCellCords: { row: { index: number }, column: { index: number } },
+        endCellCords: { row: { index: number }, column: { index: number } },
         done: (value: any) => void
       ) => void
     ): void;

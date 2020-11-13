@@ -29,6 +29,7 @@ const toView = (value: Node | boolean): Node => {
 };
 
 const DataViewer = ({
+  // $FlowFixMe
   getValue,
   cell,
   column,
