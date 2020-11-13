@@ -22,7 +22,8 @@
     "build": "rollup -c",
     "prepack": "cross-env NODE_ENV=production yarn build",
     "push-coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",
-    "cosmos": "cosmos"
+    "cosmos": "cosmos",
+    "check-typing": "flow"
   },
   "dependencies": {
     "classnames": "^2.2.6",
