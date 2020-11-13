@@ -1,9 +1,9 @@
 // @flow
 
-import type { Node } from "react";
+import * as React from "react";
 
 export type Props = {
-  children: Node,
+  children: React.Node,
 };
 
 export default "tr";

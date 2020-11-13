@@ -2,6 +2,7 @@
 
 import * as Types from "./types";
 import type { Matrix } from "./matrix";
+import type { Parser as FormulaParser } from "hot-formula-parser";
 
 export const moveCursorToEnd = (el: HTMLInputElement) => {
   el.selectionStart = el.selectionEnd = el.value.length;
@@ -56,6 +57,7 @@ export function updateData<Cell: Types.CellBase>(
   const nextRow = row ? [...row] : [];
   nextRow[cellDescriptor.column] = cellDescriptor.data;
   nextData[cellDescriptor.row] = nextRow;
+  // $FlowFixMe
   return nextData;
 }
 
@@ -115,6 +117,7 @@ export const getCellDimensions = (
   const columnDimensions = state.columnDimensions[point.column];
   return (
     rowDimensions &&
+    // $FlowFixMe
     columnDimensions && { ...rowDimensions, ...columnDimensions }
   );
 };
@@ -131,7 +134,7 @@ export function getComputedValue<V, T>({
   column: number,
   row: number,
   formulaParser: FormulaParser,
-}): V {
+}): V | string {
   const rawValue = getValue({ data: cell, column, row });
   if (typeof rawValue === "string" && rawValue.startsWith("=")) {
     const { result, error } = formulaParser.parse(rawValue.slice(1));

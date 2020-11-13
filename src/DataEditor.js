@@ -1,7 +1,6 @@
 // @flow
 
-import React from "react";
-import type { Node } from "react";
+import React, { useRef, useCallback, type Node, useEffect } from "react";
 import * as Types from "./types";
 import { moveCursorToEnd } from "./util";
 
@@ -11,43 +10,47 @@ type Cell = {
 
 type Value = string | number;
 
-export default class DataEditor extends React.PureComponent<
-  Types.DataEditorProps<Cell, Value>
-> {
-  input: ?HTMLInputElement;
+const DataEditor = ({
+  onChange,
+  cell,
+  getValue,
+  column,
+  row,
+}: Types.DataEditorProps<Cell, Value>): Node => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  static defaultProps = {
-    value: "",
-  };
+  const handleChange = useCallback(
+    (e: SyntheticInputEvent<HTMLInputElement>) => {
+      onChange({ ...cell, value: e.target.value });
+    },
+    [onChange, cell]
+  );
 
-  handleChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
-    const { onChange, cell } = this.props;
-    onChange({ ...cell, value: e.target.value });
-  };
-
-  handleInput = (input: ?HTMLInputElement) => {
-    this.input = input;
-  };
-
-  componentDidMount() {
-    if (this.input) {
-      moveCursorToEnd(this.input);
+  useEffect(() => {
+    if (inputRef.current) {
+      moveCursorToEnd(inputRef.current);
     }
-  }
+  }, [inputRef]);
 
-  render() {
-    const { getValue, column, row, cell } = this.props;
-    const value = getValue({ column, row, data: cell }) || "";
-    return (
-      <div className="Spreadsheet__data-editor">
-        <input
-          ref={this.handleInput}
-          type="text"
-          onChange={this.handleChange}
-          value={value}
-          autoFocus
-        />
-      </div>
-    );
-  }
-}
+  const value = getValue({ column, row, data: cell }) || "";
+
+  return (
+    <div className="Spreadsheet__data-editor">
+      <input
+        ref={inputRef}
+        type="text"
+        onChange={handleChange}
+        value={value}
+        autoFocus
+      />
+    </div>
+  );
+};
+
+DataEditor.defaultProps = {
+  cell: {
+    value: "",
+  },
+};
+
+export default DataEditor;

@@ -1,9 +1,9 @@
 // @flow
 
-import React from "react";
+import React, { type Node } from "react";
 import classnames from "classnames";
 import unistoreReact from "unistore/react";
-import type { Parser as FormulaParser } from "hot-formula-parser";
+import { Parser as FormulaParser } from "hot-formula-parser";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
@@ -48,10 +48,12 @@ export class Cell<Data: Types.CellBase, Value> extends React.PureComponent<
 > {
   /** @todo update to new API */
   root: HTMLElement | null;
+  // $FlowFixMe
   handleRoot = (root: HTMLElement | null) => {
     this.root = root;
   };
 
+  // $FlowFixMe
   handleMouseDown = (e: SyntheticMouseEvent<HTMLElement>) => {
     const {
       row,
@@ -73,6 +75,7 @@ export class Cell<Data: Types.CellBase, Value> extends React.PureComponent<
     }
   };
 
+  // $FlowFixMe
   handleMouseOver = (e: SyntheticMouseEvent<*>) => {
     const { row, column, dragging, setCellDimensions, select } = this.props;
     if (dragging) {
@@ -98,7 +101,7 @@ export class Cell<Data: Types.CellBase, Value> extends React.PureComponent<
     }
   }
 
-  render() {
+  render(): Node {
     const { row, column, getValue, formulaParser } = this.props;
     let { DataViewer, data } = this.props;
     if (data && data.DataViewer) {
@@ -129,7 +132,7 @@ export class Cell<Data: Types.CellBase, Value> extends React.PureComponent<
   }
 }
 
-function mapStateToProps<Data>(
+function mapStateToProps<Data: Types.CellBase>(
   {
     data,
     active,
@@ -163,6 +166,7 @@ function mapStateToProps<Data>(
   };
 }
 
+// $FlowFixMe
 export const enhance = unistoreReact.connect(mapStateToProps, () => ({
   select: Actions.select,
   activate: Actions.activate,

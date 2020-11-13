@@ -1,5 +1,5 @@
 // @flow
-import React from "react";
+import * as React from "react";
 import shallowEqual from "fbjs/lib/shallowEqual";
 // $FlowFixMe
 import createStore from "unistore";
@@ -23,7 +23,7 @@ export type Props<CellType, Value> = {|
   onCellCommit: (
     prevCell: null | CellType,
     nextCell: null | CellType,
-    coords: Types.Point
+    coords: null | Types.Point
   ) => void,
 |};
 
@@ -46,7 +46,7 @@ export default class SpreadsheetStateProvider<
   unsubscribe: Unsubscribe;
   prevState: Types.StoreState<CellType>;
 
-  static defaultProps = {
+  static defaultProps: $Shape<Props<CellType, Value>> = {
     onChange: () => {},
     onModeChange: () => {},
     onSelect: () => {},
@@ -67,7 +67,7 @@ export default class SpreadsheetStateProvider<
     this.prevState = state;
   }
 
-  shouldComponentUpdate(nextProps: Props<CellType, Value>) {
+  shouldComponentUpdate(nextProps: Props<CellType, Value>): boolean {
     const { data, ...rest } = this.props;
     const { data: nextData, ...nextRest } = nextProps;
     return !shallowEqual(rest, nextRest) || nextData !== this.prevState.data;
@@ -120,7 +120,7 @@ export default class SpreadsheetStateProvider<
     this.unsubscribe();
   }
 
-  render() {
+  render(): React.Node {
     const { data, ...rest } = this.props;
     return (
       <unistoreReact.Provider store={this.store}>

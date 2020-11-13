@@ -1,6 +1,6 @@
 // @flow
 
-import React from "react";
+import * as React from "react";
 import * as PointSet from "./point-set";
 import * as Types from "./types";
 import classnames from "classnames";
@@ -23,7 +23,7 @@ const FloatingRect = ({
   dragging,
   hidden,
   variant,
-}: Props) => (
+}: Props): React.Node => (
   <div
     className={classnames("Spreadsheet__floating-rect", {
       [`Spreadsheet__floating-rect--${variant}`]: variant,
@@ -58,9 +58,11 @@ const getRangeDimensions = (
   return { left, top, width, height };
 };
 
-export const mapStateToProps = (cells: PointSet.PointSet) => (
+type StateToProps = (state: Types.StoreState<*>) => $Shape<Props>;
+
+export const mapStateToProps = (cells: PointSet.PointSet): StateToProps => (
   state: Types.StoreState<*>
-) => {
+): $Shape<Props> => {
   return {
     ...getRangeDimensions(cells, state),
     hidden: PointSet.size(cells) === 0,

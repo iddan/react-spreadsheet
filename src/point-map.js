@@ -83,6 +83,7 @@ export function fromMatrix<T>(matrix: Matrix<T>): PointMap<T> {
     (rowAcc, data, row) =>
       data.reduce(
         (colAcc, cell, column) =>
+          // $FlowFixMe
           cell ? set({ row, column }, cell, colAcc) : colAcc,
         rowAcc
       ),

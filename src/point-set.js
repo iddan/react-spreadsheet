@@ -27,7 +27,7 @@ export const has = (set: PointSet, point: Point): boolean =>
   PointMap.has(point, set);
 
 /** Returns the number of points in a PointSet object */
-export const size = (set: PointSet) => PointMap.size(set);
+export const size = (set: PointSet): number => PointMap.size(set);
 
 /** Applies a function against an accumulator and each point in the set (from left to right) to reduce it to a single value */
 export function reduce<T>(
@@ -78,7 +78,7 @@ export function from(points: Point[]): PointSet {
 }
 
 /** Returns whether set has any points in */
-export const isEmpty = (set: PointSet) => PointMap.isEmpty(set);
+export const isEmpty = (set: PointSet): boolean => PointMap.isEmpty(set);
 
 /** Returns an array of the set points */
 export function toArray(set: PointSet): Point[] {
@@ -151,7 +151,9 @@ export function extendEdge(
     (acc, point) => {
       if (point[field] === edgeValue) {
         return add(acc, {
+          // $FlowFixMe
           [field]: edgeValue + delta,
+          // $FlowFixMe
           [oppositeField]: point[oppositeField],
         });
       }
