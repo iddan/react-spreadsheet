@@ -84,7 +84,7 @@ class Spreadsheet<
   CellType extends Types.CellBase,
   Value
 > extends React.PureComponent<
-  {} & Exclude<
+  Exclude<
     Props<CellType, Value>,
     {
       data: Matrix.Matrix<CellType>;

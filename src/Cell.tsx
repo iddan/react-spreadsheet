@@ -1,4 +1,4 @@
-import React, { Node } from "react";
+import * as React from "react";
 import classnames from "classnames";
 import { connect } from "unistore/react";
 import { Parser as FormulaParser } from "hot-formula-parser";
@@ -96,7 +96,7 @@ export class Cell<
     }
   }
 
-  render(): Node {
+  render(): React.Node {
     const { row, column, getValue, formulaParser } = this.props;
     let { DataViewer, data } = this.props;
     if (data && data.DataViewer) {

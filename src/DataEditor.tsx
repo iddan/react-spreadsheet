@@ -1,9 +1,9 @@
-import React, { useRef, useCallback, ReactNode, useEffect } from "react";
+import * as React from "react";
 import * as Types from "./types";
 import { moveCursorToEnd } from "./util";
 
 type Cell = {
-  value: ReactNode;
+  value: React.ReactNode;
 };
 
 type Value = string | number;
@@ -14,17 +14,17 @@ const DataEditor = ({
   getValue,
   column,
   row,
-}: Types.DataEditorProps<Cell, Value>): ReactNode => {
-  const inputRef = useRef<HTMLInputElement | null>(null);
+}: Types.DataEditorProps<Cell, Value>): React.ReactNode => {
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
 
-  const handleChange = useCallback(
+  const handleChange = React.useCallback(
     (e: SyntheticInputEvent<HTMLInputElement>) => {
       onChange({ ...cell, value: e.target.value });
     },
     [onChange, cell]
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (inputRef.current) {
       moveCursorToEnd(inputRef.current);
     }

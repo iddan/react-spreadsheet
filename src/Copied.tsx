@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { connect } from "unistore/react";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";

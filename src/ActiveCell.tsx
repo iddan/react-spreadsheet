@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import * as React from "react";
 import classnames from "classnames";
 import { connect } from "unistore/react";
 import * as Matrix from "./matrix";
@@ -45,10 +45,10 @@ function ActiveCell<Cell extends Types.CellBase, Value>(
     commit,
     data,
   } = props;
-  const initialCellRef = useRef<Cell | null>(null);
-  const prevPropsRef = useRef<Props<Cell, Value> | null>(null);
+  const initialCellRef = React.useRef<Cell | null>(null);
+  const prevPropsRef = React.useRef<Props<Cell, Value> | null>(null);
 
-  const handleChange = useCallback(
+  const handleChange = React.useCallback(
     (cell: Cell) => {
       const bindings = getBindingsForCell(cell, data);
       setCellData({ row, column }, cell, bindings);
@@ -56,7 +56,7 @@ function ActiveCell<Cell extends Types.CellBase, Value>(
     [getBindingsForCell, setCellData, row, column]
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     const prevProps = prevPropsRef.current;
     prevPropsRef.current = props;
 

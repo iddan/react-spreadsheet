@@ -4,12 +4,12 @@ import * as Types from "./types";
 import classnames from "classnames";
 import { getCellDimensions } from "./util";
 
-type Props = {
+export type Props = Types.Dimensions & {
   className: string;
   dragging: boolean | null;
   hidden: boolean;
   variant: "copied" | "selected";
-} & Types.Dimensions;
+};
 
 const FloatingRect = ({
   width,

@@ -2,6 +2,7 @@
   "compilerOptions": {
     "lib": ["ES2015", "DOM"],
     "moduleResolution": "node",
-    "jsx": "react"
+    "jsx": "react",
+    "skipLibCheck": true
   }
 }
