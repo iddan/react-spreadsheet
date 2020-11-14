@@ -12,11 +12,7 @@ import * as Types from "./types";
 export type Matrix<T> = Array<Array<T | typeof undefined>>;
 
 /** Gets the value at row and column of matrix. */
-export function get<T>(
-  row: number,
-  column: number,
-  matrix: Matrix<T>
-): T | typeof undefined {
+export function get<T>(row: number, column: number, matrix: Matrix<T>): T | typeof undefined {
   const columns = matrix[row];
   if (columns === undefined) {
     return undefined;
@@ -25,11 +21,7 @@ export function get<T>(
 }
 
 /** Creates a slice of matrix from startPoint up to, but not including, endPoint. */
-export function slice<T>(
-  startPoint: Types.Point,
-  endPoint: Types.Point,
-  matrix: Matrix<T>
-): Matrix<T> {
+export function slice<T>(startPoint: Types.Point, endPoint: Types.Point, matrix: Matrix<T>): Matrix<T> {
   let sliced = [];
   const columns = endPoint.column - startPoint.column;
   for (let row = startPoint.row; row <= endPoint.row; row++) {
@@ -43,12 +35,7 @@ export function slice<T>(
 }
 
 /** Sets the value at row and column of matrix. If a row doesn't exist, it's created. */
-export function set<T>(
-  row: number,
-  column: number,
-  value: T,
-  matrix: Matrix<T>
-): Matrix<T> {
+export function set<T>(row: number, column: number, value: T, matrix: Matrix<T>): Matrix<T> {
   const nextMatrix = [...matrix];
 
   // Synchronize first row length
@@ -67,12 +54,7 @@ export function set<T>(
 }
 
 /** Like Matrix.set() but mutates the matrix */
-export function mutableSet<T>(
-  row: number,
-  column: number,
-  value: T,
-  matrix: Matrix<T>
-): void {
+export function mutableSet<T>(row: number, column: number, value: T, matrix: Matrix<T>): void {
   let firstRow = matrix[0];
   if (!firstRow) {
     firstRow = [];
@@ -89,11 +71,7 @@ export function mutableSet<T>(
 }
 
 /** Removes the coordinate of matrix */
-export function unset<T>(
-  row: number,
-  column: number,
-  matrix: Matrix<T>
-): Matrix<T> {
+export function unset<T>(row: number, column: number, matrix: Matrix<T>): Matrix<T> {
   if (!has(row, column, matrix)) {
     return matrix;
   }
@@ -108,7 +86,7 @@ export function unset<T>(
 }
 
 export function reduce<T, A>(
-  func: (A, T | typeof undefined, Types.Point) => A,
+  func: ((a: A, arg1: T | typeof undefined, arg2: Types.Point) => A),
   matrix: Matrix<T>,
   initialValue: A
 ): A {
@@ -129,17 +107,13 @@ export function reduce<T, A>(
 
 /** Creates an array of values by running each element in collection thru iteratee. */
 export function map<T, T2>(
-  func: (T | typeof undefined, Types.Point) => T2,
+  func: ((arg0: T | typeof undefined, arg1: Types.Point) => T2),
   matrix: Matrix<T>
 ): Matrix<T2> {
-  return reduce(
-    (acc, value, point) => {
-      mutableSet(point.row, point.column, func(value, point), acc);
-      return acc;
-    },
-    matrix,
-    ([]: Matrix<T2>)
-  );
+  return reduce((acc, value, point) => {
+    mutableSet(point.row, point.column, func(value, point), acc);
+    return acc;
+  }, matrix, [] as Matrix<T2>);
 }
 
 /**
@@ -147,7 +121,7 @@ export function map<T, T2>(
  * to string separated by verticalSeparator
  */
 export function join(
-  matrix: Matrix<*>,
+  matrix: Matrix<unknown>,
   horizontalSeparator: string = "\t",
   verticalSeparator: string = "\n"
 ): string {
@@ -170,12 +144,14 @@ export function join(
 }
 
 /* Parses a CSV separated by a horizontalSeparator and verticalSeparator into a Matrix */
-export function split<T: *>(
+export function split<T extends unknown>(
   csv: string,
-  getValue: (value: string) => T,
+  getValue: ((value: string) => T),
   horizontalSeparator: string = "\t",
   verticalSeparator: string | RegExp = /\r\n|\n|\r/
-): Matrix<{| value: string |}> {
+): Matrix<{
+  value: string
+}> {
   return csv
     .split(verticalSeparator)
     .map((row) => row.split(horizontalSeparator).map(getValue));
@@ -197,7 +173,10 @@ export function has(row: number, column: number, matrix: Matrix<any>): boolean {
   );
 }
 
-type Size = $Exact<{ columns: number, rows: number }>;
+type Size = {
+  columns: number,
+  rows: number
+};
 
 /** Gets the size of matrix by returning its number of rows and columns */
 export function getSize(matrix: Matrix<any>): Size {
@@ -208,10 +187,7 @@ export function getSize(matrix: Matrix<any>): Size {
   };
 }
 
-export function padMatrix<T>(
-  matrix: Matrix<T>,
-  desiredRows: number
-): Matrix<T> {
+export function padMatrix<T>(matrix: Matrix<T>, desiredRows: number): Matrix<T> {
   const { rows } = getSize(matrix);
   const missingRows = desiredRows - rows;
   if (rows === 0 || missingRows < 0) return matrix;
@@ -221,10 +197,7 @@ export function padMatrix<T>(
 }
 
 /** Creates an array of points (positive and/or negative) progressing from startPoint up to, but not including, endPoint. */
-export function range(
-  endPoint: Types.Point,
-  startPoint: Types.Point
-): Types.Point[] {
+export function range(endPoint: Types.Point, startPoint: Types.Point): Types.Point[] {
   const points = [];
   const columnsRange =
     startPoint.column !== endPoint.column
@@ -263,7 +236,7 @@ export const inclusiveRange: typeof range = (endPoint, startPoint) =>
 
 export function toArray<T1, T2>(
   matrix: Matrix<T1>,
-  transform: ?(T1 | typeof undefined) => T2
+  transform: ((arg0: T1 | typeof undefined) => T2) | null
 ): Array<T1> | Array<T2> {
   let array = [];
   for (let row = 0; row < matrix.length; row++) {

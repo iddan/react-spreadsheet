@@ -1,22 +1,23 @@
-// @flow
 
-import React, { useRef, useCallback, type Node, useEffect } from "react";
+import React, { useRef, useCallback, Node, useEffect } from "react";
 import * as Types from "./types";
 import { moveCursorToEnd } from "./util";
 
 type Cell = {
-  value: Node,
+  value: Node
 };
 
 type Value = string | number;
 
-const DataEditor = ({
-  onChange,
-  cell,
-  getValue,
-  column,
-  row,
-}: Types.DataEditorProps<Cell, Value>): Node => {
+const DataEditor = (
+  {
+    onChange,
+    cell,
+    getValue,
+    column,
+    row
+  }: Types.DataEditorProps<Cell, Value>
+): Node => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleChange = useCallback(

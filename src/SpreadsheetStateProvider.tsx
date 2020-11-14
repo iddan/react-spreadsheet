@@ -1,4 +1,3 @@
-// @flow
 import * as React from "react";
 import shallowEqual from "fbjs/lib/shallowEqual";
 // $FlowFixMe
@@ -10,22 +9,21 @@ import * as PointSet from "./point-set";
 import * as Actions from "./actions";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
-import Spreadsheet, { type Props as SpreadsheetProps } from "./Spreadsheet";
+import Spreadsheet, { Props as SpreadsheetProps } from "./Spreadsheet";
 
-type Unsubscribe = () => void;
+type Unsubscribe = (() => void);
 
-export type Props<CellType, Value> = {|
-  ...SpreadsheetProps<CellType, Value>,
-  onChange: (data: Matrix.Matrix<CellType>) => void,
-  onModeChange: (mode: Types.Mode) => void,
-  onSelect: (selected: Types.Point[]) => void,
-  onActivate: (active: Types.Point) => void,
-  onCellCommit: (
+export type Props<CellType, Value> = {
+  onChange: ((data: Matrix.Matrix<CellType>) => void),
+  onModeChange: ((mode: Types.Mode) => void),
+  onSelect: ((selected: Types.Point[]) => void),
+  onActivate: ((active: Types.Point) => void),
+  onCellCommit: ((
     prevCell: null | CellType,
     nextCell: null | CellType,
     coords: null | Types.Point
-  ) => void,
-|};
+  ) => void)
+} & SpreadsheetProps<CellType, Value>;
 
 const initialState: $Shape<Types.StoreState<any>> = {
   selected: PointSet.from([]),
@@ -38,10 +36,7 @@ const initialState: $Shape<Types.StoreState<any>> = {
   bindings: PointMap.from([]),
 };
 
-export default class SpreadsheetStateProvider<
-  CellType: Types.CellBase,
-  Value
-> extends React.Component<Props<CellType, Value>> {
+export default class SpreadsheetStateProvider<CellType extends Types.CellBase, Value> extends React.Component<Props<CellType, Value>> {
   store: Object;
   unsubscribe: Unsubscribe;
   prevState: Types.StoreState<CellType>;
@@ -67,7 +62,7 @@ export default class SpreadsheetStateProvider<
     this.prevState = state;
   }
 
-  shouldComponentUpdate(nextProps: Props<CellType, Value>): boolean {
+  shouldComponentUpdate function(nextProps: Props<CellType, Value>): boolean {
     const { data, ...rest } = this.props;
     const { data: nextData, ...nextRest } = nextProps;
     return !shallowEqual(rest, nextRest) || nextData !== this.prevState.data;
@@ -120,7 +115,7 @@ export default class SpreadsheetStateProvider<
     this.unsubscribe();
   }
 
-  render(): React.Node {
+  render function(): React.ReactNode {
     const { data, ...rest } = this.props;
     return (
       <unistoreReact.Provider store={this.store}>

@@ -1,24 +1,23 @@
-// @flow
 
 import React from "react";
-import type { ComponentType, Node } from "react";
+import { ComponentType, Node } from "react";
 import { connect } from "unistore/react";
 // $FlowFixMe
-import type { Store } from "unistore";
+import { Store } from "unistore";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
 import Table from "./Table";
-import type { Props as TableProps } from "./Table";
+import { Props as TableProps } from "./Table";
 import Row from "./Row";
-import type { Props as RowProps } from "./Row";
+import { Props as RowProps } from "./Row";
 import CornerIndicator from "./CornerIndicator";
-import type { Props as CornerIndicatorProps } from "./CornerIndicator";
+import { Props as CornerIndicatorProps } from "./CornerIndicator";
 import ColumnIndicator from "./ColumnIndicator";
-import type { Props as ColumnIndicatorProps } from "./ColumnIndicator";
+import { Props as ColumnIndicatorProps } from "./ColumnIndicator";
 import RowIndicator from "./RowIndicator";
-import type { Props as RowIndicatorProps } from "./RowIndicator";
+import { Props as RowIndicatorProps } from "./RowIndicator";
 import { Cell, enhance as enhanceCell } from "./Cell";
-import type { Props as CellProps } from "./Cell";
+import { Props as CellProps } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
@@ -38,13 +37,17 @@ import * as Actions from "./actions";
 import "./Spreadsheet.css";
 
 type DefaultCellType = {
-  value: string | number | boolean | null,
+  value: string | number | boolean | null
 };
 
-const getValue = ({ data }: { data: ?DefaultCellType }) =>
+const getValue = ({
+  data
+}: {
+  data: DefaultCellType | null
+}) =>
   data ? data.value : null;
 
-export type Props<CellType: Types.CellBase, Value> = {|
+export type Props<CellType extends Types.CellBase, Value> = {
   data: Matrix.Matrix<CellType>,
   formulaParser: FormulaParser,
   columnLabels?: string[],
@@ -59,42 +62,32 @@ export type Props<CellType: Types.CellBase, Value> = {|
   Cell: ComponentType<CellProps<CellType, Value>>,
   DataViewer: Types.DataViewer<CellType, Value>,
   DataEditor: Types.DataEditor<CellType, Value>,
-  onKeyDown?: (event: SyntheticKeyboardEvent<HTMLElement>) => void,
+  onKeyDown?: ((event: React.KeyboardEvent) => void),
   getValue: Types.getValue<CellType, Value>,
   getBindingsForCell: Types.getBindingsForCell<CellType>,
-  store: Store,
-|};
+  store: Store
+};
 
-type Handlers = {|
-  cut: () => void,
-  copy: () => void,
-  paste: (text: string) => void,
-  setDragging: (boolean) => void,
-  onKeyDownAction: (SyntheticKeyboardEvent<HTMLElement>) => void,
-  onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void,
-  onDragStart: () => void,
-  onDragEnd: () => void,
-|};
+type Handlers = {
+  cut: (() => void),
+  copy: (() => void),
+  paste: ((text: string) => void),
+  setDragging: ((arg0: boolean) => void),
+  onKeyDownAction: ((syntheticKeyboardEvent: React.KeyboardEvent) => void),
+  onKeyPress: ((syntheticKeyboardEvent: React.KeyboardEvent) => void),
+  onDragStart: (() => void),
+  onDragEnd: (() => void)
+};
 
-type State = {|
+type State = {
   rows: number,
   columns: number,
-  mode: Types.Mode,
-|};
+  mode: Types.Mode
+};
 
-class Spreadsheet<
-  CellType: Types.CellBase,
-  Value
-> extends React.PureComponent<{|
-  ...$Diff<
-    Props<CellType, Value>,
-    {|
-      data: Matrix.Matrix<CellType>,
-    |}
-  >,
-  ...State,
-  ...Handlers,
-|}> {
+class Spreadsheet<CellType extends Types.CellBase, Value> extends React.PureComponent<{} & Exclude<Props<CellType, Value>, {
+  data: Matrix.Matrix<CellType>
+}> & State & Handlers> {
   static defaultProps = {
     Table,
     Row,
@@ -128,7 +121,7 @@ class Spreadsheet<
     writeTextToClipboard(event, csv);
   };
 
-  isFocused(): boolean {
+  isFocused function(): boolean {
     const { activeElement } = document;
 
     return this.props.mode === "view" && this.root
@@ -352,8 +345,13 @@ class Spreadsheet<
 }
 
 const mapStateToProps = (
-  { data, mode }: Types.StoreState<*>,
-  { columnLabels }: Props<*, *>
+  {
+    data,
+    mode
+  }: Types.StoreState<unknown>,
+  {
+    columnLabels
+  }: Props<unknown, unknown>
 ): State => {
   const { columns, rows } = Matrix.getSize(data);
   return {

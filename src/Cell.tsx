@@ -1,6 +1,5 @@
-// @flow
 
-import React, { type Node } from "react";
+import React, { Node } from "react";
 import classnames from "classnames";
 import unistoreReact from "unistore/react";
 import { Parser as FormulaParser } from "hot-formula-parser";
@@ -11,41 +10,35 @@ import * as Types from "./types";
 import * as Actions from "./actions";
 import { isActive, getOffsetRect } from "./util";
 
-type StaticProps<Data, Value> = {|
+type StaticProps<Data, Value> = {
   row: number,
   column: number,
   DataViewer: Types.DataViewer<Data, Value>,
   getValue: Types.getValue<Data, Value>,
-  formulaParser: FormulaParser,
-|};
+  formulaParser: FormulaParser
+};
 
-export type { StaticProps as Props };
+export { StaticProps as Props };
 
-type State<Data> = {|
+type State<Data> = {
   selected: boolean,
   active: boolean,
   copied: boolean,
   dragging: boolean,
   mode: Types.Mode,
-  data: ?Data,
-  _bindingChanged: ?Object,
-|};
+  data: Data | null,
+  _bindingChanged: Object | null
+};
 
-type Handlers = {|
-  select: (cellPointer: Types.Point) => void,
-  activate: (cellPointer: Types.Point) => void,
-  setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void,
-|};
+type Handlers = {
+  select: ((cellPointer: Types.Point) => void),
+  activate: ((cellPointer: Types.Point) => void),
+  setCellDimensions: ((point: Types.Point, dimensions: Types.Dimensions) => void)
+};
 
-type Props<Data, Value> = {|
-  ...StaticProps<Data, Value>,
-  ...State<Data>,
-  ...Handlers,
-|};
+type Props<Data, Value> = {} & StaticProps<Data, Value> & State<Data> & Handlers;
 
-export class Cell<Data: Types.CellBase, Value> extends React.PureComponent<
-  Props<Data, Value>
-> {
+export class Cell<Data extends Types.CellBase, Value> extends React.PureComponent<Props<Data, Value>> {
   /** @todo update to new API */
   root: HTMLElement | null;
   // $FlowFixMe
@@ -54,7 +47,7 @@ export class Cell<Data: Types.CellBase, Value> extends React.PureComponent<
   };
 
   // $FlowFixMe
-  handleMouseDown = (e: SyntheticMouseEvent<HTMLElement>) => {
+  handleMouseDown = (e: React.MouseEvent) => {
     const {
       row,
       column,
@@ -76,7 +69,7 @@ export class Cell<Data: Types.CellBase, Value> extends React.PureComponent<
   };
 
   // $FlowFixMe
-  handleMouseOver = (e: SyntheticMouseEvent<*>) => {
+  handleMouseOver = (e: React.MouseEvent) => {
     const { row, column, dragging, setCellDimensions, select } = this.props;
     if (dragging) {
       setCellDimensions({ row, column }, getOffsetRect(e.currentTarget));
@@ -101,7 +94,7 @@ export class Cell<Data: Types.CellBase, Value> extends React.PureComponent<
     }
   }
 
-  render(): Node {
+  render function(): Node {
     const { row, column, getValue, formulaParser } = this.props;
     let { DataViewer, data } = this.props;
     if (data && data.DataViewer) {
@@ -132,7 +125,7 @@ export class Cell<Data: Types.CellBase, Value> extends React.PureComponent<
   }
 }
 
-function mapStateToProps<Data: Types.CellBase>(
+function mapStateToProps<Data extends Types.CellBase>(
   {
     data,
     active,
@@ -142,9 +135,12 @@ function mapStateToProps<Data: Types.CellBase>(
     mode,
     dragging,
     lastChanged,
-    bindings,
+    bindings
   }: Types.StoreState<Data>,
-  { column, row }: Props<Data, *>
+  {
+    column,
+    row
+  }: Props<Data, unknown>
 ): State<Data> {
   const point = { row, column };
   const cellIsActive = isActive(active, point);
