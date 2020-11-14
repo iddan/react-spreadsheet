@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentType, Node } from "react";
+import { ComponentType } from "react";
 import { connect } from "unistore/react";
 
 import { Store } from "unistore";

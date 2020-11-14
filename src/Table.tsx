@@ -1,21 +1,18 @@
-
 import * as React from "react";
-import { Node } from "react";
+import { ReactNode } from "react";
 import { range } from "./util";
 
 export type Props = {
-  columns: number,
-  hideColumnIndicators: boolean | null,
-  children: Node
+  columns: number;
+  hideColumnIndicators: boolean | null;
+  children: ReactNode;
 };
 
-const Table = (
-  {
-    children,
-    columns,
-    hideColumnIndicators
-  }: Props
-): React.ReactNode => {
+const Table = ({
+  children,
+  columns,
+  hideColumnIndicators,
+}: Props): React.ReactNode => {
   const columnCount = columns + (hideColumnIndicators ? 0 : 1);
   const columnNodes = range(columnCount).map((i) => <col key={i} />);
   return (

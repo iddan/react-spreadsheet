@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentType, Node } from "react";
+import { ComponentType, ReactNode } from "react";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
 import { getComputedValue } from "./util";
@@ -8,11 +8,11 @@ type Cell = {
   component?: ComponentType<{
     row: number;
     column: number;
-    value: Node;
+    value: ReactNode;
   }>;
 };
 
-type Props = Types.CellComponentProps<Cell, Node> & {
+type Props = Types.CellComponentProps<Cell, string> & {
   formulaParser: FormulaParser;
 };
 

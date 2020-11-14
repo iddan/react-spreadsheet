@@ -1,6 +1,6 @@
 import React, { Node } from "react";
 import classnames from "classnames";
-import unistoreReact from "unistore/react";
+import { connect } from "unistore/react";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
@@ -161,7 +161,7 @@ function mapStateToProps<Data extends Types.CellBase>(
   };
 }
 
-export const enhance = unistoreReact.connect(mapStateToProps, () => ({
+export const enhance = connect(mapStateToProps, () => ({
   select: Actions.select,
   activate: Actions.activate,
   setCellDimensions: Actions.setCellDimensions,

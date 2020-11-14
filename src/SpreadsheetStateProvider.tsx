@@ -1,9 +1,9 @@
 import * as React from "react";
 import shallowEqual from "fbjs/lib/shallowEqual";
 
-import createStore from "unistore";
+import createStore, { Store } from "unistore";
 import devtools from "unistore/devtools";
-import unistoreReact from "unistore/react";
+import { Provider } from "unistore/react";
 import * as Types from "./types";
 import * as PointSet from "./point-set";
 import * as Actions from "./actions";
@@ -40,11 +40,11 @@ export default class SpreadsheetStateProvider<
   CellType extends Types.CellBase,
   Value
 > extends React.Component<Props<CellType, Value>> {
-  store: Object;
+  store: Store<Types.StoreState<CellType>>;
   unsubscribe: Unsubscribe;
   prevState: Types.StoreState<CellType>;
 
-  static defaultProps: Partial<Props<CellType, Value>> = {
+  static defaultProps = {
     onChange: () => {},
     onModeChange: () => {},
     onSelect: () => {},
@@ -121,9 +121,9 @@ export default class SpreadsheetStateProvider<
   render(): React.ReactNode {
     const { data, ...rest } = this.props;
     return (
-      <unistoreReact.Provider store={this.store}>
+      <Provider store={this.store}>
         <Spreadsheet {...rest} store={this.store} />
-      </unistoreReact.Provider>
+      </Provider>
     );
   }
 }

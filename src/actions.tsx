@@ -6,10 +6,13 @@ import { isActive, setCell, updateData } from "./util";
 
 type Action = <Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>,
-  ...args: unknown
+  ...args: unknown[]
 ) => Partial<Types.StoreState<Cell>> | null;
 
-export const setData: Action = (state, data) => {
+export const setData = <Cell extends Types.CellBase>(
+  state: Types.StoreState<Cell>,
+  data: Matrix.Matrix<Cell>
+): Partial<Types.StoreState<Cell>> => {
   const nextActive =
     state.active && Matrix.has(state.active.row, state.active.column, data)
       ? state.active
@@ -112,13 +115,11 @@ export function copy<Cell extends Types.CellBase>(
       (acc, point) =>
         PointMap.set(
           point,
-
           Matrix.get(point.row, point.column, state.data),
           acc
         ),
       state.selected,
-
-      PointMap.from<T>([])
+      PointMap.from<Cell>([])
     ),
     cut: false,
     hasPasted: false,

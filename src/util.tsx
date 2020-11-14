@@ -123,19 +123,19 @@ export const getCellDimensions = (
   );
 };
 
-export function getComputedValue<V, T>({
+export function getComputedValue<Cell extends Types.CellBase, Value>({
   getValue,
   cell,
   column,
   row,
   formulaParser,
 }: {
-  getValue: (arg0: { data: T; column: number; row: number }) => V;
-  cell: T;
+  getValue: (descriptor: Types.CellDescriptor<Cell>) => Value;
+  cell: Cell;
   column: number;
   row: number;
   formulaParser: FormulaParser;
-}): V | string {
+}): Value | string {
   const rawValue = getValue({ data: cell, column, row });
   if (typeof rawValue === "string" && rawValue.startsWith("=")) {
     const { result, error } = formulaParser.parse(rawValue.slice(1));
