@@ -7,20 +7,27 @@ import * as Types from "./types";
 import { getCellDimensions } from "./util";
 
 type Props<Cell, Value> = {
-  DataEditor: Types.DataEditor<Cell, Value>,
-  getValue: Types.getValue<Cell, Value>,
-  onChange: ((data: Cell) => void),
-  setCellData: ((active: Types.Point, data: Cell, bindings: Types.Point[]) => void),
-  cell: Cell,
-  hidden: boolean,
-  mode: Types.Mode,
-  edit: (() => void),
-  commit: Types.commit<Cell>,
-  getBindingsForCell: Types.getBindingsForCell<Cell>,
-  data: Matrix.Matrix<Cell>
-} & Types.Point & Types.Dimensions;
+  DataEditor: Types.DataEditor<Cell, Value>;
+  getValue: Types.getValue<Cell, Value>;
+  onChange: (data: Cell) => void;
+  setCellData: (
+    active: Types.Point,
+    data: Cell,
+    bindings: Types.Point[]
+  ) => void;
+  cell: Cell;
+  hidden: boolean;
+  mode: Types.Mode;
+  edit: () => void;
+  commit: Types.commit<Cell>;
+  getBindingsForCell: Types.getBindingsForCell<Cell>;
+  data: Matrix.Matrix<Cell>;
+} & Types.Point &
+  Types.Dimensions;
 
-function ActiveCell<Cell extends Types.CellBase, Value>(props: Props<Cell, Value>) {
+function ActiveCell<Cell extends Types.CellBase, Value>(
+  props: Props<Cell, Value>
+) {
   const {
     getValue,
     row,
@@ -107,7 +114,9 @@ function ActiveCell<Cell extends Types.CellBase, Value>(props: Props<Cell, Value
   );
 }
 
-function mapStateToProps<Cell extends Types.CellBase>(state: Types.StoreState<Cell>): $Shape<Props<Cell, unknown>> {
+function mapStateToProps<Cell extends Types.CellBase>(
+  state: Types.StoreState<Cell>
+): Partial<Props<Cell, unknown>> {
   const dimensions = state.active && getCellDimensions(state.active, state);
   if (!state.active || !dimensions) {
     return { hidden: true };
@@ -115,7 +124,7 @@ function mapStateToProps<Cell extends Types.CellBase>(state: Types.StoreState<Ce
   return {
     hidden: false,
     ...state.active,
-    // $FlowFixMe
+
     cell: Matrix.get(state.active.row, state.active.column, state.data),
     width: dimensions.width,
     height: dimensions.height,
@@ -126,7 +135,6 @@ function mapStateToProps<Cell extends Types.CellBase>(state: Types.StoreState<Ce
   };
 }
 
-// $FlowFixMe
 export default connect(mapStateToProps, {
   setCellData: Actions.setCellData,
   edit: Actions.edit,
