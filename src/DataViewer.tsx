@@ -1,10 +1,10 @@
-import React from "react";
+import * as React from "react";
 import { ComponentType, ReactNode } from "react";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
 import { getComputedValue } from "./util";
 
-type Cell = {
+type Cell = Types.CellBase & {
   component?: ComponentType<{
     row: number;
     column: number;
@@ -16,7 +16,7 @@ type Props = Types.CellComponentProps<Cell, string> & {
   formulaParser: FormulaParser;
 };
 
-const toView = (value: Node | boolean): Node => {
+const toView = (value: React.ReactNode | boolean): React.ReactNode => {
   if (value === false) {
     return <div className="Spreadsheet__data-viewer--boolean">FALSE</div>;
   }
@@ -28,12 +28,11 @@ const toView = (value: Node | boolean): Node => {
 
 const DataViewer = ({
   getValue,
-
   cell,
   column,
   row,
   formulaParser,
-}: Props): Node => {
+}: Props): React.ReactNode => {
   return toView(
     getComputedValue({ getValue, cell, column, row, formulaParser })
   );

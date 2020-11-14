@@ -14,7 +14,7 @@ const DataEditor = ({
   getValue,
   column,
   row,
-}: Types.DataEditorProps<Cell, Value>): React.ReactNode => {
+}: Types.DataEditorProps<Cell, Value>): React.ReactElement => {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   const handleChange = React.useCallback(

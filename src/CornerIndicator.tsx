@@ -2,6 +2,6 @@ import * as React from "react";
 
 export type Props = {};
 
-export default function CornerIndicator(props: Props): React.ReactNode {
+export default function CornerIndicator(props: Props): React.ReactElement {
   return <th className="Spreadsheet__header" />;
 }

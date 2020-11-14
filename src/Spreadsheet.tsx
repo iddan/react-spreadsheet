@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { ComponentType } from "react";
 import { connect } from "unistore/react";
 
@@ -60,7 +60,7 @@ export type Props<CellType extends Types.CellBase, Value> = {
   onKeyDown?: (event: React.KeyboardEvent) => void;
   getValue: Types.getValue<CellType, Value>;
   getBindingsForCell: Types.getBindingsForCell<CellType>;
-  store: Store;
+  store: Store<Types.StoreState<CellType>>;
 };
 
 type Handlers = {
@@ -83,16 +83,7 @@ type State = {
 class Spreadsheet<
   CellType extends Types.CellBase,
   Value
-> extends React.PureComponent<
-  Exclude<
-    Props<CellType, Value>,
-    {
-      data: Matrix.Matrix<CellType>;
-    }
-  > &
-    State &
-    Handlers
-> {
+> extends React.PureComponent<Props<CellType, Value> & State & Handlers> {
   static defaultProps = {
     Table,
     Row,

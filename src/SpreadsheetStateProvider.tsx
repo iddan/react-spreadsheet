@@ -13,7 +13,7 @@ import Spreadsheet, { Props as SpreadsheetProps } from "./Spreadsheet";
 
 type Unsubscribe = () => void;
 
-export type Props<CellType, Value> = {
+export type Props<CellType extends Types.CellBase, Value> = {
   onChange: (data: Matrix.Matrix<CellType>) => void;
   onModeChange: (mode: Types.Mode) => void;
   onSelect: (selected: Types.Point[]) => void;
@@ -108,9 +108,8 @@ export default class SpreadsheetStateProvider<
 
   componentDidUpdate(prevProps: Props<CellType, Value>) {
     if (this.props.data !== this.prevState.data) {
-      this.store.setState(
-        Actions.setData(this.store.getState(), this.props.data)
-      );
+      const nextState = Actions.setData(this.store.getState(), this.props.data);
+      this.store.setState(nextState);
     }
   }
 
@@ -118,7 +117,7 @@ export default class SpreadsheetStateProvider<
     this.unsubscribe();
   }
 
-  render(): React.ReactNode {
+  render(): React.ReactElement {
     const { data, ...rest } = this.props;
     return (
       <Provider store={this.store}>

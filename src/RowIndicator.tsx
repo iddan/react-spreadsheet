@@ -5,7 +5,7 @@ export type Props = {
   label?: React.ReactNode | null;
 };
 
-export const RowIndicator = ({ row, label }: Props): React.ReactNode => (
+export const RowIndicator = ({ row, label }: Props): React.ReactElement => (
   <th className="Spreadsheet__header">
     {label !== undefined ? label : row + 1}
   </th>

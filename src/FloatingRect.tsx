@@ -20,7 +20,7 @@ const FloatingRect = ({
   dragging,
   hidden,
   variant,
-}: Props): React.ReactNode => (
+}: Props): React.ReactElement => (
   <div
     className={classnames("Spreadsheet__floating-rect", {
       [`Spreadsheet__floating-rect--${variant}`]: variant,

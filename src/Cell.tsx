@@ -9,7 +9,7 @@ import * as Types from "./types";
 import * as Actions from "./actions";
 import { isActive, getOffsetRect } from "./util";
 
-type StaticProps<Data, Value> = {
+type StaticProps<Data extends Types.CellBase, Value> = {
   row: number;
   column: number;
   DataViewer: Types.DataViewer<Data, Value>;
@@ -19,7 +19,7 @@ type StaticProps<Data, Value> = {
 
 export { StaticProps as Props };
 
-type State<Data> = {
+type State<Data extends Types.CellBase> = {
   selected: boolean;
   active: boolean;
   copied: boolean;
@@ -35,97 +35,88 @@ type Handlers = {
   setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void;
 };
 
-type Props<Data, Value> = {} & StaticProps<Data, Value> &
+type Props<Data extends Types.CellBase, Value> = StaticProps<Data, Value> &
   State<Data> &
   Handlers;
 
-export class Cell<
-  Data extends Types.CellBase,
-  Value
-> extends React.PureComponent<Props<Data, Value>> {
-  /** @todo update to new API */
-  root: HTMLElement | null;
+export const Cell = <Data extends Types.CellBase, Value>({
+  row,
+  column,
+  setCellDimensions,
+  select,
+  activate,
+  mode,
+  dragging,
+  getValue,
+  formulaParser,
+  selected,
+  active,
+  DataViewer,
+  data,
+}: Props<Data, Value>) => {
+  const rootRef = React.useRef<HTMLTableDataCellElement>();
+  const root = rootRef.current;
 
-  handleRoot = (root: HTMLElement | null) => {
-    this.root = root;
-  };
+  const handleMouseDown = React.useCallback(
+    (event: React.MouseEvent<HTMLTableDataCellElement>) => {
+      if (mode === "view") {
+        setCellDimensions({ row, column }, getOffsetRect(event.currentTarget));
 
-  handleMouseDown = (e: React.MouseEvent) => {
-    const {
-      row,
-      column,
-      setCellDimensions,
-      select,
-      activate,
-      mode,
-    } = this.props;
-    if (mode === "view") {
-      setCellDimensions({ row, column }, getOffsetRect(e.currentTarget));
-
-      if (e.shiftKey) {
-        select({ row, column });
-        return;
+        if (event.shiftKey) {
+          select({ row, column });
+        } else {
+          activate({ row, column });
+        }
       }
+    },
+    [mode, setCellDimensions, row, column, getOffsetRect, select, activate]
+  );
 
-      activate({ row, column });
-    }
-  };
+  const handleMouseOver = React.useCallback(
+    (event: React.MouseEvent<HTMLTableDataCellElement>) => {
+      if (dragging) {
+        setCellDimensions({ row, column }, getOffsetRect(event.currentTarget));
+        select({ row, column });
+      }
+    },
+    [setCellDimensions, getOffsetRect, select, dragging, row, column]
+  );
 
-  handleMouseOver = (e: React.MouseEvent) => {
-    const { row, column, dragging, setCellDimensions, select } = this.props;
-    if (dragging) {
-      setCellDimensions({ row, column }, getOffsetRect(e.currentTarget));
-      select({ row, column });
+  React.useEffect(() => {
+    if (selected && root) {
+      setCellDimensions({ row, column }, getOffsetRect(root));
     }
-  };
+    if (root && active && mode === "view") {
+      root.focus();
+    }
+  }, [setCellDimensions, getOffsetRect, root, select, active, mode]);
 
-  componentDidUpdate() {
-    const {
-      row,
-      column,
-      active,
-      selected,
-      mode,
-      setCellDimensions,
-    } = this.props;
-    if (selected && this.root) {
-      setCellDimensions({ row, column }, getOffsetRect(this.root));
-    }
-    if (this.root && active && mode === "view") {
-      this.root.focus();
-    }
+  if (data && data.DataViewer) {
+    ({ DataViewer, ...data } = data);
   }
 
-  render(): React.Node {
-    const { row, column, getValue, formulaParser } = this.props;
-    let { DataViewer, data } = this.props;
-    if (data && data.DataViewer) {
-      ({ DataViewer, ...data } = data);
-    }
-
-    return (
-      <td
-        ref={this.handleRoot}
-        className={classnames(
-          "Spreadsheet__cell",
-          data && data.readOnly && "Spreadsheet__cell--readonly",
-          data && data.className
-        )}
-        onMouseOver={this.handleMouseOver}
-        onMouseDown={this.handleMouseDown}
-        tabIndex={0}
-      >
-        <DataViewer
-          row={row}
-          column={column}
-          cell={data}
-          getValue={getValue}
-          formulaParser={formulaParser}
-        />
-      </td>
-    );
-  }
-}
+  return (
+    <td
+      ref={rootRef}
+      className={classnames(
+        "Spreadsheet__cell",
+        data && data.readOnly && "Spreadsheet__cell--readonly",
+        data && data.className
+      )}
+      onMouseOver={handleMouseOver}
+      onMouseDown={handleMouseDown}
+      tabIndex={0}
+    >
+      <DataViewer
+        row={row}
+        column={column}
+        cell={data}
+        getValue={getValue}
+        formulaParser={formulaParser}
+      />
+    </td>
+  );
+};
 
 function mapStateToProps<Data extends Types.CellBase>(
   {

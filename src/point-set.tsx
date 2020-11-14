@@ -1,7 +1,5 @@
 /**
  * Immutable Set like interface of points
- *
- * @flow
  */
 
 import { Point } from "./types";
@@ -54,11 +52,9 @@ export function filter(
   return PointMap.filter((_, point) => func(point), set);
 }
 
-const minKey = (
-  object: {
-    [K in number]: any;
-  }
-): number => Math.min(...Object.keys(object));
+const minKey = (object: Record<number, any>): number =>
+  // @ts-ignore
+  Math.min(...Object.keys(object));
 
 /** Returns the point on the minimal row in the minimal column in the set */
 export function min(set: PointSet): Point {
@@ -66,11 +62,9 @@ export function min(set: PointSet): Point {
   return { row, column: minKey(set[row]) };
 }
 
-const maxKey = (
-  object: {
-    [K in number]: any;
-  }
-): number => Math.max(...Object.keys(object));
+const maxKey = (object: Record<number, any>): number =>
+  // @ts-ignore
+  Math.max(...Object.keys(object));
 
 /** Returns the point on the maximal row in the maximal column in the set */
 export function max(set: PointSet): Point {
@@ -158,9 +152,8 @@ export function extendEdge(
       if (point[field] === edgeValue) {
         return add(acc, {
           [field]: edgeValue + delta,
-
           [oppositeField]: point[oppositeField],
-        });
+        } as Point);
       }
       return acc;
     },

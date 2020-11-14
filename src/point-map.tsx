@@ -1,7 +1,5 @@
 /**
  * Immutable unordered Map like interface of point to value pairs.
- *
- * @flow
  */
 import * as Types from "./types";
 import { Matrix } from "./matrix";
@@ -35,6 +33,7 @@ export function unset<T>(
     return map;
   }
   const {
+    // @ts-ignore
     [String(row)]: { [String(column)]: _, ...nextRow },
     ...nextMap
   } = map;

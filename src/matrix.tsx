@@ -2,8 +2,6 @@
  * Immutable interface for Matrices
  *
  * @todo use Types.Point for all point references
- *
- * @flow
  */
 
 import { range as _range } from "./util";
@@ -266,10 +264,13 @@ export const inclusiveRange: typeof range = (endPoint, startPoint) =>
     startPoint
   );
 
+export function toArray<T>(matrix: Matrix<T>): T[];
 export function toArray<T1, T2>(
   matrix: Matrix<T1>,
-  transform: ((arg0: T1 | typeof undefined) => T2) | null
-): Array<T1> | Array<T2> {
+  transform: (cell: T1 | typeof undefined) => T2
+): T2[];
+
+export function toArray(matrix, transform?) {
   let array = [];
   for (let row = 0; row < matrix.length; row++) {
     for (let column = 0; column < matrix.length; column++) {

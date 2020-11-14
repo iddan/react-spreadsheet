@@ -12,7 +12,7 @@ const Table = ({
   children,
   columns,
   hideColumnIndicators,
-}: Props): React.ReactNode => {
+}: Props): React.ReactElement => {
   const columnCount = columns + (hideColumnIndicators ? 0 : 1);
   const columnNodes = range(columnCount).map((i) => <col key={i} />);
   return (

@@ -1,10 +1,10 @@
-import React from "react";
+import * as React from "react";
 import { connect } from "unistore/react";
 import * as Types from "./types";
 import * as PointSet from "./point-set";
 import FloatingRect, { Props, mapStateToProps } from "./FloatingRect";
 
-const Selected = (props: Props) => (
+const Selected = (props: Props): React.ReactElement => (
   <FloatingRect {...props} variant="selected" />
 );
 
