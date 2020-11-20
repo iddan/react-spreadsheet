@@ -13,7 +13,7 @@ import Spreadsheet, { Props as SpreadsheetProps } from "./Spreadsheet";
 
 type Unsubscribe = () => void;
 
-export type Props<Value, CellType extends Types.CellBase<Value>> = {
+export type Props<CellType extends Types.CellBase<Value>, Value> = {
   onChange: (data: Matrix.Matrix<CellType>) => void;
   onModeChange: (mode: Types.Mode) => void;
   onSelect: (selected: Types.Point[]) => void;

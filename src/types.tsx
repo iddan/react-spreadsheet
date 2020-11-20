@@ -53,10 +53,7 @@ export type StoreState<Cell extends CellBase<Value>, Value> = {
   dragging: boolean;
   lastChanged: Point | null;
   bindings: PointMap<PointSet>;
-  lastCommit: null | Array<{
-    prevCell: Cell;
-    nextCell: Cell;
-  }>;
+  lastCommit: null | CellChange<Cell>[];
 };
 
 export type GetValue<Cell, Value> = (
@@ -68,12 +65,12 @@ export type getBindingsForCell<Cell> = (
   data: Matrix<Cell>
 ) => Point[];
 
-type CellChange<CellType> = {
-  prevCell: CellType | null;
-  nextCell: CellType | null;
+type CellChange<Cell> = {
+  prevCell: Cell | null;
+  nextCell: Cell | null;
 };
 
-export type commit<CellType> = (changes: CellChange<CellType>[]) => void;
+export type commit<Cell> = (changes: CellChange<Cell>[]) => void;
 
 export type CellComponentProps<Cell extends CellBase<Value>, Value> = {
   cell: Cell | null;

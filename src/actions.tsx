@@ -135,7 +135,7 @@ export function cut<Cell extends Types.CellBase<Value>, Value>(
   };
 }
 
-export async function paste<Value, Cell extends Types.CellBase<Value>>(
+export async function paste<Cell extends Types.CellBase<Value>, Value>(
   state: Types.StoreState<Cell, Value>,
   text: string
 ): Promise<Partial<Types.StoreState<Cell, Value>> | null> {
@@ -212,7 +212,7 @@ export async function paste<Value, Cell extends Types.CellBase<Value>>(
   };
 }
 
-export const edit = <Value, Cell extends Types.CellBase<Value>>(
+export const edit = <Cell extends Types.CellBase<Value>, Value>(
   state: Types.StoreState<Cell, Value>
 ): Partial<Types.StoreState<Cell, Value>> | null => {
   if (isActiveReadOnly(state)) {
@@ -225,7 +225,7 @@ export const view = (): Partial<Types.StoreState<unknown, unknown>> => ({
   mode: "view",
 });
 
-export const clear = <Value, Cell extends Types.CellBase<Value>>(
+export const clear = <Cell extends Types.CellBase<Value>, Value>(
   state: Types.StoreState<Cell, Value>
 ): Partial<Types.StoreState<Cell, Value>> | null => {
   if (!state.active) {
@@ -262,7 +262,7 @@ export type KeyDownHandler = (
   event: KeyboardEvent
 ) => Partial<Types.StoreState<unknown, unknown>> | null;
 
-export const go = <Value, Cell extends Types.CellBase<Value>>(
+export const go = <Cell extends Types.CellBase<Value>, Value>(
   rowDelta: number,
   columnDelta: number
 ): KeyDownHandler => (state, event) => {
@@ -348,7 +348,7 @@ const shiftKeyDownHandlers: KeyDownHandlers = {
 const shiftMetaKeyDownHandlers: KeyDownHandlers = {};
 const metaKeyDownHandlers: KeyDownHandlers = {};
 
-function getActive<Value, Cell extends Types.CellBase<Value>>(
+function getActive<Cell extends Types.CellBase<Value>, Value>(
   state: Types.StoreState<Cell, Value>
 ): Cell | null {
   return (
@@ -357,14 +357,14 @@ function getActive<Value, Cell extends Types.CellBase<Value>>(
   );
 }
 
-const isActiveReadOnly = <Value, Cell extends Types.CellBase<Value>>(
+const isActiveReadOnly = <Cell extends Types.CellBase<Value>, Value>(
   state: Types.StoreState<Cell, Value>
 ): boolean => {
   const activeCell = getActive(state);
   return Boolean(activeCell && activeCell.readOnly);
 };
 
-export function keyPress<Value, Cell extends Types.CellBase<Value>>(
+export function keyPress<Cell extends Types.CellBase<Value>, Value>(
   state: Types.StoreState<Cell, Value>,
   event: KeyboardEvent
 ): Partial<Types.StoreState<Cell, Value>> | null {
@@ -422,7 +422,7 @@ export function dragEnd(
   return { dragging: false };
 }
 
-export function commit<Value, Cell extends Types.CellBase<Value>>(
+export function commit<Cell extends Types.CellBase<Value>, Value>(
   state: Types.StoreState<Cell, Value>,
   changes: Array<{
     prevCell: Cell | null;
