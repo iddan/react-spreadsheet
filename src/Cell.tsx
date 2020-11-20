@@ -72,7 +72,7 @@ export const Cell = <Data extends Types.CellBase<Value>, Value>({
         }
       }
     },
-    [mode, setCellDimensions, row, column, getOffsetRect, select, activate]
+    [mode, setCellDimensions, row, column, select, activate]
   );
 
   const handleMouseOver = React.useCallback(
@@ -82,7 +82,7 @@ export const Cell = <Data extends Types.CellBase<Value>, Value>({
         select({ row, column });
       }
     },
-    [setCellDimensions, getOffsetRect, select, dragging, row, column]
+    [setCellDimensions, select, dragging, row, column]
   );
 
   React.useEffect(() => {
@@ -92,7 +92,7 @@ export const Cell = <Data extends Types.CellBase<Value>, Value>({
     if (root && active && mode === "view") {
       root.focus();
     }
-  }, [setCellDimensions, getOffsetRect, root, select, active, mode]);
+  }, [setCellDimensions, root, select, active, mode, column, row, selected]);
 
   if (data && data.DataViewer) {
     // @ts-ignore

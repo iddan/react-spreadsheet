@@ -1,6 +1,4 @@
 import * as React from "react";
-import { ComponentType, ReactNode } from "react";
-import { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
 import { getComputedValue } from "./util";
 

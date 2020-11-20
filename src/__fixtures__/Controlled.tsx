@@ -6,7 +6,7 @@ import "./index.css";
 
 const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
-export default () => {
+const Controlled = () => {
   const [data, setData] = useState(initialData);
 
   const addColumn = useCallback(
@@ -56,3 +56,5 @@ export default () => {
     </Fragment>
   );
 };
+
+export default Controlled;

@@ -10,7 +10,6 @@ import * as Actions from "./actions";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import Spreadsheet, { Props as SpreadsheetProps } from "./Spreadsheet";
-import { Cell } from "./Cell";
 
 type Unsubscribe = () => void;
 

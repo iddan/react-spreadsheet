@@ -262,10 +262,9 @@ export type KeyDownHandler = (
   event: KeyboardEvent
 ) => Partial<Types.StoreState<unknown, unknown>> | null;
 
-export const go = <Cell extends Types.CellBase<Value>, Value>(
-  rowDelta: number,
-  columnDelta: number
-): KeyDownHandler => (state, event) => {
+export const go = (rowDelta: number, columnDelta: number): KeyDownHandler => (
+  state
+) => {
   if (!state.active) {
     return null;
   }
