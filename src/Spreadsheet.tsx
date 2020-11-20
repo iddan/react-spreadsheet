@@ -19,7 +19,7 @@ import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import { getBindingsForCell } from "./bindings";
+import { getBindings } from "./bindings";
 import {
   memoizeOne,
   range,
@@ -91,7 +91,7 @@ class Spreadsheet<
     DataViewer,
     DataEditor,
     getValue,
-    getBindingsForCell,
+    getBindingsForCell: getBindings,
   };
 
   formulaParser = this.props.formulaParser || new FormulaParser();

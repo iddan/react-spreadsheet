@@ -4,9 +4,17 @@ import typescript from "rollup-plugin-typescript2";
 import postcss from "rollup-plugin-postcss";
 import pkg from "./package.json";
 
+const input = "src/index.ts";
+const external = [
+  "react",
+  ...Object.keys(pkg.dependencies).flatMap(
+    (dependency) => new RegExp(`^${dependency}(\\/.+)?`)
+  ),
+];
+
 export default [
   {
-    input: "src/index.tsx",
+    input,
     output: {
       dir: "dist",
       format: "cjs",
@@ -14,10 +22,10 @@ export default [
       sourcemap: true,
     },
     plugins: [typescript(), postcss()],
-    external: Object.keys(pkg.dependencies),
+    external,
   },
   {
-    input: "src/index.tsx",
+    input,
     output: {
       dir: "dist/es",
       format: "es",
@@ -25,6 +33,6 @@ export default [
       sourcemap: true,
     },
     plugins: [typescript(), postcss()],
-    external: Object.keys(pkg.dependencies),
+    external,
   },
 ];

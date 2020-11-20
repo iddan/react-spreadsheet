@@ -1,6 +1,1 @@
-{
-  "flow.useNPMPackagedFlow": true,
-  "flow.useLSP": true,
-  "typescript.validate.enable": false,
-  "javascript.validate.enable": false
-}
+{}
