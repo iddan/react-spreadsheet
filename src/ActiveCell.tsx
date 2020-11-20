@@ -53,7 +53,7 @@ function ActiveCell<Cell extends Types.CellBase<Value>, Value>(
       const bindings = getBindingsForCell(cell, data);
       setCellData({ row, column }, cell, bindings);
     },
-    [getBindingsForCell, setCellData, row, column]
+    [getBindingsForCell, setCellData, row, column, data]
   );
 
   React.useEffect(() => {

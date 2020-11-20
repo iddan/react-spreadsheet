@@ -1,9 +1,9 @@
 import {
   getReferences,
   getFormula,
-  getBindings,
+  getBindingsForCell,
   isFormula,
-} from "../src/bindings";
+} from "./bindings";
 
 const EXAMPLE_CELL = {};
 const A1 = "A1";
@@ -49,15 +49,15 @@ describe("getReferences", () => {
   });
 });
 
-describe("getBindings", () => {
+describe("getBindingsForCell", () => {
   test("gets immediate dependencies", () => {
-    expect(getBindings(EXAMPLE_FORMULA_CELL, EMPTY_DATA)).toEqual([
+    expect(getBindingsForCell(EXAMPLE_FORMULA_CELL, EMPTY_DATA)).toEqual([
       A1_POINT,
       A2_POINT,
     ]);
   });
   test("gets 2nd level dependencies", () => {
-    expect(getBindings(EXAMPLE_FORMULA_CELL, EXAMPLE_DATA)).toEqual([
+    expect(getBindingsForCell(EXAMPLE_FORMULA_CELL, EXAMPLE_DATA)).toEqual([
       A1_POINT,
       A2_POINT,
       B1_POINT,

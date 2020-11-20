@@ -1,5 +1,4 @@
 import { ComponentType } from "react";
-import { types } from "@babel/core";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";

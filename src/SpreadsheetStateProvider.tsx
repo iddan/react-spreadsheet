@@ -13,7 +13,10 @@ import Spreadsheet, { Props as SpreadsheetProps } from "./Spreadsheet";
 
 type Unsubscribe = () => void;
 
-export type Props<CellType extends Types.CellBase<Value>, Value> = {
+export type Props<CellType extends Types.CellBase<Value>, Value> = Omit<
+  SpreadsheetProps<CellType, Value>,
+  "store"
+> & {
   onChange: (data: Matrix.Matrix<CellType>) => void;
   onModeChange: (mode: Types.Mode) => void;
   onSelect: (selected: Types.Point[]) => void;
@@ -24,7 +27,7 @@ export type Props<CellType extends Types.CellBase<Value>, Value> = {
     coords: null | Types.Point
   ) => void;
   data: Matrix.Matrix<CellType>;
-} & SpreadsheetProps<CellType, Value>;
+};
 
 const INITIAL_STATE: Pick<
   Types.StoreState<unknown, unknown>,
@@ -137,7 +140,7 @@ export default class SpreadsheetStateProvider<
     const { data, ...rest } = this.props;
     return (
       <Provider store={this.store}>
-        {/* @ts-ignore */}
+        {/** @ts-ignore */}
         <Spreadsheet {...rest} store={this.store} />
       </Provider>
     );

@@ -1,15 +1,6 @@
-import { createFixture } from "react-cosmos";
-import React from "react";
+import * as React from "react";
 
-import Spreadsheet, { createEmptyMatrix } from "../src";
-import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
-import "./index.css";
-
-const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
-
-Spreadsheet.displayName = "Spreadsheet";
-
-function CornerIndicator() {
+export const CustomCornerIndicator = () => {
   return (
     <th
       className="Spreadsheet__header"
@@ -21,7 +12,6 @@ function CornerIndicator() {
           bottom: -3,
           position: "absolute",
           right: 1,
-
           width: 0,
           height: 0,
           borderTop: "8px solid transparent",
@@ -32,13 +22,4 @@ function CornerIndicator() {
       />
     </th>
   );
-}
-
-export default createFixture({
-  component: Spreadsheet,
-  name: "WithCornerIndicator",
-  props: {
-    data: initialData,
-    CornerIndicator,
-  },
-});
+};

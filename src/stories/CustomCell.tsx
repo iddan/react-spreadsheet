@@ -1,22 +1,14 @@
 /**
- * This fixture demonstrates providing a custom cell component
+ * Example custom cell component
  */
 
 import React, { useCallback, useEffect } from "react";
-import { createFixture } from "react-cosmos";
 import classnames from "classnames";
-import Spreadsheet, { createEmptyMatrix } from "../src";
-import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
-import "./index.css";
-
-const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
-
-Spreadsheet.displayName = "Spreadsheet";
 
 const HEIGHT = 30;
 const WIDTH = 96;
 
-const Cell = ({
+const CustomCell = ({
   column,
   row,
   setCellDimensions,
@@ -30,7 +22,7 @@ const Cell = ({
   data,
   DataViewer,
 }) => {
-  const root = React.createRef();
+  const rootRef = React.createRef<HTMLTableCellElement>();
 
   useEffect(() => {
     setCellDimensions(
@@ -42,13 +34,13 @@ const Cell = ({
         top: HEIGHT * (row + 1),
       }
     );
-  }, [setCellDimensions]);
+  }, [setCellDimensions, column, row]);
 
   useEffect(() => {
-    if (root.current && active && mode === "view") {
-      root.current.focus();
+    if (rootRef.current && active && mode === "view") {
+      rootRef.current.focus();
     }
-  });
+  }, [rootRef, active, mode]);
 
   const handleMouseDown = useCallback(
     (event) => {
@@ -61,17 +53,14 @@ const Cell = ({
         activate({ row, column });
       }
     },
-    [select, activate]
+    [select, activate, column, mode, row]
   );
 
-  const handleMouseOver = useCallback(
-    (event) => {
-      if (dragging) {
-        select({ row, column });
-      }
-    },
-    [dragging, select]
-  );
+  const handleMouseOver = useCallback(() => {
+    if (dragging) {
+      select({ row, column });
+    }
+  }, [dragging, select, column, row]);
 
   if (data && data.DataViewer) {
     ({ DataViewer, ...data } = data);
@@ -79,7 +68,7 @@ const Cell = ({
 
   return (
     <td
-      ref={root}
+      ref={rootRef}
       className={classnames(
         "Spreadsheet__cell",
         data && data.readOnly && "Spreadsheet__cell--readonly",
@@ -103,11 +92,4 @@ const Cell = ({
   );
 };
 
-export default createFixture({
-  component: Spreadsheet,
-  name: "CustomCell",
-  props: {
-    data: initialData,
-    Cell,
-  },
-});
+export default CustomCell;
