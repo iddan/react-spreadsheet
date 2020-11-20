@@ -26,15 +26,25 @@ export type Props<CellType extends Types.CellBase<Value>, Value> = {
   data: Matrix.Matrix<CellType>;
 } & SpreadsheetProps<CellType, Value>;
 
-const initialState: Partial<Types.StoreState<unknown, unknown>> = {
-  selected: PointSet.from([]),
-  copied: PointMap.from([]),
+const INITIAL_STATE: Pick<
+  Types.StoreState<unknown, unknown>,
+  | "active"
+  | "mode"
+  | "rowDimensions"
+  | "columnDimensions"
+  | "lastChanged"
+  | "hasPasted"
+  | "cut"
+  | "dragging"
+> = {
   active: null,
   mode: "view",
   rowDimensions: {},
   columnDimensions: {},
   lastChanged: null,
-  bindings: PointMap.from([]),
+  hasPasted: false,
+  cut: false,
+  dragging: false,
 };
 
 export default class SpreadsheetStateProvider<
@@ -56,8 +66,12 @@ export default class SpreadsheetStateProvider<
   constructor(props: Props<CellType, Value>) {
     super(props);
     const state: Types.StoreState<CellType, Value> = {
-      ...initialState,
+      ...INITIAL_STATE,
       data: this.props.data,
+      selected: PointSet.from([]),
+      copied: PointMap.from([]),
+      bindings: PointMap.from([]),
+      lastCommit: null,
     };
     this.store =
       process.env.NODE_ENV === "production"
@@ -123,6 +137,7 @@ export default class SpreadsheetStateProvider<
     const { data, ...rest } = this.props;
     return (
       <Provider store={this.store}>
+        {/* @ts-ignore */}
         <Spreadsheet {...rest} store={this.store} />
       </Provider>
     );

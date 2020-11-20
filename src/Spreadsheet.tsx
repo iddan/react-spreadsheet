@@ -1,22 +1,19 @@
 import * as React from "react";
-import { ComponentType } from "react";
 import { connect } from "unistore/react";
-
 import { Store } from "unistore";
 import { Parser as FormulaParser } from "hot-formula-parser";
+
 import * as Types from "./types";
-import Table from "./Table";
-import { Props as TableProps } from "./Table";
-import Row from "./Row";
-import { Props as RowProps } from "./Row";
-import CornerIndicator from "./CornerIndicator";
-import { Props as CornerIndicatorProps } from "./CornerIndicator";
-import ColumnIndicator from "./ColumnIndicator";
-import { Props as ColumnIndicatorProps } from "./ColumnIndicator";
-import RowIndicator from "./RowIndicator";
-import { Props as RowIndicatorProps } from "./RowIndicator";
-import { Cell, enhance as enhanceCell } from "./Cell";
-import { Props as CellProps } from "./Cell";
+import Table, { Props as TableProps } from "./Table";
+import Row, { Props as RowProps } from "./Row";
+import CornerIndicator, {
+  Props as CornerIndicatorProps,
+} from "./CornerIndicator";
+import ColumnIndicator, {
+  Props as ColumnIndicatorProps,
+} from "./ColumnIndicator";
+import RowIndicator, { Props as RowIndicatorProps } from "./RowIndicator";
+import { Cell, Props as CellProps, enhance as enhanceCell } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
@@ -46,15 +43,15 @@ const getValue: Types.GetValue<DefaultCellType, DefaultValue> = ({ data }) =>
 export type Props<CellType extends Types.CellBase<Value>, Value> = {
   formulaParser: FormulaParser;
   columnLabels?: string[];
-  ColumnIndicator?: ComponentType<ColumnIndicatorProps>;
-  CornerIndicator: ComponentType<CornerIndicatorProps>;
+  ColumnIndicator?: React.ComponentType<ColumnIndicatorProps>;
+  CornerIndicator: React.ComponentType<CornerIndicatorProps>;
   rowLabels?: string[];
-  RowIndicator?: ComponentType<RowIndicatorProps>;
+  RowIndicator?: React.ComponentType<RowIndicatorProps>;
   hideRowIndicators?: boolean;
   hideColumnIndicators?: boolean;
-  Table: ComponentType<TableProps>;
-  Row: ComponentType<RowProps>;
-  Cell: ComponentType<CellProps<CellType, Value>>;
+  Table: React.ComponentType<TableProps>;
+  Row: React.ComponentType<RowProps>;
+  Cell: React.ComponentType<CellProps<CellType, Value>>;
   DataViewer: Types.DataViewer<CellType, Value>;
   DataEditor: Types.DataEditor<CellType, Value>;
   onKeyDown?: (event: React.KeyboardEvent) => void;
@@ -317,6 +314,7 @@ class Spreadsheet<
                   <RowIndicator key={rowNumber} row={rowNumber} />
                 ))}
               {range(columns).map((columnNumber) => (
+                // @ts-ignore
                 <Cell
                   key={columnNumber}
                   row={rowNumber}
@@ -330,6 +328,7 @@ class Spreadsheet<
           ))}
         </Table>
         <ActiveCell
+          // @ts-ignore
           DataEditor={DataEditor}
           getValue={getValue}
           getBindingsForCell={getBindingsForCell}
