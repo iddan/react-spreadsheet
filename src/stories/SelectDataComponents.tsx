@@ -1,11 +1,6 @@
 import React, { useCallback } from "react";
 import Select from "react-select";
-import { Spreadsheet, createEmptyMatrix } from "..";
-import { INITIAL_ROWS, INITIAL_COLUMNS } from "./shared";
 import "react-select/dist/react-select.css";
-import "./index.css";
-
-const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
 const OPTIONS = [
   { value: "vanilla", label: "Vanilla" },
@@ -14,7 +9,7 @@ const OPTIONS = [
 ];
 const SELECT_WIDTH = 200;
 
-const SelectView = ({ cell, getValue }) => (
+export const SelectView = ({ cell, getValue }) => (
   <Select
     value={getValue({ data: cell })}
     options={OPTIONS}
@@ -23,7 +18,7 @@ const SelectView = ({ cell, getValue }) => (
   />
 );
 
-const SelectEdit = ({ cell, onChange, getValue, column, row }) => {
+export const SelectEdit = ({ cell, onChange, getValue, column, row }) => {
   const handleChange = useCallback(
     (selection) => {
       onChange({ ...cell, value: selection ? selection.value : null });
@@ -40,11 +35,3 @@ const SelectEdit = ({ cell, onChange, getValue, column, row }) => {
     />
   );
 };
-
-initialData[2][2] = {
-  value: 0,
-  DataViewer: SelectView,
-  DataEditor: SelectEdit,
-};
-
-export const SelectCellSpreadsheet = <Spreadsheet data={initialData} />;

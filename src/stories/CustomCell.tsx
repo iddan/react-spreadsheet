@@ -1,19 +1,14 @@
 /**
- * This fixture demonstrates providing a custom cell component
+ * Example custom cell component
  */
 
 import React, { useCallback, useEffect } from "react";
 import classnames from "classnames";
-import { Spreadsheet, createEmptyMatrix } from "..";
-import { INITIAL_ROWS, INITIAL_COLUMNS } from "./shared";
-import "./index.css";
-
-const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
 const HEIGHT = 30;
 const WIDTH = 96;
 
-const Cell = ({
+const CustomCell = ({
   column,
   row,
   setCellDimensions,
@@ -97,4 +92,4 @@ const Cell = ({
   );
 };
 
-export const CustomCell = <Spreadsheet data={initialData} Cell={Cell} />;
+export default CustomCell;

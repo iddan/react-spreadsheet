@@ -1,10 +1,6 @@
-import React from "react";
+import * as React from "react";
 
-import { Spreadsheet } from "..";
-import { EMPTY_DATA } from "./shared";
-import "./index.css";
-
-function CornerIndicator() {
+export const CustomCornerIndicator = () => {
   return (
     <th
       className="Spreadsheet__header"
@@ -26,8 +22,4 @@ function CornerIndicator() {
       />
     </th>
   );
-}
-
-export const WithCornerIndicator = (
-  <Spreadsheet data={EMPTY_DATA} CornerIndicator={CornerIndicator} />
-);
+};

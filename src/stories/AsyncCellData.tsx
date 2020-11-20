@@ -1,9 +1,8 @@
-import * as React from "react";
-import { Spreadsheet, createEmptyMatrix } from "..";
-import { INITIAL_ROWS, INITIAL_COLUMNS } from "./shared";
-import "./index.css";
+/**
+ * Example asynchronous cell data
+ */
 
-const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
+import * as React from "react";
 
 const AsyncCellData = ({ onChange, row, column, cell, getValue }) => {
   const [loading, setLoading] = React.useState(false);
@@ -24,16 +23,4 @@ const AsyncCellData = ({ onChange, row, column, cell, getValue }) => {
   );
 };
 
-initialData[2][2] = {
-  value: 1,
-  DataViewer: AsyncCellData,
-  DataEditor: AsyncCellData,
-};
-
-export const AsyncCellSpreadsheet = (
-  <Spreadsheet
-    data={initialData}
-    onCellCommit={(...args: unknown[]) => console.log("onCellCommit", ...args)}
-    onChange={(...args: unknown[]) => console.log("onChange", ...args)}
-  />
-);
+export default AsyncCellData;

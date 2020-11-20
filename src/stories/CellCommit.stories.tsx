@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Spreadsheet, createEmptyMatrix } from "..";
 import { INITIAL_ROWS, INITIAL_COLUMNS } from "./shared";
-import "./index.css";
 
 const noop = () => {};
 

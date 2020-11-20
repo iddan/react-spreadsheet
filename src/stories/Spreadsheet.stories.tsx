@@ -3,7 +3,11 @@ import { Meta } from "@storybook/react/types-6-0";
 import { createEmptyMatrix, Spreadsheet } from "..";
 import * as Matrix from "../matrix";
 import { EMPTY_DATA, INITIAL_COLUMNS, INITIAL_ROWS } from "./shared";
-import "./index.css";
+import AsyncCellData from "./AsyncCellData";
+import CustomCell from "./CustomCell";
+import { RangeEdit, RangeView } from "./RangeDataComponents";
+import { SelectEdit, SelectView } from "./SelectDataComponents";
+import { CustomCornerIndicator } from "./CustomCornerIndicator";
 
 export default {
   title: "Spreadsheet",
@@ -97,3 +101,52 @@ export const Readonly = () => {
   data[0][0] = { readOnly: true, value: "Read Only" };
   return <Spreadsheet data={data} />;
 };
+
+export const WithAsyncCellData = () => {
+  const data = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
+
+  data[2][2] = {
+    value: 1,
+    DataViewer: AsyncCellData,
+    DataEditor: AsyncCellData,
+  };
+  return (
+    <Spreadsheet
+      data={data}
+      onCellCommit={(...args: unknown[]) =>
+        console.log("onCellCommit", ...args)
+      }
+      onChange={(...args: unknown[]) => console.log("onChange", ...args)}
+    />
+  );
+};
+
+export const WithCustomCell = () => (
+  <Spreadsheet data={EMPTY_DATA} Cell={CustomCell} />
+);
+
+export const RangeCell = () => {
+  const data = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
+  data[2][2] = {
+    value: 0,
+    DataViewer: RangeView,
+    DataEditor: RangeEdit,
+  };
+  return <Spreadsheet data={data} />;
+};
+
+export const SelectCell = () => {
+  const data = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
+
+  data[2][2] = {
+    value: 0,
+    DataViewer: SelectView,
+    DataEditor: SelectEdit,
+  };
+
+  return <Spreadsheet data={data} />;
+};
+
+export const WithCornerIndicator = () => (
+  <Spreadsheet data={EMPTY_DATA} CornerIndicator={CustomCornerIndicator} />
+);
