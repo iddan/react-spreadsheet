@@ -1,14 +1,12 @@
-// @flow
-
-import React, { useRef, useCallback, type Node, useEffect } from "react";
+import * as React from "react";
 import * as Types from "./types";
 import { moveCursorToEnd } from "./util";
 
-type Cell = {
-  value: Node,
-};
-
 type Value = string | number;
+
+type Cell = Types.CellBase<Value> & {
+  value: React.ReactNode;
+};
 
 const DataEditor = ({
   onChange,
@@ -16,17 +14,17 @@ const DataEditor = ({
   getValue,
   column,
   row,
-}: Types.DataEditorProps<Cell, Value>): Node => {
-  const inputRef = useRef<HTMLInputElement | null>(null);
+}: Types.DataEditorProps<Cell, Value>): React.ReactElement => {
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
 
-  const handleChange = useCallback(
-    (e: SyntheticInputEvent<HTMLInputElement>) => {
+  const handleChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange({ ...cell, value: e.target.value });
     },
     [onChange, cell]
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (inputRef.current) {
       moveCursorToEnd(inputRef.current);
     }

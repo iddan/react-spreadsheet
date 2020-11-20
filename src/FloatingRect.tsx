@@ -1,17 +1,14 @@
-// @flow
-
 import * as React from "react";
 import * as PointSet from "./point-set";
 import * as Types from "./types";
 import classnames from "classnames";
 import { getCellDimensions } from "./util";
 
-type Props = {
-  ...Types.Dimensions,
-  className: string,
-  dragging: ?boolean,
-  hidden: boolean,
-  variant: "copied" | "selected",
+export type Props = Types.Dimensions & {
+  className: string;
+  dragging: boolean | null;
+  hidden: boolean;
+  variant: "copied" | "selected";
 };
 
 const FloatingRect = ({
@@ -23,7 +20,7 @@ const FloatingRect = ({
   dragging,
   hidden,
   variant,
-}: Props): React.Node => (
+}: Props): React.ReactElement => (
   <div
     className={classnames("Spreadsheet__floating-rect", {
       [`Spreadsheet__floating-rect--${variant}`]: variant,
@@ -36,7 +33,7 @@ const FloatingRect = ({
 
 const getRangeDimensions = (
   points: PointSet.PointSet,
-  state: Types.StoreState<*>
+  state: Types.StoreState<unknown, unknown>
 ): Types.Dimensions => {
   const { width, height, left, top } = PointSet.reduce(
     (acc, point) => {
@@ -58,11 +55,13 @@ const getRangeDimensions = (
   return { left, top, width, height };
 };
 
-type StateToProps = (state: Types.StoreState<*>) => $Shape<Props>;
+type StateToProps = (
+  state: Types.StoreState<unknown, unknown>
+) => Partial<Props>;
 
 export const mapStateToProps = (cells: PointSet.PointSet): StateToProps => (
-  state: Types.StoreState<*>
-): $Shape<Props> => {
+  state: Types.StoreState<unknown, unknown>
+): Partial<Props> => {
   return {
     ...getRangeDimensions(cells, state),
     hidden: PointSet.size(cells) === 0,

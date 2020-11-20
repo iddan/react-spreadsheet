@@ -1,16 +1,18 @@
-// @flow
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import { isActive, setCell, updateData } from "./util";
 
-type Action = <Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>,
-  ...*
-) => $Shape<Types.StoreState<Cell>> | null;
+type Action = <Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>,
+  ...args: unknown[]
+) => Partial<Types.StoreState<Cell, Value>> | null;
 
-export const setData: Action = (state, data) => {
+export const setData = <Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>,
+  data: Matrix.Matrix<Cell>
+): Partial<Types.StoreState<Cell, Value>> => {
   const nextActive =
     state.active && Matrix.has(state.active.row, state.active.column, data)
       ? state.active
@@ -59,12 +61,12 @@ export const activate: Action = (state, cellPointer: Types.Point) => ({
   mode: isActive(state.active, cellPointer) ? "edit" : "view",
 });
 
-export function setCellData<Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>,
+export function setCellData<Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>,
   active: Types.Point,
   data: Cell,
   bindings: Types.Point[]
-): $Shape<Types.StoreState<Cell>> | null {
+): Partial<Types.StoreState<Cell, Value>> | null {
   if (isActiveReadOnly(state)) {
     return null;
   }
@@ -77,10 +79,10 @@ export function setCellData<Cell: Types.CellBase>(
 }
 
 export function setCellDimensions(
-  state: Types.StoreState<*>,
+  state: Types.StoreState<unknown, unknown>,
   point: Types.Point,
   dimensions: Types.Dimensions
-): $Shape<Types.StoreState<*>> | null {
+): Partial<Types.StoreState<unknown, unknown>> | null {
   const prevRowDimensions = state.rowDimensions[point.row];
   const prevColumnDimensions = state.columnDimensions[point.column];
   if (
@@ -105,41 +107,38 @@ export function setCellDimensions(
   };
 }
 
-export function copy<Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>
-): $Shape<Types.StoreState<Cell>> {
+export function copy<Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>
+): Partial<Types.StoreState<Cell, Value>> {
   return {
     copied: PointSet.reduce(
-      // $FlowFixMe
       (acc, point) =>
         PointMap.set(
           point,
-          // $FlowFixMe
           Matrix.get(point.row, point.column, state.data),
           acc
         ),
       state.selected,
-      // $FlowFixMe
-      PointMap.from<T>([])
+      PointMap.from<Cell>([])
     ),
     cut: false,
     hasPasted: false,
   };
 }
 
-export function cut<Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>
-): $Shape<Types.StoreState<Cell>> {
+export function cut<Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>
+): Partial<Types.StoreState<Cell, Value>> {
   return {
     ...copy(state),
     cut: true,
   };
 }
 
-export async function paste<Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>,
+export async function paste<Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>,
   text: string
-): Promise<$Shape<Types.StoreState<Cell>> | null> {
+): Promise<Partial<Types.StoreState<Cell, Value>> | null> {
   const { active } = state;
   if (!text || !active) {
     return null;
@@ -149,11 +148,11 @@ export async function paste<Cell: Types.CellBase>(
 
   const minPoint = PointSet.min(copied);
 
-  type Accumulator = {|
-    data: $PropertyType<Types.StoreState<Cell>, "data">,
-    selected: $PropertyType<Types.StoreState<Cell>, "selected">,
-    commit: $PropertyType<Types.StoreState<Cell>, "lastCommit">,
-  |};
+  type Accumulator = {
+    data: Types.StoreState<Cell, Value>["data"];
+    selected: Types.StoreState<Cell, Value>["selected"];
+    commit: Types.StoreState<Cell, Value>["lastCommit"];
+  };
 
   const requiredRows = active.row + Matrix.getSize(copiedMatrix).rows;
   const paddedData = Matrix.padMatrix(state.data, requiredRows);
@@ -173,7 +172,6 @@ export async function paste<Cell: Types.CellBase>(
       }
 
       if (!Matrix.has(nextRow, nextColumn, paddedData)) {
-        // $FlowFixMe
         return { data: nextData, selected: acc.selected, commit };
       }
       const currentValue = Matrix.get(nextRow, nextColumn, nextData) || {};
@@ -197,7 +195,7 @@ export async function paste<Cell: Types.CellBase>(
           row: nextRow,
           column: nextColumn,
         }),
-        // $FlowFixMe
+
         commit,
       };
     },
@@ -214,22 +212,22 @@ export async function paste<Cell: Types.CellBase>(
   };
 }
 
-export const edit = <Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>
-): $Shape<Types.StoreState<*>> | null => {
+export const edit = <Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>
+): Partial<Types.StoreState<Cell, Value>> | null => {
   if (isActiveReadOnly(state)) {
     return null;
   }
   return { mode: "edit" };
 };
 
-export const view = (): $Shape<Types.StoreState<*>> => ({
+export const view = (): Partial<Types.StoreState<unknown, unknown>> => ({
   mode: "view",
 });
 
-export const clear = <Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>
-): $Shape<Types.StoreState<*>> | null => {
+export const clear = <Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>
+): Partial<Types.StoreState<Cell, Value>> | null => {
   if (!state.active) {
     return null;
   }
@@ -239,7 +237,7 @@ export const clear = <Cell: Types.CellBase>(
   return {
     data: PointSet.reduce(
       (acc, point) =>
-        updateData<Cell>(acc, {
+        updateData<Cell, Value>(acc, {
           ...point,
           data: { ...cell, value: "" },
         }),
@@ -247,12 +245,10 @@ export const clear = <Cell: Types.CellBase>(
       state.data
     ),
     ...commit(
-      // $FlowFixMe
       state,
       PointSet.toArray(state.selected).map((point) => {
         const cell = Matrix.get(point.row, point.column, state.data);
         return {
-          // $FlowFixMe
           prevCell: cell,
           nextCell: { ...cell, value: "" },
         };
@@ -261,15 +257,15 @@ export const clear = <Cell: Types.CellBase>(
   };
 };
 
-export type KeyDownHandler<Cell: Types.CellBase> = (
-  state: Types.StoreState<Cell>,
-  event: SyntheticKeyboardEvent<*>
-) => $Shape<Types.StoreState<Cell>> | null;
+export type KeyDownHandler = (
+  state: Types.StoreState<unknown, unknown>,
+  event: KeyboardEvent
+) => Partial<Types.StoreState<unknown, unknown>> | null;
 
-export const go = <Cell: Types.CellBase>(
+export const go = <Cell extends Types.CellBase<Value>, Value>(
   rowDelta: number,
   columnDelta: number
-): KeyDownHandler<Cell> => (state, event) => {
+): KeyDownHandler => (state, event) => {
   if (!state.active) {
     return null;
   }
@@ -287,10 +283,9 @@ export const go = <Cell: Types.CellBase>(
   };
 };
 
-// $FlowFixMe
-export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
-  state: Types.StoreState<*>,
-  event: *
+export const modifyEdge = (field: keyof Types.Point, delta: number) => (
+  state: Types.StoreState<unknown, unknown>,
+  event: unknown
 ) => {
   const { active } = state;
   if (!active) {
@@ -299,7 +294,7 @@ export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
 
   const edgeOffsets = PointSet.has(state.selected, {
     ...active,
-    // $FlowFixMe
+
     [field]: active[field] + delta * -1,
   });
 
@@ -315,18 +310,18 @@ export const modifyEdge = (field: $Keys<Types.Point>, delta: number) => (
   };
 };
 
-export const blur = (): $Shape<Types.StoreState<*>> => ({
+export const blur = (): Partial<Types.StoreState<unknown, unknown>> => ({
   active: null,
 });
 
 // Key Bindings
 
-type KeyDownHandlers<Cell: Types.CellBase> = {
-  [eventType: string]: KeyDownHandler<Cell>,
+type KeyDownHandlers = {
+  [K in string]: KeyDownHandler;
 };
 
 /** @todo handle inactive state? */
-const keyDownHandlers: KeyDownHandlers<*> = {
+const keyDownHandlers: KeyDownHandlers = {
   ArrowUp: go(-1, 0),
   ArrowDown: go(+1, 0),
   ArrowLeft: go(0, -1),
@@ -337,40 +332,42 @@ const keyDownHandlers: KeyDownHandlers<*> = {
   Escape: blur,
 };
 
-const editKeyDownHandlers: KeyDownHandlers<*> = {
+const editKeyDownHandlers: KeyDownHandlers = {
   Escape: view,
   Tab: keyDownHandlers.Tab,
   Enter: keyDownHandlers.ArrowDown,
 };
 
-const shiftKeyDownHandlers: KeyDownHandlers<*> = {
+const shiftKeyDownHandlers: KeyDownHandlers = {
   ArrowUp: modifyEdge("row", -1),
   ArrowDown: modifyEdge("row", 1),
   ArrowLeft: modifyEdge("column", -1),
   ArrowRight: modifyEdge("column", 1),
 };
 
-const shiftMetaKeyDownHandlers: KeyDownHandlers<*> = {};
-const metaKeyDownHandlers: KeyDownHandlers<*> = {};
+const shiftMetaKeyDownHandlers: KeyDownHandlers = {};
+const metaKeyDownHandlers: KeyDownHandlers = {};
 
-function getActive<Cell: Types.CellBase>(state: Types.StoreState<Cell>): ?Cell {
+function getActive<Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>
+): Cell | null {
   return (
     state.active &&
     Matrix.get(state.active.row, state.active.column, state.data)
   );
 }
 
-const isActiveReadOnly = <Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>
+const isActiveReadOnly = <Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>
 ): boolean => {
   const activeCell = getActive(state);
   return Boolean(activeCell && activeCell.readOnly);
 };
 
-export function keyPress<Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>,
-  event: SyntheticKeyboardEvent<HTMLElement>
-): $Shape<Types.StoreState<*>> | null {
+export function keyPress<Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>,
+  event: KeyboardEvent
+): Partial<Types.StoreState<Cell, Value>> | null {
   if (isActiveReadOnly(state) || event.metaKey) {
     return null;
   }
@@ -380,10 +377,10 @@ export function keyPress<Cell: Types.CellBase>(
   return null;
 }
 
-export function getKeyDownHandler<Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>,
-  event: SyntheticKeyboardEvent<HTMLElement>
-): KeyDownHandler<Cell> {
+export function getKeyDownHandler(
+  state: Types.StoreState<unknown, unknown>,
+  event: KeyboardEvent
+): KeyDownHandler {
   const { key } = event;
   let handlers;
   // Order matters
@@ -398,37 +395,39 @@ export function getKeyDownHandler<Cell: Types.CellBase>(
   } else {
     handlers = keyDownHandlers;
   }
-  // $FlowFixMe
+
   return handlers[key];
 }
 
-export function keyDown<Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>,
-  event: SyntheticKeyboardEvent<HTMLElement>
-): $Shape<Types.StoreState<*>> | null {
-  const handler = getKeyDownHandler<Cell>(state, event);
+export function keyDown(
+  state: Types.StoreState<unknown, unknown>,
+  event: KeyboardEvent
+): Partial<Types.StoreState<unknown, unknown>> | null {
+  const handler = getKeyDownHandler(state, event);
   if (handler) {
     return handler(state, event);
   }
   return null;
 }
 
-export function dragStart<T>(
-  state: Types.StoreState<T>
-): $Shape<Types.StoreState<*>> {
+export function dragStart(
+  state: Types.StoreState<unknown, unknown>
+): Partial<Types.StoreState<unknown, unknown>> {
   return { dragging: true };
 }
 
-export function dragEnd<T>(
-  state: Types.StoreState<T>
-): $Shape<Types.StoreState<*>> {
+export function dragEnd(
+  state: Types.StoreState<unknown, unknown>
+): Partial<Types.StoreState<unknown, unknown>> {
   return { dragging: false };
 }
 
-export function commit<T>(
-  state: Types.StoreState<T>,
-  changes: Array<{ prevCell: T | null, nextCell: T | null }>
-): $Shape<Types.StoreState<*>> {
-  // $FlowFixMe
+export function commit<Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>,
+  changes: Array<{
+    prevCell: Cell | null;
+    nextCell: Cell | null;
+  }>
+): Partial<Types.StoreState<Cell, Value>> {
   return { lastCommit: changes };
 }

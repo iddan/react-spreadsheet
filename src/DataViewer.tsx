@@ -1,24 +1,10 @@
-// @flow
-
-import React from "react";
-import type { ComponentType, Node } from "react";
-import { type Parser as FormulaParser } from "hot-formula-parser";
+import * as React from "react";
+import { ComponentType, ReactNode } from "react";
+import { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
 import { getComputedValue } from "./util";
 
-type Cell = {
-  component?: ComponentType<{
-    row: number,
-    column: number,
-    value: Node,
-  }>,
-};
-
-type Props = Types.CellComponentProps<Cell, Node> & {
-  formulaParser: FormulaParser,
-};
-
-const toView = (value: Node | boolean): Node => {
+const toView = (value: React.ReactNode | boolean): React.ReactNode => {
   if (value === false) {
     return <div className="Spreadsheet__data-viewer--boolean">FALSE</div>;
   }
@@ -28,14 +14,13 @@ const toView = (value: Node | boolean): Node => {
   return value;
 };
 
-const DataViewer = ({
-  // $FlowFixMe
+const DataViewer = <Cell extends Types.CellBase<Value>, Value>({
   getValue,
   cell,
   column,
   row,
   formulaParser,
-}: Props): Node => {
+}: Types.DataViewerProps<Cell, Value>): React.ReactNode => {
   return toView(
     getComputedValue({ getValue, cell, column, row, formulaParser })
   );

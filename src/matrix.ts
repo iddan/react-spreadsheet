@@ -2,8 +2,6 @@
  * Immutable interface for Matrices
  *
  * @todo use Types.Point for all point references
- *
- * @flow
  */
 
 import { range as _range } from "./util";
@@ -108,7 +106,7 @@ export function unset<T>(
 }
 
 export function reduce<T, A>(
-  func: (A, T | typeof undefined, Types.Point) => A,
+  func: (a: A, arg1: T | typeof undefined, arg2: Types.Point) => A,
   matrix: Matrix<T>,
   initialValue: A
 ): A {
@@ -129,7 +127,7 @@ export function reduce<T, A>(
 
 /** Creates an array of values by running each element in collection thru iteratee. */
 export function map<T, T2>(
-  func: (T | typeof undefined, Types.Point) => T2,
+  func: (arg0: T | typeof undefined, arg1: Types.Point) => T2,
   matrix: Matrix<T>
 ): Matrix<T2> {
   return reduce(
@@ -138,7 +136,7 @@ export function map<T, T2>(
       return acc;
     },
     matrix,
-    ([]: Matrix<T2>)
+    [] as Matrix<T2>
   );
 }
 
@@ -147,7 +145,7 @@ export function map<T, T2>(
  * to string separated by verticalSeparator
  */
 export function join(
-  matrix: Matrix<*>,
+  matrix: Matrix<unknown>,
   horizontalSeparator: string = "\t",
   verticalSeparator: string = "\n"
 ): string {
@@ -170,12 +168,14 @@ export function join(
 }
 
 /* Parses a CSV separated by a horizontalSeparator and verticalSeparator into a Matrix */
-export function split<T: *>(
+export function split<T extends unknown>(
   csv: string,
   getValue: (value: string) => T,
   horizontalSeparator: string = "\t",
   verticalSeparator: string | RegExp = /\r\n|\n|\r/
-): Matrix<{| value: string |}> {
+): Matrix<{
+  value: string;
+}> {
   return csv
     .split(verticalSeparator)
     .map((row) => row.split(horizontalSeparator).map(getValue));
@@ -197,7 +197,10 @@ export function has(row: number, column: number, matrix: Matrix<any>): boolean {
   );
 }
 
-type Size = $Exact<{ columns: number, rows: number }>;
+type Size = {
+  columns: number;
+  rows: number;
+};
 
 /** Gets the size of matrix by returning its number of rows and columns */
 export function getSize(matrix: Matrix<any>): Size {
@@ -261,17 +264,20 @@ export const inclusiveRange: typeof range = (endPoint, startPoint) =>
     startPoint
   );
 
+export function toArray<T>(matrix: Matrix<T>): T[];
 export function toArray<T1, T2>(
   matrix: Matrix<T1>,
-  transform: ?(T1 | typeof undefined) => T2
-): Array<T1> | Array<T2> {
+  transform: (cell: T1 | typeof undefined, coords: Types.Point) => T2
+): T2[];
+
+export function toArray(matrix, transform?) {
   let array = [];
   for (let row = 0; row < matrix.length; row++) {
     for (let column = 0; column < matrix.length; column++) {
       const value = matrix[row][column];
-      array.push(transform ? transform(value) : value);
+      array.push(transform ? transform(value, { row, column }) : value);
     }
   }
-  // $FlowFixMe
+
   return array;
 }

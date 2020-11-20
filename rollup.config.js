@@ -1,41 +1,38 @@
-import path from "path";
-import babel from "@rollup/plugin-babel";
-import commonjs from "@rollup/plugin-commonjs";
+/* eslint-disable import/no-anonymous-default-export */
+
+import typescript from "rollup-plugin-typescript2";
 import postcss from "rollup-plugin-postcss";
 import pkg from "./package.json";
 
+const input = "src/index.ts";
+const external = [
+  "react",
+  ...Object.keys(pkg.dependencies).flatMap(
+    (dependency) => new RegExp(`^${dependency}(\\/.+)?`)
+  ),
+];
+
 export default [
   {
-    input: "src/index.js",
+    input,
     output: {
-      file: pkg.module,
-      format: "esm",
-      sourcemap: true,
-    },
-    plugins: [
-      babel({
-        babelHelpers: "runtime",
-        configFile: path.resolve(__dirname, "babel.config.json"),
-      }),
-      commonjs(),
-      postcss(),
-    ],
-  },
-  {
-    input: "src/index.js",
-    output: {
-      file: pkg.main,
+      dir: "dist",
       format: "cjs",
       exports: "named",
       sourcemap: true,
     },
-    plugins: [
-      babel({
-        babelHelpers: "runtime",
-        configFile: path.resolve(__dirname, "babel.config.commonjs.json"),
-      }),
-      commonjs(),
-      postcss(),
-    ],
+    plugins: [typescript(), postcss()],
+    external,
+  },
+  {
+    input,
+    output: {
+      dir: "dist/es",
+      format: "es",
+      exports: "named",
+      sourcemap: true,
+    },
+    plugins: [typescript(), postcss()],
+    external,
   },
 ];

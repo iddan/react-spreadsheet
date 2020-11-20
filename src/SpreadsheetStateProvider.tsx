@@ -1,52 +1,61 @@
-// @flow
 import * as React from "react";
 import shallowEqual from "fbjs/lib/shallowEqual";
-// $FlowFixMe
-import createStore from "unistore";
+
+import createStore, { Store } from "unistore";
 import devtools from "unistore/devtools";
-import unistoreReact from "unistore/react";
+import { Provider } from "unistore/react";
 import * as Types from "./types";
 import * as PointSet from "./point-set";
 import * as Actions from "./actions";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
-import Spreadsheet, { type Props as SpreadsheetProps } from "./Spreadsheet";
+import Spreadsheet, { Props as SpreadsheetProps } from "./Spreadsheet";
 
 type Unsubscribe = () => void;
 
-export type Props<CellType, Value> = {|
-  ...SpreadsheetProps<CellType, Value>,
-  onChange: (data: Matrix.Matrix<CellType>) => void,
-  onModeChange: (mode: Types.Mode) => void,
-  onSelect: (selected: Types.Point[]) => void,
-  onActivate: (active: Types.Point) => void,
+export type Props<CellType extends Types.CellBase<Value>, Value> = {
+  onChange: (data: Matrix.Matrix<CellType>) => void;
+  onModeChange: (mode: Types.Mode) => void;
+  onSelect: (selected: Types.Point[]) => void;
+  onActivate: (active: Types.Point) => void;
   onCellCommit: (
     prevCell: null | CellType,
     nextCell: null | CellType,
     coords: null | Types.Point
-  ) => void,
-|};
+  ) => void;
+  data: Matrix.Matrix<CellType>;
+} & SpreadsheetProps<CellType, Value>;
 
-const initialState: $Shape<Types.StoreState<any>> = {
-  selected: PointSet.from([]),
-  copied: PointMap.from([]),
+const INITIAL_STATE: Pick<
+  Types.StoreState<unknown, unknown>,
+  | "active"
+  | "mode"
+  | "rowDimensions"
+  | "columnDimensions"
+  | "lastChanged"
+  | "hasPasted"
+  | "cut"
+  | "dragging"
+> = {
   active: null,
   mode: "view",
   rowDimensions: {},
   columnDimensions: {},
   lastChanged: null,
-  bindings: PointMap.from([]),
+  hasPasted: false,
+  cut: false,
+  dragging: false,
 };
 
 export default class SpreadsheetStateProvider<
-  CellType: Types.CellBase,
-  Value
+  Value,
+  CellType extends Types.CellBase<Value>
 > extends React.Component<Props<CellType, Value>> {
-  store: Object;
+  store: Store<Types.StoreState<CellType, Value>>;
   unsubscribe: Unsubscribe;
-  prevState: Types.StoreState<CellType>;
+  prevState: Types.StoreState<CellType, Value>;
 
-  static defaultProps: $Shape<Props<CellType, Value>> = {
+  static defaultProps = {
     onChange: () => {},
     onModeChange: () => {},
     onSelect: () => {},
@@ -56,9 +65,13 @@ export default class SpreadsheetStateProvider<
 
   constructor(props: Props<CellType, Value>) {
     super(props);
-    const state: Types.StoreState<CellType> = {
-      ...initialState,
+    const state: Types.StoreState<CellType, Value> = {
+      ...INITIAL_STATE,
       data: this.props.data,
+      selected: PointSet.from([]),
+      copied: PointMap.from([]),
+      bindings: PointMap.from([]),
+      lastCommit: null,
     };
     this.store =
       process.env.NODE_ENV === "production"
@@ -82,7 +95,7 @@ export default class SpreadsheetStateProvider<
       onCellCommit,
     } = this.props;
     this.unsubscribe = this.store.subscribe(
-      (state: Types.StoreState<CellType>) => {
+      (state: Types.StoreState<CellType, Value>) => {
         const { prevState } = this;
 
         if (state.lastCommit && state.lastCommit !== prevState.lastCommit) {
@@ -110,9 +123,9 @@ export default class SpreadsheetStateProvider<
 
   componentDidUpdate(prevProps: Props<CellType, Value>) {
     if (this.props.data !== this.prevState.data) {
-      this.store.setState(
-        Actions.setData(this.store.getState(), this.props.data)
-      );
+      const previousState = this.store.getState();
+      const nextState = Actions.setData(previousState, this.props.data);
+      this.store.setState({ ...previousState, ...nextState });
     }
   }
 
@@ -120,12 +133,13 @@ export default class SpreadsheetStateProvider<
     this.unsubscribe();
   }
 
-  render(): React.Node {
+  render() {
     const { data, ...rest } = this.props;
     return (
-      <unistoreReact.Provider store={this.store}>
+      <Provider store={this.store}>
+        {/* @ts-ignore */}
         <Spreadsheet {...rest} store={this.store} />
-      </unistoreReact.Provider>
+      </Provider>
     );
   }
 }

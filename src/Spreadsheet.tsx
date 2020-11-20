@@ -1,30 +1,25 @@
-// @flow
-
-import React from "react";
-import type { ComponentType, Node } from "react";
+import * as React from "react";
 import { connect } from "unistore/react";
-// $FlowFixMe
-import type { Store } from "unistore";
+import { Store } from "unistore";
 import { Parser as FormulaParser } from "hot-formula-parser";
+
 import * as Types from "./types";
-import Table from "./Table";
-import type { Props as TableProps } from "./Table";
-import Row from "./Row";
-import type { Props as RowProps } from "./Row";
-import CornerIndicator from "./CornerIndicator";
-import type { Props as CornerIndicatorProps } from "./CornerIndicator";
-import ColumnIndicator from "./ColumnIndicator";
-import type { Props as ColumnIndicatorProps } from "./ColumnIndicator";
-import RowIndicator from "./RowIndicator";
-import type { Props as RowIndicatorProps } from "./RowIndicator";
-import { Cell, enhance as enhanceCell } from "./Cell";
-import type { Props as CellProps } from "./Cell";
+import Table, { Props as TableProps } from "./Table";
+import Row, { Props as RowProps } from "./Row";
+import CornerIndicator, {
+  Props as CornerIndicatorProps,
+} from "./CornerIndicator";
+import ColumnIndicator, {
+  Props as ColumnIndicatorProps,
+} from "./ColumnIndicator";
+import RowIndicator, { Props as RowIndicatorProps } from "./RowIndicator";
+import { Cell, Props as CellProps, enhance as enhanceCell } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import { getBindingsForCell } from "./bindings";
+import { getBindings } from "./bindings";
 import {
   memoizeOne,
   range,
@@ -37,64 +32,55 @@ import * as Matrix from "./matrix";
 import * as Actions from "./actions";
 import "./Spreadsheet.css";
 
-type DefaultCellType = {
-  value: string | number | boolean | null,
+type DefaultValue = string | number | boolean | null;
+type DefaultCellType = Types.CellBase<DefaultValue> & {
+  value: DefaultValue;
 };
 
-const getValue = ({ data }: { data: ?DefaultCellType }) =>
+const getValue: Types.GetValue<DefaultCellType, DefaultValue> = ({ data }) =>
   data ? data.value : null;
 
-export type Props<CellType: Types.CellBase, Value> = {|
-  data: Matrix.Matrix<CellType>,
-  formulaParser: FormulaParser,
-  columnLabels?: string[],
-  ColumnIndicator?: ComponentType<ColumnIndicatorProps>,
-  CornerIndicator: ComponentType<CornerIndicatorProps>,
-  rowLabels?: string[],
-  RowIndicator?: ComponentType<RowIndicatorProps>,
-  hideRowIndicators?: boolean,
-  hideColumnIndicators?: boolean,
-  Table: ComponentType<TableProps>,
-  Row: ComponentType<RowProps>,
-  Cell: ComponentType<CellProps<CellType, Value>>,
-  DataViewer: Types.DataViewer<CellType, Value>,
-  DataEditor: Types.DataEditor<CellType, Value>,
-  onKeyDown?: (event: SyntheticKeyboardEvent<HTMLElement>) => void,
-  getValue: Types.getValue<CellType, Value>,
-  getBindingsForCell: Types.getBindingsForCell<CellType>,
-  store: Store,
-|};
+export type Props<CellType extends Types.CellBase<Value>, Value> = {
+  formulaParser: FormulaParser;
+  columnLabels?: string[];
+  ColumnIndicator?: React.ComponentType<ColumnIndicatorProps>;
+  CornerIndicator: React.ComponentType<CornerIndicatorProps>;
+  rowLabels?: string[];
+  RowIndicator?: React.ComponentType<RowIndicatorProps>;
+  hideRowIndicators?: boolean;
+  hideColumnIndicators?: boolean;
+  Table: React.ComponentType<TableProps>;
+  Row: React.ComponentType<RowProps>;
+  Cell: React.ComponentType<CellProps<CellType, Value>>;
+  DataViewer: Types.DataViewer<CellType, Value>;
+  DataEditor: Types.DataEditor<CellType, Value>;
+  onKeyDown?: (event: React.KeyboardEvent) => void;
+  getValue: Types.GetValue<CellType, Value>;
+  getBindingsForCell: Types.getBindingsForCell<CellType>;
+  store: Store<Types.StoreState<CellType, Value>>;
+};
 
-type Handlers = {|
-  cut: () => void,
-  copy: () => void,
-  paste: (text: string) => void,
-  setDragging: (boolean) => void,
-  onKeyDownAction: (SyntheticKeyboardEvent<HTMLElement>) => void,
-  onKeyPress: (SyntheticKeyboardEvent<HTMLElement>) => void,
-  onDragStart: () => void,
-  onDragEnd: () => void,
-|};
+type Handlers = {
+  cut: () => void;
+  copy: () => void;
+  paste: (text: string) => void;
+  setDragging: (arg0: boolean) => void;
+  onKeyDownAction: (syntheticKeyboardEvent: React.KeyboardEvent) => void;
+  onKeyPress: (syntheticKeyboardEvent: React.KeyboardEvent) => void;
+  onDragStart: () => void;
+  onDragEnd: () => void;
+};
 
-type State = {|
-  rows: number,
-  columns: number,
-  mode: Types.Mode,
-|};
+type State = {
+  rows: number;
+  columns: number;
+  mode: Types.Mode;
+};
 
 class Spreadsheet<
-  CellType: Types.CellBase,
-  Value
-> extends React.PureComponent<{|
-  ...$Diff<
-    Props<CellType, Value>,
-    {|
-      data: Matrix.Matrix<CellType>,
-    |}
-  >,
-  ...State,
-  ...Handlers,
-|}> {
+  Value,
+  CellType extends Types.CellBase<Value>
+> extends React.PureComponent<Props<CellType, Value> & State & Handlers> {
   static defaultProps = {
     Table,
     Row,
@@ -105,7 +91,7 @@ class Spreadsheet<
     DataViewer,
     DataEditor,
     getValue,
-    getBindingsForCell,
+    getBindingsForCell: getBindings,
   };
 
   formulaParser = this.props.formulaParser || new FormulaParser();
@@ -172,7 +158,7 @@ class Spreadsheet<
   }
 
   componentDidMount() {
-    const { store } = this.props;
+    const { store, getValue } = this.props;
     document.addEventListener("cut", this.handleCut);
     document.addEventListener("copy", this.handleCopy);
     document.addEventListener("paste", this.handlePaste);
@@ -185,7 +171,7 @@ class Spreadsheet<
           cellCoord.column.index,
           store.getState().data
         );
-        value = getComputedValue({
+        value = getComputedValue<CellType, Value>({
           getValue,
           cell,
           column: cellCoord.column.index,
@@ -210,16 +196,16 @@ class Spreadsheet<
           column: endCellCoord.column.index,
         };
         const values = Matrix.toArray(
-          Matrix.slice(startPoint, endPoint, store.getState().data)
-        ).map((cell) =>
-          // $FlowFixMe
-          getComputedValue({
-            getValue,
-            cell,
-            formulaParser: this.formulaParser,
-          })
+          Matrix.slice(startPoint, endPoint, store.getState().data),
+          (cell, coords) =>
+            getComputedValue<CellType, Value>({
+              ...coords,
+              getValue,
+              cell,
+              formulaParser: this.formulaParser,
+            })
         );
-        // $FlowFixMe
+
         done(values);
       }
     );
@@ -273,6 +259,7 @@ class Spreadsheet<
       CornerIndicator,
       columnLabels,
       rowLabels,
+      DataEditor,
       DataViewer,
       getValue,
       rows,
@@ -283,7 +270,7 @@ class Spreadsheet<
       hideRowIndicators,
     } = this.props;
 
-    // $FlowFixMe
+    // @ts-ignore
     const Cell = this.getCellComponent(this.props.Cell);
 
     return (
@@ -327,6 +314,7 @@ class Spreadsheet<
                   <RowIndicator key={rowNumber} row={rowNumber} />
                 ))}
               {range(columns).map((columnNumber) => (
+                // @ts-ignore
                 <Cell
                   key={columnNumber}
                   row={rowNumber}
@@ -340,6 +328,7 @@ class Spreadsheet<
           ))}
         </Table>
         <ActiveCell
+          // @ts-ignore
           DataEditor={DataEditor}
           getValue={getValue}
           getBindingsForCell={getBindingsForCell}
@@ -352,8 +341,8 @@ class Spreadsheet<
 }
 
 const mapStateToProps = (
-  { data, mode }: Types.StoreState<*>,
-  { columnLabels }: Props<*, *>
+  { data, mode }: Types.StoreState<unknown, unknown>,
+  { columnLabels }: Props<unknown, unknown>
 ): State => {
   const { columns, rows } = Matrix.getSize(data);
   return {
@@ -363,7 +352,6 @@ const mapStateToProps = (
   };
 };
 
-// $FlowFixMe
 export default connect(mapStateToProps, {
   copy: Actions.copy,
   cut: Actions.cut,
@@ -372,4 +360,5 @@ export default connect(mapStateToProps, {
   onKeyPress: Actions.keyPress,
   onDragStart: Actions.dragStart,
   onDragEnd: Actions.dragEnd,
+  // @ts-ignore
 })(Spreadsheet);

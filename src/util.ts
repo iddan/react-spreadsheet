@@ -1,8 +1,6 @@
-// @flow
-
 import * as Types from "./types";
-import type { Matrix } from "./matrix";
-import type { Parser as FormulaParser } from "hot-formula-parser";
+import { Matrix } from "./matrix";
+import { Parser as FormulaParser } from "hot-formula-parser";
 
 export const moveCursorToEnd = (el: HTMLInputElement) => {
   el.selectionStart = el.selectionEnd = el.value.length;
@@ -48,7 +46,7 @@ export function range(
   return array;
 }
 
-export function updateData<Cell: Types.CellBase>(
+export function updateData<Cell extends Types.CellBase<Value>, Value>(
   data: Matrix<Cell>,
   cellDescriptor: Types.CellDescriptor<Cell>
 ): Matrix<Cell> {
@@ -57,12 +55,14 @@ export function updateData<Cell: Types.CellBase>(
   const nextRow = row ? [...row] : [];
   nextRow[cellDescriptor.column] = cellDescriptor.data;
   nextData[cellDescriptor.row] = nextRow;
-  // $FlowFixMe
+
   return nextData;
 }
 
-export function setCell<Cell: Types.CellBase>(
-  state: { data: Matrix<Cell> },
+export function setCell<Cell extends Types.CellBase<Value>, Value>(
+  state: {
+    data: Matrix<Cell>;
+  },
   active: Types.Point,
   cell: Cell
 ): Matrix<Cell> {
@@ -73,7 +73,7 @@ export function setCell<Cell: Types.CellBase>(
 }
 
 export function isActive(
-  active: $PropertyType<Types.StoreState<*>, "active">,
+  active: Types.StoreState<unknown, unknown>["active"],
   { row, column }: Types.Point
 ): boolean {
   return Boolean(active && column === active.column && row === active.row);
@@ -96,7 +96,9 @@ export const writeTextToClipboard = (
 };
 
 export const readTextFromClipboard = (event: ClipboardEvent): string => {
+  // @ts-ignore
   if (window.clipboardData && window.clipboardData.getData) {
+    // @ts-ignore
     return window.clipboardData.getData("Text");
   }
   if (event.clipboardData && event.clipboardData.getData) {
@@ -111,30 +113,29 @@ export function createEmptyMatrix<T>(rows: number, columns: number): Matrix<T> {
 
 export const getCellDimensions = (
   point: Types.Point,
-  state: Types.StoreState<*>
-): ?Types.Dimensions => {
+  state: Types.StoreState<unknown, unknown>
+): Types.Dimensions | null => {
   const rowDimensions = state.rowDimensions[point.row];
   const columnDimensions = state.columnDimensions[point.column];
   return (
     rowDimensions &&
-    // $FlowFixMe
     columnDimensions && { ...rowDimensions, ...columnDimensions }
   );
 };
 
-export function getComputedValue<V, T>({
+export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
   getValue,
   cell,
   column,
   row,
   formulaParser,
 }: {
-  getValue({ data: T, column: number, row: number }): V,
-  cell: T,
-  column: number,
-  row: number,
-  formulaParser: FormulaParser,
-}): V | string {
+  getValue: Types.GetValue<Cell, Value>;
+  cell: Cell;
+  column: number;
+  row: number;
+  formulaParser: FormulaParser;
+}): Value | string {
   const rawValue = getValue({ data: cell, column, row });
   if (typeof rawValue === "string" && rawValue.startsWith("=")) {
     const { result, error } = formulaParser.parse(rawValue.slice(1));

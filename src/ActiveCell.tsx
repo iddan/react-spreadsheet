@@ -1,5 +1,4 @@
-// @flow
-import React, { useEffect, useRef, useCallback } from "react";
+import * as React from "react";
 import classnames from "classnames";
 import { connect } from "unistore/react";
 import * as Matrix from "./matrix";
@@ -7,27 +6,28 @@ import * as Actions from "./actions";
 import * as Types from "./types";
 import { getCellDimensions } from "./util";
 
-type Props<Cell, Value> = {|
-  ...Types.Point,
-  ...Types.Dimensions,
-  DataEditor: Types.DataEditor<Cell, Value>,
-  getValue: Types.getValue<Cell, Value>,
-  onChange: (data: Cell) => void,
+type Props<Cell extends Types.CellBase<Value>, Value> = {
+  DataEditor: Types.DataEditor<Cell, Value>;
+  getValue: Types.GetValue<Cell, Value>;
+  onChange: (data: Cell) => void;
   setCellData: (
     active: Types.Point,
     data: Cell,
     bindings: Types.Point[]
-  ) => void,
-  cell: Cell,
-  hidden: boolean,
-  mode: Types.Mode,
-  edit: () => void,
-  commit: Types.commit<Cell>,
-  getBindingsForCell: Types.getBindingsForCell<Cell>,
-  data: Matrix.Matrix<Cell>,
-|};
+  ) => void;
+  cell: Cell;
+  hidden: boolean;
+  mode: Types.Mode;
+  edit: () => void;
+  commit: Types.commit<Cell>;
+  getBindingsForCell: Types.getBindingsForCell<Cell>;
+  data: Matrix.Matrix<Cell>;
+} & Types.Point &
+  Types.Dimensions;
 
-function ActiveCell<Cell: Types.CellBase, Value>(props: Props<Cell, Value>) {
+function ActiveCell<Cell extends Types.CellBase<Value>, Value>(
+  props: Props<Cell, Value>
+) {
   const {
     getValue,
     row,
@@ -45,10 +45,10 @@ function ActiveCell<Cell: Types.CellBase, Value>(props: Props<Cell, Value>) {
     commit,
     data,
   } = props;
-  const initialCellRef = useRef<Cell | null>(null);
-  const prevPropsRef = useRef<Props<Cell, Value> | null>(null);
+  const initialCellRef = React.useRef<Cell | null>(null);
+  const prevPropsRef = React.useRef<Props<Cell, Value> | null>(null);
 
-  const handleChange = useCallback(
+  const handleChange = React.useCallback(
     (cell: Cell) => {
       const bindings = getBindingsForCell(cell, data);
       setCellData({ row, column }, cell, bindings);
@@ -56,7 +56,7 @@ function ActiveCell<Cell: Types.CellBase, Value>(props: Props<Cell, Value>) {
     [getBindingsForCell, setCellData, row, column]
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     const prevProps = prevPropsRef.current;
     prevPropsRef.current = props;
 
@@ -114,9 +114,9 @@ function ActiveCell<Cell: Types.CellBase, Value>(props: Props<Cell, Value>) {
   );
 }
 
-function mapStateToProps<Cell: Types.CellBase>(
-  state: Types.StoreState<Cell>
-): $Shape<Props<Cell, *>> {
+function mapStateToProps<Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>
+): Partial<Props<Cell, unknown>> {
   const dimensions = state.active && getCellDimensions(state.active, state);
   if (!state.active || !dimensions) {
     return { hidden: true };
@@ -124,7 +124,7 @@ function mapStateToProps<Cell: Types.CellBase>(
   return {
     hidden: false,
     ...state.active,
-    // $FlowFixMe
+
     cell: Matrix.get(state.active.row, state.active.column, state.data),
     width: dimensions.width,
     height: dimensions.height,
@@ -135,7 +135,6 @@ function mapStateToProps<Cell: Types.CellBase>(
   };
 }
 
-// $FlowFixMe
 export default connect(mapStateToProps, {
   setCellData: Actions.setCellData,
   edit: Actions.edit,

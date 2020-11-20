@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "lib": ["ES2015", "DOM"],
+    "moduleResolution": "node",
+    "jsx": "react",
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "declaration": true
+  },
+  "include": ["src"]
+}

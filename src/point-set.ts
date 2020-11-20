@@ -1,18 +1,15 @@
 /**
  * Immutable Set like interface of points
- *
- * @flow
  */
 
-import type { Point } from "./types";
+import { Point } from "./types";
 import * as PointMap from "./point-map";
 
 export type PointSet = PointMap.PointMap<boolean>;
 
-export type Descriptor<T> = {|
-  ...Point,
-  data: T,
-|};
+export type Descriptor<T> = {
+  data: T;
+} & Point;
 
 /** Appends a new point to the Set object */
 export const add = (set: PointSet, point: Point): PointSet =>
@@ -31,7 +28,7 @@ export const size = (set: PointSet): number => PointMap.size(set);
 
 /** Applies a function against an accumulator and each point in the set (from left to right) to reduce it to a single value */
 export function reduce<T>(
-  func: (T, Point) => T,
+  func: (t: T, point: Point) => T,
   set: PointSet,
   initialValue: T
 ): T {
@@ -43,17 +40,20 @@ export function reduce<T>(
 }
 
 /** Creates a new set with the results of calling a provided function on every point in the calling set */
-export function map(func: (Point) => Point, set: PointSet): PointSet {
+export function map(func: (point: Point) => Point, set: PointSet): PointSet {
   return reduce((acc, point) => add(acc, func(point)), set, from([]));
 }
 
 /** Creates a new set with all points that pass the test implemented by the provided function */
-export function filter(func: (Point) => boolean, set: PointSet): PointSet {
+export function filter(
+  func: (point: Point) => boolean,
+  set: PointSet
+): PointSet {
   return PointMap.filter((_, point) => func(point), set);
 }
 
-const minKey = (object: { [key: number]: any }): number =>
-  // $FlowFixMe
+const minKey = (object: Record<number, any>): number =>
+  // @ts-ignore
   Math.min(...Object.keys(object));
 
 /** Returns the point on the minimal row in the minimal column in the set */
@@ -62,8 +62,8 @@ export function min(set: PointSet): Point {
   return { row, column: minKey(set[row]) };
 }
 
-const maxKey = (object: { [key: number]: any }): number =>
-  // $FlowFixMe
+const maxKey = (object: Record<number, any>): number =>
+  // @ts-ignore
   Math.max(...Object.keys(object));
 
 /** Returns the point on the maximal row in the maximal column in the set */
@@ -85,12 +85,12 @@ export function toArray(set: PointSet): Point[] {
   return reduce((acc: Point[], point: Point) => [...acc, point], set, []);
 }
 
-type OnEdge = {|
-  left: boolean,
-  right: boolean,
-  top: boolean,
-  bottom: boolean,
-|};
+type OnEdge = {
+  left: boolean;
+  right: boolean;
+  top: boolean;
+  bottom: boolean;
+};
 
 const NO_EDGE: OnEdge = {
   left: false,
@@ -120,14 +120,14 @@ export function onEdge(set: PointSet, point: Point): OnEdge {
 
 export function getEdgeValue(
   set: PointSet,
-  field: $Keys<Point>,
+  field: keyof Point,
   delta: number
 ): number {
   const compare = Math.sign(delta) === -1 ? Math.min : Math.max;
   if (size(set) === 0) {
     throw new Error("getEdgeValue() should never be called with an empty set");
   }
-  // $FlowFixMe
+
   return reduce(
     (acc, point) => {
       if (acc === null) {
@@ -142,7 +142,7 @@ export function getEdgeValue(
 
 export function extendEdge(
   set: PointSet,
-  field: $Keys<Point>,
+  field: keyof Point,
   delta: number
 ): PointSet {
   const oppositeField = field === "row" ? "column" : "row";
@@ -151,11 +151,9 @@ export function extendEdge(
     (acc, point) => {
       if (point[field] === edgeValue) {
         return add(acc, {
-          // $FlowFixMe
           [field]: edgeValue + delta,
-          // $FlowFixMe
           [oppositeField]: point[oppositeField],
-        });
+        } as Point);
       }
       return acc;
     },
@@ -166,7 +164,7 @@ export function extendEdge(
 
 export function shrinkEdge(
   set: PointSet,
-  field: $Keys<Point>,
+  field: keyof Point,
   delta: number
 ): PointSet {
   const edgeValue = getEdgeValue(set, field, delta);
