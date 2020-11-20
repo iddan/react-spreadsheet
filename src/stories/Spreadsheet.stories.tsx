@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
-import { createEmptyMatrix, Spreadsheet, Props } from "..";
+import { createEmptyMatrix, Spreadsheet, Props, CellBase } from "..";
 import * as Matrix from "../matrix";
 import { EMPTY_DATA, INITIAL_COLUMNS, INITIAL_ROWS } from "./shared";
 import AsyncCellData from "./AsyncCellData";
@@ -16,11 +16,11 @@ export default {
   argTypes: { onCellCommit: { action: "cell committed" } },
 } as Meta;
 
-export const Basic: Story<Props<unknown, unknown>> = (args) => (
+export const Basic: Story<Props<CellBase<unknown>, unknown>> = (args) => (
   <Spreadsheet data={EMPTY_DATA} {...args} />
 );
 
-export const Controlled: Story<Props<unknown, unknown>> = (args) => {
+export const Controlled: Story<Props<CellBase<unknown>, unknown>> = (args) => {
   const [data, setData] = React.useState(EMPTY_DATA);
 
   const addColumn = React.useCallback(
@@ -71,7 +71,9 @@ export const Controlled: Story<Props<unknown, unknown>> = (args) => {
   );
 };
 
-export const CustomRowLabels: Story<Props<unknown, unknown>> = (args) => (
+export const CustomRowLabels: Story<Props<CellBase<unknown>, unknown>> = (
+  args
+) => (
   <Spreadsheet
     {...args}
     data={EMPTY_DATA}
@@ -79,7 +81,9 @@ export const CustomRowLabels: Story<Props<unknown, unknown>> = (args) => (
   />
 );
 
-export const CustomColumnLabels: Story<Props<unknown, unknown>> = (args) => (
+export const CustomColumnLabels: Story<Props<CellBase<unknown>, unknown>> = (
+  args
+) => (
   <Spreadsheet
     {...args}
     data={EMPTY_DATA}
@@ -87,7 +91,9 @@ export const CustomColumnLabels: Story<Props<unknown, unknown>> = (args) => (
   />
 );
 
-export const HideIndicators: Story<Props<unknown, unknown>> = (args) => (
+export const HideIndicators: Story<Props<CellBase<unknown>, unknown>> = (
+  args
+) => (
   <Spreadsheet
     {...args}
     data={EMPTY_DATA}
@@ -96,13 +102,15 @@ export const HideIndicators: Story<Props<unknown, unknown>> = (args) => (
   />
 );
 
-export const Readonly: Story<Props<unknown, unknown>> = (args) => {
+export const Readonly: Story<Props<CellBase<unknown>, unknown>> = (args) => {
   const data = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
   data[0][0] = { readOnly: true, value: "Read Only" };
   return <Spreadsheet {...args} data={data} />;
 };
 
-export const WithAsyncCellData: Story<Props<unknown, unknown>> = (args) => {
+export const WithAsyncCellData: Story<Props<CellBase<unknown>, unknown>> = (
+  args
+) => {
   const data = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
   data[2][2] = {
@@ -113,11 +121,11 @@ export const WithAsyncCellData: Story<Props<unknown, unknown>> = (args) => {
   return <Spreadsheet {...args} data={data} />;
 };
 
-export const WithCustomCell: Story<Props<unknown, unknown>> = (args) => (
-  <Spreadsheet {...args} data={EMPTY_DATA} Cell={CustomCell} />
-);
+export const WithCustomCell: Story<Props<CellBase<unknown>, unknown>> = (
+  args
+) => <Spreadsheet {...args} data={EMPTY_DATA} Cell={CustomCell} />;
 
-export const RangeCell: Story<Props<unknown, unknown>> = (args) => {
+export const RangeCell: Story<Props<CellBase<unknown>, unknown>> = (args) => {
   const data = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
   data[2][2] = {
     value: 0,
@@ -127,7 +135,7 @@ export const RangeCell: Story<Props<unknown, unknown>> = (args) => {
   return <Spreadsheet {...args} data={data} />;
 };
 
-export const SelectCell: Story<Props<unknown, unknown>> = (args) => {
+export const SelectCell: Story<Props<CellBase<unknown>, unknown>> = (args) => {
   const data = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
   data[2][2] = {
@@ -139,7 +147,9 @@ export const SelectCell: Story<Props<unknown, unknown>> = (args) => {
   return <Spreadsheet {...args} data={data} />;
 };
 
-export const WithCornerIndicator: Story<Props<unknown, unknown>> = (args) => (
+export const WithCornerIndicator: Story<Props<CellBase<unknown>, unknown>> = (
+  args
+) => (
   <Spreadsheet
     {...args}
     data={EMPTY_DATA}
@@ -147,7 +157,7 @@ export const WithCornerIndicator: Story<Props<unknown, unknown>> = (args) => (
   />
 );
 
-export const Filter: Story<Props<unknown, unknown>> = (args) => {
+export const Filter: Story<Props<CellBase<unknown>, unknown>> = (args) => {
   const [data, setData] = React.useState(EMPTY_DATA);
   const [filter, setFilter] = React.useState("");
 
