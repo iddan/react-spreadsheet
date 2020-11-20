@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import Select from "react-select";
+import { DataEditor, DataViewer } from "..";
 import "react-select/dist/react-select.css";
 
 const OPTIONS = [
@@ -9,16 +10,27 @@ const OPTIONS = [
 ];
 const SELECT_WIDTH = 200;
 
-export const SelectView = ({ cell, getValue }) => (
+export const SelectView: DataViewer<unknown, unknown> = ({
+  cell,
+  row,
+  column,
+  getValue,
+}) => (
   <Select
-    value={getValue({ data: cell })}
+    value={getValue({ data: cell, row, column })}
     options={OPTIONS}
     disabled
     style={{ width: 200 }}
   />
 );
 
-export const SelectEdit = ({ cell, onChange, getValue, column, row }) => {
+export const SelectEdit: DataEditor<{}, unknown> = ({
+  cell,
+  onChange,
+  getValue,
+  column,
+  row,
+}) => {
   const handleChange = useCallback(
     (selection) => {
       onChange({ ...cell, value: selection ? selection.value : null });
