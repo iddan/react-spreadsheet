@@ -30,7 +30,7 @@ export type Props<CellType extends Types.CellBase<Value>, Value> = Omit<
 };
 
 const INITIAL_STATE: Pick<
-  Types.StoreState<unknown, unknown>,
+  Types.StoreState<Types.CellBase<unknown>, unknown>,
   | "active"
   | "mode"
   | "rowDimensions"

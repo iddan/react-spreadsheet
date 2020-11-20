@@ -341,7 +341,7 @@ class Spreadsheet<
 }
 
 const mapStateToProps = (
-  { data, mode }: Types.StoreState<unknown, unknown>,
+  { data, mode }: Types.StoreState<Types.CellBase<unknown>, unknown>,
   { columnLabels }: Props<unknown, unknown>
 ): State => {
   const { columns, rows } = Matrix.getSize(data);

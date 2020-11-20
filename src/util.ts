@@ -73,7 +73,7 @@ export function setCell<Cell extends Types.CellBase<Value>, Value>(
 }
 
 export function isActive(
-  active: Types.StoreState<unknown, unknown>["active"],
+  active: Types.StoreState<Types.CellBase<unknown>, unknown>["active"],
   { row, column }: Types.Point
 ): boolean {
   return Boolean(active && column === active.column && row === active.row);
@@ -113,7 +113,7 @@ export function createEmptyMatrix<T>(rows: number, columns: number): Matrix<T> {
 
 export const getCellDimensions = (
   point: Types.Point,
-  state: Types.StoreState<unknown, unknown>
+  state: Types.StoreState<Types.CellBase<unknown>, unknown>
 ): Types.Dimensions | null => {
   const rowDimensions = state.rowDimensions[point.row];
   const columnDimensions = state.columnDimensions[point.column];

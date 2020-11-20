@@ -79,10 +79,10 @@ export function setCellData<Cell extends Types.CellBase<Value>, Value>(
 }
 
 export function setCellDimensions(
-  state: Types.StoreState<unknown, unknown>,
+  state: Types.StoreState<Types.CellBase<unknown>, unknown>,
   point: Types.Point,
   dimensions: Types.Dimensions
-): Partial<Types.StoreState<unknown, unknown>> | null {
+): Partial<Types.StoreState<Types.CellBase<unknown>, unknown>> | null {
   const prevRowDimensions = state.rowDimensions[point.row];
   const prevColumnDimensions = state.columnDimensions[point.column];
   if (
@@ -221,7 +221,9 @@ export const edit = <Cell extends Types.CellBase<Value>, Value>(
   return { mode: "edit" };
 };
 
-export const view = (): Partial<Types.StoreState<unknown, unknown>> => ({
+export const view = (): Partial<
+  Types.StoreState<Types.CellBase<unknown>, unknown>
+> => ({
   mode: "view",
 });
 
@@ -258,9 +260,9 @@ export const clear = <Cell extends Types.CellBase<Value>, Value>(
 };
 
 export type KeyDownHandler = (
-  state: Types.StoreState<unknown, unknown>,
+  state: Types.StoreState<Types.CellBase<unknown>, unknown>,
   event: KeyboardEvent
-) => Partial<Types.StoreState<unknown, unknown>> | null;
+) => Partial<Types.StoreState<Types.CellBase<unknown>, unknown>> | null;
 
 export const go = (rowDelta: number, columnDelta: number): KeyDownHandler => (
   state
@@ -283,7 +285,7 @@ export const go = (rowDelta: number, columnDelta: number): KeyDownHandler => (
 };
 
 export const modifyEdge = (field: keyof Types.Point, delta: number) => (
-  state: Types.StoreState<unknown, unknown>,
+  state: Types.StoreState<Types.CellBase<unknown>, unknown>,
   event: unknown
 ) => {
   const { active } = state;
@@ -309,7 +311,9 @@ export const modifyEdge = (field: keyof Types.Point, delta: number) => (
   };
 };
 
-export const blur = (): Partial<Types.StoreState<unknown, unknown>> => ({
+export const blur = (): Partial<
+  Types.StoreState<Types.CellBase<unknown>, unknown>
+> => ({
   active: null,
 });
 
@@ -377,7 +381,7 @@ export function keyPress<Cell extends Types.CellBase<Value>, Value>(
 }
 
 export function getKeyDownHandler(
-  state: Types.StoreState<unknown, unknown>,
+  state: Types.StoreState<Types.CellBase<unknown>, unknown>,
   event: KeyboardEvent
 ): KeyDownHandler {
   const { key } = event;
@@ -399,9 +403,9 @@ export function getKeyDownHandler(
 }
 
 export function keyDown(
-  state: Types.StoreState<unknown, unknown>,
+  state: Types.StoreState<Types.CellBase<unknown>, unknown>,
   event: KeyboardEvent
-): Partial<Types.StoreState<unknown, unknown>> | null {
+): Partial<Types.StoreState<Types.CellBase<unknown>, unknown>> | null {
   const handler = getKeyDownHandler(state, event);
   if (handler) {
     return handler(state, event);
@@ -410,14 +414,14 @@ export function keyDown(
 }
 
 export function dragStart(
-  state: Types.StoreState<unknown, unknown>
-): Partial<Types.StoreState<unknown, unknown>> {
+  state: Types.StoreState<Types.CellBase<unknown>, unknown>
+): Partial<Types.StoreState<Types.CellBase<unknown>, unknown>> {
   return { dragging: true };
 }
 
 export function dragEnd(
-  state: Types.StoreState<unknown, unknown>
-): Partial<Types.StoreState<unknown, unknown>> {
+  state: Types.StoreState<Types.CellBase<unknown>, unknown>
+): Partial<Types.StoreState<Types.CellBase<unknown>, unknown>> {
   return { dragging: false };
 }
 
