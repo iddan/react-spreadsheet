@@ -9,7 +9,7 @@ import * as Types from "./types";
 import * as Actions from "./actions";
 import { isActive, getOffsetRect } from "./util";
 
-type StaticProps<Value, Data extends Types.CellBase<Value>> = {
+type StaticProps<Data extends Types.CellBase<Value>, Value> = {
   row: number;
   column: number;
   DataViewer: Types.DataViewer<Data, Value>;
@@ -19,7 +19,7 @@ type StaticProps<Value, Data extends Types.CellBase<Value>> = {
 
 export { StaticProps as Props };
 
-type State<Value, Data extends Types.CellBase<Value>> = {
+type State<Data extends Types.CellBase<Value>, Value> = {
   selected: boolean;
   active: boolean;
   copied: boolean;
@@ -35,14 +35,14 @@ type Handlers = {
   setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void;
 };
 
-type Props<Value, Data extends Types.CellBase<Value>> = StaticProps<
-  Value,
-  Data
+type Props<Data extends Types.CellBase<Value>, Value> = StaticProps<
+  Data,
+  Value
 > &
-  State<Value, Data> &
+  State<Data, Value> &
   Handlers;
 
-export const Cell = <Value, Data extends Types.CellBase<Value>>({
+export const Cell = <Data extends Types.CellBase<Value>, Value>({
   row,
   column,
   setCellDimensions,
@@ -56,7 +56,7 @@ export const Cell = <Value, Data extends Types.CellBase<Value>>({
   active,
   DataViewer,
   data,
-}: Props<Value, Data>) => {
+}: Props<Data, Value>) => {
   const rootRef = React.useRef<HTMLTableDataCellElement>();
   const root = rootRef.current;
 
@@ -122,7 +122,7 @@ export const Cell = <Value, Data extends Types.CellBase<Value>>({
   );
 };
 
-function mapStateToProps<Value, Data extends Types.CellBase<Value>>(
+function mapStateToProps<Data extends Types.CellBase<Value>, Value>(
   {
     data,
     active,
@@ -133,9 +133,9 @@ function mapStateToProps<Value, Data extends Types.CellBase<Value>>(
     dragging,
     lastChanged,
     bindings,
-  }: Types.StoreState<Value, Data>,
-  { column, row }: Props<Value, Data>
-): State<Value, Data> {
+  }: Types.StoreState<Data, Value>,
+  { column, row }: Props<Data, Value>
+): State<Data, Value> {
   const point = { row, column };
   const cellIsActive = isActive(active, point);
 

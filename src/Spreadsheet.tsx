@@ -43,7 +43,7 @@ type DefaultCellType = Types.CellBase<DefaultValue> & {
 const getValue: Types.GetValue<DefaultCellType, DefaultValue> = ({ data }) =>
   data ? data.value : null;
 
-export type Props<Value, CellType extends Types.CellBase<Value>> = {
+export type Props<CellType extends Types.CellBase<Value>, Value> = {
   formulaParser: FormulaParser;
   columnLabels?: string[];
   ColumnIndicator?: ComponentType<ColumnIndicatorProps>;
@@ -54,13 +54,13 @@ export type Props<Value, CellType extends Types.CellBase<Value>> = {
   hideColumnIndicators?: boolean;
   Table: ComponentType<TableProps>;
   Row: ComponentType<RowProps>;
-  Cell: ComponentType<CellProps<Value, CellType>>;
+  Cell: ComponentType<CellProps<CellType, Value>>;
   DataViewer: Types.DataViewer<CellType, Value>;
   DataEditor: Types.DataEditor<CellType, Value>;
   onKeyDown?: (event: React.KeyboardEvent) => void;
   getValue: Types.GetValue<CellType, Value>;
   getBindingsForCell: Types.getBindingsForCell<CellType>;
-  store: Store<Types.StoreState<Value, CellType>>;
+  store: Store<Types.StoreState<CellType, Value>>;
 };
 
 type Handlers = {
@@ -161,7 +161,7 @@ class Spreadsheet<
   }
 
   componentDidMount() {
-    const { store } = this.props;
+    const { store, getValue } = this.props;
     document.addEventListener("cut", this.handleCut);
     document.addEventListener("copy", this.handleCopy);
     document.addEventListener("paste", this.handlePaste);
@@ -174,7 +174,7 @@ class Spreadsheet<
           cellCoord.column.index,
           store.getState().data
         );
-        value = getComputedValue({
+        value = getComputedValue<CellType, Value>({
           getValue,
           cell,
           column: cellCoord.column.index,
@@ -199,13 +199,14 @@ class Spreadsheet<
           column: endCellCoord.column.index,
         };
         const values = Matrix.toArray(
-          Matrix.slice(startPoint, endPoint, store.getState().data)
-        ).map((cell) =>
-          getComputedValue({
-            getValue,
-            cell,
-            formulaParser: this.formulaParser,
-          })
+          Matrix.slice(startPoint, endPoint, store.getState().data),
+          (cell, coords) =>
+            getComputedValue<CellType, Value>({
+              ...coords,
+              getValue,
+              cell,
+              formulaParser: this.formulaParser,
+            })
         );
 
         done(values);
@@ -272,6 +273,7 @@ class Spreadsheet<
       hideRowIndicators,
     } = this.props;
 
+    // @ts-ignore
     const Cell = this.getCellComponent(this.props.Cell);
 
     return (
@@ -359,4 +361,5 @@ export default connect(mapStateToProps, {
   onKeyPress: Actions.keyPress,
   onDragStart: Actions.dragStart,
   onDragEnd: Actions.dragEnd,
+  // @ts-ignore
 })(Spreadsheet);

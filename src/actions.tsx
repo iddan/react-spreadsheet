@@ -237,7 +237,7 @@ export const clear = <Cell extends Types.CellBase<Value>, Value>(
   return {
     data: PointSet.reduce(
       (acc, point) =>
-        updateData<Value, Cell>(acc, {
+        updateData<Cell, Value>(acc, {
           ...point,
           data: { ...cell, value: "" },
         }),

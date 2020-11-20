@@ -46,7 +46,7 @@ export function range(
   return array;
 }
 
-export function updateData<Value, Cell extends Types.CellBase<Value>>(
+export function updateData<Cell extends Types.CellBase<Value>, Value>(
   data: Matrix<Cell>,
   cellDescriptor: Types.CellDescriptor<Cell>
 ): Matrix<Cell> {
@@ -59,7 +59,7 @@ export function updateData<Value, Cell extends Types.CellBase<Value>>(
   return nextData;
 }
 
-export function setCell<Value, Cell extends Types.CellBase<Value>>(
+export function setCell<Cell extends Types.CellBase<Value>, Value>(
   state: {
     data: Matrix<Cell>;
   },
@@ -123,7 +123,7 @@ export const getCellDimensions = (
   );
 };
 
-export function getComputedValue<Value, Cell extends Types.CellBase<Value>>({
+export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
   getValue,
   cell,
   column,

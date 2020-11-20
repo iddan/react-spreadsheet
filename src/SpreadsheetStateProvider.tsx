@@ -24,7 +24,7 @@ export type Props<CellType extends Types.CellBase<Value>, Value> = {
     coords: null | Types.Point
   ) => void;
   data: Matrix.Matrix<CellType>;
-} & SpreadsheetProps<Value, CellType>;
+} & SpreadsheetProps<CellType, Value>;
 
 const initialState: Partial<Types.StoreState<unknown, unknown>> = {
   selected: PointSet.from([]),
@@ -40,10 +40,10 @@ const initialState: Partial<Types.StoreState<unknown, unknown>> = {
 export default class SpreadsheetStateProvider<
   Value,
   CellType extends Types.CellBase<Value>
-> extends React.Component<Props<Value, CellType>> {
-  store: Store<Types.StoreState<Value, CellType>>;
+> extends React.Component<Props<CellType, Value>> {
+  store: Store<Types.StoreState<CellType, Value>>;
   unsubscribe: Unsubscribe;
-  prevState: Types.StoreState<Value, CellType>;
+  prevState: Types.StoreState<CellType, Value>;
 
   static defaultProps = {
     onChange: () => {},
@@ -53,9 +53,9 @@ export default class SpreadsheetStateProvider<
     onCellCommit: () => {},
   };
 
-  constructor(props: Props<Value, CellType>) {
+  constructor(props: Props<CellType, Value>) {
     super(props);
-    const state: Types.StoreState<Value, CellType> = {
+    const state: Types.StoreState<CellType, Value> = {
       ...initialState,
       data: this.props.data,
     };
@@ -66,7 +66,7 @@ export default class SpreadsheetStateProvider<
     this.prevState = state;
   }
 
-  shouldComponentUpdate(nextProps: Props<Value, CellType>): boolean {
+  shouldComponentUpdate(nextProps: Props<CellType, Value>): boolean {
     const { data, ...rest } = this.props;
     const { data: nextData, ...nextRest } = nextProps;
     return !shallowEqual(rest, nextRest) || nextData !== this.prevState.data;
@@ -81,7 +81,7 @@ export default class SpreadsheetStateProvider<
       onCellCommit,
     } = this.props;
     this.unsubscribe = this.store.subscribe(
-      (state: Types.StoreState<Value, CellType>) => {
+      (state: Types.StoreState<CellType, Value>) => {
         const { prevState } = this;
 
         if (state.lastCommit && state.lastCommit !== prevState.lastCommit) {
@@ -107,7 +107,7 @@ export default class SpreadsheetStateProvider<
     );
   }
 
-  componentDidUpdate(prevProps: Props<Value, CellType>) {
+  componentDidUpdate(prevProps: Props<CellType, Value>) {
     if (this.props.data !== this.prevState.data) {
       const previousState = this.store.getState();
       const nextState = Actions.setData(previousState, this.props.data);

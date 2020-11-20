@@ -267,7 +267,7 @@ export const inclusiveRange: typeof range = (endPoint, startPoint) =>
 export function toArray<T>(matrix: Matrix<T>): T[];
 export function toArray<T1, T2>(
   matrix: Matrix<T1>,
-  transform: (cell: T1 | typeof undefined) => T2
+  transform: (cell: T1 | typeof undefined, coords: Types.Point) => T2
 ): T2[];
 
 export function toArray(matrix, transform?) {
@@ -275,7 +275,7 @@ export function toArray(matrix, transform?) {
   for (let row = 0; row < matrix.length; row++) {
     for (let column = 0; column < matrix.length; column++) {
       const value = matrix[row][column];
-      array.push(transform ? transform(value) : value);
+      array.push(transform ? transform(value, { row, column }) : value);
     }
   }
 

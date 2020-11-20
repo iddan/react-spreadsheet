@@ -25,7 +25,7 @@ type Props<Cell extends Types.CellBase<Value>, Value> = {
 } & Types.Point &
   Types.Dimensions;
 
-function ActiveCell<Value, Cell extends Types.CellBase<Value>>(
+function ActiveCell<Cell extends Types.CellBase<Value>, Value>(
   props: Props<Cell, Value>
 ) {
   const {
@@ -114,7 +114,7 @@ function ActiveCell<Value, Cell extends Types.CellBase<Value>>(
   );
 }
 
-function mapStateToProps<Value, Cell extends Types.CellBase<Value>>(
+function mapStateToProps<Cell extends Types.CellBase<Value>, Value>(
   state: Types.StoreState<Cell, Value>
 ): Partial<Props<Cell, unknown>> {
   const dimensions = state.active && getCellDimensions(state.active, state);
