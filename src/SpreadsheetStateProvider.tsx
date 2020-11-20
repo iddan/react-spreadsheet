@@ -13,7 +13,7 @@ import Spreadsheet, { Props as SpreadsheetProps } from "./Spreadsheet";
 
 type Unsubscribe = () => void;
 
-export type Props<CellType extends Types.CellBase, Value> = {
+export type Props<Value, CellType extends Types.CellBase<Value>> = {
   onChange: (data: Matrix.Matrix<CellType>) => void;
   onModeChange: (mode: Types.Mode) => void;
   onSelect: (selected: Types.Point[]) => void;
@@ -23,9 +23,10 @@ export type Props<CellType extends Types.CellBase, Value> = {
     nextCell: null | CellType,
     coords: null | Types.Point
   ) => void;
-} & SpreadsheetProps<CellType, Value>;
+  data: Matrix.Matrix<CellType>;
+} & SpreadsheetProps<Value, CellType>;
 
-const initialState: Partial<Types.StoreState<any>> = {
+const initialState: Partial<Types.StoreState<unknown, unknown>> = {
   selected: PointSet.from([]),
   copied: PointMap.from([]),
   active: null,
@@ -37,12 +38,12 @@ const initialState: Partial<Types.StoreState<any>> = {
 };
 
 export default class SpreadsheetStateProvider<
-  CellType extends Types.CellBase,
-  Value
-> extends React.Component<Props<CellType, Value>> {
-  store: Store<Types.StoreState<CellType>>;
+  Value,
+  CellType extends Types.CellBase<Value>
+> extends React.Component<Props<Value, CellType>> {
+  store: Store<Types.StoreState<Value, CellType>>;
   unsubscribe: Unsubscribe;
-  prevState: Types.StoreState<CellType>;
+  prevState: Types.StoreState<Value, CellType>;
 
   static defaultProps = {
     onChange: () => {},
@@ -52,9 +53,9 @@ export default class SpreadsheetStateProvider<
     onCellCommit: () => {},
   };
 
-  constructor(props: Props<CellType, Value>) {
+  constructor(props: Props<Value, CellType>) {
     super(props);
-    const state: Types.StoreState<CellType> = {
+    const state: Types.StoreState<Value, CellType> = {
       ...initialState,
       data: this.props.data,
     };
@@ -65,7 +66,7 @@ export default class SpreadsheetStateProvider<
     this.prevState = state;
   }
 
-  shouldComponentUpdate(nextProps: Props<CellType, Value>): boolean {
+  shouldComponentUpdate(nextProps: Props<Value, CellType>): boolean {
     const { data, ...rest } = this.props;
     const { data: nextData, ...nextRest } = nextProps;
     return !shallowEqual(rest, nextRest) || nextData !== this.prevState.data;
@@ -80,7 +81,7 @@ export default class SpreadsheetStateProvider<
       onCellCommit,
     } = this.props;
     this.unsubscribe = this.store.subscribe(
-      (state: Types.StoreState<CellType>) => {
+      (state: Types.StoreState<Value, CellType>) => {
         const { prevState } = this;
 
         if (state.lastCommit && state.lastCommit !== prevState.lastCommit) {
@@ -106,10 +107,11 @@ export default class SpreadsheetStateProvider<
     );
   }
 
-  componentDidUpdate(prevProps: Props<CellType, Value>) {
+  componentDidUpdate(prevProps: Props<Value, CellType>) {
     if (this.props.data !== this.prevState.data) {
-      const nextState = Actions.setData(this.store.getState(), this.props.data);
-      this.store.setState(nextState);
+      const previousState = this.store.getState();
+      const nextState = Actions.setData(previousState, this.props.data);
+      this.store.setState({ ...previousState, ...nextState });
     }
   }
 
@@ -117,7 +119,7 @@ export default class SpreadsheetStateProvider<
     this.unsubscribe();
   }
 
-  render(): React.ReactElement {
+  render() {
     const { data, ...rest } = this.props;
     return (
       <Provider store={this.store}>

@@ -2,11 +2,11 @@ import * as React from "react";
 import * as Types from "./types";
 import { moveCursorToEnd } from "./util";
 
-type Cell = {
+type Value = string | number;
+
+type Cell = Types.CellBase<Value> & {
   value: React.ReactNode;
 };
-
-type Value = string | number;
 
 const DataEditor = ({
   onChange,
@@ -18,7 +18,7 @@ const DataEditor = ({
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   const handleChange = React.useCallback(
-    (e: SyntheticInputEvent<HTMLInputElement>) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange({ ...cell, value: e.target.value });
     },
     [onChange, cell]

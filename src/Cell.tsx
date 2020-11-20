@@ -9,17 +9,17 @@ import * as Types from "./types";
 import * as Actions from "./actions";
 import { isActive, getOffsetRect } from "./util";
 
-type StaticProps<Data extends Types.CellBase, Value> = {
+type StaticProps<Value, Data extends Types.CellBase<Value>> = {
   row: number;
   column: number;
   DataViewer: Types.DataViewer<Data, Value>;
-  getValue: Types.getValue<Data, Value>;
+  getValue: Types.GetValue<Data, Value>;
   formulaParser: FormulaParser;
 };
 
 export { StaticProps as Props };
 
-type State<Data extends Types.CellBase> = {
+type State<Value, Data extends Types.CellBase<Value>> = {
   selected: boolean;
   active: boolean;
   copied: boolean;
@@ -35,11 +35,14 @@ type Handlers = {
   setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void;
 };
 
-type Props<Data extends Types.CellBase, Value> = StaticProps<Data, Value> &
-  State<Data> &
+type Props<Value, Data extends Types.CellBase<Value>> = StaticProps<
+  Value,
+  Data
+> &
+  State<Value, Data> &
   Handlers;
 
-export const Cell = <Data extends Types.CellBase, Value>({
+export const Cell = <Value, Data extends Types.CellBase<Value>>({
   row,
   column,
   setCellDimensions,
@@ -53,7 +56,7 @@ export const Cell = <Data extends Types.CellBase, Value>({
   active,
   DataViewer,
   data,
-}: Props<Data, Value>) => {
+}: Props<Value, Data>) => {
   const rootRef = React.useRef<HTMLTableDataCellElement>();
   const root = rootRef.current;
 
@@ -92,7 +95,8 @@ export const Cell = <Data extends Types.CellBase, Value>({
   }, [setCellDimensions, getOffsetRect, root, select, active, mode]);
 
   if (data && data.DataViewer) {
-    ({ DataViewer, ...data } = data);
+    // @ts-ignore
+    DataViewer = data.DataViewer;
   }
 
   return (
@@ -118,7 +122,7 @@ export const Cell = <Data extends Types.CellBase, Value>({
   );
 };
 
-function mapStateToProps<Data extends Types.CellBase>(
+function mapStateToProps<Value, Data extends Types.CellBase<Value>>(
   {
     data,
     active,
@@ -129,9 +133,9 @@ function mapStateToProps<Data extends Types.CellBase>(
     dragging,
     lastChanged,
     bindings,
-  }: Types.StoreState<Data>,
-  { column, row }: Props<Data, unknown>
-): State<Data> {
+  }: Types.StoreState<Value, Data>,
+  { column, row }: Props<Value, Data>
+): State<Value, Data> {
   const point = { row, column };
   const cellIsActive = isActive(active, point);
 

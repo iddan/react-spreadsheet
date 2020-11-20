@@ -1,4 +1,6 @@
 import { ComponentType } from "react";
+import { types } from "@babel/core";
+import { Parser as FormulaParser } from "hot-formula-parser";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";
 import { Matrix } from "./matrix";
@@ -8,11 +10,11 @@ export type Point = {
   row: number;
 };
 
-export type CellBase = {
+export type CellBase<Value> = {
   readOnly?: boolean;
   className?: string;
-  DataViewer?: DataViewer<unknown, unknown>;
-  DataEditor?: DataEditor<unknown, unknown>;
+  DataViewer?: DataViewer<CellBase<Value>, Value>;
+  DataEditor?: DataEditor<CellBase<Value>, Value>;
 };
 
 export type CellDescriptor<Cell> = {
@@ -28,7 +30,7 @@ export type Dimensions = {
   left: number;
 };
 
-export type StoreState<Cell extends CellBase> = {
+export type StoreState<Cell extends CellBase<Value>, Value> = {
   data: Matrix<Cell>;
   selected: PointSet;
   copied: PointMap<Cell>;
@@ -57,7 +59,7 @@ export type StoreState<Cell extends CellBase> = {
   }>;
 };
 
-export type getValue<Cell, Value> = (
+export type GetValue<Cell, Value> = (
   cellDescriptor: CellDescriptor<Cell>
 ) => Value;
 
@@ -73,19 +75,29 @@ type CellChange<CellType> = {
 
 export type commit<CellType> = (changes: CellChange<CellType>[]) => void;
 
-export type CellComponentProps<Cell, Value> = {
+export type CellComponentProps<Cell extends CellBase<Value>, Value> = {
   cell: Cell | null;
-  getValue: getValue<Cell, Value>;
+  getValue: GetValue<Cell, Value>;
 } & Point;
 
-export type DataViewer<Cell, Value> = ComponentType<
-  CellComponentProps<Cell, Value>
+export type DataViewerProps<
+  Cell extends CellBase<Value>,
+  Value
+> = CellComponentProps<Cell, Value> & {
+  formulaParser?: FormulaParser;
+};
+
+export type DataViewer<Cell extends CellBase<Value>, Value> = ComponentType<
+  DataViewerProps<Cell, Value>
 >;
 
-export type DataEditorProps<Cell, Value> = CellComponentProps<Cell, Value> & {
+export type DataEditorProps<
+  Cell extends CellBase<Value>,
+  Value
+> = CellComponentProps<Cell, Value> & {
   onChange: (cell: Cell) => void;
 };
 
-export type DataEditor<Cell, Value> = ComponentType<
+export type DataEditor<Cell extends CellBase<Value>, Value> = ComponentType<
   DataEditorProps<Cell, Value>
 >;

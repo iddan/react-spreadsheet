@@ -4,18 +4,6 @@ import { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
 import { getComputedValue } from "./util";
 
-type Cell = Types.CellBase & {
-  component?: ComponentType<{
-    row: number;
-    column: number;
-    value: ReactNode;
-  }>;
-};
-
-type Props = Types.CellComponentProps<Cell, string> & {
-  formulaParser: FormulaParser;
-};
-
 const toView = (value: React.ReactNode | boolean): React.ReactNode => {
   if (value === false) {
     return <div className="Spreadsheet__data-viewer--boolean">FALSE</div>;
@@ -26,13 +14,13 @@ const toView = (value: React.ReactNode | boolean): React.ReactNode => {
   return value;
 };
 
-const DataViewer = ({
+const DataViewer = <Cell extends Types.CellBase<Value>, Value>({
   getValue,
   cell,
   column,
   row,
   formulaParser,
-}: Props): React.ReactNode => {
+}: Types.DataViewerProps<Cell, Value>): React.ReactNode => {
   return toView(
     getComputedValue({ getValue, cell, column, row, formulaParser })
   );

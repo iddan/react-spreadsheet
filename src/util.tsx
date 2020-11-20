@@ -46,7 +46,7 @@ export function range(
   return array;
 }
 
-export function updateData<Cell extends Types.CellBase>(
+export function updateData<Value, Cell extends Types.CellBase<Value>>(
   data: Matrix<Cell>,
   cellDescriptor: Types.CellDescriptor<Cell>
 ): Matrix<Cell> {
@@ -59,7 +59,7 @@ export function updateData<Cell extends Types.CellBase>(
   return nextData;
 }
 
-export function setCell<Cell extends Types.CellBase>(
+export function setCell<Value, Cell extends Types.CellBase<Value>>(
   state: {
     data: Matrix<Cell>;
   },
@@ -73,7 +73,7 @@ export function setCell<Cell extends Types.CellBase>(
 }
 
 export function isActive(
-  active: Types.StoreState<unknown>["active"],
+  active: Types.StoreState<unknown, unknown>["active"],
   { row, column }: Types.Point
 ): boolean {
   return Boolean(active && column === active.column && row === active.row);
@@ -113,7 +113,7 @@ export function createEmptyMatrix<T>(rows: number, columns: number): Matrix<T> {
 
 export const getCellDimensions = (
   point: Types.Point,
-  state: Types.StoreState<unknown>
+  state: Types.StoreState<unknown, unknown>
 ): Types.Dimensions | null => {
   const rowDimensions = state.rowDimensions[point.row];
   const columnDimensions = state.columnDimensions[point.column];
@@ -123,14 +123,14 @@ export const getCellDimensions = (
   );
 };
 
-export function getComputedValue<Cell extends Types.CellBase, Value>({
+export function getComputedValue<Value, Cell extends Types.CellBase<Value>>({
   getValue,
   cell,
   column,
   row,
   formulaParser,
 }: {
-  getValue: (descriptor: Types.CellDescriptor<Cell>) => Value;
+  getValue: Types.GetValue<Cell, Value>;
   cell: Cell;
   column: number;
   row: number;

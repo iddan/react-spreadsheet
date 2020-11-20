@@ -3,8 +3,9 @@ import * as Matrix from "./matrix";
 import { extractLabel } from "hot-formula-parser/lib/helper/cell";
 
 function isFormulaCell<
-  Cell extends Types.CellBase & {
-    value: any;
+  Value,
+  Cell extends Types.CellBase<Value> & {
+    value: Value;
   }
 >(cell: Cell): boolean {
   return Boolean(
@@ -19,8 +20,9 @@ const FORMULA_CELL_REFERENCES = /\$?[A-Z]+\$?[0-9]+/g;
 
 /** @todo move me */
 export function getBindingsForCell<
-  Cell extends Types.CellBase & {
-    value: any;
+  Value,
+  Cell extends Types.CellBase<Value> & {
+    value: Value;
   }
 >(cell: Cell, data: Matrix.Matrix<Cell>): Types.Point[] {
   if (!isFormulaCell(cell)) {

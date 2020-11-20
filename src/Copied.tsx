@@ -9,7 +9,7 @@ const Copied = (props: Props): React.ReactElement => (
   <FloatingRect {...props} variant="copied" />
 );
 
-export default connect((state: Types.StoreState<unknown>) =>
+export default connect((state: Types.StoreState<unknown, unknown>) =>
   mapStateToProps(
     state.hasPasted ? PointSet.from([]) : PointMap.map(() => true, state.copied)
   )(state)

@@ -6,9 +6,9 @@ import * as Actions from "./actions";
 import * as Types from "./types";
 import { getCellDimensions } from "./util";
 
-type Props<Cell, Value> = {
+type Props<Cell extends Types.CellBase<Value>, Value> = {
   DataEditor: Types.DataEditor<Cell, Value>;
-  getValue: Types.getValue<Cell, Value>;
+  getValue: Types.GetValue<Cell, Value>;
   onChange: (data: Cell) => void;
   setCellData: (
     active: Types.Point,
@@ -25,7 +25,7 @@ type Props<Cell, Value> = {
 } & Types.Point &
   Types.Dimensions;
 
-function ActiveCell<Cell extends Types.CellBase, Value>(
+function ActiveCell<Value, Cell extends Types.CellBase<Value>>(
   props: Props<Cell, Value>
 ) {
   const {
@@ -114,8 +114,8 @@ function ActiveCell<Cell extends Types.CellBase, Value>(
   );
 }
 
-function mapStateToProps<Cell extends Types.CellBase>(
-  state: Types.StoreState<Cell>
+function mapStateToProps<Value, Cell extends Types.CellBase<Value>>(
+  state: Types.StoreState<Cell, Value>
 ): Partial<Props<Cell, unknown>> {
   const dimensions = state.active && getCellDimensions(state.active, state);
   if (!state.active || !dimensions) {

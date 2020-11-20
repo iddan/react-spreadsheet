@@ -35,15 +35,15 @@ import * as Matrix from "./matrix";
 import * as Actions from "./actions";
 import "./Spreadsheet.css";
 
-type DefaultCellType = {
-  value: string | number | boolean | null;
+type DefaultValue = string | number | boolean | null;
+type DefaultCellType = Types.CellBase<DefaultValue> & {
+  value: DefaultValue;
 };
 
-const getValue = ({ data }: { data: DefaultCellType | null }) =>
+const getValue: Types.GetValue<DefaultCellType, DefaultValue> = ({ data }) =>
   data ? data.value : null;
 
-export type Props<CellType extends Types.CellBase, Value> = {
-  data: Matrix.Matrix<CellType>;
+export type Props<Value, CellType extends Types.CellBase<Value>> = {
   formulaParser: FormulaParser;
   columnLabels?: string[];
   ColumnIndicator?: ComponentType<ColumnIndicatorProps>;
@@ -54,13 +54,13 @@ export type Props<CellType extends Types.CellBase, Value> = {
   hideColumnIndicators?: boolean;
   Table: ComponentType<TableProps>;
   Row: ComponentType<RowProps>;
-  Cell: ComponentType<CellProps<CellType, Value>>;
+  Cell: ComponentType<CellProps<Value, CellType>>;
   DataViewer: Types.DataViewer<CellType, Value>;
   DataEditor: Types.DataEditor<CellType, Value>;
   onKeyDown?: (event: React.KeyboardEvent) => void;
-  getValue: Types.getValue<CellType, Value>;
+  getValue: Types.GetValue<CellType, Value>;
   getBindingsForCell: Types.getBindingsForCell<CellType>;
-  store: Store<Types.StoreState<CellType>>;
+  store: Store<Types.StoreState<Value, CellType>>;
 };
 
 type Handlers = {
@@ -81,8 +81,8 @@ type State = {
 };
 
 class Spreadsheet<
-  CellType extends Types.CellBase,
-  Value
+  Value,
+  CellType extends Types.CellBase<Value>
 > extends React.PureComponent<Props<CellType, Value> & State & Handlers> {
   static defaultProps = {
     Table,
@@ -261,6 +261,7 @@ class Spreadsheet<
       CornerIndicator,
       columnLabels,
       rowLabels,
+      DataEditor,
       DataViewer,
       getValue,
       rows,
@@ -339,7 +340,7 @@ class Spreadsheet<
 }
 
 const mapStateToProps = (
-  { data, mode }: Types.StoreState<unknown>,
+  { data, mode }: Types.StoreState<unknown, unknown>,
   { columnLabels }: Props<unknown, unknown>
 ): State => {
   const { columns, rows } = Matrix.getSize(data);
