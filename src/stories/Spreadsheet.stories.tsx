@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Meta } from "@storybook/react/types-6-0";
-import { createEmptyMatrix, Spreadsheet } from "..";
+import { Story, Meta } from "@storybook/react/types-6-0";
+import { createEmptyMatrix, Spreadsheet, Props } from "..";
 import * as Matrix from "../matrix";
 import { EMPTY_DATA, INITIAL_COLUMNS, INITIAL_ROWS } from "./shared";
 import AsyncCellData from "./AsyncCellData";
@@ -12,11 +12,15 @@ import { CustomCornerIndicator } from "./CustomCornerIndicator";
 export default {
   title: "Spreadsheet",
   component: Spreadsheet,
+  parameters: { actions: { argTypesRegex: "^on.*" } },
+  argTypes: { onCellCommit: { action: "cell committed" } },
 } as Meta;
 
-export const Basic = () => <Spreadsheet data={EMPTY_DATA} />;
+export const Basic: Story<Props<unknown, unknown>> = (args) => (
+  <Spreadsheet data={EMPTY_DATA} {...args} />
+);
 
-export const Controlled = () => {
+export const Controlled: Story<Props<unknown, unknown>> = (args) => {
   const [data, setData] = React.useState(EMPTY_DATA);
 
   const addColumn = React.useCallback(
@@ -62,47 +66,43 @@ export const Controlled = () => {
         <button onClick={removeColumn}>Remove column</button>
         <button onClick={removeRow}>Remove row</button>
       </div>
-      <Spreadsheet data={data} onChange={setData} />
+      <Spreadsheet {...args} data={data} onChange={setData} />
     </>
   );
 };
 
-export const CustomRowLabels = () => (
+export const CustomRowLabels: Story<Props<unknown, unknown>> = (args) => (
   <Spreadsheet
+    {...args}
     data={EMPTY_DATA}
     rowLabels={["Dan", "Alice", "Bob", "Steve", "Adam", "Ruth"]}
   />
 );
 
-export const CustomColumnLabels = () => (
+export const CustomColumnLabels: Story<Props<unknown, unknown>> = (args) => (
   <Spreadsheet
+    {...args}
     data={EMPTY_DATA}
     columnLabels={["Name", "Age", "Email", "Address"]}
   />
 );
 
-export const HideIndicators = () => (
-  <Spreadsheet data={EMPTY_DATA} hideColumnIndicators hideRowIndicators />
-);
-
-export const KeyDown = () => (
+export const HideIndicators: Story<Props<unknown, unknown>> = (args) => (
   <Spreadsheet
+    {...args}
     data={EMPTY_DATA}
-    onKeyDown={(event) => {
-      if (event.altKey) {
-        event.preventDefault();
-      }
-    }}
+    hideColumnIndicators
+    hideRowIndicators
   />
 );
 
-export const Readonly = () => {
+export const Readonly: Story<Props<unknown, unknown>> = (args) => {
   const data = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
   data[0][0] = { readOnly: true, value: "Read Only" };
-  return <Spreadsheet data={data} />;
+  return <Spreadsheet {...args} data={data} />;
 };
 
-export const WithAsyncCellData = () => {
+export const WithAsyncCellData: Story<Props<unknown, unknown>> = (args) => {
   const data = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
   data[2][2] = {
@@ -110,32 +110,24 @@ export const WithAsyncCellData = () => {
     DataViewer: AsyncCellData,
     DataEditor: AsyncCellData,
   };
-  return (
-    <Spreadsheet
-      data={data}
-      onCellCommit={(...args: unknown[]) =>
-        console.log("onCellCommit", ...args)
-      }
-      onChange={(...args: unknown[]) => console.log("onChange", ...args)}
-    />
-  );
+  return <Spreadsheet {...args} data={data} />;
 };
 
-export const WithCustomCell = () => (
-  <Spreadsheet data={EMPTY_DATA} Cell={CustomCell} />
+export const WithCustomCell: Story<Props<unknown, unknown>> = (args) => (
+  <Spreadsheet {...args} data={EMPTY_DATA} Cell={CustomCell} />
 );
 
-export const RangeCell = () => {
+export const RangeCell: Story<Props<unknown, unknown>> = (args) => {
   const data = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
   data[2][2] = {
     value: 0,
     DataViewer: RangeView,
     DataEditor: RangeEdit,
   };
-  return <Spreadsheet data={data} />;
+  return <Spreadsheet {...args} data={data} />;
 };
 
-export const SelectCell = () => {
+export const SelectCell: Story<Props<unknown, unknown>> = (args) => {
   const data = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
   data[2][2] = {
@@ -144,9 +136,71 @@ export const SelectCell = () => {
     DataEditor: SelectEdit,
   };
 
-  return <Spreadsheet data={data} />;
+  return <Spreadsheet {...args} data={data} />;
 };
 
-export const WithCornerIndicator = () => (
-  <Spreadsheet data={EMPTY_DATA} CornerIndicator={CustomCornerIndicator} />
+export const WithCornerIndicator: Story<Props<unknown, unknown>> = (args) => (
+  <Spreadsheet
+    {...args}
+    data={EMPTY_DATA}
+    CornerIndicator={CustomCornerIndicator}
+  />
 );
+
+export const Filter: Story<Props<unknown, unknown>> = (args) => {
+  const [data, setData] = React.useState(EMPTY_DATA);
+  const [filter, setFilter] = React.useState("");
+
+  const handleFilterChange = React.useCallback(
+    (event) => {
+      const nextFilter = event.target.value;
+      setFilter(nextFilter);
+    },
+    [setFilter]
+  );
+
+  /**
+   * Removes cells not matching the filter from matrix while maintaining the
+   * minimum size that includes all of the matching cells.
+   */
+  const filtered = React.useMemo(() => {
+    if (filter.length === 0) {
+      return data;
+    }
+    const filtered = [];
+    for (let row = 0; row < data.length; row++) {
+      if (data.length !== 0) {
+        for (let column = 0; column < data[0].length; column++) {
+          const cell = data[row][column];
+          if (cell && cell.value.includes(filter)) {
+            if (!filtered[0]) {
+              filtered[0] = [];
+            }
+            if (filtered[0].length < column) {
+              filtered[0].length = column + 1;
+            }
+            if (!filtered[row]) {
+              filtered[row] = [];
+            }
+            filtered[row][column] = cell;
+          }
+        }
+      }
+    }
+    return filtered;
+  }, [data, filter]);
+
+  return (
+    <>
+      <div>
+        <input
+          type="text"
+          placeholder="Filter"
+          value={filter}
+          onChange={handleFilterChange}
+        />
+      </div>
+      <Spreadsheet {...args} data={filtered} onChange={setData} />
+    </>
+  );
+};
