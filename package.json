@@ -64,7 +64,10 @@
     "typescript": "^4.0.5"
   },
   "jest": {
-    "preset": "ts-jest"
+    "preset": "ts-jest",
+    "testPathIgnorePatterns": [
+      "dist"
+    ]
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",

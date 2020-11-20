@@ -3,7 +3,7 @@ import {
   getFormula,
   getBindingsForCell,
   isFormula,
-} from "../bindings";
+} from "./bindings";
 
 const EXAMPLE_CELL = {};
 const A1 = "A1";

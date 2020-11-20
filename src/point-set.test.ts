@@ -1,4 +1,4 @@
-import * as PointSet from "../point-set";
+import * as PointSet from "./point-set";
 
 const set = PointSet.from([
   { row: 0, column: 0 },

@@ -80,3 +80,5 @@ scripts/
 babel.config*
 .github/
 rollup.config.js
+*.test.ts
+*.stories.ts

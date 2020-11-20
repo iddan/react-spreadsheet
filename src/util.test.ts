@@ -1,4 +1,4 @@
-import { range } from "../util";
+import { range } from "./util";
 
 describe("range method:", () => {
   test("basic use of range", () => {
