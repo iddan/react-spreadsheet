@@ -19,7 +19,7 @@ import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import { getBindings } from "./bindings";
+import { getBindingsForCell } from "./bindings";
 import {
   memoizeOne,
   range,
@@ -41,22 +41,22 @@ const getValue: Types.GetValue<DefaultCellType, DefaultValue> = ({ data }) =>
   data ? data.value : null;
 
 export type Props<CellType extends Types.CellBase<Value>, Value> = {
-  formulaParser: FormulaParser;
+  formulaParser?: FormulaParser;
   columnLabels?: string[];
   ColumnIndicator?: React.ComponentType<ColumnIndicatorProps>;
-  CornerIndicator: React.ComponentType<CornerIndicatorProps>;
+  CornerIndicator?: React.ComponentType<CornerIndicatorProps>;
   rowLabels?: string[];
   RowIndicator?: React.ComponentType<RowIndicatorProps>;
   hideRowIndicators?: boolean;
   hideColumnIndicators?: boolean;
-  Table: React.ComponentType<TableProps>;
-  Row: React.ComponentType<RowProps>;
-  Cell: React.ComponentType<CellProps<CellType, Value>>;
-  DataViewer: Types.DataViewer<CellType, Value>;
-  DataEditor: Types.DataEditor<CellType, Value>;
+  Table?: React.ComponentType<TableProps>;
+  Row?: React.ComponentType<RowProps>;
+  Cell?: React.ComponentType<CellProps<CellType, Value>>;
+  DataViewer?: Types.DataViewer<CellType, Value>;
+  DataEditor?: Types.DataEditor<CellType, Value>;
   onKeyDown?: (event: React.KeyboardEvent) => void;
-  getValue: Types.GetValue<CellType, Value>;
-  getBindingsForCell: Types.getBindingsForCell<CellType>;
+  getValue?: Types.GetValue<CellType, Value>;
+  getBindingsForCell?: Types.getBindingsForCell<CellType>;
   store: Store<Types.StoreState<CellType, Value>>;
 };
 
@@ -91,7 +91,7 @@ class Spreadsheet<
     DataViewer,
     DataEditor,
     getValue,
-    getBindingsForCell: getBindings,
+    getBindingsForCell,
   };
 
   formulaParser = this.props.formulaParser || new FormulaParser();

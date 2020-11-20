@@ -3,9 +3,8 @@
  */
 
 import React, { useCallback } from "react";
-import { createFixture } from "react-cosmos";
-import Spreadsheet, { createEmptyMatrix } from "../src";
-import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
+import { Spreadsheet, createEmptyMatrix } from "..";
+import { INITIAL_ROWS, INITIAL_COLUMNS } from "./shared";
 import "./index.css";
 
 const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
@@ -33,12 +32,4 @@ const RangeEdit = ({ getValue, column, row, cell, onChange }) => {
 
 initialData[2][2] = { value: 0, DataViewer: RangeView, DataEditor: RangeEdit };
 
-Spreadsheet.displayName = "Spreadsheet";
-
-export default createFixture({
-  component: Spreadsheet,
-  name: "CustomDataComponents",
-  props: {
-    data: initialData,
-  },
-});
+export default <Spreadsheet data={initialData} />;

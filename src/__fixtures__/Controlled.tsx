@@ -1,14 +1,12 @@
 import React, { Fragment, useState, useCallback } from "react";
-
-import { createFixture } from "react-cosmos";
-import Spreadsheet, { createEmptyMatrix } from "../src";
-import * as Matrix from "../src/matrix";
-import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
+import { Spreadsheet, createEmptyMatrix } from "..";
+import * as Matrix from "../matrix";
+import { INITIAL_ROWS, INITIAL_COLUMNS } from "./shared";
 import "./index.css";
 
 const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
-const Controlled = () => {
+export default () => {
   const [data, setData] = useState(initialData);
 
   const addColumn = useCallback(
@@ -58,13 +56,3 @@ const Controlled = () => {
     </Fragment>
   );
 };
-
-Controlled.displayName = "Spreadsheet";
-
-export default createFixture({
-  component: Controlled,
-  name: "Controlled",
-  props: {
-    data: initialData,
-  },
-});

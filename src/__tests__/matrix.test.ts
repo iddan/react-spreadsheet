@@ -1,4 +1,4 @@
-import * as Matrix from "../src/matrix";
+import * as Matrix from "../matrix";
 
 const matrix = [
   [1, 2, 3],

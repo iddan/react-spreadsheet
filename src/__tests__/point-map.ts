@@ -1,4 +1,4 @@
-import * as PointMap from "../src/point-map";
+import * as PointMap from "../point-map";
 
 const map = PointMap.from([
   [{ row: 0, column: 0 }, 42],

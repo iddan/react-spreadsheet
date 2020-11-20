@@ -3,14 +3,14 @@
  */
 
 import React, { useCallback, useEffect } from "react";
-import { createFixture } from "react-cosmos";
 import classnames from "classnames";
-import Spreadsheet, { createEmptyMatrix } from "../src";
-import { INITIAL_ROWS, INITIAL_COLUMNS } from "./Basic";
+import { Spreadsheet, createEmptyMatrix } from "..";
+import { INITIAL_ROWS, INITIAL_COLUMNS } from "./shared";
 import "./index.css";
 
 const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
+// @ts-ignore
 Spreadsheet.displayName = "Spreadsheet";
 
 const HEIGHT = 30;
@@ -30,7 +30,7 @@ const Cell = ({
   data,
   DataViewer,
 }) => {
-  const root = React.createRef();
+  const root = React.createRef<HTMLTableCellElement>();
 
   useEffect(() => {
     setCellDimensions(
@@ -103,11 +103,4 @@ const Cell = ({
   );
 };
 
-export default createFixture({
-  component: Spreadsheet,
-  name: "CustomCell",
-  props: {
-    data: initialData,
-    Cell,
-  },
-});
+export default <Spreadsheet data={initialData} Cell={Cell} />;
