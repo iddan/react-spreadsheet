@@ -97,4 +97,4 @@ const Cell = ({
   );
 };
 
-export default <Spreadsheet data={initialData} Cell={Cell} />;
+export const CustomCell = <Spreadsheet data={initialData} Cell={Cell} />;

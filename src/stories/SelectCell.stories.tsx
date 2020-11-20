@@ -47,4 +47,4 @@ initialData[2][2] = {
   DataEditor: SelectEdit,
 };
 
-export default <Spreadsheet data={initialData} />;
+export const SelectCellSpreadsheet = <Spreadsheet data={initialData} />;

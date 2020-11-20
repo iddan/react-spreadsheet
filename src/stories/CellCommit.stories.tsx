@@ -37,7 +37,7 @@ initialData[5][2] = {
 
 initialData[3][3] = { value: 10 };
 
-export default (
+export const CellCommit = (
   <Spreadsheet
     data={initialData}
     onCellCommit={(...args: unknown[]) =>

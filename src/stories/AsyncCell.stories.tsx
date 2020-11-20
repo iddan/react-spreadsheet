@@ -5,7 +5,7 @@ import "./index.css";
 
 const initialData = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
-const AsyncCell = ({ onChange, row, column, cell, getValue }) => {
+const AsyncCellData = ({ onChange, row, column, cell, getValue }) => {
   const [loading, setLoading] = React.useState(false);
   const handleClick = React.useCallback(() => {
     setLoading(true);
@@ -26,11 +26,11 @@ const AsyncCell = ({ onChange, row, column, cell, getValue }) => {
 
 initialData[2][2] = {
   value: 1,
-  DataViewer: AsyncCell,
-  DataEditor: AsyncCell,
+  DataViewer: AsyncCellData,
+  DataEditor: AsyncCellData,
 };
 
-export default (
+export const AsyncCellSpreadsheet = (
   <Spreadsheet
     data={initialData}
     onCellCommit={(...args: unknown[]) => console.log("onCellCommit", ...args)}

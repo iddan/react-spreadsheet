@@ -32,4 +32,4 @@ const RangeEdit = ({ getValue, column, row, cell, onChange }) => {
 
 initialData[2][2] = { value: 0, DataViewer: RangeView, DataEditor: RangeEdit };
 
-export default <Spreadsheet data={initialData} />;
+export const CustomDataComponents = <Spreadsheet data={initialData} />;

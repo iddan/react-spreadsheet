@@ -38,7 +38,7 @@ function filterMatrix(matrix: Data, filter: string): Data {
   return filtered;
 }
 
-const Filter = () => {
+export const Filter = () => {
   const [data, setData] = React.useState(INITIAL_DATA);
   const [filter, setFilter] = React.useState("");
 
@@ -68,5 +68,3 @@ const Filter = () => {
     </>
   );
 };
-
-export default Filter;

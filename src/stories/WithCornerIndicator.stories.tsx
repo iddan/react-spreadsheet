@@ -28,6 +28,6 @@ function CornerIndicator() {
   );
 }
 
-export default (
+export const WithCornerIndicator = (
   <Spreadsheet data={EMPTY_DATA} CornerIndicator={CornerIndicator} />
 );
