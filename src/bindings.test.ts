@@ -4,6 +4,7 @@ import {
   getBindingsForCell,
   isFormula,
 } from "./bindings";
+import { Matrix } from "./matrix";
 
 const EXAMPLE_CELL = {};
 const A1 = "A1";
@@ -17,7 +18,7 @@ const B2_POINT = { row: 1, column: 1 };
 const SUM_A1_A2_FORMULA = `=SUM(${A1}, ${A2})`;
 const SUM_B1_B2_FORMULA = `=SUM(${B1}, ${B2})`;
 const EXAMPLE_FORMULA_CELL = { value: SUM_A1_A2_FORMULA };
-const EMPTY_DATA = [];
+const EMPTY_DATA: Matrix<unknown> = [];
 const EXAMPLE_DATA = [
   [{ value: 1 }, { value: 2 }],
   [{ value: SUM_B1_B2_FORMULA }, { value: 3 }],

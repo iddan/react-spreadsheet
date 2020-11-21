@@ -1,4 +1,4 @@
-import { ComponentType } from "react";
+import { Component, ComponentType } from "react";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";
@@ -12,12 +12,12 @@ export type Point = {
 export type CellBase<Value> = {
   readOnly?: boolean;
   className?: string;
-  DataViewer?: DataViewer<CellBase<Value>, Value>;
-  DataEditor?: DataEditor<CellBase<Value>, Value>;
+  DataViewer?: DataViewerComponent<CellBase<Value>, Value>;
+  DataEditor?: DataEditorComponent<CellBase<Value>, Value>;
 };
 
 export type CellDescriptor<Cell> = {
-  data: Cell | null;
+  data: Cell | undefined;
 } & Point;
 
 export type Mode = "view" | "edit";
@@ -72,28 +72,42 @@ type CellChange<Cell> = {
 export type commit<Cell> = (changes: CellChange<Cell>[]) => void;
 
 export type CellComponentProps<Cell extends CellBase<Value>, Value> = {
-  cell: Cell | null;
+  row: number;
+  column: number;
+  DataViewer: DataViewerComponent<Cell, Value>;
+  getValue: GetValue<Cell, Value>;
+  formulaParser: FormulaParser;
+};
+
+export type CellComponent<Cell extends CellBase<Value>, Value> = ComponentType<
+  CellComponentProps<Cell, Value>
+>;
+
+export type DataComponentProps<Cell extends CellBase<Value>, Value> = {
+  cell: Cell | undefined;
   getValue: GetValue<Cell, Value>;
 } & Point;
 
 export type DataViewerProps<
   Cell extends CellBase<Value>,
   Value
-> = CellComponentProps<Cell, Value> & {
+> = DataComponentProps<Cell, Value> & {
   formulaParser?: FormulaParser;
 };
 
-export type DataViewer<Cell extends CellBase<Value>, Value> = ComponentType<
-  DataViewerProps<Cell, Value>
->;
+export type DataViewerComponent<
+  Cell extends CellBase<Value>,
+  Value
+> = ComponentType<DataViewerProps<Cell, Value>>;
 
 export type DataEditorProps<
   Cell extends CellBase<Value>,
   Value
-> = CellComponentProps<Cell, Value> & {
+> = DataComponentProps<Cell, Value> & {
   onChange: (cell: Cell) => void;
 };
 
-export type DataEditor<Cell extends CellBase<Value>, Value> = ComponentType<
-  DataEditorProps<Cell, Value>
->;
+export type DataEditorComponent<
+  Cell extends CellBase<Value>,
+  Value
+> = ComponentType<DataEditorProps<Cell, Value>>;

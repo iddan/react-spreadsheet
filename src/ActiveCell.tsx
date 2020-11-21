@@ -7,7 +7,7 @@ import * as Types from "./types";
 import { getCellDimensions } from "./util";
 
 type Props<Cell extends Types.CellBase<Value>, Value> = {
-  DataEditor: Types.DataEditor<Cell, Value>;
+  DataEditor: Types.DataEditorComponent<Cell, Value>;
   getValue: Types.GetValue<Cell, Value>;
   onChange: (data: Cell) => void;
   setCellData: (

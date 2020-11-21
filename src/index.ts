@@ -5,7 +5,7 @@ export type { Matrix } from "./matrix";
 export type {
   CellBase,
   DataViewerProps,
-  DataViewer,
+  DataViewerComponent,
   DataEditorProps,
-  DataEditor,
+  DataEditorComponent,
 } from "./types";

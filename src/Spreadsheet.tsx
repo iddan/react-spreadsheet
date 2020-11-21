@@ -13,7 +13,7 @@ import ColumnIndicator, {
   Props as ColumnIndicatorProps,
 } from "./ColumnIndicator";
 import RowIndicator, { Props as RowIndicatorProps } from "./RowIndicator";
-import { Cell, Props as CellProps, enhance as enhanceCell } from "./Cell";
+import { Cell, enhance as enhanceCell } from "./Cell";
 import DataViewer from "./DataViewer";
 import DataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
@@ -43,20 +43,23 @@ const getValue: Types.GetValue<DefaultCellType, DefaultValue> = ({ data }) =>
 export type Props<CellType extends Types.CellBase<Value>, Value> = {
   formulaParser?: FormulaParser;
   columnLabels?: string[];
-  ColumnIndicator?: React.ComponentType<ColumnIndicatorProps>;
-  CornerIndicator?: React.ComponentType<CornerIndicatorProps>;
   rowLabels?: string[];
-  RowIndicator?: React.ComponentType<RowIndicatorProps>;
   hideRowIndicators?: boolean;
   hideColumnIndicators?: boolean;
+  // Custom Components
+  ColumnIndicator?: React.ComponentType<ColumnIndicatorProps>;
+  CornerIndicator?: React.ComponentType<CornerIndicatorProps>;
+  RowIndicator?: React.ComponentType<RowIndicatorProps>;
   Table?: React.ComponentType<TableProps>;
   Row?: React.ComponentType<RowProps>;
-  Cell?: React.ComponentType<CellProps<CellType, Value>>;
-  DataViewer?: Types.DataViewer<CellType, Value>;
-  DataEditor?: Types.DataEditor<CellType, Value>;
+  Cell?: Types.CellComponent<CellType, Value>;
+  DataViewer?: Types.DataViewerComponent<CellType, Value>;
+  DataEditor?: Types.DataEditorComponent<CellType, Value>;
+  // Handlers
   onKeyDown?: (event: React.KeyboardEvent) => void;
   getValue?: Types.GetValue<CellType, Value>;
   getBindingsForCell?: Types.getBindingsForCell<CellType>;
+  // Internal store
   store: Store<Types.StoreState<CellType, Value>>;
 };
 

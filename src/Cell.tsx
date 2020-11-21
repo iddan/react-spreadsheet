@@ -9,23 +9,13 @@ import * as Types from "./types";
 import * as Actions from "./actions";
 import { isActive, getOffsetRect } from "./util";
 
-type StaticProps<Data extends Types.CellBase<Value>, Value> = {
-  row: number;
-  column: number;
-  DataViewer: Types.DataViewer<Data, Value>;
-  getValue: Types.GetValue<Data, Value>;
-  formulaParser: FormulaParser;
-};
-
-export { StaticProps as Props };
-
 type State<Data extends Types.CellBase<Value>, Value> = {
   selected: boolean;
   active: boolean;
   copied: boolean;
   dragging: boolean;
   mode: Types.Mode;
-  data: Data | null;
+  data: Data | undefined;
   _bindingChanged: Object | null;
 };
 
@@ -35,12 +25,10 @@ type Handlers = {
   setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void;
 };
 
-type Props<Data extends Types.CellBase<Value>, Value> = StaticProps<
-  Data,
+type Props<
+  Data extends Types.CellBase<Value>,
   Value
-> &
-  State<Data, Value> &
-  Handlers;
+> = Types.CellComponentProps<Data, Value> & State<Data, Value> & Handlers;
 
 export const Cell = <Data extends Types.CellBase<Value>, Value>({
   row,
@@ -57,7 +45,7 @@ export const Cell = <Data extends Types.CellBase<Value>, Value>({
   DataViewer,
   data,
 }: Props<Data, Value>) => {
-  const rootRef = React.useRef<HTMLTableDataCellElement>();
+  const rootRef = React.useRef<HTMLTableDataCellElement | null>(null);
   const root = rootRef.current;
 
   const handleMouseDown = React.useCallback(
