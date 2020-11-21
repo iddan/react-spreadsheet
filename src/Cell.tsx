@@ -1,7 +1,6 @@
 import * as React from "react";
 import classnames from "classnames";
 import { connect } from "unistore/react";
-import { Parser as FormulaParser } from "hot-formula-parser";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
