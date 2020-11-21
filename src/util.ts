@@ -131,7 +131,7 @@ export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
   formulaParser,
 }: {
   getValue: Types.GetValue<Cell, Value>;
-  cell: Cell;
+  cell: Cell | undefined;
   column: number;
   row: number;
   formulaParser: FormulaParser;

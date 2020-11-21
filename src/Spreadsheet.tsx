@@ -214,7 +214,7 @@ class Spreadsheet<
     );
   }
 
-  handleKeyDown = (event) => {
+  handleKeyDown = (event: React.KeyboardEvent) => {
     const { store, onKeyDown, onKeyDownAction } = this.props;
     if (onKeyDown) {
       onKeyDown(event);
@@ -234,14 +234,14 @@ class Spreadsheet<
     document.removeEventListener("mouseup", this.handleMouseUp);
   };
 
-  handleMouseMove = (event) => {
+  handleMouseMove = (event: React.MouseEvent) => {
     if (!this.props.store.getState().dragging && event.buttons === 1) {
       this.props.onDragStart();
       document.addEventListener("mouseup", this.handleMouseUp);
     }
   };
 
-  root: HTMLDivElement | null;
+  root: HTMLDivElement | null = null;
 
   handleRoot = (root: HTMLDivElement | null) => {
     this.root = root;
@@ -343,9 +343,9 @@ class Spreadsheet<
   }
 }
 
-const mapStateToProps = (
-  { data, mode }: Types.StoreState<Types.CellBase<unknown>, unknown>,
-  { columnLabels }: Props<unknown, unknown>
+const mapStateToProps = <Cell extends Types.CellBase<Value>, Value>(
+  { data, mode }: Types.StoreState<Cell, Value>,
+  { columnLabels }: Props<Cell, Value>
 ): State => {
   const { columns, rows } = Matrix.getSize(data);
   return {
