@@ -9,27 +9,6 @@ import * as Types from "./types";
 import * as Actions from "./actions";
 import { isActive, getOffsetRect } from "./util";
 
-type State<Data extends Types.CellBase<Value>, Value> = {
-  selected: boolean;
-  active: boolean;
-  copied: boolean;
-  dragging: boolean;
-  mode: Types.Mode;
-  data: Data | undefined;
-  _bindingChanged: Object | null;
-};
-
-type Handlers = {
-  select: (cellPointer: Types.Point) => void;
-  activate: (cellPointer: Types.Point) => void;
-  setCellDimensions: (point: Types.Point, dimensions: Types.Dimensions) => void;
-};
-
-type Props<
-  Data extends Types.CellBase<Value>,
-  Value
-> = Types.CellComponentProps<Data, Value> & State<Data, Value> & Handlers;
-
 export const Cell = <Data extends Types.CellBase<Value>, Value>({
   row,
   column,
@@ -44,7 +23,7 @@ export const Cell = <Data extends Types.CellBase<Value>, Value>({
   active,
   DataViewer,
   data,
-}: Props<Data, Value>) => {
+}: Types.CellComponentProps<Data, Value>) => {
   const rootRef = React.useRef<HTMLTableDataCellElement | null>(null);
   const root = rootRef.current;
 
@@ -116,14 +95,13 @@ function mapStateToProps<Data extends Types.CellBase<Value>, Value>(
     active,
     selected,
     copied,
-    hasPasted,
     mode,
     dragging,
     lastChanged,
     bindings,
   }: Types.StoreState<Data, Value>,
-  { column, row }: Props<Data, Value>
-): State<Data, Value> {
+  { column, row }: Types.CellComponentProps<Data, Value>
+) {
   const point = { row, column };
   const cellIsActive = isActive(active, point);
 
@@ -137,6 +115,7 @@ function mapStateToProps<Data extends Types.CellBase<Value>, Value>(
     data: Matrix.get(row, column, data),
     dragging,
     /** @todo refactor */
+    // @ts-ignore
     _bindingChanged:
       cellBindings && lastChanged && PointSet.has(cellBindings, lastChanged)
         ? {}

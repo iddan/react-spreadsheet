@@ -77,6 +77,15 @@ export type CellComponentProps<Cell extends CellBase<Value>, Value> = {
   DataViewer: DataViewerComponent<Cell, Value>;
   getValue: GetValue<Cell, Value>;
   formulaParser: FormulaParser;
+  selected: boolean;
+  active: boolean;
+  copied: boolean;
+  dragging: boolean;
+  mode: Mode;
+  data: Cell | undefined;
+  select: (cellPointer: Point) => void;
+  activate: (cellPointer: Point) => void;
+  setCellDimensions: (point: Point, dimensions: Dimensions) => void;
 };
 
 export type CellComponent<Cell extends CellBase<Value>, Value> = ComponentType<

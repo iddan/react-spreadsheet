@@ -4,11 +4,12 @@
 
 import React, { useCallback, useEffect } from "react";
 import classnames from "classnames";
+import { CellBase, CellComponent } from "../types";
 
 const HEIGHT = 30;
 const WIDTH = 96;
 
-const CustomCell = ({
+const CustomCell: CellComponent<CellBase<unknown>, unknown> = ({
   column,
   row,
   setCellDimensions,
@@ -75,7 +76,7 @@ const CustomCell = ({
         data && data.className
       )}
       style={{
-        borderColor: !active && "black",
+        borderColor: active ? "black" : "none",
       }}
       tabIndex={0}
       onMouseOver={handleMouseOver}
