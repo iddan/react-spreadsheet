@@ -3,18 +3,28 @@
  */
 
 import * as React from "react";
+import { CellBase, DataEditorProps } from "..";
 
-const AsyncCellData = ({ onChange, row, column, cell, getValue }) => {
+type Value = number;
+type Cell = CellBase<Value> & { value: Value };
+
+const AsyncCellData = ({
+  onChange,
+  row,
+  column,
+  cell,
+  getValue,
+}: DataEditorProps<Cell, Value>) => {
   const [loading, setLoading] = React.useState(false);
   const handleClick = React.useCallback(() => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
       const nextValue = Math.floor(Math.random() * 100);
-      onChange({ row, column, value: nextValue });
+      onChange({ value: nextValue });
     }, 1000);
   }, [setLoading, onChange, row, column]);
-  const value = getValue({ data: cell });
+  const value = getValue({ data: cell, row, column });
   return (
     <div>
       {value}
