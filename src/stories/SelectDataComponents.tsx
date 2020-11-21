@@ -1,7 +1,10 @@
 import React, { useCallback } from "react";
 import Select from "react-select";
-import { DataEditor, DataViewer } from "..";
+import { CellBase, DataEditorComponent, DataViewerComponent } from "..";
 import "react-select/dist/react-select.css";
+
+type Value = string;
+type Cell = CellBase<Value> & { value: Value };
 
 const OPTIONS = [
   { value: "vanilla", label: "Vanilla" },
@@ -10,7 +13,7 @@ const OPTIONS = [
 ];
 const SELECT_WIDTH = 200;
 
-export const SelectView: DataViewer<unknown, unknown> = ({
+export const SelectView: DataViewerComponent<Cell, Value> = ({
   cell,
   row,
   column,
@@ -24,7 +27,7 @@ export const SelectView: DataViewer<unknown, unknown> = ({
   />
 );
 
-export const SelectEdit: DataEditor<{}, unknown> = ({
+export const SelectEdit: DataEditorComponent<Cell, Value> = ({
   cell,
   onChange,
   getValue,
@@ -37,7 +40,7 @@ export const SelectEdit: DataEditor<{}, unknown> = ({
     },
     [cell, onChange]
   );
-  const value = getValue({ column, row, data: cell }) || 0;
+  const value = getValue({ column, row, data: cell }) || null;
   return (
     <Select
       value={value}
