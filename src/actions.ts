@@ -261,7 +261,7 @@ export const clear = <Cell extends Types.CellBase<Value>, Value>(
 
 export type KeyDownHandler = (
   state: Types.StoreState<Types.CellBase<unknown>, unknown>,
-  event: KeyboardEvent
+  event: React.KeyboardEvent
 ) => Partial<Types.StoreState<Types.CellBase<unknown>, unknown>> | null;
 
 export const go = (rowDelta: number, columnDelta: number): KeyDownHandler => (
@@ -369,7 +369,7 @@ const isActiveReadOnly = <Cell extends Types.CellBase<Value>, Value>(
 
 export function keyPress<Cell extends Types.CellBase<Value>, Value>(
   state: Types.StoreState<Cell, Value>,
-  event: KeyboardEvent
+  event: React.KeyboardEvent
 ): Partial<Types.StoreState<Cell, Value>> | null {
   if (isActiveReadOnly(state) || event.metaKey) {
     return null;
@@ -382,7 +382,7 @@ export function keyPress<Cell extends Types.CellBase<Value>, Value>(
 
 export function getKeyDownHandler(
   state: Types.StoreState<Types.CellBase<unknown>, unknown>,
-  event: KeyboardEvent
+  event: React.KeyboardEvent
 ): KeyDownHandler {
   const { key } = event;
   let handlers;
@@ -404,7 +404,7 @@ export function getKeyDownHandler(
 
 export function keyDown(
   state: Types.StoreState<Types.CellBase<unknown>, unknown>,
-  event: KeyboardEvent
+  event: React.KeyboardEvent
 ): Partial<Types.StoreState<Types.CellBase<unknown>, unknown>> | null {
   const handler = getKeyDownHandler(state, event);
   if (handler) {
