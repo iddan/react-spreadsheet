@@ -68,13 +68,9 @@ export const Cell = <Data extends Types.CellBase<Value>, Value>({
   return (
     <td
       ref={rootRef}
-      className={classnames(
-        "Spreadsheet__cell",
-        data?.className,
-        {
-          "Spreadsheet__cell--readonly": data?.readOnly,
-        },
-      )}
+      className={classnames("Spreadsheet__cell", data?.className, {
+        "Spreadsheet__cell--readonly": data?.readOnly,
+      })}
       onMouseOver={handleMouseOver}
       onMouseDown={handleMouseDown}
       tabIndex={0}

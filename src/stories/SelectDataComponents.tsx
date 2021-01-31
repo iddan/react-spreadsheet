@@ -18,10 +18,11 @@ export const SelectView: DataViewerComponent<Cell, Value> = ({
   getValue,
 }) => {
   const value = getValue({ data: cell, row, column });
-  const option = useMemo(() => OPTIONS.find(option => option.value === value), [value]);
-  return (
-    <Select value={option} options={OPTIONS} isDisabled />
+  const option = useMemo(
+    () => OPTIONS.find((option) => option.value === value),
+    [value]
   );
+  return <Select value={option} options={OPTIONS} isDisabled />;
 };
 
 export const SelectEdit: DataEditorComponent<Cell, Value> = ({
@@ -38,7 +39,10 @@ export const SelectEdit: DataEditorComponent<Cell, Value> = ({
     [cell, onChange]
   );
   const value = getValue({ column, row, data: cell }) || null;
-  const option = useMemo(() => OPTIONS.find(option => option.value === value), [value]);
+  const option = useMemo(
+    () => OPTIONS.find((option) => option.value === value),
+    [value]
+  );
   return (
     <Select
       value={option}

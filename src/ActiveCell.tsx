@@ -96,7 +96,7 @@ function ActiveCell<Cell extends Types.CellBase<Value>, Value>(
     <div
       className={classnames(
         "Spreadsheet__active-cell",
-        `Spreadsheet__active-cell--${mode}`,
+        `Spreadsheet__active-cell--${mode}`
       )}
       style={{ width, height, top, left }}
       onClick={mode === "view" && !readOnly ? edit : undefined}
