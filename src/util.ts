@@ -59,19 +59,6 @@ export function updateData<Cell extends Types.CellBase<Value>, Value>(
   return nextData;
 }
 
-export function setCell<Cell extends Types.CellBase<Value>, Value>(
-  state: {
-    data: Matrix<Cell>;
-  },
-  active: Types.Point,
-  cell: Cell
-): Matrix<Cell> {
-  return updateData(state.data, {
-    ...active,
-    data: cell,
-  });
-}
-
 export function isActive(
   active: Types.StoreState<Types.CellBase<unknown>, unknown>["active"],
   { row, column }: Types.Point

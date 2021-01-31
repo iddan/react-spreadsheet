@@ -2,12 +2,7 @@ import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
-import { isActive, setCell, updateData } from "./util";
-
-type Action = <Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>,
-  ...args: unknown[]
-) => Partial<Types.StoreState<Cell, Value>> | null;
+import { isActive, updateData } from "./util";
 
 export const setData = <Cell extends Types.CellBase<Value>, Value>(
   state: Types.StoreState<Cell, Value>,
@@ -40,7 +35,10 @@ export const setData = <Cell extends Types.CellBase<Value>, Value>(
   };
 };
 
-export const select: Action = (state, cellPointer: Types.Point) => {
+export const select = <Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>,
+  cellPointer: Types.Point
+): Partial<Types.StoreState<Cell, Value>> | null => {
   if (state.active && !isActive(state.active, cellPointer)) {
     return {
       selected: PointSet.from(
@@ -55,7 +53,10 @@ export const select: Action = (state, cellPointer: Types.Point) => {
   return null;
 };
 
-export const activate: Action = (state, cellPointer: Types.Point) => ({
+export const activate = <Cell extends Types.CellBase<Value>, Value>(
+  state: Types.StoreState<Cell, Value>,
+  cellPointer: Types.Point
+): Partial<Types.StoreState<Cell, Value>> | null => ({
   selected: PointSet.from([cellPointer]),
   active: cellPointer,
   mode: isActive(state.active, cellPointer) ? "edit" : "view",
@@ -72,7 +73,10 @@ export function setCellData<Cell extends Types.CellBase<Value>, Value>(
   }
   return {
     mode: "edit",
-    data: setCell(state, active, data),
+    data: updateData<Cell, Value>(state.data, {
+      ...active,
+      data,
+    }),
     lastChanged: active,
     bindings: PointMap.set(active, PointSet.from(bindings), state.bindings),
   };
@@ -112,12 +116,10 @@ export function copy<Cell extends Types.CellBase<Value>, Value>(
 ): Partial<Types.StoreState<Cell, Value>> {
   return {
     copied: PointSet.reduce(
-      (acc, point) =>
-        PointMap.set(
-          point,
-          Matrix.get(point.row, point.column, state.data),
-          acc
-        ),
+      (acc, point) => {
+        const value = Matrix.get(point.row, point.column, state.data);
+        return value === undefined ? acc : PointMap.set(point, value, acc);
+      },
       state.selected,
       PointMap.from<Cell>([])
     ),
@@ -354,10 +356,10 @@ const metaKeyDownHandlers: KeyDownHandlers = {};
 function getActive<Cell extends Types.CellBase<Value>, Value>(
   state: Types.StoreState<Cell, Value>
 ): Cell | null {
-  return (
+  const activeCell =
     state.active &&
-    Matrix.get(state.active.row, state.active.column, state.data)
-  );
+    Matrix.get(state.active.row, state.active.column, state.data);
+  return activeCell || null;
 }
 
 const isActiveReadOnly = <Cell extends Types.CellBase<Value>, Value>(
