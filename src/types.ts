@@ -1,4 +1,4 @@
-import { Component, ComponentType } from "react";
+import { ComponentType } from "react";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";

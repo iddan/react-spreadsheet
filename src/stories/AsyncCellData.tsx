@@ -23,7 +23,7 @@ const AsyncCellData = ({
       const nextValue = Math.floor(Math.random() * 100);
       onChange({ value: nextValue });
     }, 1000);
-  }, [setLoading, onChange, row, column]);
+  }, [setLoading, onChange]);
   const value = getValue({ data: cell, row, column });
   return (
     <div>
