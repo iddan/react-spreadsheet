@@ -17,7 +17,7 @@ export default {
 } as Meta;
 
 export const Basic: Story<Props<CellBase<unknown>, unknown>> = (args) => (
-  <Spreadsheet data={EMPTY_DATA} {...args} />
+  <Spreadsheet {...args} data={EMPTY_DATA} />
 );
 
 export const Controlled: Story<Props<CellBase<unknown>, unknown>> = (args) => {
@@ -138,7 +138,10 @@ export const RangeCell: Story<Props<CellBase<unknown>, unknown>> = (args) => {
 export const WithSelectCell: Story<Props<CellBase<unknown>, unknown>> = (
   args
 ) => {
-  const data = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
+  const data = createEmptyMatrix<CellBase<unknown>>(
+    INITIAL_ROWS,
+    INITIAL_COLUMNS
+  );
 
   data[2][2] = {
     value: 0,
