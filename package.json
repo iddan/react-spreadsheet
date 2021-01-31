@@ -30,7 +30,6 @@
     "@types/classnames": "^2.2.11",
     "array.prototype.flatmap": "^1.2.4",
     "classnames": "^2.2.6",
-    "fbjs": "^1.0.0",
     "hot-formula-parser": "^3.0.2",
     "unistore": "^3.5.2"
   },
@@ -54,7 +53,7 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-scripts": "^4.0.0",
-    "react-select": "^1.2.1",
+    "react-select": "^4.0.2",
     "rollup": "^2.32.1",
     "rollup-plugin-postcss": "^3.1.8",
     "rollup-plugin-typescript2": "^0.29.0",

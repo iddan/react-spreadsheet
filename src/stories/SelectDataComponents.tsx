@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import Select from "react-select";
 import { CellBase, DataEditorComponent, DataViewerComponent } from "..";
-import "react-select/dist/react-select.css";
 
 type Value = string;
 type Cell = CellBase<Value> & { value: Value };
@@ -11,7 +10,6 @@ const OPTIONS = [
   { value: "chocolate", label: "Chocolate" },
   { value: "caramel", label: "Caramel" },
 ];
-const SELECT_WIDTH = 200;
 
 export const SelectView: DataViewerComponent<Cell, Value> = ({
   cell,
@@ -22,7 +20,7 @@ export const SelectView: DataViewerComponent<Cell, Value> = ({
   const value = getValue({ data: cell, row, column });
   const option = useMemo(() => OPTIONS.find(option => option.value === value), [value]);
   return (
-    <Select value={option} options={OPTIONS} disabled style={{ width: 200 }} />
+    <Select value={option} options={OPTIONS} isDisabled />
   );
 };
 
@@ -46,7 +44,8 @@ export const SelectEdit: DataEditorComponent<Cell, Value> = ({
       value={option}
       onChange={handleChange}
       options={OPTIONS}
-      style={{ width: SELECT_WIDTH }}
+      autoFocus
+      defaultMenuIsOpen
     />
   );
 };

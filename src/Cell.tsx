@@ -70,8 +70,10 @@ export const Cell = <Data extends Types.CellBase<Value>, Value>({
       ref={rootRef}
       className={classnames(
         "Spreadsheet__cell",
-        data && data.readOnly && "Spreadsheet__cell--readonly",
-        data && data.className
+        data?.className,
+        {
+          "Spreadsheet__cell--readonly": data?.readOnly,
+        },
       )}
       onMouseOver={handleMouseOver}
       onMouseDown={handleMouseDown}

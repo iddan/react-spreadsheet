@@ -1,5 +1,4 @@
 import * as React from "react";
-import shallowEqual from "fbjs/lib/shallowEqual";
 
 import createStore, { Store } from "unistore";
 import devtools from "unistore/devtools";
@@ -53,7 +52,7 @@ const INITIAL_STATE: Pick<
 export default class SpreadsheetStateProvider<
   Value,
   CellType extends Types.CellBase<Value>
-> extends React.Component<Props<CellType, Value>> {
+> extends React.PureComponent<Props<CellType, Value>> {
   store: Store<Types.StoreState<CellType, Value>>;
   unsubscribe: Unsubscribe;
   prevState: Types.StoreState<CellType, Value>;
@@ -81,12 +80,6 @@ export default class SpreadsheetStateProvider<
         ? createStore(state)
         : devtools(createStore(state));
     this.prevState = state;
-  }
-
-  shouldComponentUpdate(nextProps: Props<CellType, Value>): boolean {
-    const { data, ...rest } = this.props;
-    const { data: nextData, ...nextRest } = nextProps;
-    return !shallowEqual(rest, nextRest) || nextData !== this.prevState.data;
   }
 
   componentDidMount() {

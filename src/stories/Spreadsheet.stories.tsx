@@ -135,13 +135,14 @@ export const RangeCell: Story<Props<CellBase<unknown>, unknown>> = (args) => {
   return <Spreadsheet {...args} data={data} />;
 };
 
-export const SelectCell: Story<Props<CellBase<unknown>, unknown>> = (args) => {
+export const WithSelectCell: Story<Props<CellBase<unknown>, unknown>> = (args) => {
   const data = createEmptyMatrix(INITIAL_ROWS, INITIAL_COLUMNS);
 
   data[2][2] = {
     value: 0,
     DataViewer: SelectView,
     DataEditor: SelectEdit,
+    className: "select-cell"
   };
 
   return <Spreadsheet {...args} data={data} />;
