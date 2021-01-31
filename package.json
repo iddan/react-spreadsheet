@@ -22,8 +22,8 @@
     "prepack": "cross-env NODE_ENV=production yarn build",
     "push-coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",
     "check-typing": "tsc",
-    "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "@types/array.prototype.flatmap": "^1.2.2",
@@ -36,12 +36,11 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.7",
-    "@storybook/addon-actions": "^6.1.1",
-    "@storybook/addon-essentials": "^6.1.1",
-    "@storybook/addon-links": "^6.1.1",
-    "@storybook/node-logger": "^6.1.1",
-    "@storybook/preset-create-react-app": "^3.1.5",
-    "@storybook/react": "^6.1.1",
+    "@storybook/addon-actions": "^6.1.15",
+    "@storybook/addon-essentials": "^6.1.15",
+    "@storybook/addon-links": "^6.1.15",
+    "@storybook/node-logger": "^6.1.15",
+    "@storybook/react": "^6.1.15",
     "@types/jest": "^26.0.15",
     "@types/node": "^14.14.7",
     "@types/react": "^16.9.56",
