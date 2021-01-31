@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import Select from "react-select";
 import { CellBase, DataEditorComponent, DataViewerComponent } from "..";
 import "react-select/dist/react-select.css";
@@ -18,14 +18,13 @@ export const SelectView: DataViewerComponent<Cell, Value> = ({
   row,
   column,
   getValue,
-}) => (
-  <Select
-    value={getValue({ data: cell, row, column })}
-    options={OPTIONS}
-    disabled
-    style={{ width: 200 }}
-  />
-);
+}) => {
+  const value = getValue({ data: cell, row, column });
+  const option = useMemo(() => OPTIONS.find(option => option.value === value), [value]);
+  return (
+    <Select value={option} options={OPTIONS} disabled style={{ width: 200 }} />
+  );
+};
 
 export const SelectEdit: DataEditorComponent<Cell, Value> = ({
   cell,
@@ -41,9 +40,10 @@ export const SelectEdit: DataEditorComponent<Cell, Value> = ({
     [cell, onChange]
   );
   const value = getValue({ column, row, data: cell }) || null;
+  const option = useMemo(() => OPTIONS.find(option => option.value === value), [value]);
   return (
     <Select
-      value={value}
+      value={option}
       onChange={handleChange}
       options={OPTIONS}
       style={{ width: SELECT_WIDTH }}
