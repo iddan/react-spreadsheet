@@ -42,7 +42,7 @@ function ActiveCell<Cell extends Types.CellBase>(props: Props<Cell>) {
     data,
   } = props;
   const initialCellRef = React.useRef<Cell | null>(null);
-  const prevPropsRef = React.useRef<Props<Cell, Value> | null>(null);
+  const prevPropsRef = React.useRef<Props<Cell> | null>(null);
 
   const handleChange = React.useCallback(
     (cell: Cell) => {
