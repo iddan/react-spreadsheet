@@ -2,7 +2,7 @@ import * as React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
 import { createEmptyMatrix, Spreadsheet, Props, CellBase } from "..";
 import * as Matrix from "../matrix";
-import AsyncCellData from "./AsyncCellData";
+import { AsyncCellDataEditor, AsyncCellDataViewer } from "./AsyncCellData";
 import CustomCell from "./CustomCell";
 import { RangeEdit, RangeView } from "./RangeDataComponents";
 import { SelectEdit, SelectView } from "./SelectDataComponents";
@@ -106,8 +106,8 @@ export const WithAsyncCellData: Story<Props<StringCell>> = (props) => {
 
   data[2][2] = {
     value: undefined,
-    DataViewer: AsyncCellData,
-    DataEditor: AsyncCellData,
+    DataViewer: AsyncCellDataViewer,
+    DataEditor: AsyncCellDataEditor,
   };
   return <Spreadsheet {...props} data={data} />;
 };

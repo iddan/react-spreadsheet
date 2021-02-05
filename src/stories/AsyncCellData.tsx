@@ -3,11 +3,22 @@
  */
 
 import * as React from "react";
-import { CellBase, DataEditorComponent } from "..";
+import { DataEditorComponent, DataViewerComponent } from "..";
 
-type Cell = CellBase<number | undefined>;
+export const AsyncCellDataViewer: DataViewerComponent = ({ cell }) => {
+  const value = cell?.value;
+  return (
+    <div>
+      {value}
+      <button disabled>Click Me</button>
+    </div>
+  );
+};
 
-const AsyncCellData: DataEditorComponent<Cell> = ({ onChange, cell }) => {
+export const AsyncCellDataEditor: DataEditorComponent = ({
+  onChange,
+  cell,
+}) => {
   const [loading, setLoading] = React.useState(false);
   const handleClick = React.useCallback(() => {
     setLoading(true);
@@ -25,5 +36,3 @@ const AsyncCellData: DataEditorComponent<Cell> = ({ onChange, cell }) => {
     </div>
   );
 };
-
-export default AsyncCellData;
