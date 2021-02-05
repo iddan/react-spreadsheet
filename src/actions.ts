@@ -231,29 +231,24 @@ export const clear = <Cell extends Types.CellBase>(
   if (!state.active) {
     return null;
   }
-
-  const { row, column } = state.active;
-  const cell = Matrix.get(row, column, state.data);
+  const changes = PointSet.toArray(state.selected).map((point) => {
+    const cell = Matrix.get(point.row, point.column, state.data);
+    return {
+      prevCell: cell || null,
+      nextCell: null,
+    };
+  });
   return {
     data: PointSet.reduce(
       (acc, point) =>
         updateData<Cell>(acc, {
           ...point,
-          data: { ...cell, value: "" },
+          data: undefined,
         }),
       state.selected,
       state.data
     ),
-    ...commit(
-      state,
-      PointSet.toArray(state.selected).map((point) => {
-        const cell = Matrix.get(point.row, point.column, state.data);
-        return {
-          prevCell: cell,
-          nextCell: { ...cell, value: "" },
-        };
-      })
-    ),
+    ...commit(state, changes),
   };
 };
 
