@@ -102,6 +102,7 @@ function ActiveCell<Cell extends Types.CellBase>(props: Props<Cell>) {
           row={row}
           column={column}
           cell={cell}
+          // @ts-ignore
           onChange={handleChange}
         />
       )}
@@ -117,9 +118,8 @@ function mapStateToProps<Cell extends Types.CellBase>(
     return { hidden: true };
   }
   return {
-    hidden: false,
     ...state.active,
-
+    hidden: false,
     cell: Matrix.get(state.active.row, state.active.column, state.data),
     width: dimensions.width,
     height: dimensions.height,
@@ -134,4 +134,5 @@ export default connect(mapStateToProps, {
   setCellData: Actions.setCellData,
   edit: Actions.edit,
   commit: Actions.commit,
+  // @ts-ignore
 })(ActiveCell);

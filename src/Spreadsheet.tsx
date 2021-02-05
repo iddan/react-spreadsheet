@@ -296,6 +296,7 @@ class Spreadsheet<CellType extends Types.CellBase> extends React.PureComponent<
                   key={columnNumber}
                   row={rowNumber}
                   column={columnNumber}
+                  // @ts-ignore
                   DataViewer={DataViewer}
                   formulaParser={this.formulaParser}
                 />
@@ -304,6 +305,7 @@ class Spreadsheet<CellType extends Types.CellBase> extends React.PureComponent<
           ))}
         </Table>
         <ActiveCell
+          // @ts-ignore
           DataEditor={DataEditor}
           getBindingsForCell={getBindingsForCell}
         />
