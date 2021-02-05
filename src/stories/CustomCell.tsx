@@ -4,12 +4,12 @@
 
 import React, { useCallback, useEffect } from "react";
 import classnames from "classnames";
-import { CellBase, CellComponent } from "../types";
+import { CellComponent } from "..";
 
 const HEIGHT = 30;
 const WIDTH = 96;
 
-const CustomCell: CellComponent<CellBase<unknown>, unknown> = ({
+const CustomCell: CellComponent = ({
   column,
   row,
   setCellDimensions,
@@ -18,7 +18,6 @@ const CustomCell: CellComponent<CellBase<unknown>, unknown> = ({
   mode,
   dragging,
   active,
-  getValue,
   formulaParser,
   data,
   DataViewer,
@@ -86,7 +85,6 @@ const CustomCell: CellComponent<CellBase<unknown>, unknown> = ({
         row={row}
         column={column}
         cell={data}
-        getValue={getValue}
         formulaParser={formulaParser}
       />
     </td>

@@ -8,7 +8,7 @@ import * as Types from "./types";
 import * as Actions from "./actions";
 import { isActive, getOffsetRect } from "./util";
 
-export const Cell = <Data extends Types.CellBase<Value>, Value>({
+export const Cell = <Data extends Types.CellBase>({
   row,
   column,
   setCellDimensions,
@@ -16,13 +16,12 @@ export const Cell = <Data extends Types.CellBase<Value>, Value>({
   activate,
   mode,
   dragging,
-  getValue,
   formulaParser,
   selected,
   active,
   DataViewer,
   data,
-}: Types.CellComponentProps<Data, Value>) => {
+}: Types.CellComponentProps<Data>) => {
   const rootRef = React.useRef<HTMLTableDataCellElement | null>(null);
   const root = rootRef.current;
 
@@ -79,14 +78,13 @@ export const Cell = <Data extends Types.CellBase<Value>, Value>({
         row={row}
         column={column}
         cell={data}
-        getValue={getValue}
         formulaParser={formulaParser}
       />
     </td>
   );
 };
 
-function mapStateToProps<Data extends Types.CellBase<Value>, Value>(
+function mapStateToProps<Data extends Types.CellBase, Value>(
   {
     data,
     active,
@@ -96,8 +94,8 @@ function mapStateToProps<Data extends Types.CellBase<Value>, Value>(
     dragging,
     lastChanged,
     bindings,
-  }: Types.StoreState<Data, Value>,
-  { column, row }: Types.CellComponentProps<Data, Value>
+  }: Types.StoreState<Data>,
+  { column, row }: Types.CellComponentProps<Data>
 ) {
   const point = { row, column };
   const cellIsActive = isActive(active, point);

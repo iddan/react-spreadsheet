@@ -52,22 +52,22 @@ const MyComponent = () => <Spreadsheet data={data} />;
 import React from "react";
 import Spreadsheet from "react-spreadsheet";
 
-const RangeView = ({ cell, getValue }) => (
+const RangeView = ({ cell }) => (
   <input
     type="range"
-    value={getValue({ data: cell })}
+    value={cell.value}
     disabled
     style={{ pointerEvents: "none" }}
   />
 );
 
-const RangeEdit = ({ getValue, cell, onChange }) => (
+const RangeEdit = ({ cell, onChange }) => (
   <input
     type="range"
     onChange={(e) => {
       onChange({ ...cell, value: e.target.value });
     }}
-    value={getValue({ data: cell }) || 0}
+    value={cell.value || 0}
     autoFocus
   />
 );

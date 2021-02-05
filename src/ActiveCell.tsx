@@ -6,9 +6,8 @@ import * as Actions from "./actions";
 import * as Types from "./types";
 import { getCellDimensions } from "./util";
 
-type Props<Cell extends Types.CellBase<Value>, Value> = {
-  DataEditor: Types.DataEditorComponent<Cell, Value>;
-  getValue: Types.GetValue<Cell, Value>;
+type Props<Cell extends Types.CellBase> = {
+  DataEditor: Types.DataEditorComponent<Cell>;
   onChange: (data: Cell) => void;
   setCellData: (
     active: Types.Point,
@@ -25,11 +24,8 @@ type Props<Cell extends Types.CellBase<Value>, Value> = {
 } & Types.Point &
   Types.Dimensions;
 
-function ActiveCell<Cell extends Types.CellBase<Value>, Value>(
-  props: Props<Cell, Value>
-) {
+function ActiveCell<Cell extends Types.CellBase>(props: Props<Cell>) {
   const {
-    getValue,
     row,
     column,
     cell,
@@ -107,16 +103,15 @@ function ActiveCell<Cell extends Types.CellBase<Value>, Value>(
           column={column}
           cell={cell}
           onChange={handleChange}
-          getValue={getValue}
         />
       )}
     </div>
   );
 }
 
-function mapStateToProps<Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>
-): Partial<Props<Cell, unknown>> {
+function mapStateToProps<Cell extends Types.CellBase>(
+  state: Types.StoreState<Cell>
+): Partial<Props<Cell>> {
   const dimensions = state.active && getCellDimensions(state.active, state);
   if (!state.active || !dimensions) {
     return { hidden: true };

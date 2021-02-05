@@ -15,6 +15,7 @@ export function memoizeOne<Input, Output>(
   return function (argument: Input) {
     if (lastArgument !== argument) {
       lastArgument = argument;
+      // @ts-ignore
       lastResult = fn.call(this, argument);
     }
 
@@ -46,7 +47,7 @@ export function range(
   return array;
 }
 
-export function updateData<Cell extends Types.CellBase<Value>, Value>(
+export function updateData<Cell>(
   data: Matrix<Cell>,
   cellDescriptor: Types.CellDescriptor<Cell>
 ): Matrix<Cell> {
@@ -60,7 +61,7 @@ export function updateData<Cell extends Types.CellBase<Value>, Value>(
 }
 
 export function isActive(
-  active: Types.StoreState<Types.CellBase<unknown>, unknown>["active"],
+  active: Types.StoreState["active"],
   { row, column }: Types.Point
 ): boolean {
   return Boolean(active && column === active.column && row === active.row);
@@ -100,7 +101,7 @@ export function createEmptyMatrix<T>(rows: number, columns: number): Matrix<T> {
 
 export const getCellDimensions = (
   point: Types.Point,
-  state: Types.StoreState<Types.CellBase<unknown>, unknown>
+  state: Types.StoreState
 ): Types.Dimensions | null => {
   const rowDimensions = state.rowDimensions[point.row];
   const columnDimensions = state.columnDimensions[point.column];
@@ -111,19 +112,16 @@ export const getCellDimensions = (
 };
 
 export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
-  getValue,
   cell,
-  column,
-  row,
   formulaParser,
 }: {
-  getValue: Types.GetValue<Cell, Value>;
   cell: Cell | undefined;
-  column: number;
-  row: number;
   formulaParser: FormulaParser;
-}): Value | string {
-  const rawValue = getValue({ data: cell, column, row });
+}): Value | string | number | boolean | null {
+  if (cell === undefined) {
+    return null;
+  }
+  const rawValue = cell.value;
   if (typeof rawValue === "string" && rawValue.startsWith("=")) {
     const { result, error } = formulaParser.parse(rawValue.slice(1));
     return error || result;

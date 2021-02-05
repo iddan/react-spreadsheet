@@ -2,8 +2,10 @@ import React, { useCallback, useMemo } from "react";
 import Select from "react-select";
 import { CellBase, DataEditorComponent, DataViewerComponent } from "..";
 
-type Value = string;
-type Cell = CellBase<Value> & { value: Value };
+type Value = string | undefined;
+type Cell = CellBase<Value> & {
+  value: Value;
+};
 
 const OPTIONS = [
   { value: "vanilla", label: "Vanilla" },
@@ -11,37 +13,24 @@ const OPTIONS = [
   { value: "caramel", label: "Caramel" },
 ];
 
-export const SelectView: DataViewerComponent<Cell, Value> = ({
-  cell,
-  row,
-  column,
-  getValue,
-}) => {
-  const value = getValue({ data: cell, row, column });
+export const SelectView: DataViewerComponent<Cell> = ({ cell }) => {
   const option = useMemo(
-    () => OPTIONS.find((option) => option.value === value),
-    [value]
+    () => cell && OPTIONS.find((option) => option.value === cell.value),
+    [cell]
   );
   return <Select value={option} options={OPTIONS} isDisabled />;
 };
 
-export const SelectEdit: DataEditorComponent<Cell, Value> = ({
-  cell,
-  onChange,
-  getValue,
-  column,
-  row,
-}) => {
+export const SelectEdit: DataEditorComponent<Cell> = ({ cell, onChange }) => {
   const handleChange = useCallback(
     (selection) => {
       onChange({ ...cell, value: selection ? selection.value : null });
     },
     [cell, onChange]
   );
-  const value = getValue({ column, row, data: cell }) || null;
   const option = useMemo(
-    () => OPTIONS.find((option) => option.value === value),
-    [value]
+    () => cell && OPTIONS.find((option) => option.value === cell.value),
+    [cell]
   );
   return (
     <Select

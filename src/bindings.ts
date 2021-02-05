@@ -9,12 +9,9 @@ export function isFormula(value: unknown): value is string {
   return typeof value === "string" && value.startsWith("=");
 }
 
-export function getFormula<
-  Cell extends Types.CellBase<Value> & {
-    value?: Value;
-  },
-  Value
->(cell: Cell): string | null {
+export function getFormula<Cell extends Types.CellBase>(
+  cell: Cell
+): string | null {
   if (cell && cell.value && isFormula(cell.value)) {
     return cell.value;
   }
@@ -43,7 +40,7 @@ export function getReferences(formula: string): Types.Point[] {
  */
 export function getBindingsForCell<
   Value,
-  Cell extends Types.CellBase<Value> & {
+  Cell extends Types.CellBase & {
     value: Value;
   }
 >(cell: Cell, data: Matrix.Matrix<Cell>): Types.Point[] {

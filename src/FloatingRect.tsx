@@ -33,7 +33,7 @@ const FloatingRect = ({
 
 const getRangeDimensions = (
   points: PointSet.PointSet,
-  state: Types.StoreState<Types.CellBase<unknown>, unknown>
+  state: Types.StoreState
 ): Types.Dimensions => {
   const { width, height, left, top } = PointSet.reduce(
     (acc, point) => {
@@ -55,12 +55,10 @@ const getRangeDimensions = (
   return { left, top, width, height };
 };
 
-type StateToProps = (
-  state: Types.StoreState<Types.CellBase<unknown>, unknown>
-) => Partial<Props>;
+type StateToProps = (state: Types.StoreState) => Partial<Props>;
 
 export const mapStateToProps = (cells: PointSet.PointSet): StateToProps => (
-  state: Types.StoreState<Types.CellBase<unknown>, unknown>
+  state: Types.StoreState
 ): Partial<Props> => {
   return {
     ...getRangeDimensions(cells, state),

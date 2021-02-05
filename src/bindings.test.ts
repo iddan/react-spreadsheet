@@ -5,8 +5,9 @@ import {
   isFormula,
 } from "./bindings";
 import { Matrix } from "./matrix";
+import { CellBase } from "./types";
 
-const EXAMPLE_CELL = {};
+const EXAMPLE_CELL = { value: 42 };
 const A1 = "A1";
 const A2 = "A2";
 const A1_POINT = { row: 0, column: 0 };
@@ -18,7 +19,7 @@ const B2_POINT = { row: 1, column: 1 };
 const SUM_A1_A2_FORMULA = `=SUM(${A1}, ${A2})`;
 const SUM_B1_B2_FORMULA = `=SUM(${B1}, ${B2})`;
 const EXAMPLE_FORMULA_CELL = { value: SUM_A1_A2_FORMULA };
-const EMPTY_DATA: Matrix<unknown> = [];
+const EMPTY_DATA: Matrix<CellBase> = [];
 const EXAMPLE_DATA = [
   [{ value: 1 }, { value: 2 }],
   [{ value: SUM_B1_B2_FORMULA }, { value: 3 }],
@@ -35,7 +36,7 @@ describe("isFormula", () => {
 });
 
 describe("getFormula", () => {
-  const cases = [
+  const cases: Array<[string, CellBase, string | null]> = [
     ["regular cell", EXAMPLE_CELL, null],
     ["formula cell", EXAMPLE_FORMULA_CELL, SUM_A1_A2_FORMULA],
   ];

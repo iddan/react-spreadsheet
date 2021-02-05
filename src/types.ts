@@ -9,11 +9,12 @@ export type Point = {
   row: number;
 };
 
-export type CellBase<Value> = {
+export type CellBase<Value = any> = {
   readOnly?: boolean;
   className?: string;
-  DataViewer?: DataViewerComponent<CellBase<Value>, Value>;
-  DataEditor?: DataEditorComponent<CellBase<Value>, Value>;
+  value: Value;
+  DataEditor?: DataEditorComponent<CellBase<Value>>;
+  DataViewer?: DataViewerComponent<CellBase<Value>>;
 };
 
 export type CellDescriptor<Cell> = {
@@ -29,7 +30,7 @@ export type Dimensions = {
   left: number;
 };
 
-export type StoreState<Cell extends CellBase<Value>, Value> = {
+export type StoreState<Cell extends CellBase = CellBase<any>> = {
   data: Matrix<Cell>;
   selected: PointSet;
   copied: PointMap<Cell>;
@@ -55,10 +56,6 @@ export type StoreState<Cell extends CellBase<Value>, Value> = {
   lastCommit: null | CellChange<Cell>[];
 };
 
-export type GetValue<Cell, Value> = (
-  cellDescriptor: CellDescriptor<Cell>
-) => Value;
-
 export type getBindingsForCell<Cell> = (
   cell: Cell,
   data: Matrix<Cell>
@@ -71,11 +68,10 @@ type CellChange<Cell> = {
 
 export type commit<Cell> = (changes: CellChange<Cell>[]) => void;
 
-export type CellComponentProps<Cell extends CellBase<Value>, Value> = {
+export type CellComponentProps<Cell extends CellBase> = {
   row: number;
   column: number;
-  DataViewer: DataViewerComponent<Cell, Value>;
-  getValue: GetValue<Cell, Value>;
+  DataViewer: DataViewerComponent<Cell>;
   formulaParser: FormulaParser;
   selected: boolean;
   active: boolean;
@@ -88,35 +84,30 @@ export type CellComponentProps<Cell extends CellBase<Value>, Value> = {
   setCellDimensions: (point: Point, dimensions: Dimensions) => void;
 };
 
-export type CellComponent<Cell extends CellBase<Value>, Value> = ComponentType<
-  CellComponentProps<Cell, Value>
+export type CellComponent<Cell extends CellBase = CellBase> = ComponentType<
+  CellComponentProps<Cell>
 >;
 
-export type DataComponentProps<Cell extends CellBase<Value>, Value> = {
+type DataComponentProps<Cell extends CellBase> = {
   cell: Cell | undefined;
-  getValue: GetValue<Cell, Value>;
 } & Point;
 
 export type DataViewerProps<
-  Cell extends CellBase<Value>,
-  Value
-> = DataComponentProps<Cell, Value> & {
-  formulaParser?: FormulaParser;
+  Cell extends CellBase
+> = DataComponentProps<Cell> & {
+  formulaParser: FormulaParser;
 };
 
 export type DataViewerComponent<
-  Cell extends CellBase<Value>,
-  Value
-> = ComponentType<DataViewerProps<Cell, Value>>;
+  Cell extends CellBase = CellBase
+> = ComponentType<DataViewerProps<Cell>>;
 
 export type DataEditorProps<
-  Cell extends CellBase<Value>,
-  Value
-> = DataComponentProps<Cell, Value> & {
+  Cell extends CellBase
+> = DataComponentProps<Cell> & {
   onChange: (cell: Cell) => void;
 };
 
 export type DataEditorComponent<
-  Cell extends CellBase<Value>,
-  Value
-> = ComponentType<DataEditorProps<Cell, Value>>;
+  Cell extends CellBase = CellBase
+> = ComponentType<DataEditorProps<Cell>>;

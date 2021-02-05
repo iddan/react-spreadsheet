@@ -28,7 +28,7 @@ export function slice<T>(
   endPoint: Types.Point,
   matrix: Matrix<T>
 ): Matrix<T> {
-  let sliced = [];
+  let sliced: Matrix<T> = [];
   const columns = endPoint.column - startPoint.column;
   for (let row = startPoint.row; row <= endPoint.row; row++) {
     const slicedRow = row - startPoint.row;
@@ -168,9 +168,8 @@ export function join(
 }
 
 /* Parses a CSV separated by a horizontalSeparator and verticalSeparator into a Matrix */
-export function split<T extends unknown>(
+export function split(
   csv: string,
-  getValue: (value: string) => T,
   horizontalSeparator: string = "\t",
   verticalSeparator: string | RegExp = /\r\n|\n|\r/
 ): Matrix<{
@@ -178,7 +177,7 @@ export function split<T extends unknown>(
 }> {
   return csv
     .split(verticalSeparator)
-    .map((row) => row.split(horizontalSeparator).map(getValue));
+    .map((row) => row.split(horizontalSeparator).map((value) => ({ value })));
 }
 
 /** Returns whether the point exists in the matrix or not. */
@@ -267,10 +266,13 @@ export const inclusiveRange: typeof range = (endPoint, startPoint) =>
 export function toArray<T>(matrix: Matrix<T>): T[];
 export function toArray<T1, T2>(
   matrix: Matrix<T1>,
-  transform: (cell: T1 | typeof undefined, coords: Types.Point) => T2
+  transform: (cell: T1 | undefined, coords: Types.Point) => T2
 ): T2[];
 
-export function toArray(matrix, transform?) {
+export function toArray<T1, T2>(
+  matrix: Matrix<T1>,
+  transform?: (cell: T1 | undefined, coords: Types.Point) => T2
+) {
   let array = [];
   for (let row = 0; row < matrix.length; row++) {
     for (let column = 0; column < matrix.length; column++) {

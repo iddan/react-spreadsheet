@@ -12,8 +12,8 @@ import Spreadsheet, { Props as SpreadsheetProps } from "./Spreadsheet";
 
 type Unsubscribe = () => void;
 
-export type Props<CellType extends Types.CellBase<Value>, Value> = Omit<
-  SpreadsheetProps<CellType, Value>,
+export type Props<CellType extends Types.CellBase> = Omit<
+  SpreadsheetProps<CellType>,
   "store"
 > & {
   onChange: (data: Matrix.Matrix<CellType>) => void;
@@ -29,7 +29,7 @@ export type Props<CellType extends Types.CellBase<Value>, Value> = Omit<
 };
 
 const INITIAL_STATE: Pick<
-  Types.StoreState<Types.CellBase<unknown>, unknown>,
+  Types.StoreState,
   | "active"
   | "mode"
   | "rowDimensions"
@@ -50,12 +50,11 @@ const INITIAL_STATE: Pick<
 };
 
 export default class SpreadsheetStateProvider<
-  Value,
-  CellType extends Types.CellBase<Value>
-> extends React.PureComponent<Props<CellType, Value>> {
-  store: Store<Types.StoreState<CellType, Value>>;
-  unsubscribe: Unsubscribe;
-  prevState: Types.StoreState<CellType, Value>;
+  CellType extends Types.CellBase
+> extends React.PureComponent<Props<CellType>> {
+  store: Store<Types.StoreState<CellType>>;
+  unsubscribe!: Unsubscribe;
+  prevState: Types.StoreState<CellType>;
 
   static defaultProps = {
     onChange: () => {},
@@ -65,9 +64,9 @@ export default class SpreadsheetStateProvider<
     onCellCommit: () => {},
   };
 
-  constructor(props: Props<CellType, Value>) {
+  constructor(props: Props<CellType>) {
     super(props);
-    const state: Types.StoreState<CellType, Value> = {
+    const state: Types.StoreState<CellType> = {
       ...INITIAL_STATE,
       data: this.props.data,
       selected: PointSet.from([]),
@@ -91,7 +90,7 @@ export default class SpreadsheetStateProvider<
       onCellCommit,
     } = this.props;
     this.unsubscribe = this.store.subscribe(
-      (state: Types.StoreState<CellType, Value>) => {
+      (state: Types.StoreState<CellType>) => {
         const { prevState } = this;
 
         if (state.lastCommit && state.lastCommit !== prevState.lastCommit) {
@@ -117,7 +116,7 @@ export default class SpreadsheetStateProvider<
     );
   }
 
-  componentDidUpdate(prevProps: Props<CellType, Value>) {
+  componentDidUpdate(prevProps: Props<CellType>) {
     if (this.props.data !== this.prevState.data) {
       const previousState = this.store.getState();
       const nextState = Actions.setData(previousState, this.props.data);

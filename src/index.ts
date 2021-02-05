@@ -4,6 +4,8 @@ export { createEmptyMatrix, getComputedValue } from "./util";
 export type { Matrix } from "./matrix";
 export type {
   CellBase,
+  CellComponent,
+  CellComponentProps,
   DataViewerProps,
   DataViewerComponent,
   DataEditorProps,

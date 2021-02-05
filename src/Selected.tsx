@@ -9,9 +9,7 @@ const Selected = (props: Props): React.ReactElement => (
 );
 
 export default connect(
-  (
-    state: Types.StoreState<Types.CellBase<unknown>, unknown>
-  ): Partial<Props> => {
+  (state: Types.StoreState): Partial<Props> => {
     const cells = state.selected;
     const nextState = mapStateToProps(cells)(state);
     return {
