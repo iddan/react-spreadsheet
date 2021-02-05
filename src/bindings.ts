@@ -1,7 +1,7 @@
 import flatMap from "array.prototype.flatmap";
 import * as Types from "./types";
 import * as Matrix from "./matrix";
-import { extractLabel } from "hot-formula-parser/lib/helper/cell";
+import { extractLabel } from "hot-formula-parser";
 
 const FORMULA_REFERENCES = /\$?[A-Z]+\$?[0-9]+/g;
 

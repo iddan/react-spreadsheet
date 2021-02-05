@@ -51,7 +51,7 @@ describe("Matrix.join()", () => {
 
 describe("Matrix.split()", () => {
   test("Constructs a matrix from a CSV string", () => {
-    expect(Matrix.split(csv)).toEqual(matrix);
+    expect(Matrix.split(csv, Number)).toEqual(matrix);
   });
 });
 
