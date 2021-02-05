@@ -12195,7 +12195,7 @@ unist-util-visit@2.0.3, unist-util-visit@^2.0.0:
 
 unistore@^3.5.2:
   version "3.5.2"
-  resolved "https://registry.yarnpkg.com/unistore/-/unistore-3.5.2.tgz"
+  resolved "https://registry.yarnpkg.com/unistore/-/unistore-3.5.2.tgz#ec3ae07bc497fb35ff8b99f85c878ec47c787cb4"
   integrity sha512-2Aa4eX0Ua1umyiI3Eai6Li+wXYOHgaDBGOPB3Hvw7PAVuD30TAyh5kS4yNKb2fLDbQgizvPhKQRcYnOdfsm4VQ==
 
 universalify@^0.1.0:

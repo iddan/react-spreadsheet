@@ -11,7 +11,7 @@ export type Props = Types.Dimensions & {
   variant: "copied" | "selected";
 };
 
-const FloatingRect = ({
+const FloatingRect: React.FC<Props> = ({
   width,
   height,
   top,
@@ -20,9 +20,9 @@ const FloatingRect = ({
   dragging,
   hidden,
   variant,
-}: Props): React.ReactElement => (
+}) => (
   <div
-    className={classnames("Spreadsheet__floating-rect", {
+    className={classnames("Spreadsheet__floating-rect", className, {
       [`Spreadsheet__floating-rect--${variant}`]: variant,
       "Spreadsheet__floating-rect--dragging": dragging,
       "Spreadsheet__floating-rect--hidden": hidden,
@@ -55,15 +55,12 @@ const getRangeDimensions = (
   return { left, top, width, height };
 };
 
-type StateToProps = (state: Types.StoreState) => Partial<Props>;
-
-export const mapStateToProps = (cells: PointSet.PointSet): StateToProps => (
-  state: Types.StoreState
-): Partial<Props> => {
-  return {
-    ...getRangeDimensions(cells, state),
-    hidden: PointSet.size(cells) === 0,
-  };
-};
+export const mapStateToProps = (
+  state: Types.StoreState,
+  cells: PointSet.PointSet
+): Types.Dimensions & { hidden: boolean } => ({
+  ...getRangeDimensions(cells, state),
+  hidden: PointSet.size(cells) === 0,
+});
 
 export default FloatingRect;

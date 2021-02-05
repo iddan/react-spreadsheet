@@ -410,7 +410,7 @@ export function dragEnd(state: Types.StoreState): Partial<Types.StoreState> {
   return { dragging: false };
 }
 
-export function commit<Cell extends Types.CellBase, Value>(
+export function commit<Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>,
   changes: Array<{
     prevCell: Cell | null;

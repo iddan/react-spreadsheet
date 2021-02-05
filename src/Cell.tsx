@@ -84,7 +84,7 @@ export const Cell = <Data extends Types.CellBase>({
   );
 };
 
-function mapStateToProps<Data extends Types.CellBase, Value>(
+function mapStateToProps<Data extends Types.CellBase>(
   {
     data,
     active,
