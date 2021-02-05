@@ -4,19 +4,17 @@ import * as Types from "./types";
 import * as PointSet from "./point-set";
 import FloatingRect, {
   Props as FloatingRectProps,
+  StateProps,
   mapStateToProps as mapStateToFloatingRectProps,
 } from "./FloatingRect";
 
-const Selected: React.FC<FloatingRectProps> = (props) => (
+type Props = Omit<FloatingRectProps, "variant">;
+
+const Selected: React.FC<Props> = (props) => (
   <FloatingRect {...props} variant="selected" />
 );
 
-export default connect<
-  FloatingRectProps,
-  {},
-  Types.StoreState,
-  Types.Dimensions & { hidden: boolean }
->((state) => {
+export default connect<{}, {}, Types.StoreState, StateProps>((state) => {
   const cells = state.selected;
   const props = mapStateToFloatingRectProps(state, cells);
   return {

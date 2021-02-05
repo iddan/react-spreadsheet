@@ -4,10 +4,12 @@ import * as Types from "./types";
 import classnames from "classnames";
 import { getCellDimensions } from "./util";
 
-export type Props = Types.Dimensions & {
-  className: string;
-  dragging: boolean | null;
+export type StateProps = Types.Dimensions & {
   hidden: boolean;
+  dragging: boolean;
+};
+
+export type Props = StateProps & {
   variant: "copied" | "selected";
 };
 
@@ -16,13 +18,12 @@ const FloatingRect: React.FC<Props> = ({
   height,
   top,
   left,
-  className,
   dragging,
   hidden,
   variant,
 }) => (
   <div
-    className={classnames("Spreadsheet__floating-rect", className, {
+    className={classnames("Spreadsheet__floating-rect", {
       [`Spreadsheet__floating-rect--${variant}`]: variant,
       "Spreadsheet__floating-rect--dragging": dragging,
       "Spreadsheet__floating-rect--hidden": hidden,
@@ -58,7 +59,7 @@ const getRangeDimensions = (
 export const mapStateToProps = (
   state: Types.StoreState,
   cells: PointSet.PointSet
-): Types.Dimensions & { hidden: boolean } => ({
+): Omit<StateProps, "dragging"> => ({
   ...getRangeDimensions(cells, state),
   hidden: PointSet.size(cells) === 0,
 });

@@ -6,20 +6,21 @@ import * as PointMap from "./point-map";
 import FloatingRect, {
   Props as FloatingRectProps,
   mapStateToProps as mapStateToFloatingRectProps,
+  StateProps,
 } from "./FloatingRect";
 
-const Copied: React.FC<FloatingRectProps> = (props) => (
+type Props = Omit<FloatingRectProps, "variant">;
+
+const Copied: React.FC<Props> = (props) => (
   <FloatingRect {...props} variant="copied" />
 );
 
-export default connect<
-  FloatingRectProps,
-  {},
-  Types.StoreState,
-  Types.Dimensions & { hidden: boolean }
->((state) => {
+export default connect<{}, {}, Types.StoreState, StateProps>((state) => {
   const cells = state.hasPasted
     ? PointSet.from([])
     : PointMap.map(() => true, state.copied);
-  return mapStateToFloatingRectProps(state, cells);
+  return {
+    ...mapStateToFloatingRectProps(state, cells),
+    dragging: false,
+  };
 })(Copied);
