@@ -36,7 +36,8 @@
   color: #999;
 }
 
-.Spreadsheet__cell {
+.Spreadsheet__cell,
+.Spreadsheet__header {
   min-width: 6em;
   min-height: 1.9em;
   height: 1.9em;
