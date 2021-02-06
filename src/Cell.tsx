@@ -21,7 +21,7 @@ export const Cell = <Data extends Types.CellBase>({
   active,
   DataViewer,
   data,
-}: Types.CellComponentProps<Data>) => {
+}: Types.CellComponentProps<Data>): React.ReactElement => {
   const rootRef = React.useRef<HTMLTableDataCellElement | null>(null);
   const root = rootRef.current;
 

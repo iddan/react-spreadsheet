@@ -57,11 +57,11 @@ export default class SpreadsheetStateProvider<
   prevState: Types.StoreState<CellType>;
 
   static defaultProps = {
-    onChange: () => {},
-    onModeChange: () => {},
-    onSelect: () => {},
-    onActivate: () => {},
-    onCellCommit: () => {},
+    onChange: (): void => {},
+    onModeChange: (): void => {},
+    onSelect: (): void => {},
+    onActivate: (): void => {},
+    onCellCommit: (): void => {},
   };
 
   constructor(props: Props<CellType>) {
@@ -81,7 +81,7 @@ export default class SpreadsheetStateProvider<
     this.prevState = state;
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     const {
       onChange,
       onModeChange,
@@ -116,7 +116,7 @@ export default class SpreadsheetStateProvider<
     );
   }
 
-  componentDidUpdate(prevProps: Props<CellType>) {
+  componentDidUpdate(prevProps: Props<CellType>): void {
     if (this.props.data !== this.prevState.data) {
       const previousState = this.store.getState();
       const nextState = Actions.setData(previousState, this.props.data);
@@ -124,11 +124,11 @@ export default class SpreadsheetStateProvider<
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount(): void {
     this.unsubscribe();
   }
 
-  render() {
+  render(): React.ReactElement {
     const { data, ...rest } = this.props;
     return (
       <Provider store={this.store}>

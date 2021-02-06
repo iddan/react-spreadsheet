@@ -2,7 +2,7 @@ import * as Types from "./types";
 import { Matrix } from "./matrix";
 import { Parser as FormulaParser } from "hot-formula-parser";
 
-export const moveCursorToEnd = (el: HTMLInputElement) => {
+export const moveCursorToEnd = (el: HTMLInputElement): void => {
   el.selectionStart = el.selectionEnd = el.value.length;
 };
 
@@ -29,12 +29,8 @@ export function memoizeOne<Input, Output>(
  * @param start
  * @param step
  */
-export function range(
-  end: number,
-  start: number = 0,
-  step: number = 1
-): number[] {
-  let array = [];
+export function range(end: number, start = 0, step = 1): number[] {
+  const array = [];
   if (Math.sign(end - start) === -1) {
     for (let element = start; element > end; element -= step) {
       array.push(element);

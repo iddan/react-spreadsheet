@@ -280,7 +280,7 @@ export const go = (rowDelta: number, columnDelta: number): KeyDownHandler => (
 export const modifyEdge = (field: keyof Types.Point, delta: number) => (
   state: Types.StoreState,
   event: unknown
-) => {
+): Partial<Types.StoreState> | null => {
   const { active } = state;
   if (!active) {
     return null;

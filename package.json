@@ -78,7 +78,20 @@
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
-    "extends": "react-app"
+    "extends": [
+      "react-app",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:import/errors",
+      "plugin:import/warnings",
+      "plugin:import/typescript"
+    ],
+    "rules": {
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/ban-types": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-explicit-any": "off"
+    }
   },
   "repository": {
     "type": "git",

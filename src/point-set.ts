@@ -104,7 +104,7 @@ export function onEdge(set: PointSet, point: Point): OnEdge {
     return NO_EDGE;
   }
 
-  let hasNot = (rowDelta: number, columnDelta: number) =>
+  const hasNot = (rowDelta: number, columnDelta: number) =>
     !has(set, {
       row: point.row + rowDelta,
       column: point.column + columnDelta,

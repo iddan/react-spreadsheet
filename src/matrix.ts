@@ -28,7 +28,7 @@ export function slice<T>(
   endPoint: Types.Point,
   matrix: Matrix<T>
 ): Matrix<T> {
-  let sliced: Matrix<T> = [];
+  const sliced: Matrix<T> = [];
   const columns = endPoint.column - startPoint.column;
   for (let row = startPoint.row; row <= endPoint.row; row++) {
     const slicedRow = row - startPoint.row;
@@ -146,8 +146,8 @@ export function map<T, T2>(
  */
 export function join(
   matrix: Matrix<unknown>,
-  horizontalSeparator: string = "\t",
-  verticalSeparator: string = "\n"
+  horizontalSeparator = "\t",
+  verticalSeparator = "\n"
 ): string {
   let joined = "";
   const { rows, columns } = getSize(matrix);
@@ -174,7 +174,7 @@ export function join(
 export function split<T>(
   csv: string,
   transform: (value: string) => T,
-  horizontalSeparator: string = "\t",
+  horizontalSeparator = "\t",
   verticalSeparator: string | RegExp = /\r\n|\n|\r/
 ): Matrix<T> {
   return csv
@@ -271,11 +271,12 @@ export function toArray<T1, T2>(
   transform: (cell: T1 | undefined, coords: Types.Point) => T2
 ): T2[];
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function toArray<T1, T2>(
   matrix: Matrix<T1>,
   transform?: (cell: T1 | undefined, coords: Types.Point) => T2
 ) {
-  let array = [];
+  const array = [];
   for (let row = 0; row < matrix.length; row++) {
     for (let column = 0; column < matrix.length; column++) {
       const value = matrix[row][column];
