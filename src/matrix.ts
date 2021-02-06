@@ -258,6 +258,14 @@ export function toArray<T1, T2>(
   transform: (cell: T1 | undefined, coords: Types.Point) => T2
 ): T2[];
 
+/**
+ * Flattens a matrix values to an array
+ * @param matrix the matrix to flatten values from
+ * @param transform optional transform function to apply to each value in the
+ * matrix
+ * @returns an array of the values from matrix, transformed if a transform
+ * function is passed
+ */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function toArray<T1, T2>(
   matrix: Matrix<T1>,

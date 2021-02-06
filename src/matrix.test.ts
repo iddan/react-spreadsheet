@@ -1,3 +1,4 @@
+import { transform } from "@babel/core";
 import * as Matrix from "./matrix";
 
 const MATRIX = [
@@ -213,5 +214,18 @@ describe("Matrix.padRows()", () => {
   });
   test("Does nothing if matrix has total rows", () => {
     expect(Matrix.padRows(MATRIX, 3)).toBe(MATRIX);
+  });
+});
+
+describe("Matrix.toArray()", () => {
+  const flattedMatrix = [...MATRIX[0], ...MATRIX[1], ...MATRIX[2]];
+  test("Flattens matrix values to an array", () => {
+    expect(Matrix.toArray(MATRIX)).toEqual(flattedMatrix);
+  });
+  test("Transforms matrix values and collects them to an array", () => {
+    const transform = (value: number | undefined) => value && value * 2;
+    expect(
+      Matrix.toArray<number, number | undefined>(MATRIX, transform)
+    ).toEqual(flattedMatrix.map(transform));
   });
 });
