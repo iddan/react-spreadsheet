@@ -7,14 +7,14 @@
 import { range as _range } from "./util";
 import * as Types from "./types";
 
-export type Matrix<T> = Array<Array<T | typeof undefined>>;
+export type Matrix<T> = Array<Array<T | undefined>>;
 
 /** Gets the value at row and column of matrix. */
 export function get<T>(
   row: number,
   column: number,
   matrix: Matrix<T>
-): T | typeof undefined {
+): T | undefined {
   const columns = matrix[row];
   if (columns === undefined) {
     return undefined;
@@ -106,7 +106,7 @@ export function unset<T>(
 }
 
 export function reduce<T, A>(
-  func: (a: A, arg1: T | typeof undefined, arg2: Types.Point) => A,
+  func: (a: A, arg1: T | undefined, arg2: Types.Point) => A,
   matrix: Matrix<T>,
   initialValue: A
 ): A {
@@ -127,7 +127,7 @@ export function reduce<T, A>(
 
 /** Creates an array of values by running each element in collection thru iteratee. */
 export function map<T, T2>(
-  func: (arg0: T | typeof undefined, arg1: Types.Point) => T2,
+  func: (arg0: T | undefined, arg1: Types.Point) => T2,
   matrix: Matrix<T>
 ): Matrix<T2> {
   return reduce(

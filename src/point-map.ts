@@ -44,10 +44,7 @@ export function unset<T>(
 }
 
 /** Gets the value for point in map */
-export function get<T>(
-  point: Types.Point,
-  map: PointMap<T>
-): typeof undefined | T {
+export function get<T>(point: Types.Point, map: PointMap<T>): undefined | T {
   return map[point.row] && map[point.row][point.column];
 }
 
