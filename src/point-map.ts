@@ -5,8 +5,8 @@ import * as Types from "./types";
 import { Matrix } from "./matrix";
 
 export type PointMap<T> = {
-  [K in number]: {
-    [K in number]: T;
+  [row in number]: {
+    [column in number]: T;
   };
 };
 

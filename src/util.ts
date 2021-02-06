@@ -1,6 +1,7 @@
 import * as Types from "./types";
 import { Matrix } from "./matrix";
 import { Parser as FormulaParser } from "hot-formula-parser";
+import * as PointSet from "./point-set";
 
 export const moveCursorToEnd = (el: HTMLInputElement): void => {
   el.selectionStart = el.selectionEnd = el.value.length;

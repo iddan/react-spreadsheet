@@ -26,7 +26,7 @@ export default {
 } as Meta<Props<StringCell>>;
 
 export const Basic: Story<Props<StringCell>> = (props) => (
-  <Spreadsheet {...props} />
+  <Spreadsheet data={props.data} />
 );
 
 export const Controlled: Story<Props<StringCell>> = (props) => {

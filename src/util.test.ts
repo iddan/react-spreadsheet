@@ -1,6 +1,6 @@
 import { range } from "./util";
 
-describe("range method:", () => {
+describe("range()", () => {
   test("basic use of range", () => {
     const end = 10;
     const start = 1;

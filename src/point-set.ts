@@ -11,6 +11,22 @@ export type Descriptor<T> = {
   data: T;
 } & Point;
 
+export enum Edge {
+  Left = "left",
+  Top = "top",
+  Right = "right",
+  Bottom = "bottom",
+}
+
+type OnEdge = { [key in Edge]: boolean };
+
+export const EDGE_TO_FIELD: { [key in Edge]: keyof Point } = {
+  [Edge.Left]: "column",
+  [Edge.Top]: "row",
+  [Edge.Right]: "column",
+  [Edge.Bottom]: "row",
+};
+
 /** Appends a new point to the Set object */
 export const add = (set: PointSet, point: Point): PointSet =>
   PointMap.set(point, true, set);
@@ -85,48 +101,68 @@ export function toArray(set: PointSet): Point[] {
   return reduce((acc: Point[], point: Point) => [...acc, point], set, []);
 }
 
-type OnEdge = {
-  left: boolean;
-  right: boolean;
-  top: boolean;
-  bottom: boolean;
-};
-
-const NO_EDGE: OnEdge = {
+const NO_EDGES: OnEdge = {
   left: false,
   right: false,
   top: false,
   bottom: false,
 };
 
-export function onEdge(set: PointSet, point: Point): OnEdge {
-  if (!has(set, point)) {
-    return NO_EDGE;
+/**
+ * Returns whether the given point is on the given edge of the given set
+ * Assumes the point set is not sparse
+ */
+export function onEdge(set: PointSet, point: Point, edge: Edge): boolean {
+  let rowDelta: number;
+  let columnDelta: number;
+  switch (edge) {
+    case Edge.Left:
+      rowDelta = -1;
+      columnDelta = 0;
+      break;
+    case Edge.Top:
+      rowDelta = -1;
+      columnDelta = 0;
+      break;
+    case Edge.Right:
+      rowDelta = 0;
+      columnDelta = 1;
+      break;
+    case Edge.Bottom:
+      rowDelta = 1;
+      columnDelta = 0;
+      break;
   }
+  return !has(set, {
+    row: point.row + rowDelta,
+    column: point.column + columnDelta,
+  });
+}
 
-  const hasNot = (rowDelta: number, columnDelta: number) =>
-    !has(set, {
-      row: point.row + rowDelta,
-      column: point.column + columnDelta,
-    });
-
+/**
+ * Returns whether the given point is on the edges of the given set
+ * Assumes the point set is not sparse
+ */
+export function onEdges(set: PointSet, point: Point): OnEdge {
+  if (!has(set, point)) {
+    return NO_EDGES;
+  }
   return {
-    left: hasNot(0, -1),
-    right: hasNot(0, 1),
-    top: hasNot(-1, 0),
-    bottom: hasNot(1, 0),
+    left: onEdge(set, point, Edge.Left),
+    top: onEdge(set, point, Edge.Top),
+    right: onEdge(set, point, Edge.Right),
+    bottom: onEdge(set, point, Edge.Bottom),
   };
 }
 
-export function getEdgeValue(
-  set: PointSet,
-  field: keyof Point,
-  delta: number
-): number {
-  const compare = Math.sign(delta) === -1 ? Math.min : Math.max;
-  if (size(set) === 0) {
+/** Gets the coordinate of the given edge in the given set */
+export function getEdgeValue(set: PointSet, edge: Edge): number {
+  if (isEmpty(set)) {
     throw new Error("getEdgeValue() should never be called with an empty set");
   }
+
+  const compare = edge === Edge.Left || edge === Edge.Top ? Math.min : Math.max;
+  const field = EDGE_TO_FIELD[edge];
 
   const result = reduce<number | null>(
     (acc, point) => {
@@ -142,22 +178,20 @@ export function getEdgeValue(
   if (result === null) {
     throw new Error("Unexpected value");
   }
+
   return result;
 }
 
-export function extendEdge(
-  set: PointSet,
-  field: keyof Point,
-  delta: number
-): PointSet {
-  const oppositeField = field === "row" ? "column" : "row";
-  const edgeValue = getEdgeValue(set, field, delta);
+/** Extends the given edge of the given set by given delta */
+export function extendEdge(set: PointSet, edge: Edge, delta: number): PointSet {
+  const edgeValue = getEdgeValue(set, edge);
+  const field = EDGE_TO_FIELD[edge];
   return reduce(
     (acc, point) => {
       if (point[field] === edgeValue) {
         return add(acc, {
+          ...point,
           [field]: edgeValue + delta,
-          [oppositeField]: point[oppositeField],
         } as Point);
       }
       return acc;
@@ -167,15 +201,16 @@ export function extendEdge(
   );
 }
 
-export function shrinkEdge(
-  set: PointSet,
-  field: keyof Point,
-  delta: number
-): PointSet {
-  const edgeValue = getEdgeValue(set, field, delta);
+/** Shrinks the given edge of the given set by given delta */
+export function shrinkEdge(set: PointSet, edge: Edge, delta: number): PointSet {
+  if (isEmpty(set)) {
+    return set;
+  }
+  const edgeValue = getEdgeValue(set, edge);
+  const field = EDGE_TO_FIELD[edge];
   return reduce(
     (acc, point) => {
-      if (point[field] === edgeValue) {
+      if (point[field] >= edgeValue - delta + 1) {
         return remove(acc, point);
       }
       return acc;

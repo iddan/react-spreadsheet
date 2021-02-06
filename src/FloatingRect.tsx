@@ -38,15 +38,15 @@ const getRangeDimensions = (
 ): Types.Dimensions => {
   const { width, height, left, top } = PointSet.reduce(
     (acc, point) => {
-      const isOnEdge = PointSet.onEdge(points, point);
+      const inOnEdges = PointSet.onEdges(points, point);
       const dimensions = getCellDimensions(point, state);
       if (dimensions) {
-        acc.width = isOnEdge.top ? acc.width + dimensions.width : acc.width;
-        acc.height = isOnEdge.left
+        acc.width = inOnEdges.top ? acc.width + dimensions.width : acc.width;
+        acc.height = inOnEdges.left
           ? acc.height + dimensions.height
           : acc.height;
-        acc.left = isOnEdge.left && isOnEdge.top ? dimensions.left : acc.left;
-        acc.top = isOnEdge.left && isOnEdge.top ? dimensions.top : acc.top;
+        acc.left = inOnEdges.left && inOnEdges.top ? dimensions.left : acc.left;
+        acc.top = inOnEdges.left && inOnEdges.top ? dimensions.top : acc.top;
       }
       return acc;
     },
@@ -61,7 +61,7 @@ export const mapStateToProps = (
   cells: PointSet.PointSet
 ): Omit<StateProps, "dragging"> => ({
   ...getRangeDimensions(cells, state),
-  hidden: PointSet.size(cells) === 0,
+  hidden: PointSet.isEmpty(cells),
 });
 
 export default FloatingRect;

@@ -277,7 +277,7 @@ export const go = (rowDelta: number, columnDelta: number): KeyDownHandler => (
   };
 };
 
-export const modifyEdge = (field: keyof Types.Point, delta: number) => (
+export const modifyEdge = (edge: PointSet.Edge) => (
   state: Types.StoreState,
   event: unknown
 ): Partial<Types.StoreState> | null => {
@@ -286,15 +286,9 @@ export const modifyEdge = (field: keyof Types.Point, delta: number) => (
     return null;
   }
 
-  const edgeOffsets = PointSet.has(state.selected, {
-    ...active,
-
-    [field]: active[field] + delta * -1,
-  });
-
-  const nextSelected = edgeOffsets
-    ? PointSet.shrinkEdge(state.selected, field, delta * -1)
-    : PointSet.extendEdge(state.selected, field, delta);
+  const nextSelected = PointSet.onEdge(state.selected, active, edge)
+    ? PointSet.shrinkEdge(state.selected, edge, 1)
+    : PointSet.extendEdge(state.selected, edge, 1);
 
   return {
     selected: PointSet.filter(
@@ -333,10 +327,10 @@ const editKeyDownHandlers: KeyDownHandlers = {
 };
 
 const shiftKeyDownHandlers: KeyDownHandlers = {
-  ArrowUp: modifyEdge("row", -1),
-  ArrowDown: modifyEdge("row", 1),
-  ArrowLeft: modifyEdge("column", -1),
-  ArrowRight: modifyEdge("column", 1),
+  ArrowUp: modifyEdge(PointSet.Edge.Top),
+  ArrowDown: modifyEdge(PointSet.Edge.Bottom),
+  ArrowLeft: modifyEdge(PointSet.Edge.Left),
+  ArrowRight: modifyEdge(PointSet.Edge.Right),
 };
 
 const shiftMetaKeyDownHandlers: KeyDownHandlers = {};
