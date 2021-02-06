@@ -202,3 +202,16 @@ describe("Matrix.map()", () => {
     ]);
   });
 });
+
+describe("Matrix.padRows()", () => {
+  test("Pads matrix with empty rows to match given total rows", () => {
+    expect(Matrix.padRows(MATRIX, 5)).toEqual([
+      ...MATRIX,
+      [undefined, undefined, undefined],
+      [undefined, undefined, undefined],
+    ]);
+  });
+  test("Does nothing if matrix has total rows", () => {
+    expect(Matrix.padRows(MATRIX, 3)).toBe(MATRIX);
+  });
+});

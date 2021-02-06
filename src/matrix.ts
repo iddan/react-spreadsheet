@@ -192,16 +192,23 @@ export function getSize(matrix: Matrix<any>): Size {
   };
 }
 
-export function padMatrix<T>(
-  matrix: Matrix<T>,
-  desiredRows: number
-): Matrix<T> {
-  const { rows } = getSize(matrix);
-  const missingRows = desiredRows - rows;
-  if (rows === 0 || missingRows < 0) return matrix;
+/**
+ * Pads matrix with empty rows to match given total rows
+ * @param matrix matrix to pad
+ * @param totalRows number of rows the matrix should have
+ * @returns the updated matrix
+ */
+export function padRows<T>(matrix: Matrix<T>, totalRows: number): Matrix<T> {
+  const { rows, columns } = getSize(matrix);
 
-  const paddingRow = matrix.slice(-1)[0].map((v) => ({ ...v, value: "" }));
-  return [...matrix, ...Array(missingRows).fill(paddingRow)];
+  if (rows >= totalRows) {
+    return matrix;
+  }
+
+  const missingRows = totalRows - rows;
+  const emptyRow = Array(columns).fill(undefined);
+  const emptyRows = Array(missingRows).fill(emptyRow);
+  return [...matrix, ...emptyRows];
 }
 
 /** Creates an array of points (positive and/or negative) progressing from startPoint up to, but not including, endPoint. */

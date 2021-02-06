@@ -155,7 +155,7 @@ export async function paste<Cell extends Types.CellBase>(
   };
 
   const requiredRows = active.row + Matrix.getSize(copiedMatrix).rows;
-  const paddedData = Matrix.padMatrix(state.data, requiredRows);
+  const paddedData = Matrix.padRows(state.data, requiredRows);
 
   const { data, selected, commit } = PointMap.reduce(
     (acc: Accumulator, value, { row, column }): Accumulator => {
