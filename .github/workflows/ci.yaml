@@ -32,6 +32,7 @@ jobs:
       - run: yarn check-typing
       - run: yarn lint
       - run: yarn test
+      - run: yarn push-coverage
       - run: yarn build
         env:
           NODE_ENV: production
