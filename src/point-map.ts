@@ -56,6 +56,7 @@ export function has<T>(point: Types.Point, map: PointMap<T>): boolean {
   return point.row in map && point.column in map[point.row];
 }
 
+/** Get all the values of a certain row */
 export function getRow<T>(row: number, map: PointMap<T>): T[] {
   return row in map
     ? // @ts-ignore
@@ -63,9 +64,15 @@ export function getRow<T>(row: number, map: PointMap<T>): T[] {
     : [];
 }
 
+/** Get all the values of a certain column */
 export function getColumn<T>(column: number, map: PointMap<T>): T[] {
-  // @ts-ignore
-  return Object.keys(map).map((row) => map[row][column]);
+  return (
+    Object.keys(map)
+      // @ts-ignore
+      .filter((row) => column in map[row])
+      // @ts-ignore
+      .map((row) => map[row][column])
+  );
 }
 
 const EMPTY: PointMap<any> = {} as any;

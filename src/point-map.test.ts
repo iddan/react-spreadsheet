@@ -49,6 +49,18 @@ describe("PointMap.has()", () => {
   });
 });
 
+describe("PointMap.getRow()", () => {
+  test("Get all the values from a certain row", () => {
+    expect(PointMap.getRow(0, MAP)).toEqual([MAP[0][0], MAP[0][1]]);
+  });
+});
+
+describe("PointMap.getColumn()", () => {
+  test("Get all the values from a certain column", () => {
+    expect(PointMap.getColumn(0, MAP)).toEqual([MAP[0][0]]);
+  });
+});
+
 describe("PointMap.fromMatrix()", () => {
   test("Creates point map from matrix", () => {
     expect(PointMap.fromMatrix(MATRIX)).toEqual(MAP);
