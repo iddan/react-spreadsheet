@@ -8,8 +8,7 @@ Simple, customizable yet performant spreadsheet for React.
 
 ![Screenshot](https://github.com/iddan/react-spreadsheet/blob/master/assets/screenshot.png?raw=true)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fiddan%2Freact-spreadsheet.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fiddan%2Freact-spreadsheet?ref=badge_shield)
-[![CircleCI](https://circleci.com/gh/iddan/react-spreadsheet.svg?style=svg)](https://circleci.com/gh/iddan/react-spreadsheet)
-[![Known Vulnerabilities](https://snyk.io/test/github/iddan/react-spreadsheet/badge.svg?targetFile=package.json)](https://snyk.io/test/github/iddan/react-spreadsheet?targetFile=package.json)
+![CI](https://github.com/iddan/react-spreadsheet/workflows/CI/badge.svg?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/iddan/react-spreadsheet/badge.svg?branch=master)](https://coveralls.io/github/iddan/react-spreadsheet?branch=master)
 
 ```bash
@@ -40,7 +39,7 @@ import Spreadsheet from "react-spreadsheet";
 
 const data = [
   [{ value: "Vanilla" }, { value: "Chocolate" }],
-  [{ value: "Strawberry" }, { value: "Cookies" }]
+  [{ value: "Strawberry" }, { value: "Cookies" }],
 ];
 
 const MyComponent = () => <Spreadsheet data={data} />;
@@ -52,22 +51,22 @@ const MyComponent = () => <Spreadsheet data={data} />;
 import React from "react";
 import Spreadsheet from "react-spreadsheet";
 
-const RangeView = ({ cell, getValue }) => (
+const RangeView = ({ cell }) => (
   <input
     type="range"
-    value={getValue({ data: cell })}
+    value={cell.value}
     disabled
     style={{ pointerEvents: "none" }}
   />
 );
 
-const RangeEdit = ({ getValue, cell, onChange }) => (
+const RangeEdit = ({ cell, onChange }) => (
   <input
     type="range"
-    onChange={e => {
+    onChange={(e) => {
       onChange({ ...cell, value: e.target.value });
     }}
-    value={getValue({ data: cell }) || 0}
+    value={cell.value || 0}
     autoFocus
   />
 );
@@ -78,8 +77,8 @@ const data = [
   [{ value: "Strawberry" }, { value: "Cookies" }],
   [
     { value: "How much do you like ice cream?" },
-    { value: 100, DataViewer: RangeView, DataEditor: RangeEdit }
-  ]
+    { value: 100, DataViewer: RangeView, DataEditor: RangeEdit },
+  ],
 ];
 
 const MyComponent = () => <Spreadsheet data={data} />;

@@ -1,6 +1,6 @@
 {
   "name": "react-spreadsheet",
-  "version": "0.4.34",
+  "version": "0.5.0",
   "description": "Simple, customizable yet performant spreadsheet for React",
   "author": "Iddan Aaronsohn <mail@aniddan.com> (https://aniddan.com)",
   "keywords": [
@@ -10,49 +10,89 @@
     "sheet",
     "table"
   ],
-  "main": "dist/SpreadsheetStateProvider.js",
+  "main": "dist/index.js",
+  "module": "dist/es/index.js",
+  "types": "index.d.ts",
   "scripts": {
+    "lint": "eslint .",
+    "check-format": "prettier --check .",
+    "format": "prettier --write .",
     "test": "jest",
-    "start": "yarn run cosmos",
-    "build": "rm dist/*; babel src --out-dir dist --copy-files",
+    "build": "rollup -c",
     "prepack": "cross-env NODE_ENV=production yarn build",
     "push-coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",
-    "cosmos": "cosmos"
+    "check-typing": "tsc",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
+    "@types/array.prototype.flatmap": "^1.2.2",
+    "@types/classnames": "^2.2.11",
+    "array.prototype.flatmap": "^1.2.4",
     "classnames": "^2.2.6",
-    "clipboard-polyfill": "^2.4.7",
-    "fbjs": "^1.0.0",
-    "hot-formula-parser": "^3.0.0",
-    "tinygradient": "^1.0.0",
-    "unistore": "^3.4.1"
+    "hot-formula-parser": "^4.0.0",
+    "tinygradient": "^1.1.2",
+    "unistore": "^3.5.2"
   },
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.3.4",
-    "babel-eslint": "9.x",
-    "babel-jest": "^24.3.1",
-    "babel-loader": "^8.0.5",
-    "babel-preset-react-app": "^9.0.0",
+    "@babel/core": "^7.12.13",
+    "@babel/plugin-syntax-flow": "^7.12.13",
+    "@storybook/addon-essentials": "^6.1.17",
+    "@storybook/addon-links": "^6.1.17",
+    "@storybook/react": "^6.1.17",
+    "@types/jest": "^26.0.15",
+    "@types/node": "^14.14.7",
+    "@types/react": "^16.9.56",
+    "@types/react-select": "^3.0.26",
+    "@typescript-eslint/eslint-plugin": "^4.0.0",
+    "@typescript-eslint/parser": "^4.0.0",
+    "babel-eslint": "^10.0.0",
+    "babel-loader": "^8.2.2",
     "coveralls": "^3.0.1",
     "cross-env": "^5.1.4",
-    "css-loader": "^2.1.1",
-    "eslint": "5.x",
-    "eslint-config-react-app": "^3.0.8",
-    "eslint-plugin-flowtype": "2.x",
-    "eslint-plugin-import": "2.x",
-    "eslint-plugin-jsx-a11y": "6.x",
-    "eslint-plugin-react": "7.x",
-    "flow-bin": "^0.102.0",
+    "eslint": "^7.19.0",
+    "eslint-config-react-app": "^6.0.0",
+    "eslint-plugin-flowtype": "^5.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-react": "^7.20.3",
+    "eslint-plugin-react-hooks": "^4.0.8",
     "gh-pages": "^2.0.1",
-    "html-webpack-plugin": "^3.2.0",
-    "jest": "^22.4.3",
-    "react": "^16.5.0",
-    "react-cosmos": "^4.8.1",
-    "react-dom": "^16.5.0",
-    "react-select": "^1.2.1",
-    "style-loader": "^0.23.1",
-    "webpack": "^4.29.6"
+    "jest": "^26.6.3",
+    "prettier": "^2.2.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "react-select": "^4.0.2",
+    "rollup": "^2.32.1",
+    "rollup-plugin-postcss": "^3.1.8",
+    "rollup-plugin-typescript2": "^0.29.0",
+    "ts-jest": "^26.4.4",
+    "tslib": "^2.0.3",
+    "typescript": "^4.1.3",
+    "webpack": "^5.21.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testPathIgnorePatterns": [
+      "dist"
+    ]
+  },
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+      "react-app",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:import/errors",
+      "plugin:import/warnings",
+      "plugin:import/typescript"
+    ],
+    "rules": {
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/ban-types": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-explicit-any": "off"
+    }
   },
   "repository": {
     "type": "git",
