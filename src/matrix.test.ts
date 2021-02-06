@@ -192,3 +192,13 @@ describe("Matrix.inclusiveRange()", () => {
     ]);
   });
 });
+
+describe("Matrix.map()", () => {
+  test("Creates an array of values by running each element in collection thru iteratee", () => {
+    expect(Matrix.map((value) => value && value * 2, MATRIX)).toEqual([
+      [2, 4, 6],
+      [8, 10, 12],
+      [14, 16, 18],
+    ]);
+  });
+});
