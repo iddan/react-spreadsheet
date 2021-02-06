@@ -35,8 +35,22 @@ describe("PointMap.get()", () => {
 
 describe("PointMap.set()", () => {
   test("Sets value for point", () => {
-    const newMap = PointMap.set({ row: 5, column: 5 }, 63, MAP);
-    expect(PointMap.get({ row: 5, column: 5 }, newMap)).toBe(63);
+    const point = { row: 5, column: 5 };
+    const newMap = PointMap.set(point, 63, MAP);
+    expect(PointMap.get(point, newMap)).toBe(63);
+  });
+});
+
+describe("PointMap.unset()", () => {
+  test("Un-sets point", () => {
+    const point = { row: 0, column: 0 };
+    const newMap = PointMap.unset(point, MAP);
+    expect(PointMap.get(point, newMap)).toBeUndefined();
+  });
+  test("Does nothing if point does not exist", () => {
+    const point = { row: 5, column: 5 };
+    const newMap = PointMap.unset(point, MAP);
+    expect(newMap).toBe(MAP);
   });
 });
 
