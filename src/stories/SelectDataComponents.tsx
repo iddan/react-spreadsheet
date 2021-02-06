@@ -1,37 +1,44 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import Select from "react-select";
-import "react-select/dist/react-select.css";
+import { CellBase, DataEditorComponent, DataViewerComponent } from "..";
+
+type Value = string | undefined;
+type Cell = CellBase<Value> & {
+  value: Value;
+};
 
 const OPTIONS = [
   { value: "vanilla", label: "Vanilla" },
   { value: "chocolate", label: "Chocolate" },
   { value: "caramel", label: "Caramel" },
 ];
-const SELECT_WIDTH = 200;
 
-export const SelectView = ({ cell, getValue }) => (
-  <Select
-    value={getValue({ data: cell })}
-    options={OPTIONS}
-    disabled
-    style={{ width: 200 }}
-  />
-);
+export const SelectView: DataViewerComponent<Cell> = ({ cell }) => {
+  const option = useMemo(
+    () => cell && OPTIONS.find((option) => option.value === cell.value),
+    [cell]
+  );
+  return <Select value={option} options={OPTIONS} isDisabled />;
+};
 
-export const SelectEdit = ({ cell, onChange, getValue, column, row }) => {
+export const SelectEdit: DataEditorComponent<Cell> = ({ cell, onChange }) => {
   const handleChange = useCallback(
     (selection) => {
       onChange({ ...cell, value: selection ? selection.value : null });
     },
     [cell, onChange]
   );
-  const value = getValue({ column, row, data: cell }) || 0;
+  const option = useMemo(
+    () => cell && OPTIONS.find((option) => option.value === cell.value),
+    [cell]
+  );
   return (
     <Select
-      value={value}
+      value={option}
       onChange={handleChange}
       options={OPTIONS}
-      style={{ width: SELECT_WIDTH }}
+      autoFocus
+      defaultMenuIsOpen
     />
   );
 };

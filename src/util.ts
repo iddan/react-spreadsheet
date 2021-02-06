@@ -2,7 +2,7 @@ import * as Types from "./types";
 import { Matrix } from "./matrix";
 import { Parser as FormulaParser } from "hot-formula-parser";
 
-export const moveCursorToEnd = (el: HTMLInputElement) => {
+export const moveCursorToEnd = (el: HTMLInputElement): void => {
   el.selectionStart = el.selectionEnd = el.value.length;
 };
 
@@ -15,6 +15,7 @@ export function memoizeOne<Input, Output>(
   return function (argument: Input) {
     if (lastArgument !== argument) {
       lastArgument = argument;
+      // @ts-ignore
       lastResult = fn.call(this, argument);
     }
 
@@ -28,12 +29,8 @@ export function memoizeOne<Input, Output>(
  * @param start
  * @param step
  */
-export function range(
-  end: number,
-  start: number = 0,
-  step: number = 1
-): number[] {
-  let array = [];
+export function range(end: number, start = 0, step = 1): number[] {
+  const array = [];
   if (Math.sign(end - start) === -1) {
     for (let element = start; element > end; element -= step) {
       array.push(element);
@@ -46,7 +43,7 @@ export function range(
   return array;
 }
 
-export function updateData<Cell extends Types.CellBase<Value>, Value>(
+export function updateData<Cell>(
   data: Matrix<Cell>,
   cellDescriptor: Types.CellDescriptor<Cell>
 ): Matrix<Cell> {
@@ -59,21 +56,8 @@ export function updateData<Cell extends Types.CellBase<Value>, Value>(
   return nextData;
 }
 
-export function setCell<Cell extends Types.CellBase<Value>, Value>(
-  state: {
-    data: Matrix<Cell>;
-  },
-  active: Types.Point,
-  cell: Cell
-): Matrix<Cell> {
-  return updateData(state.data, {
-    ...active,
-    data: cell,
-  });
-}
-
 export function isActive(
-  active: Types.StoreState<unknown, unknown>["active"],
+  active: Types.StoreState["active"],
   { row, column }: Types.Point
 ): boolean {
   return Boolean(active && column === active.column && row === active.row);
@@ -113,7 +97,7 @@ export function createEmptyMatrix<T>(rows: number, columns: number): Matrix<T> {
 
 export const getCellDimensions = (
   point: Types.Point,
-  state: Types.StoreState<unknown, unknown>
+  state: Types.StoreState
 ): Types.Dimensions | null => {
   const rowDimensions = state.rowDimensions[point.row];
   const columnDimensions = state.columnDimensions[point.column];
@@ -124,19 +108,16 @@ export const getCellDimensions = (
 };
 
 export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
-  getValue,
   cell,
-  column,
-  row,
   formulaParser,
 }: {
-  getValue: Types.GetValue<Cell, Value>;
-  cell: Cell;
-  column: number;
-  row: number;
+  cell: Cell | undefined;
   formulaParser: FormulaParser;
-}): Value | string {
-  const rawValue = getValue({ data: cell, column, row });
+}): Value | string | number | boolean | null {
+  if (cell === undefined) {
+    return null;
+  }
+  const rawValue = cell.value;
   if (typeof rawValue === "string" && rawValue.startsWith("=")) {
     const { result, error } = formulaParser.parse(rawValue.slice(1));
     return error || result;

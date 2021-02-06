@@ -1,4 +1,5 @@
 import * as PointMap from "./point-map";
+import { Point } from "./types";
 
 const map = PointMap.from([
   [{ row: 0, column: 0 }, 42],
@@ -51,7 +52,11 @@ describe("PointMap.size()", () => {
 describe("PointMap.reduce()", () => {
   test("Applies a function against an accumulator and each value and point in the map (from left to right) to reduce it to a single value", () => {
     expect(
-      PointMap.reduce((acc, value, point) => [...acc, [point, value]], map, [])
+      PointMap.reduce<Array<[Point, number]>, number>(
+        (acc, value, point) => [...acc, [point, value]],
+        map,
+        []
+      )
     ).toEqual([
       [{ row: 0, column: 0 }, 42],
       [{ row: 0, column: 1 }, 42],

@@ -4,22 +4,24 @@ import { Store } from "unistore";
 import { Parser as FormulaParser } from "hot-formula-parser";
 
 import * as Types from "./types";
-import Table, { Props as TableProps } from "./Table";
-import Row, { Props as RowProps } from "./Row";
-import CornerIndicator, {
+import DefaultTable, { Props as TableProps } from "./Table";
+import DefaultRow, { Props as RowProps } from "./Row";
+import DefaultCornerIndicator, {
   Props as CornerIndicatorProps,
 } from "./CornerIndicator";
-import ColumnIndicator, {
+import DefaultColumnIndicator, {
   Props as ColumnIndicatorProps,
 } from "./ColumnIndicator";
-import RowIndicator, { Props as RowIndicatorProps } from "./RowIndicator";
-import { Cell, Props as CellProps, enhance as enhanceCell } from "./Cell";
-import DataViewer from "./DataViewer";
-import DataEditor from "./DataEditor";
+import DefaultRowIndicator, {
+  Props as RowIndicatorProps,
+} from "./RowIndicator";
+import { Cell as DefaultCell, enhance as enhanceCell } from "./Cell";
+import DefaultDataViewer from "./DataViewer";
+import DefaultDataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import { getBindingsForCell } from "./bindings";
+import { getBindingsForCell as defaultGetBindingsForCell } from "./bindings";
 import {
   memoizeOne,
   range,
@@ -32,32 +34,26 @@ import * as Matrix from "./matrix";
 import * as Actions from "./actions";
 import "./Spreadsheet.css";
 
-type DefaultValue = string | number | boolean | null;
-type DefaultCellType = Types.CellBase<DefaultValue> & {
-  value: DefaultValue;
-};
-
-const getValue: Types.GetValue<DefaultCellType, DefaultValue> = ({ data }) =>
-  data ? data.value : null;
-
-export type Props<CellType extends Types.CellBase<Value>, Value> = {
+export type Props<CellType extends Types.CellBase> = {
   formulaParser?: FormulaParser;
   columnLabels?: string[];
-  ColumnIndicator?: React.ComponentType<ColumnIndicatorProps>;
-  CornerIndicator?: React.ComponentType<CornerIndicatorProps>;
   rowLabels?: string[];
-  RowIndicator?: React.ComponentType<RowIndicatorProps>;
   hideRowIndicators?: boolean;
   hideColumnIndicators?: boolean;
+  // Custom Components
+  ColumnIndicator?: React.ComponentType<ColumnIndicatorProps>;
+  CornerIndicator?: React.ComponentType<CornerIndicatorProps>;
+  RowIndicator?: React.ComponentType<RowIndicatorProps>;
   Table?: React.ComponentType<TableProps>;
   Row?: React.ComponentType<RowProps>;
-  Cell?: React.ComponentType<CellProps<CellType, Value>>;
-  DataViewer?: Types.DataViewer<CellType, Value>;
-  DataEditor?: Types.DataEditor<CellType, Value>;
+  Cell?: Types.CellComponent<CellType>;
+  DataViewer?: Types.DataViewerComponent<CellType>;
+  DataEditor?: Types.DataEditorComponent<CellType>;
+  // Handlers
   onKeyDown?: (event: React.KeyboardEvent) => void;
-  getValue?: Types.GetValue<CellType, Value>;
   getBindingsForCell?: Types.getBindingsForCell<CellType>;
-  store: Store<Types.StoreState<CellType, Value>>;
+  // Internal store
+  store: Store<Types.StoreState<CellType>>;
 };
 
 type Handlers = {
@@ -77,27 +73,13 @@ type State = {
   mode: Types.Mode;
 };
 
-class Spreadsheet<
-  Value,
-  CellType extends Types.CellBase<Value>
-> extends React.PureComponent<Props<CellType, Value> & State & Handlers> {
-  static defaultProps = {
-    Table,
-    Row,
-    Cell,
-    CornerIndicator,
-    ColumnIndicator,
-    RowIndicator,
-    DataViewer,
-    DataEditor,
-    getValue,
-    getBindingsForCell,
-  };
-
+class Spreadsheet<CellType extends Types.CellBase> extends React.PureComponent<
+  Props<CellType> & State & Handlers
+> {
   formulaParser = this.props.formulaParser || new FormulaParser();
 
   clip = (event: ClipboardEvent) => {
-    const { store, getValue } = this.props;
+    const { store } = this.props;
     const { data, selected } = store.getState();
     const startPoint = PointSet.min(selected);
     const endPoint = PointSet.max(selected);
@@ -108,7 +90,7 @@ class Spreadsheet<
       if (value === undefined) {
         return "";
       }
-      return getValue({ ...point, data: value });
+      return value;
     }, slicedMatrix);
     const csv = Matrix.join(valueMatrix);
     writeTextToClipboard(event, csv);
@@ -158,7 +140,7 @@ class Spreadsheet<
   }
 
   componentDidMount() {
-    const { store, getValue } = this.props;
+    const { store } = this.props;
     document.addEventListener("cut", this.handleCut);
     document.addEventListener("copy", this.handleCopy);
     document.addEventListener("paste", this.handlePaste);
@@ -171,11 +153,8 @@ class Spreadsheet<
           cellCoord.column.index,
           store.getState().data
         );
-        value = getComputedValue<CellType, Value>({
-          getValue,
+        value = getComputedValue<CellType, CellType["value"]>({
           cell,
-          column: cellCoord.column.index,
-          row: cellCoord.row.index,
           formulaParser: this.formulaParser,
         });
       } catch (error) {
@@ -197,10 +176,8 @@ class Spreadsheet<
         };
         const values = Matrix.toArray(
           Matrix.slice(startPoint, endPoint, store.getState().data),
-          (cell, coords) =>
-            getComputedValue<CellType, Value>({
-              ...coords,
-              getValue,
+          (cell) =>
+            getComputedValue<CellType, CellType["value"]>({
               cell,
               formulaParser: this.formulaParser,
             })
@@ -211,7 +188,7 @@ class Spreadsheet<
     );
   }
 
-  handleKeyDown = (event) => {
+  handleKeyDown = (event: React.KeyboardEvent) => {
     const { store, onKeyDown, onKeyDownAction } = this.props;
     if (onKeyDown) {
       onKeyDown(event);
@@ -231,14 +208,14 @@ class Spreadsheet<
     document.removeEventListener("mouseup", this.handleMouseUp);
   };
 
-  handleMouseMove = (event) => {
+  handleMouseMove = (event: React.MouseEvent) => {
     if (!this.props.store.getState().dragging && event.buttons === 1) {
       this.props.onDragStart();
       document.addEventListener("mouseup", this.handleMouseUp);
     }
   };
 
-  root: HTMLDivElement | null;
+  root: HTMLDivElement | null = null;
 
   handleRoot = (root: HTMLDivElement | null) => {
     this.root = root;
@@ -254,24 +231,25 @@ class Spreadsheet<
 
   render() {
     const {
-      Table,
-      Row,
-      CornerIndicator,
       columnLabels,
       rowLabels,
-      DataEditor,
-      DataViewer,
-      getValue,
       rows,
       columns,
       onKeyPress,
-      getBindingsForCell,
       hideColumnIndicators,
       hideRowIndicators,
+      Table = DefaultTable,
+      Row = DefaultRow,
+      CornerIndicator = DefaultCornerIndicator,
+      DataEditor = DefaultDataEditor,
+      DataViewer = DefaultDataViewer,
+      getBindingsForCell = defaultGetBindingsForCell,
+      RowIndicator = DefaultRowIndicator,
+      ColumnIndicator = DefaultColumnIndicator,
     } = this.props;
 
     // @ts-ignore
-    const Cell = this.getCellComponent(this.props.Cell);
+    const Cell = this.getCellComponent(this.props.Cell || DefaultCell);
 
     return (
       <div
@@ -314,13 +292,12 @@ class Spreadsheet<
                   <RowIndicator key={rowNumber} row={rowNumber} />
                 ))}
               {range(columns).map((columnNumber) => (
-                // @ts-ignore
                 <Cell
                   key={columnNumber}
                   row={rowNumber}
                   column={columnNumber}
+                  // @ts-ignore
                   DataViewer={DataViewer}
-                  getValue={getValue}
                   formulaParser={this.formulaParser}
                 />
               ))}
@@ -330,7 +307,6 @@ class Spreadsheet<
         <ActiveCell
           // @ts-ignore
           DataEditor={DataEditor}
-          getValue={getValue}
           getBindingsForCell={getBindingsForCell}
         />
         <Selected />
@@ -340,9 +316,9 @@ class Spreadsheet<
   }
 }
 
-const mapStateToProps = (
-  { data, mode }: Types.StoreState<unknown, unknown>,
-  { columnLabels }: Props<unknown, unknown>
+const mapStateToProps = <Cell extends Types.CellBase>(
+  { data, mode }: Types.StoreState<Cell>,
+  { columnLabels }: Props<Cell>
 ): State => {
   const { columns, rows } = Matrix.getSize(data);
   return {

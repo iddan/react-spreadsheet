@@ -3,24 +3,27 @@
  */
 
 import * as React from "react";
+import { DataViewerComponent, DataEditorComponent, CellBase } from "..";
 
-export const RangeView = ({ cell, getValue }) => (
+type Cell = CellBase<number | undefined>;
+
+export const RangeView: DataViewerComponent<Cell> = ({ cell }) => (
   <input
     type="range"
-    value={getValue({ data: cell })}
+    value={cell?.value}
     disabled
     style={{ pointerEvents: "none" }}
   />
 );
 
-export const RangeEdit = ({ getValue, column, row, cell, onChange }) => {
+export const RangeEdit: DataEditorComponent<Cell> = ({ cell, onChange }) => {
   const handleChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      onChange({ ...cell, value: event.target.value });
+      onChange({ ...cell, value: Number(event.target.value) });
     },
     [cell, onChange]
   );
 
-  const value = getValue({ column, row, data: cell }) || 0;
+  const value = cell?.value || 0;
   return <input autoFocus type="range" onChange={handleChange} value={value} />;
 };

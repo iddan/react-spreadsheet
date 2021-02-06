@@ -7,7 +7,9 @@
     "skipLibCheck": true,
     "module": "ESNext",
     "esModuleInterop": true,
-    "declaration": true
+    "declaration": true,
+    "strict": true,
+    "typeRoots": ["./src/typings", "./node_modules/@types"]
   },
   "include": ["src"]
 }

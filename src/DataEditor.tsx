@@ -4,17 +4,12 @@ import { moveCursorToEnd } from "./util";
 
 type Value = string | number;
 
-type Cell = Types.CellBase<Value> & {
-  value: React.ReactNode;
-};
+type Cell = Types.CellBase<Value>;
 
 const DataEditor = ({
   onChange,
   cell,
-  getValue,
-  column,
-  row,
-}: Types.DataEditorProps<Cell, Value>): React.ReactElement => {
+}: Types.DataEditorProps<Cell>): React.ReactElement => {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   const handleChange = React.useCallback(
@@ -30,7 +25,7 @@ const DataEditor = ({
     }
   }, [inputRef]);
 
-  const value = getValue({ column, row, data: cell }) || "";
+  const value = cell?.value || "";
 
   return (
     <div className="Spreadsheet__data-editor">

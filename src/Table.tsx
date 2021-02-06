@@ -4,7 +4,7 @@ import { range } from "./util";
 
 export type Props = {
   columns: number;
-  hideColumnIndicators: boolean | null;
+  hideColumnIndicators?: boolean | null;
   children: ReactNode;
 };
 

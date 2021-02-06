@@ -3,14 +3,24 @@ import { connect } from "unistore/react";
 import * as Types from "./types";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
-import FloatingRect, { Props, mapStateToProps } from "./FloatingRect";
+import FloatingRect, {
+  Props as FloatingRectProps,
+  mapStateToProps as mapStateToFloatingRectProps,
+  StateProps,
+} from "./FloatingRect";
 
-const Copied = (props: Props): React.ReactElement => (
+type Props = Omit<FloatingRectProps, "variant">;
+
+const Copied: React.FC<Props> = (props) => (
   <FloatingRect {...props} variant="copied" />
 );
 
-export default connect((state: Types.StoreState<unknown, unknown>) =>
-  mapStateToProps(
-    state.hasPasted ? PointSet.from([]) : PointMap.map(() => true, state.copied)
-  )(state)
-)(Copied);
+export default connect<{}, {}, Types.StoreState, StateProps>((state) => {
+  const cells = state.hasPasted
+    ? PointSet.from([])
+    : PointMap.map(() => true, state.copied);
+  return {
+    ...mapStateToFloatingRectProps(state, cells),
+    dragging: false,
+  };
+})(Copied);

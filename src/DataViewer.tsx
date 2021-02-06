@@ -4,24 +4,19 @@ import { getComputedValue } from "./util";
 
 const toView = (value: React.ReactNode | boolean): React.ReactNode => {
   if (value === false) {
-    return <div className="Spreadsheet__data-viewer--boolean">FALSE</div>;
+    return <span className="Spreadsheet__data-viewer--boolean">FALSE</span>;
   }
   if (value === true) {
-    return <div className="Spreadsheet__data-viewer--boolean">TRUE</div>;
+    return <span className="Spreadsheet__data-viewer--boolean">TRUE</span>;
   }
-  return value;
+  return <span className="Spreadsheet__data-viewer">{value}</span>;
 };
 
-const DataViewer = <Cell extends Types.CellBase<Value>, Value>({
-  getValue,
+const DataViewer = <Cell extends Types.CellBase>({
   cell,
-  column,
-  row,
   formulaParser,
-}: Types.DataViewerProps<Cell, Value>): React.ReactNode => {
-  return toView(
-    getComputedValue({ getValue, cell, column, row, formulaParser })
-  );
+}: Types.DataViewerProps<Cell>): React.ReactNode => {
+  return toView(getComputedValue({ cell, formulaParser }));
 };
 
 export default DataViewer;

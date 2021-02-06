@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export const CustomCornerIndicator = () => {
+export const CustomCornerIndicator: React.FC = () => {
   return (
     <th
       className="Spreadsheet__header"

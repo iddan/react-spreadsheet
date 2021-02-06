@@ -6,9 +6,8 @@ import * as Actions from "./actions";
 import * as Types from "./types";
 import { getCellDimensions } from "./util";
 
-type Props<Cell extends Types.CellBase<Value>, Value> = {
-  DataEditor: Types.DataEditor<Cell, Value>;
-  getValue: Types.GetValue<Cell, Value>;
+type Props<Cell extends Types.CellBase> = {
+  DataEditor: Types.DataEditorComponent<Cell>;
   onChange: (data: Cell) => void;
   setCellData: (
     active: Types.Point,
@@ -25,11 +24,8 @@ type Props<Cell extends Types.CellBase<Value>, Value> = {
 } & Types.Point &
   Types.Dimensions;
 
-function ActiveCell<Cell extends Types.CellBase<Value>, Value>(
-  props: Props<Cell, Value>
-) {
+function ActiveCell<Cell extends Types.CellBase>(props: Props<Cell>) {
   const {
-    getValue,
     row,
     column,
     cell,
@@ -46,7 +42,7 @@ function ActiveCell<Cell extends Types.CellBase<Value>, Value>(
     data,
   } = props;
   const initialCellRef = React.useRef<Cell | null>(null);
-  const prevPropsRef = React.useRef<Props<Cell, Value> | null>(null);
+  const prevPropsRef = React.useRef<Props<Cell> | null>(null);
 
   const handleChange = React.useCallback(
     (cell: Cell) => {
@@ -106,25 +102,24 @@ function ActiveCell<Cell extends Types.CellBase<Value>, Value>(
           row={row}
           column={column}
           cell={cell}
+          // @ts-ignore
           onChange={handleChange}
-          getValue={getValue}
         />
       )}
     </div>
   );
 }
 
-function mapStateToProps<Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>
-): Partial<Props<Cell, unknown>> {
+function mapStateToProps<Cell extends Types.CellBase>(
+  state: Types.StoreState<Cell>
+): Partial<Props<Cell>> {
   const dimensions = state.active && getCellDimensions(state.active, state);
   if (!state.active || !dimensions) {
     return { hidden: true };
   }
   return {
-    hidden: false,
     ...state.active,
-
+    hidden: false,
     cell: Matrix.get(state.active.row, state.active.column, state.data),
     width: dimensions.width,
     height: dimensions.height,
@@ -139,4 +134,5 @@ export default connect(mapStateToProps, {
   setCellData: Actions.setCellData,
   edit: Actions.edit,
   commit: Actions.commit,
+  // @ts-ignore
 })(ActiveCell);

@@ -104,7 +104,7 @@ export function onEdge(set: PointSet, point: Point): OnEdge {
     return NO_EDGE;
   }
 
-  let hasNot = (rowDelta, columnDelta) =>
+  const hasNot = (rowDelta: number, columnDelta: number) =>
     !has(set, {
       row: point.row + rowDelta,
       column: point.column + columnDelta,
@@ -128,7 +128,7 @@ export function getEdgeValue(
     throw new Error("getEdgeValue() should never be called with an empty set");
   }
 
-  return reduce(
+  const result = reduce<number | null>(
     (acc, point) => {
       if (acc === null) {
         return point[field];
@@ -138,6 +138,11 @@ export function getEdgeValue(
     set,
     null
   );
+
+  if (result === null) {
+    throw new Error("Unexpected value");
+  }
+  return result;
 }
 
 export function extendEdge(

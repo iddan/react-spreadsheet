@@ -4,11 +4,12 @@
 
 import React, { useCallback, useEffect } from "react";
 import classnames from "classnames";
+import { CellComponent } from "..";
 
 const HEIGHT = 30;
 const WIDTH = 96;
 
-const CustomCell = ({
+const CustomCell: CellComponent = ({
   column,
   row,
   setCellDimensions,
@@ -17,7 +18,6 @@ const CustomCell = ({
   mode,
   dragging,
   active,
-  getValue,
   formulaParser,
   data,
   DataViewer,
@@ -75,7 +75,7 @@ const CustomCell = ({
         data && data.className
       )}
       style={{
-        borderColor: !active && "black",
+        borderColor: active ? "black" : "none",
       }}
       tabIndex={0}
       onMouseOver={handleMouseOver}
@@ -85,7 +85,6 @@ const CustomCell = ({
         row={row}
         column={column}
         cell={data}
-        getValue={getValue}
         formulaParser={formulaParser}
       />
     </td>

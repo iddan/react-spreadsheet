@@ -8,7 +8,7 @@ export type Props = {
 
 const ColumnIndicator = ({ column, label }: Props): React.ReactElement => (
   <th className="Spreadsheet__header">
-    {label !== undefined ? label : columnIndexToLabel(column)}
+    {label !== undefined ? label : columnIndexToLabel(String(column))}
   </th>
 );
 

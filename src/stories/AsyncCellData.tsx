@@ -3,18 +3,32 @@
  */
 
 import * as React from "react";
+import { DataEditorComponent, DataViewerComponent } from "..";
 
-const AsyncCellData = ({ onChange, row, column, cell, getValue }) => {
+export const AsyncCellDataViewer: DataViewerComponent = ({ cell }) => {
+  const value = cell?.value;
+  return (
+    <div>
+      {value}
+      <button disabled>Click Me</button>
+    </div>
+  );
+};
+
+export const AsyncCellDataEditor: DataEditorComponent = ({
+  onChange,
+  cell,
+}) => {
   const [loading, setLoading] = React.useState(false);
   const handleClick = React.useCallback(() => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
       const nextValue = Math.floor(Math.random() * 100);
-      onChange({ row, column, value: nextValue });
+      onChange({ value: nextValue });
     }, 1000);
-  }, [setLoading, onChange, row, column]);
-  const value = getValue({ data: cell });
+  }, [setLoading, onChange]);
+  const value = cell?.value;
   return (
     <div>
       {value}
@@ -22,5 +36,3 @@ const AsyncCellData = ({ onChange, row, column, cell, getValue }) => {
     </div>
   );
 };
-
-export default AsyncCellData;

@@ -2,17 +2,12 @@ import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
-import { isActive, setCell, updateData } from "./util";
+import { isActive, updateData } from "./util";
 
-type Action = <Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>,
-  ...args: unknown[]
-) => Partial<Types.StoreState<Cell, Value>> | null;
-
-export const setData = <Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>,
+export const setData = <Cell extends Types.CellBase>(
+  state: Types.StoreState<Cell>,
   data: Matrix.Matrix<Cell>
-): Partial<Types.StoreState<Cell, Value>> => {
+): Partial<Types.StoreState<Cell>> => {
   const nextActive =
     state.active && Matrix.has(state.active.row, state.active.column, data)
       ? state.active
@@ -40,7 +35,10 @@ export const setData = <Cell extends Types.CellBase<Value>, Value>(
   };
 };
 
-export const select: Action = (state, cellPointer: Types.Point) => {
+export const select = (
+  state: Types.StoreState,
+  cellPointer: Types.Point
+): Partial<Types.StoreState> | null => {
   if (state.active && !isActive(state.active, cellPointer)) {
     return {
       selected: PointSet.from(
@@ -55,34 +53,40 @@ export const select: Action = (state, cellPointer: Types.Point) => {
   return null;
 };
 
-export const activate: Action = (state, cellPointer: Types.Point) => ({
+export const activate = (
+  state: Types.StoreState,
+  cellPointer: Types.Point
+): Partial<Types.StoreState> | null => ({
   selected: PointSet.from([cellPointer]),
   active: cellPointer,
   mode: isActive(state.active, cellPointer) ? "edit" : "view",
 });
 
-export function setCellData<Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>,
+export function setCellData<Cell extends Types.CellBase>(
+  state: Types.StoreState<Cell>,
   active: Types.Point,
   data: Cell,
   bindings: Types.Point[]
-): Partial<Types.StoreState<Cell, Value>> | null {
+): Partial<Types.StoreState<Cell>> | null {
   if (isActiveReadOnly(state)) {
     return null;
   }
   return {
     mode: "edit",
-    data: setCell(state, active, data),
+    data: updateData<Cell>(state.data, {
+      ...active,
+      data,
+    }),
     lastChanged: active,
     bindings: PointMap.set(active, PointSet.from(bindings), state.bindings),
   };
 }
 
 export function setCellDimensions(
-  state: Types.StoreState<unknown, unknown>,
+  state: Types.StoreState,
   point: Types.Point,
   dimensions: Types.Dimensions
-): Partial<Types.StoreState<unknown, unknown>> | null {
+): Partial<Types.StoreState> | null {
   const prevRowDimensions = state.rowDimensions[point.row];
   const prevColumnDimensions = state.columnDimensions[point.column];
   if (
@@ -107,17 +111,15 @@ export function setCellDimensions(
   };
 }
 
-export function copy<Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>
-): Partial<Types.StoreState<Cell, Value>> {
+export function copy<Cell extends Types.CellBase>(
+  state: Types.StoreState<Cell>
+): Partial<Types.StoreState<Cell>> {
   return {
     copied: PointSet.reduce(
-      (acc, point) =>
-        PointMap.set(
-          point,
-          Matrix.get(point.row, point.column, state.data),
-          acc
-        ),
+      (acc, point) => {
+        const value = Matrix.get(point.row, point.column, state.data);
+        return value === undefined ? acc : PointMap.set(point, value, acc);
+      },
       state.selected,
       PointMap.from<Cell>([])
     ),
@@ -126,19 +128,17 @@ export function copy<Cell extends Types.CellBase<Value>, Value>(
   };
 }
 
-export function cut<Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>
-): Partial<Types.StoreState<Cell, Value>> {
+export function cut(state: Types.StoreState): Partial<Types.StoreState> {
   return {
     ...copy(state),
     cut: true,
   };
 }
 
-export async function paste<Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>,
+export async function paste<Cell extends Types.CellBase>(
+  state: Types.StoreState<Cell>,
   text: string
-): Promise<Partial<Types.StoreState<Cell, Value>> | null> {
+): Promise<Partial<Types.StoreState<Cell>> | null> {
   const { active } = state;
   if (!text || !active) {
     return null;
@@ -149,9 +149,9 @@ export async function paste<Cell extends Types.CellBase<Value>, Value>(
   const minPoint = PointSet.min(copied);
 
   type Accumulator = {
-    data: Types.StoreState<Cell, Value>["data"];
-    selected: Types.StoreState<Cell, Value>["selected"];
-    commit: Types.StoreState<Cell, Value>["lastCommit"];
+    data: typeof state.data;
+    selected: typeof state.selected;
+    commit: typeof state.lastCommit;
   };
 
   const requiredRows = active.row + Matrix.getSize(copiedMatrix).rows;
@@ -168,13 +168,13 @@ export async function paste<Cell extends Types.CellBase<Value>, Value>(
         : acc.data;
 
       if (state.cut) {
-        commit = [...commit, { prevCell: value, nextCell: undefined }];
+        commit = [...commit, { prevCell: value, nextCell: null }];
       }
 
       if (!Matrix.has(nextRow, nextColumn, paddedData)) {
         return { data: nextData, selected: acc.selected, commit };
       }
-      const currentValue = Matrix.get(nextRow, nextColumn, nextData) || {};
+      const currentValue = Matrix.get(nextRow, nextColumn, nextData) || null;
 
       commit = [
         ...commit,
@@ -212,55 +212,50 @@ export async function paste<Cell extends Types.CellBase<Value>, Value>(
   };
 }
 
-export const edit = <Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>
-): Partial<Types.StoreState<Cell, Value>> | null => {
+export const edit = (
+  state: Types.StoreState<Types.CellBase>
+): Partial<Types.StoreState> | null => {
   if (isActiveReadOnly(state)) {
     return null;
   }
   return { mode: "edit" };
 };
 
-export const view = (): Partial<Types.StoreState<unknown, unknown>> => ({
+export const view = (): Partial<Types.StoreState> => ({
   mode: "view",
 });
 
-export const clear = <Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>
-): Partial<Types.StoreState<Cell, Value>> | null => {
+export const clear = <Cell extends Types.CellBase>(
+  state: Types.StoreState<Cell>
+): Partial<Types.StoreState<Cell>> | null => {
   if (!state.active) {
     return null;
   }
-
-  const { row, column } = state.active;
-  const cell = Matrix.get(row, column, state.data);
+  const changes = PointSet.toArray(state.selected).map((point) => {
+    const cell = Matrix.get(point.row, point.column, state.data);
+    return {
+      prevCell: cell || null,
+      nextCell: null,
+    };
+  });
   return {
     data: PointSet.reduce(
       (acc, point) =>
-        updateData<Cell, Value>(acc, {
+        updateData<Cell>(acc, {
           ...point,
-          data: { ...cell, value: "" },
+          data: undefined,
         }),
       state.selected,
       state.data
     ),
-    ...commit(
-      state,
-      PointSet.toArray(state.selected).map((point) => {
-        const cell = Matrix.get(point.row, point.column, state.data);
-        return {
-          prevCell: cell,
-          nextCell: { ...cell, value: "" },
-        };
-      })
-    ),
+    ...commit(state, changes),
   };
 };
 
 export type KeyDownHandler = (
-  state: Types.StoreState<unknown, unknown>,
-  event: KeyboardEvent
-) => Partial<Types.StoreState<unknown, unknown>> | null;
+  state: Types.StoreState<Types.CellBase>,
+  event: React.KeyboardEvent
+) => Partial<Types.StoreState> | null;
 
 export const go = (rowDelta: number, columnDelta: number): KeyDownHandler => (
   state
@@ -283,9 +278,9 @@ export const go = (rowDelta: number, columnDelta: number): KeyDownHandler => (
 };
 
 export const modifyEdge = (field: keyof Types.Point, delta: number) => (
-  state: Types.StoreState<unknown, unknown>,
+  state: Types.StoreState,
   event: unknown
-) => {
+): Partial<Types.StoreState> | null => {
   const { active } = state;
   if (!active) {
     return null;
@@ -309,7 +304,7 @@ export const modifyEdge = (field: keyof Types.Point, delta: number) => (
   };
 };
 
-export const blur = (): Partial<Types.StoreState<unknown, unknown>> => ({
+export const blur = (): Partial<Types.StoreState> => ({
   active: null,
 });
 
@@ -347,26 +342,24 @@ const shiftKeyDownHandlers: KeyDownHandlers = {
 const shiftMetaKeyDownHandlers: KeyDownHandlers = {};
 const metaKeyDownHandlers: KeyDownHandlers = {};
 
-function getActive<Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>
+function getActive<Cell extends Types.CellBase>(
+  state: Types.StoreState<Cell>
 ): Cell | null {
-  return (
+  const activeCell =
     state.active &&
-    Matrix.get(state.active.row, state.active.column, state.data)
-  );
+    Matrix.get(state.active.row, state.active.column, state.data);
+  return activeCell || null;
 }
 
-const isActiveReadOnly = <Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>
-): boolean => {
+const isActiveReadOnly = (state: Types.StoreState<Types.CellBase>): boolean => {
   const activeCell = getActive(state);
   return Boolean(activeCell && activeCell.readOnly);
 };
 
-export function keyPress<Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>,
-  event: KeyboardEvent
-): Partial<Types.StoreState<Cell, Value>> | null {
+export function keyPress(
+  state: Types.StoreState<Types.CellBase>,
+  event: React.KeyboardEvent
+): Partial<Types.StoreState> | null {
   if (isActiveReadOnly(state) || event.metaKey) {
     return null;
   }
@@ -377,8 +370,8 @@ export function keyPress<Cell extends Types.CellBase<Value>, Value>(
 }
 
 export function getKeyDownHandler(
-  state: Types.StoreState<unknown, unknown>,
-  event: KeyboardEvent
+  state: Types.StoreState,
+  event: React.KeyboardEvent
 ): KeyDownHandler {
   const { key } = event;
   let handlers;
@@ -399,9 +392,9 @@ export function getKeyDownHandler(
 }
 
 export function keyDown(
-  state: Types.StoreState<unknown, unknown>,
-  event: KeyboardEvent
-): Partial<Types.StoreState<unknown, unknown>> | null {
+  state: Types.StoreState,
+  event: React.KeyboardEvent
+): Partial<Types.StoreState> | null {
   const handler = getKeyDownHandler(state, event);
   if (handler) {
     return handler(state, event);
@@ -409,24 +402,20 @@ export function keyDown(
   return null;
 }
 
-export function dragStart(
-  state: Types.StoreState<unknown, unknown>
-): Partial<Types.StoreState<unknown, unknown>> {
+export function dragStart(state: Types.StoreState): Partial<Types.StoreState> {
   return { dragging: true };
 }
 
-export function dragEnd(
-  state: Types.StoreState<unknown, unknown>
-): Partial<Types.StoreState<unknown, unknown>> {
+export function dragEnd(state: Types.StoreState): Partial<Types.StoreState> {
   return { dragging: false };
 }
 
-export function commit<Cell extends Types.CellBase<Value>, Value>(
-  state: Types.StoreState<Cell, Value>,
+export function commit<Cell extends Types.CellBase>(
+  state: Types.StoreState<Cell>,
   changes: Array<{
     prevCell: Cell | null;
     nextCell: Cell | null;
   }>
-): Partial<Types.StoreState<Cell, Value>> {
+): Partial<Types.StoreState<Cell>> {
   return { lastCommit: changes };
 }
