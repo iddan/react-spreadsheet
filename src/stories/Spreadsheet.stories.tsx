@@ -21,12 +21,10 @@ export default {
   args: {
     data: EMPTY_DATA,
   },
-  parameters: { actions: { argTypesRegex: "^on.*" } },
-  argTypes: { onCellCommit: { action: "cell committed" } },
 } as Meta<Props<StringCell>>;
 
 export const Basic: Story<Props<StringCell>> = (props) => (
-  <Spreadsheet {...props} />
+  <Spreadsheet data={props.data} />
 );
 
 export const Controlled: Story<Props<StringCell>> = (props) => {
@@ -75,30 +73,33 @@ export const Controlled: Story<Props<StringCell>> = (props) => {
         <button onClick={removeColumn}>Remove column</button>
         <button onClick={removeRow}>Remove row</button>
       </div>
-      <Spreadsheet {...props} data={data} onChange={setData} />
+      <Spreadsheet data={data} onChange={setData} />
     </>
   );
 };
 
 export const CustomRowLabels: Story<Props<StringCell>> = (props) => (
   <Spreadsheet
-    {...props}
+    data={props.data}
     rowLabels={["Dan", "Alice", "Bob", "Steve", "Adam", "Ruth"]}
   />
 );
 
 export const CustomColumnLabels: Story<Props<StringCell>> = (props) => (
-  <Spreadsheet {...props} columnLabels={["Name", "Age", "Email", "Address"]} />
+  <Spreadsheet
+    data={props.data}
+    columnLabels={["Name", "Age", "Email", "Address"]}
+  />
 );
 
 export const HideIndicators: Story<Props<StringCell>> = (props) => (
-  <Spreadsheet {...props} hideColumnIndicators hideRowIndicators />
+  <Spreadsheet data={props.data} hideColumnIndicators hideRowIndicators />
 );
 
 export const Readonly: Story<Props<StringCell>> = (props) => {
   const data = createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS);
   data[0][0] = { readOnly: true, value: "Read Only" };
-  return <Spreadsheet {...props} data={data} />;
+  return <Spreadsheet data={data} />;
 };
 
 export const WithAsyncCellData: Story<Props<StringCell>> = (props) => {
@@ -109,11 +110,11 @@ export const WithAsyncCellData: Story<Props<StringCell>> = (props) => {
     DataViewer: AsyncCellDataViewer,
     DataEditor: AsyncCellDataEditor,
   };
-  return <Spreadsheet {...props} data={data} />;
+  return <Spreadsheet data={data} />;
 };
 
 export const WithCustomCell: Story<Props<CellBase>> = (props) => (
-  <Spreadsheet {...props} Cell={CustomCell} />
+  <Spreadsheet data={props.data} Cell={CustomCell} />
 );
 
 export const RangeCell: Story<Props<NumberCell>> = (props) => {
@@ -123,7 +124,7 @@ export const RangeCell: Story<Props<NumberCell>> = (props) => {
     DataViewer: RangeView,
     DataEditor: RangeEdit,
   };
-  return <Spreadsheet {...props} data={data} />;
+  return <Spreadsheet data={data} />;
 };
 
 export const WithSelectCell: Story<Props<StringCell>> = (props) => {
@@ -136,11 +137,11 @@ export const WithSelectCell: Story<Props<StringCell>> = (props) => {
     className: "select-cell",
   };
 
-  return <Spreadsheet {...props} data={data} />;
+  return <Spreadsheet data={data} />;
 };
 
 export const WithCornerIndicator: Story<Props<StringCell>> = (props) => (
-  <Spreadsheet {...props} CornerIndicator={CustomCornerIndicator} />
+  <Spreadsheet data={props.data} CornerIndicator={CustomCornerIndicator} />
 );
 
 export const Filter: Story<Props<StringCell>> = (props) => {
@@ -198,7 +199,7 @@ export const Filter: Story<Props<StringCell>> = (props) => {
           onChange={handleFilterChange}
         />
       </div>
-      <Spreadsheet {...props} data={filtered} onChange={setData} />
+      <Spreadsheet data={filtered} onChange={setData} />
     </>
   );
 };
