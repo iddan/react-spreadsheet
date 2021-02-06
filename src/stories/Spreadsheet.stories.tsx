@@ -1,13 +1,18 @@
 import * as React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
-import { createEmptyMatrix, Spreadsheet, Props, CellBase } from "..";
+import {
+  createEmptyMatrix,
+  Spreadsheet,
+  Props,
+  CellBase,
+  createColorScaleDataViewer,
+} from "..";
 import * as Matrix from "../matrix";
 import { AsyncCellDataEditor, AsyncCellDataViewer } from "./AsyncCellData";
 import CustomCell from "./CustomCell";
 import { RangeEdit, RangeView } from "./RangeDataComponents";
 import { SelectEdit, SelectView } from "./SelectDataComponents";
 import { CustomCornerIndicator } from "./CustomCornerIndicator";
-import createColorScaleDataViewer from "../ColorScaleDataViewer";
 
 type StringCell = CellBase<string | undefined>;
 type NumberCell = CellBase<number | undefined>;
@@ -145,9 +150,7 @@ export const WithCornerIndicator: Story<Props<StringCell>> = (props) => (
 );
 
 export const Filter: Story<Props<StringCell>> = (props) => {
-  const [data, setData] = React.useState(
-    EMPTY_DATA as Matrix.Matrix<StringCell>
-  );
+  const [data, setData] = React.useState(EMPTY_DATA);
   const [filter, setFilter] = React.useState("");
 
   const handleFilterChange = React.useCallback(
@@ -166,7 +169,7 @@ export const Filter: Story<Props<StringCell>> = (props) => {
     if (filter.length === 0) {
       return data;
     }
-    const filtered: Matrix.Matrix<StringCell> = [];
+    const filtered = createEmptyMatrix<StringCell>(0, 0);
     for (let row = 0; row < data.length; row++) {
       if (data.length !== 0) {
         for (let column = 0; column < data[0].length; column++) {
