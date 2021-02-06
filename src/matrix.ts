@@ -105,39 +105,19 @@ export function unset<T>(
   return nextMatrix;
 }
 
-export function reduce<T, A>(
-  func: (a: A, arg1: T | undefined, arg2: Types.Point) => A,
-  matrix: Matrix<T>,
-  initialValue: A
-): A {
-  const { rows, columns } = getSize(matrix);
-  let acc = initialValue;
-  for (let row = 0; row < rows; row++) {
-    if (!matrix[row]) {
-      continue;
-    }
-    for (let column = 0; column < columns; column++) {
-      if (column in matrix[row]) {
-        acc = func(acc, matrix[row][column], { row, column });
-      }
-    }
-  }
-  return acc;
-}
-
 /** Creates an array of values by running each element in collection thru iteratee. */
 export function map<T, T2>(
   func: (arg0: T | undefined, arg1: Types.Point) => T2,
   matrix: Matrix<T>
 ): Matrix<T2> {
-  return reduce(
-    (acc, value, point) => {
-      mutableSet(point.row, point.column, func(value, point), acc);
-      return acc;
-    },
-    matrix,
-    [] as Matrix<T2>
-  );
+  const newMatrix: Matrix<T2> = [];
+  for (const [row, values] of matrix.entries()) {
+    for (const [column, value] of values.entries()) {
+      const point = { row, column };
+      mutableSet(row, column, func(value, point), newMatrix);
+    }
+  }
+  return newMatrix;
 }
 
 /**
