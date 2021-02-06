@@ -31,10 +31,13 @@ jobs:
       - run: yarn check-format
       - run: yarn check-typing
       - run: yarn lint
-      - run: yarn test
-      - run: yarn push-coverage
+      - run: yarn test --coverage
       - run: yarn build
         env:
           NODE_ENV: production
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
     timeout-minutes: 10
