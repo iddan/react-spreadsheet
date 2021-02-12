@@ -3,6 +3,7 @@ import * as React from "react";
 import createStore, { Store } from "unistore";
 import devtools from "unistore/devtools";
 import { Provider } from "unistore/react";
+import HyperFormula, { RawCellContent, Sheet } from "hyperformula";
 import * as Types from "./types";
 import * as PointSet from "./point-set";
 import * as Actions from "./actions";
@@ -52,6 +53,7 @@ const INITIAL_STATE: Pick<
 export default class SpreadsheetStateProvider<
   CellType extends Types.CellBase
 > extends React.PureComponent<Props<CellType>> {
+  hyperFormula: HyperFormula;
   store: Store<Types.StoreState<CellType>>;
   unsubscribe!: Unsubscribe;
   prevState: Types.StoreState<CellType>;
@@ -74,6 +76,7 @@ export default class SpreadsheetStateProvider<
       bindings: PointMap.from([]),
       lastCommit: null,
     };
+    this.hyperFormula = createHyperFormula(props.data);
     this.store =
       process.env.NODE_ENV === "production"
         ? createStore(state)
@@ -101,6 +104,7 @@ export default class SpreadsheetStateProvider<
 
         if (state.data !== prevState.data && state.data !== this.props.data) {
           onChange(state.data);
+          this.hyperFormula = createHyperFormula(state.data);
         }
         if (state.mode !== prevState.mode) {
           onModeChange(state.mode);
@@ -137,4 +141,33 @@ export default class SpreadsheetStateProvider<
       </Provider>
     );
   }
+}
+
+/**
+ * Constructs HyperFormula instance from Spreadsheet data
+ * @param data the spreadsheet data
+ * @returns a HyperFormula instance with a single sheet of the given data
+ */
+function createHyperFormula(
+  data: Matrix.Matrix<Types.CellBase<unknown>>
+): HyperFormula {
+  const sheet = Matrix.map((cell): RawCellContent => {
+    if (!cell) {
+      return undefined;
+    }
+    const { value } = cell;
+    if (
+      value instanceof Date ||
+      typeof value === "string" ||
+      typeof value === "number" ||
+      typeof value === "boolean" ||
+      value === null
+    ) {
+      return value;
+    }
+    return undefined;
+  }, data);
+  return HyperFormula.buildFromArray(sheet, {
+    licenseKey: "agpl-v3",
+  });
 }
