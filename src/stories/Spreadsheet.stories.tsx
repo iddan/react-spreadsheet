@@ -1,6 +1,12 @@
 import * as React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
-import { createEmptyMatrix, Spreadsheet, Props, CellBase } from "..";
+import {
+  createEmptyMatrix,
+  Spreadsheet,
+  Props,
+  CellBase,
+  createColorScaleDataViewer,
+} from "..";
 import * as Matrix from "../matrix";
 import { AsyncCellDataEditor, AsyncCellDataViewer } from "./AsyncCellData";
 import CustomCell from "./CustomCell";
@@ -145,9 +151,7 @@ export const WithCornerIndicator: Story<Props<StringCell>> = (props) => (
 );
 
 export const Filter: Story<Props<StringCell>> = (props) => {
-  const [data, setData] = React.useState(
-    EMPTY_DATA as Matrix.Matrix<StringCell>
-  );
+  const [data, setData] = React.useState(EMPTY_DATA);
   const [filter, setFilter] = React.useState("");
 
   const handleFilterChange = React.useCallback(
@@ -166,7 +170,7 @@ export const Filter: Story<Props<StringCell>> = (props) => {
     if (filter.length === 0) {
       return data;
     }
-    const filtered: Matrix.Matrix<StringCell> = [];
+    const filtered = createEmptyMatrix<StringCell>(0, 0);
     for (let row = 0; row < data.length; row++) {
       if (data.length !== 0) {
         for (let column = 0; column < data[0].length; column++) {
@@ -202,4 +206,43 @@ export const Filter: Story<Props<StringCell>> = (props) => {
       <Spreadsheet data={filtered} onChange={setData} />
     </>
   );
+};
+
+export const ColorScale: Story<Props<NumberCell>> = () => {
+  const data = createEmptyMatrix<NumberCell>(INITIAL_ROWS, INITIAL_COLUMNS);
+  const GreenAndWhiteColorScaleDataViewer = createColorScaleDataViewer({
+    minPoint: { type: "minimum", color: "#57BB8A" },
+    maxPoint: { type: "maximum", color: "#FFFFFF" },
+  });
+
+  const RedYellowGreenColorScaleDataViewer = createColorScaleDataViewer({
+    minPoint: { type: "minimum", color: "#57BB8A" },
+    midPoint: { type: "percent", color: "#FFD665", value: 0.5 },
+    maxPoint: { type: "maximum", color: "#E67B73" },
+  });
+
+  const UnbalanacedRedYellowGreenColorScaleDataViewer = createColorScaleDataViewer(
+    {
+      minPoint: { type: "minimum", color: "#57BB8A" },
+      midPoint: { type: "percent", color: "#FFD665", value: 0.7 },
+      maxPoint: { type: "maximum", color: "#E67B73" },
+    }
+  );
+
+  for (let i = 0; i < INITIAL_ROWS; i++) {
+    data[i][0] = {
+      DataViewer: GreenAndWhiteColorScaleDataViewer,
+      value: i + 1,
+    };
+    data[i][1] = {
+      DataViewer: RedYellowGreenColorScaleDataViewer,
+      value: i + 1,
+    };
+    data[i][2] = {
+      DataViewer: UnbalanacedRedYellowGreenColorScaleDataViewer,
+      value: i + 1,
+    };
+  }
+
+  return <Spreadsheet data={data} />;
 };
