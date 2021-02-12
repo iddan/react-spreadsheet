@@ -128,6 +128,8 @@ describe("PointSet.onEdge()", () => {
     [{ row: 0, column: 0 }, PointSet.Edge.Top, true],
     [{ row: 0, column: 0 }, PointSet.Edge.Right, false],
     [{ row: 0, column: 0 }, PointSet.Edge.Bottom, false],
+    [{ row: 0, column: 1 }, PointSet.Edge.Right, true],
+    [{ row: 1, column: 0 }, PointSet.Edge.Bottom, true],
   ] as const;
   test.each(cases)(
     "PointSet.onEdge(NON_SPARSE_SET, %p, %p) === %p",
