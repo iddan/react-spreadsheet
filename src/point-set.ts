@@ -82,8 +82,14 @@ const maxKey = (object: Record<number, any>): number =>
   // @ts-ignore
   Math.max(...Object.keys(object));
 
-/** Returns the point on the maximal row in the maximal column in the set */
-export function max(set: PointSet): Point {
+/**
+ * Returns the point on the maximal row in the maximal column in the set or
+ * null for an empty set
+ */
+export function max(set: PointSet): Point | null {
+  if (isEmpty(set)) {
+    return null;
+  }
   const row = maxKey(set);
   return { row, column: maxKey(set[row]) };
 }

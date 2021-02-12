@@ -186,3 +186,12 @@ describe("PointSet.shrinkEdge()", () => {
     );
   });
 });
+
+describe("PointSet.max()", () => {
+  test("Returns the point on the maximal row in the maximal column in the set", () => {
+    expect(PointSet.max(SET)).toEqual({ row: 2, column: 2 });
+  });
+  test("Returns null for an empty set", () => {
+    expect(PointSet.max(EMPTY_SET)).toBe(null);
+  });
+});
