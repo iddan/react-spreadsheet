@@ -84,14 +84,10 @@ class Spreadsheet<CellType extends Types.CellBase> extends React.PureComponent<
     const startPoint = PointSet.min(selected);
     const endPoint = PointSet.max(selected);
     const slicedMatrix = Matrix.slice(startPoint, endPoint, data);
-    const valueMatrix = Matrix.map((value, point) => {
-      // Slice makes non-existing cells undefined, empty cells are classically
-      // translated to an empty string in join()
-      if (value === undefined) {
-        return "";
-      }
-      return value;
-    }, slicedMatrix);
+    const valueMatrix = Matrix.map(
+      (cell): string => (cell && cell.value) || "",
+      slicedMatrix
+    );
     const csv = Matrix.join(valueMatrix);
     writeTextToClipboard(event, csv);
   };
