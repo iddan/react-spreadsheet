@@ -326,11 +326,16 @@ const editKeyDownHandlers: KeyDownHandlers = {
   Enter: keyDownHandlers.ArrowDown,
 };
 
+const editShiftKeyDownHandlers: KeyDownHandlers = {
+  Tab: go(0, -1),
+};
+
 const shiftKeyDownHandlers: KeyDownHandlers = {
   ArrowUp: modifyEdge(PointSet.Edge.Top),
   ArrowDown: modifyEdge(PointSet.Edge.Bottom),
   ArrowLeft: modifyEdge(PointSet.Edge.Left),
   ArrowRight: modifyEdge(PointSet.Edge.Right),
+  Tab: go(0, -1),
 };
 
 const shiftMetaKeyDownHandlers: KeyDownHandlers = {};
@@ -371,7 +376,11 @@ export function getKeyDownHandler(
   let handlers;
   // Order matters
   if (state.mode === "edit") {
-    handlers = editKeyDownHandlers;
+    if (event.shiftKey) {
+      handlers = editShiftKeyDownHandlers;
+    } else {
+      handlers = editKeyDownHandlers;
+    }
   } else if (event.shiftKey && event.metaKey) {
     handlers = shiftMetaKeyDownHandlers;
   } else if (event.shiftKey) {
