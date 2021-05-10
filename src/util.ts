@@ -1,6 +1,7 @@
 import * as Types from "./types";
-import { Matrix } from "./matrix";
+import * as Matrix from "./matrix";
 import { Parser as FormulaParser } from "hot-formula-parser";
+import * as PointRange from "./point-range";
 
 export const moveCursorToEnd = (el: HTMLInputElement): void => {
   el.selectionStart = el.selectionEnd = el.value.length;
@@ -44,9 +45,9 @@ export function range(end: number, start = 0, step = 1): number[] {
 }
 
 export function updateData<Cell>(
-  data: Matrix<Cell>,
+  data: Matrix.Matrix<Cell>,
   cellDescriptor: Types.CellDescriptor<Cell>
-): Matrix<Cell> {
+): Matrix.Matrix<Cell> {
   const row = data[cellDescriptor.row];
   const nextData = [...data];
   const nextRow = row ? [...row] : [];
@@ -91,7 +92,10 @@ export const readTextFromClipboard = (event: ClipboardEvent): string => {
   return "";
 };
 
-export function createEmptyMatrix<T>(rows: number, columns: number): Matrix<T> {
+export function createEmptyMatrix<T>(
+  rows: number,
+  columns: number
+): Matrix.Matrix<T> {
   return range(rows).map(() => Array(columns));
 }
 
@@ -106,6 +110,24 @@ export const getCellDimensions = (
     columnDimensions && { ...rowDimensions, ...columnDimensions }
   );
 };
+
+/** Get the dimensions of a range of cells */
+export function getRangeDimensions(
+  state: Types.StoreState,
+  range: PointRange.PointRange
+): Types.Dimensions | null {
+  const startDimensions = getCellDimensions(range.start, state);
+  const endDimensions = getCellDimensions(range.end, state);
+  if (!startDimensions || !endDimensions) {
+    return null;
+  }
+  return {
+    width: endDimensions.left + endDimensions.width - startDimensions.left,
+    height: endDimensions.top + endDimensions.height - startDimensions.top,
+    top: startDimensions.top,
+    left: startDimensions.left,
+  };
+}
 
 export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
   cell,
@@ -123,4 +145,28 @@ export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
     return error || result;
   }
   return rawValue;
+}
+
+export function normalizeSelected(
+  selected: PointRange.PointRange | null,
+  data: Matrix.Matrix<unknown>
+): PointRange.PointRange | null {
+  const dataSize = Matrix.getSize(data);
+  const dataRange = PointRange.create(
+    { row: 0, column: 0 },
+    { row: dataSize.rows - 1, column: dataSize.columns - 1 }
+  );
+  return selected && PointRange.mask(selected, dataRange);
+}
+
+export function getSelectedCSV(
+  selected: PointRange.PointRange | null,
+  data: Matrix.Matrix<Types.CellBase>
+) {
+  if (!selected) {
+    return "";
+  }
+  const slicedMatrix = Matrix.slice(selected.start, selected.end, data);
+  const valueMatrix = Matrix.map((cell) => cell?.value || "", slicedMatrix);
+  return Matrix.join(valueMatrix);
 }

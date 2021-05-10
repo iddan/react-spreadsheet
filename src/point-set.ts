@@ -12,12 +12,8 @@ export type Descriptor<T> = {
 } & Point;
 
 /** Appends a new point to the Set object */
-export const add = (set: PointSet, point: Point): PointSet =>
+const add = (set: PointSet, point: Point): PointSet =>
   PointMap.set(point, true, set);
-
-/** Removes the point from the Set object */
-export const remove = (set: PointSet, point: Point): PointSet =>
-  PointMap.unset(point, set);
 
 /** Returns a boolean asserting whether an point is present with the given value in the Set object or not */
 export const has = (set: PointSet, point: Point): boolean =>
@@ -75,14 +71,6 @@ export function max(set: PointSet): Point {
 /** Creates a new PointSet instance from an array-like or iterable object */
 export function from(points: Point[]): PointSet {
   return points.reduce(add, PointMap.from([]));
-}
-
-/** Returns whether set has any points in */
-export const isEmpty = (set: PointSet): boolean => PointMap.isEmpty(set);
-
-/** Returns an array of the set points */
-export function toArray(set: PointSet): Point[] {
-  return reduce((acc: Point[], point: Point) => [...acc, point], set, []);
 }
 
 type OnEdge = {
@@ -143,44 +131,4 @@ export function getEdgeValue(
     throw new Error("Unexpected value");
   }
   return result;
-}
-
-export function extendEdge(
-  set: PointSet,
-  field: keyof Point,
-  delta: number
-): PointSet {
-  const oppositeField = field === "row" ? "column" : "row";
-  const edgeValue = getEdgeValue(set, field, delta);
-  return reduce(
-    (acc, point) => {
-      if (point[field] === edgeValue) {
-        return add(acc, {
-          [field]: edgeValue + delta,
-          [oppositeField]: point[oppositeField],
-        } as Point);
-      }
-      return acc;
-    },
-    set,
-    set
-  );
-}
-
-export function shrinkEdge(
-  set: PointSet,
-  field: keyof Point,
-  delta: number
-): PointSet {
-  const edgeValue = getEdgeValue(set, field, delta);
-  return reduce(
-    (acc, point) => {
-      if (point[field] === edgeValue) {
-        return remove(acc, point);
-      }
-      return acc;
-    },
-    set,
-    set
-  );
 }

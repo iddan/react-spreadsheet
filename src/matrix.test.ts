@@ -1,4 +1,3 @@
-import { transform } from "@babel/core";
 import * as Matrix from "./matrix";
 
 const MATRIX = [
@@ -140,56 +139,6 @@ describe("Matrix.slice()", () => {
       [23, 24],
       [33, 34],
       [43, 44],
-    ]);
-  });
-});
-
-describe("Matrix.range()", () => {
-  test("Creates an array of points positive progressing from startPoint up to, but not including, endPoint", () => {
-    expect(Matrix.range({ row: 3, column: 3 }, { row: 1, column: 1 })).toEqual([
-      { row: 1, column: 1 },
-      { row: 1, column: 2 },
-      { row: 2, column: 1 },
-      { row: 2, column: 2 },
-    ]);
-  });
-  test("Creates an array of points negative progressing from startPoint up to, but not including, endPoint", () => {
-    expect(Matrix.range({ row: 1, column: 1 }, { row: 3, column: 3 })).toEqual([
-      { row: 3, column: 3 },
-      { row: 3, column: 2 },
-      { row: 2, column: 3 },
-      { row: 2, column: 2 },
-    ]);
-  });
-});
-
-describe("Matrix.inclusiveRange()", () => {
-  test("Like Matrix.range() but including endPoint.", () => {
-    expect(
-      Matrix.inclusiveRange({ row: 3, column: 3 }, { row: 1, column: 1 })
-    ).toEqual([
-      { row: 1, column: 1 },
-      { row: 1, column: 2 },
-      { row: 1, column: 3 },
-      { row: 2, column: 1 },
-      { row: 2, column: 2 },
-      { row: 2, column: 3 },
-      { row: 3, column: 1 },
-      { row: 3, column: 2 },
-      { row: 3, column: 3 },
-    ]);
-    expect(
-      Matrix.inclusiveRange({ row: 1, column: 1 }, { row: 3, column: 3 })
-    ).toEqual([
-      { row: 3, column: 3 },
-      { row: 3, column: 2 },
-      { row: 3, column: 1 },
-      { row: 2, column: 3 },
-      { row: 2, column: 2 },
-      { row: 2, column: 1 },
-      { row: 1, column: 3 },
-      { row: 1, column: 2 },
-      { row: 1, column: 1 },
     ]);
   });
 });
