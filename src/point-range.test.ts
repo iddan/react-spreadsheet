@@ -38,3 +38,18 @@ describe("PointRange.size()", () => {
     expect(PointRange.size(range)).toEqual(expected);
   });
 });
+
+describe("PointRange.has()", () => {
+  const cases: Array<[string, PointRange.PointRange, Point, boolean]> = [
+    ["Exists", PointRange.create(POINT_0_0, POINT_0_0), POINT_0_0, true],
+    [
+      "Does not exist",
+      PointRange.create(POINT_0_0, POINT_0_0),
+      POINT_0_1,
+      false,
+    ],
+  ];
+  test.each(cases)("%s", (name, range, point, expected) => {
+    expect(PointRange.has(range, point)).toEqual(expected);
+  });
+});
