@@ -4,7 +4,7 @@ import createStore, { Store } from "unistore";
 import devtools from "unistore/devtools";
 import { Provider } from "unistore/react";
 import * as Types from "./types";
-import * as PointSet from "./point-set";
+import * as PointRange from "./point-range";
 import * as Actions from "./actions";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
@@ -69,7 +69,7 @@ export default class SpreadsheetStateProvider<
     const state: Types.StoreState<CellType> = {
       ...INITIAL_STATE,
       data: this.props.data,
-      selected: PointSet.from([]),
+      selected: null,
       copied: PointMap.from([]),
       bindings: PointMap.from([]),
       lastCommit: null,
@@ -106,7 +106,10 @@ export default class SpreadsheetStateProvider<
           onModeChange(state.mode);
         }
         if (state.selected !== prevState.selected) {
-          onSelect(PointSet.toArray(state.selected));
+          const points = state.selected
+            ? Array.from(PointRange.iterate(state.selected))
+            : [];
+          onSelect(points);
         }
         if (state.active !== prevState.active && state.active) {
           onActivate(state.active);

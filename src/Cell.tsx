@@ -3,6 +3,7 @@ import classnames from "classnames";
 import { connect } from "unistore/react";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
+import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Actions from "./actions";
@@ -104,7 +105,7 @@ function mapStateToProps<Data extends Types.CellBase>(
 
   return {
     active: cellIsActive,
-    selected: PointSet.has(selected, point),
+    selected: selected ? PointRange.has(selected, point) : false,
     copied: PointMap.has(point, copied),
     mode: cellIsActive ? mode : "view",
     data: Matrix.get(row, column, data),

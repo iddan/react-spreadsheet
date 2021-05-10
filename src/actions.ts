@@ -1,8 +1,16 @@
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
+import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
-import { isActive, updateData } from "./util";
+import { isActive, normalizeSelected, updateData } from "./util";
+
+enum Direction {
+  Left = "Left",
+  Right = "Right",
+  Top = "Top",
+  Down = "Down",
+}
 
 export const setData = <Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>,
@@ -12,10 +20,7 @@ export const setData = <Cell extends Types.CellBase>(
     state.active && Matrix.has(state.active.row, state.active.column, data)
       ? state.active
       : null;
-  const nextSelected = PointSet.filter(
-    (point) => Matrix.has(point.row, point.column, data),
-    state.selected
-  );
+  const nextSelected = normalizeSelected(state.selected, data);
   const nextBindings = PointMap.map(
     (bindings) =>
       PointSet.filter(
@@ -41,12 +46,7 @@ export const select = (
 ): Partial<Types.StoreState> | null => {
   if (state.active && !isActive(state.active, cellPointer)) {
     return {
-      selected: PointSet.from(
-        Matrix.inclusiveRange(
-          { row: cellPointer.row, column: cellPointer.column },
-          { row: state.active.row, column: state.active.column }
-        )
-      ),
+      selected: PointRange.create(cellPointer, state.active),
       mode: "view",
     };
   }
@@ -57,7 +57,7 @@ export const activate = (
   state: Types.StoreState,
   cellPointer: Types.Point
 ): Partial<Types.StoreState> | null => ({
-  selected: PointSet.from([cellPointer]),
+  selected: PointRange.create(cellPointer, cellPointer),
   active: cellPointer,
   mode: isActive(state.active, cellPointer) ? "edit" : "view",
 });
@@ -114,15 +114,14 @@ export function setCellDimensions(
 export function copy<Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>
 ): Partial<Types.StoreState<Cell>> {
+  const selectedPoints = state.selected
+    ? Array.from(PointRange.iterate(state.selected))
+    : [];
   return {
-    copied: PointSet.reduce(
-      (acc, point) => {
-        const value = Matrix.get(point.row, point.column, state.data);
-        return value === undefined ? acc : PointMap.set(point, value, acc);
-      },
-      state.selected,
-      PointMap.from<Cell>([])
-    ),
+    copied: selectedPoints.reduce((acc, point) => {
+      const value = Matrix.get(point.row, point.column, state.data);
+      return value === undefined ? acc : PointMap.set(point, value, acc);
+    }, PointMap.from<Cell>([])),
     cut: false,
     hasPasted: false,
   };
@@ -150,14 +149,14 @@ export async function paste<Cell extends Types.CellBase>(
 
   type Accumulator = {
     data: typeof state.data;
-    selected: typeof state.selected;
     commit: typeof state.lastCommit;
   };
 
-  const requiredRows = active.row + Matrix.getSize(copiedMatrix).rows;
+  const copiedSize = Matrix.getSize(copiedMatrix);
+  const requiredRows = active.row + copiedSize.rows;
   const paddedData = Matrix.padRows(state.data, requiredRows);
 
-  const { data, selected, commit } = PointMap.reduce(
+  const { data, commit } = PointMap.reduce(
     (acc: Accumulator, value, { row, column }): Accumulator => {
       let commit = acc.commit || [];
       const nextRow = row - minPoint.row + active.row;
@@ -172,7 +171,7 @@ export async function paste<Cell extends Types.CellBase>(
       }
 
       if (!Matrix.has(nextRow, nextColumn, paddedData)) {
-        return { data: nextData, selected: acc.selected, commit };
+        return { data: nextData, commit };
       }
       const currentValue = Matrix.get(nextRow, nextColumn, nextData) || null;
 
@@ -191,20 +190,18 @@ export async function paste<Cell extends Types.CellBase>(
           { ...currentValue, ...value },
           nextData
         ),
-        selected: PointSet.add(acc.selected, {
-          row: nextRow,
-          column: nextColumn,
-        }),
-
         commit,
       };
     },
     copied,
-    { data: paddedData, selected: PointSet.from([]), commit: [] }
+    { data: paddedData, commit: [] }
   );
   return {
     data,
-    selected,
+    selected: PointRange.create(active, {
+      row: active.row + copiedSize.rows - 1,
+      column: active.column + copiedSize.columns - 1,
+    }),
     cut: false,
     hasPasted: true,
     mode: "view",
@@ -231,7 +228,10 @@ export const clear = <Cell extends Types.CellBase>(
   if (!state.active) {
     return null;
   }
-  const changes = PointSet.toArray(state.selected).map((point) => {
+  const selectedPoints = state.selected
+    ? Array.from(PointRange.iterate(state.selected))
+    : [];
+  const changes = selectedPoints.map((point) => {
     const cell = Matrix.get(point.row, point.column, state.data);
     return {
       prevCell: cell || null,
@@ -239,13 +239,12 @@ export const clear = <Cell extends Types.CellBase>(
     };
   });
   return {
-    data: PointSet.reduce(
+    data: selectedPoints.reduce(
       (acc, point) =>
         updateData<Cell>(acc, {
           ...point,
           data: undefined,
         }),
-      state.selected,
       state.data
     ),
     ...commit(state, changes),
@@ -272,35 +271,44 @@ export const go = (rowDelta: number, columnDelta: number): KeyDownHandler => (
   }
   return {
     active: nextActive,
-    selected: PointSet.from([nextActive]),
+    selected: PointRange.create(nextActive, nextActive),
     mode: "view",
   };
 };
 
-export const modifyEdge = (field: keyof Types.Point, delta: number) => (
-  state: Types.StoreState,
-  event: unknown
+export const modifyEdge = (edge: Direction) => (
+  state: Types.StoreState
 ): Partial<Types.StoreState> | null => {
-  const { active } = state;
-  if (!active) {
+  const { active, selected } = state;
+
+  if (!active || !selected) {
     return null;
   }
 
-  const edgeOffsets = PointSet.has(state.selected, {
-    ...active,
+  const field =
+    edge === Direction.Left || edge === Direction.Right ? "column" : "row";
 
+  const key =
+    edge === Direction.Left || edge === Direction.Top ? "start" : "end";
+  const delta = key === "start" ? -1 : 1;
+
+  const edgeOffsets = PointRange.has(selected, {
+    ...active,
     [field]: active[field] + delta * -1,
   });
 
-  const nextSelected = edgeOffsets
-    ? PointSet.shrinkEdge(state.selected, field, delta * -1)
-    : PointSet.extendEdge(state.selected, field, delta);
+  const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
+
+  const nextSelected = {
+    ...selected,
+    [keyToModify]: {
+      ...selected[keyToModify],
+      [field]: selected[keyToModify][field] + delta,
+    },
+  };
 
   return {
-    selected: PointSet.filter(
-      (point) => Matrix.has(point.row, point.column, state.data),
-      nextSelected
-    ),
+    selected: normalizeSelected(nextSelected, state.data),
   };
 };
 
@@ -337,10 +345,10 @@ const editShiftKeyDownHandlers: KeyDownHandlers = {
 };
 
 const shiftKeyDownHandlers: KeyDownHandlers = {
-  ArrowUp: modifyEdge("row", -1),
-  ArrowDown: modifyEdge("row", 1),
-  ArrowLeft: modifyEdge("column", -1),
-  ArrowRight: modifyEdge("column", 1),
+  ArrowUp: modifyEdge(Direction.Top),
+  ArrowDown: modifyEdge(Direction.Down),
+  ArrowLeft: modifyEdge(Direction.Left),
+  ArrowRight: modifyEdge(Direction.Right),
   Tab: go(0, -1),
 };
 

@@ -28,8 +28,8 @@ import {
   readTextFromClipboard,
   writeTextToClipboard,
   getComputedValue,
+  getSelectedCSV,
 } from "./util";
-import * as PointSet from "./point-set";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
 import "./Spreadsheet.css";
@@ -78,17 +78,10 @@ class Spreadsheet<CellType extends Types.CellBase> extends React.PureComponent<
 > {
   formulaParser = this.props.formulaParser || new FormulaParser();
 
-  clip = (event: ClipboardEvent) => {
+  clip = (event: ClipboardEvent): void => {
     const { store } = this.props;
     const { data, selected } = store.getState();
-    const startPoint = PointSet.min(selected);
-    const endPoint = PointSet.max(selected);
-    const slicedMatrix = Matrix.slice(startPoint, endPoint, data);
-    const valueMatrix = Matrix.map(
-      (cell): string => (cell && cell.value) || "",
-      slicedMatrix
-    );
-    const csv = Matrix.join(valueMatrix);
+    const csv = getSelectedCSV(selected, data);
     writeTextToClipboard(event, csv);
   };
 

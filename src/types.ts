@@ -3,6 +3,7 @@ import { Parser as FormulaParser } from "hot-formula-parser";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";
 import { Matrix } from "./matrix";
+import { PointRange } from "./point-range";
 
 export type Point = {
   column: number;
@@ -32,7 +33,7 @@ export type Dimensions = {
 
 export type StoreState<Cell extends CellBase = CellBase<any>> = {
   data: Matrix<Cell>;
-  selected: PointSet;
+  selected: PointRange | null;
   copied: PointMap<Cell>;
   hasPasted: boolean;
   cut: boolean;

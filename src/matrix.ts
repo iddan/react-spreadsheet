@@ -4,7 +4,6 @@
  * @todo use Types.Point for all point references
  */
 
-import { range as _range } from "./util";
 import * as Types from "./types";
 
 export type Matrix<T> = Array<Array<T | undefined>>;
@@ -210,47 +209,6 @@ export function padRows<T>(matrix: Matrix<T>, totalRows: number): Matrix<T> {
   const emptyRows = Array(missingRows).fill(emptyRow);
   return [...matrix, ...emptyRows];
 }
-
-/** Creates an array of points (positive and/or negative) progressing from startPoint up to, but not including, endPoint. */
-export function range(
-  endPoint: Types.Point,
-  startPoint: Types.Point
-): Types.Point[] {
-  const points = [];
-  const columnsRange =
-    startPoint.column !== endPoint.column
-      ? _range(endPoint.column, startPoint.column)
-      : startPoint.row !== endPoint.row
-      ? [startPoint.column]
-      : [];
-
-  const rowsRange =
-    startPoint.row !== endPoint.row
-      ? _range(endPoint.row, startPoint.row)
-      : startPoint.column !== endPoint.column
-      ? [startPoint.row]
-      : [];
-
-  for (let i = 0; i < rowsRange.length; i++) {
-    const row = rowsRange[i];
-    for (let j = 0; j < columnsRange.length; j++) {
-      const column = columnsRange[j];
-      points.push({ row, column });
-    }
-  }
-
-  return points;
-}
-
-/** Like Matrix.range() but including endPoint. */
-export const inclusiveRange: typeof range = (endPoint, startPoint) =>
-  range(
-    {
-      row: endPoint.row + Math.sign(endPoint.row - startPoint.row),
-      column: endPoint.column + Math.sign(endPoint.column - startPoint.column),
-    },
-    startPoint
-  );
 
 export function toArray<T>(matrix: Matrix<T>): T[];
 export function toArray<T1, T2>(

@@ -1,12 +1,12 @@
 import * as React from "react";
 import { connect } from "unistore/react";
 import * as Types from "./types";
-import * as PointSet from "./point-set";
 import FloatingRect, {
   Props as FloatingRectProps,
   StateProps,
-  mapStateToProps as mapStateToFloatingRectProps,
 } from "./FloatingRect";
+import * as PointRange from "./point-range";
+import { getRangeDimensions } from "./util";
 
 type Props = Omit<FloatingRectProps, "variant">;
 
@@ -15,11 +15,29 @@ const Selected: React.FC<Props> = (props) => (
 );
 
 export default connect<{}, {}, Types.StoreState, StateProps>((state) => {
-  const cells = state.selected;
-  const props = mapStateToFloatingRectProps(state, cells);
+  const props = mapStateToProps(state, state.selected);
   return {
     ...props,
-    hidden: props.hidden || PointSet.size(cells) === 1,
+    hidden:
+      props.hidden ||
+      Boolean(state.selected && PointRange.size(state.selected) === 1),
     dragging: state.dragging,
   };
 })(Selected);
+
+/** @todo move to floating rect */
+function mapStateToProps(
+  state: Types.StoreState,
+  range: PointRange.PointRange | null
+): Types.Dimensions & { hidden: boolean } {
+  const dimensions = (range && getRangeDimensions(state, range)) || {
+    width: 0,
+    height: 0,
+    left: 0,
+    top: 0,
+  };
+  return {
+    ...dimensions,
+    hidden: !range,
+  };
+}

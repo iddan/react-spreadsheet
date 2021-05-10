@@ -18,26 +18,6 @@ describe("PointSet.from()", () => {
   });
 });
 
-describe("PointSet.add()", () => {
-  test("Appends a new point to the Set object", () => {
-    expect(PointSet.add(set, { row: 3, column: 3 })).toEqual({
-      0: { 0: true, 1: true },
-      1: { 1: true },
-      2: { 2: true },
-      3: { 3: true },
-    });
-  });
-});
-
-describe("PointSet.remove()", () => {
-  test("Removes the point from the Set object", () => {
-    expect(PointSet.remove(set, { row: 2, column: 2 })).toEqual({
-      0: { 0: true, 1: true },
-      1: { 1: true },
-    });
-  });
-});
-
 describe("PointSet.has()", () => {
   test("Returns a boolean asserting whether an point is present with the given value in the Set object or not", () => {
     expect(PointSet.has(set, { row: 2, column: 2 })).toBe(true);
@@ -92,23 +72,5 @@ describe("PointSet.filter()", () => {
 describe("PointSet.min()", () => {
   test("Returns the point on the minimal row in the minimal column in the set", () => {
     expect(PointSet.min(set)).toEqual({ row: 0, column: 0 });
-  });
-});
-
-describe("PointSet.isEmpty()", () => {
-  test("Returns whether set has any points in", () => {
-    expect(PointSet.isEmpty(PointSet.from([]))).toEqual(true);
-    expect(PointSet.isEmpty(set)).toEqual(false);
-  });
-});
-
-describe("PointSet.toArray()", () => {
-  test("Returns an array of the set points", () => {
-    expect(PointSet.toArray(set)).toEqual([
-      { row: 0, column: 0 },
-      { row: 0, column: 1 },
-      { row: 1, column: 1 },
-      { row: 2, column: 2 },
-    ]);
   });
 });
