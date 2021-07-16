@@ -139,7 +139,7 @@ export async function paste<Cell extends Types.CellBase>(
   text: string
 ): Promise<Partial<Types.StoreState<Cell>> | null> {
   const { active } = state;
-  if (!text || !active) {
+  if (!active) {
     return null;
   }
   const copiedMatrix = Matrix.split(text, (value) => ({ value }));
