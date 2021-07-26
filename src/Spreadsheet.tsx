@@ -2,6 +2,7 @@ import * as React from "react";
 import { connect } from "unistore/react";
 import { Store } from "unistore";
 import { Parser as FormulaParser } from "hot-formula-parser";
+import classNames from "classnames";
 
 import * as Types from "./types";
 import DefaultTable, { Props as TableProps } from "./Table";
@@ -35,6 +36,7 @@ import * as Actions from "./actions";
 import "./Spreadsheet.css";
 
 export type Props<CellType extends Types.CellBase> = {
+  className: string;
   formulaParser?: FormulaParser;
   columnLabels?: string[];
   rowLabels?: string[];
@@ -243,7 +245,7 @@ class Spreadsheet<CellType extends Types.CellBase> extends React.PureComponent<
     return (
       <div
         ref={this.handleRoot}
-        className=`Spreadsheet ${this.props.className}`
+        className={classNames("Spreadsheet", this.props.className)}
         onKeyPress={onKeyPress}
         onKeyDown={this.handleKeyDown}
         onMouseMove={this.handleMouseMove}
