@@ -36,7 +36,7 @@ import * as Actions from "./actions";
 import "./Spreadsheet.css";
 
 export type Props<CellType extends Types.CellBase> = {
-  className: string;
+  className?: string;
   formulaParser?: FormulaParser;
   columnLabels?: string[];
   rowLabels?: string[];
