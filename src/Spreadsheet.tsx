@@ -243,7 +243,7 @@ class Spreadsheet<CellType extends Types.CellBase> extends React.PureComponent<
     return (
       <div
         ref={this.handleRoot}
-        className="Spreadsheet"
+        className=`Spreadsheet ${this.props.className}`
         onKeyPress={onKeyPress}
         onKeyDown={this.handleKeyDown}
         onMouseMove={this.handleMouseMove}
