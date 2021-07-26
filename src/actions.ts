@@ -256,61 +256,61 @@ export type KeyDownHandler = (
   event: React.KeyboardEvent
 ) => Partial<Types.StoreState> | null;
 
-export const go =
-  (rowDelta: number, columnDelta: number): KeyDownHandler =>
-  (state) => {
-    if (!state.active) {
-      return null;
-    }
-    const nextActive = {
-      row: state.active.row + rowDelta,
-      column: state.active.column + columnDelta,
-    };
-    if (!Matrix.has(nextActive.row, nextActive.column, state.data)) {
-      return { mode: "view" };
-    }
-    return {
-      active: nextActive,
-      selected: PointRange.create(nextActive, nextActive),
-      mode: "view",
-    };
+export const go = (rowDelta: number, columnDelta: number): KeyDownHandler => (
+  state
+) => {
+  if (!state.active) {
+    return null;
+  }
+  const nextActive = {
+    row: state.active.row + rowDelta,
+    column: state.active.column + columnDelta,
+  };
+  if (!Matrix.has(nextActive.row, nextActive.column, state.data)) {
+    return { mode: "view" };
+  }
+  return {
+    active: nextActive,
+    selected: PointRange.create(nextActive, nextActive),
+    mode: "view",
+  };
+};
+
+export const modifyEdge = (edge: Direction) => (
+  state: Types.StoreState
+): Partial<Types.StoreState> | null => {
+  const { active, selected } = state;
+
+  if (!active || !selected) {
+    return null;
+  }
+
+  const field =
+    edge === Direction.Left || edge === Direction.Right ? "column" : "row";
+
+  const key =
+    edge === Direction.Left || edge === Direction.Top ? "start" : "end";
+  const delta = key === "start" ? -1 : 1;
+
+  const edgeOffsets = PointRange.has(selected, {
+    ...active,
+    [field]: active[field] + delta * -1,
+  });
+
+  const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
+
+  const nextSelected = {
+    ...selected,
+    [keyToModify]: {
+      ...selected[keyToModify],
+      [field]: selected[keyToModify][field] + delta,
+    },
   };
 
-export const modifyEdge =
-  (edge: Direction) =>
-  (state: Types.StoreState): Partial<Types.StoreState> | null => {
-    const { active, selected } = state;
-
-    if (!active || !selected) {
-      return null;
-    }
-
-    const field =
-      edge === Direction.Left || edge === Direction.Right ? "column" : "row";
-
-    const key =
-      edge === Direction.Left || edge === Direction.Top ? "start" : "end";
-    const delta = key === "start" ? -1 : 1;
-
-    const edgeOffsets = PointRange.has(selected, {
-      ...active,
-      [field]: active[field] + delta * -1,
-    });
-
-    const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
-
-    const nextSelected = {
-      ...selected,
-      [keyToModify]: {
-        ...selected[keyToModify],
-        [field]: selected[keyToModify][field] + delta,
-      },
-    };
-
-    return {
-      selected: normalizeSelected(nextSelected, state.data),
-    };
+  return {
+    selected: normalizeSelected(nextSelected, state.data),
   };
+};
 
 export const blur = (): Partial<Types.StoreState> => ({
   active: null,

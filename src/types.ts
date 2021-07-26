@@ -93,18 +93,22 @@ type DataComponentProps<Cell extends CellBase> = {
   cell: Cell | undefined;
 } & Point;
 
-export type DataViewerProps<Cell extends CellBase> =
-  DataComponentProps<Cell> & {
-    formulaParser: FormulaParser;
-  };
+export type DataViewerProps<
+  Cell extends CellBase
+> = DataComponentProps<Cell> & {
+  formulaParser: FormulaParser;
+};
 
-export type DataViewerComponent<Cell extends CellBase = CellBase> =
-  ComponentType<DataViewerProps<Cell>>;
+export type DataViewerComponent<
+  Cell extends CellBase = CellBase
+> = ComponentType<DataViewerProps<Cell>>;
 
-export type DataEditorProps<Cell extends CellBase> =
-  DataComponentProps<Cell> & {
-    onChange: (cell: Cell) => void;
-  };
+export type DataEditorProps<
+  Cell extends CellBase
+> = DataComponentProps<Cell> & {
+  onChange: (cell: Cell) => void;
+};
 
-export type DataEditorComponent<Cell extends CellBase = CellBase> =
-  ComponentType<DataEditorProps<Cell>>;
+export type DataEditorComponent<
+  Cell extends CellBase = CellBase
+> = ComponentType<DataEditorProps<Cell>>;
