@@ -6,9 +6,7 @@ declare module "hot-formula-parser" {
      * @param expression to parse.
      * @return Returns an object with two properties `error` and `result`.
      */
-    parse(
-      value: string
-    ): {
+    parse(value: string): {
       result: string | boolean | number | null;
       error: string | null;
     };
@@ -41,9 +39,7 @@ declare module "hot-formula-parser" {
    * @param label Cell coordinates (eq. 'A1', '$B6', '$N$98').
    * @returns Returns an array of objects.
    */
-  export function extractLabel(
-    label: string
-  ): [
+  export function extractLabel(label: string): [
     {
       index: number;
       label: string;
