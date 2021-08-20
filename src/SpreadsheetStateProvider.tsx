@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import createStore, { Store } from "unistore";
+import createStore from "unistore";
 import devtools from "unistore/devtools";
 import { Provider } from "unistore/react";
 import * as Types from "./types";
@@ -9,8 +9,6 @@ import * as Actions from "./actions";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import Spreadsheet, { Props as SpreadsheetProps } from "./Spreadsheet";
-
-type Unsubscribe = () => void;
 
 export type Props<CellType extends Types.CellBase> = Omit<
   SpreadsheetProps<CellType>,
@@ -49,91 +47,87 @@ const INITIAL_STATE: Pick<
   dragging: false,
 };
 
-export default class SpreadsheetStateProvider<
-  CellType extends Types.CellBase
-> extends React.PureComponent<Props<CellType>> {
-  store: Store<Types.StoreState<CellType>>;
-  unsubscribe!: Unsubscribe;
-  prevState: Types.StoreState<CellType>;
+const SpreadsheetStateProvider = <CellType extends Types.CellBase>(
+  props: Props<CellType>
+): React.ReactElement => {
+  const { onChange, onModeChange, onSelect, onActivate, onCellCommit } = props;
 
-  static defaultProps = {
-    onChange: (): void => {},
-    onModeChange: (): void => {},
-    onSelect: (): void => {},
-    onActivate: (): void => {},
-    onCellCommit: (): void => {},
-  };
+  const prevStateRef = React.useRef<Types.StoreState<CellType>>({
+    ...INITIAL_STATE,
+    data: props.data,
+    selected: null,
+    copied: PointMap.from([]),
+    bindings: PointMap.from([]),
+    lastCommit: null,
+  });
 
-  constructor(props: Props<CellType>) {
-    super(props);
-    const state: Types.StoreState<CellType> = {
-      ...INITIAL_STATE,
-      data: this.props.data,
-      selected: null,
-      copied: PointMap.from([]),
-      bindings: PointMap.from([]),
-      lastCommit: null,
-    };
-    this.store =
-      process.env.NODE_ENV === "production"
-        ? createStore(state)
-        : devtools(createStore(state));
-    this.prevState = state;
-  }
+  const store = React.useMemo(() => {
+    const prevState = prevStateRef.current;
+    return process.env.NODE_ENV === "production"
+      ? createStore(prevState)
+      : devtools(createStore(prevState));
+  }, []);
 
-  componentDidMount(): void {
-    this.unsubscribe = this.store.subscribe(
-      (state: Types.StoreState<CellType>) => {
-        const {
-          props: { onChange, onModeChange, onSelect, onActivate, onCellCommit },
-          prevState,
-        } = this;
+  const handleStoreChange = React.useCallback(
+    (state: Types.StoreState<CellType>) => {
+      const prevState = prevStateRef.current;
 
-        if (state.lastCommit && state.lastCommit !== prevState.lastCommit) {
-          for (const change of state.lastCommit) {
-            onCellCommit(change.prevCell, change.nextCell, state.active);
-          }
+      if (state.lastCommit && state.lastCommit !== prevState.lastCommit) {
+        for (const change of state.lastCommit) {
+          onCellCommit(change.prevCell, change.nextCell, state.active);
         }
-
-        if (state.data !== prevState.data && state.data !== this.props.data) {
-          onChange(state.data);
-        }
-        if (state.mode !== prevState.mode) {
-          onModeChange(state.mode);
-        }
-        if (state.selected !== prevState.selected) {
-          const points = state.selected
-            ? Array.from(PointRange.iterate(state.selected))
-            : [];
-          onSelect(points);
-        }
-        if (state.active !== prevState.active && state.active) {
-          onActivate(state.active);
-        }
-        this.prevState = state;
       }
-    );
-  }
 
-  componentDidUpdate(prevProps: Props<CellType>): void {
-    if (this.props.data !== this.prevState.data) {
-      const previousState = this.store.getState();
-      const nextState = Actions.setData(previousState, this.props.data);
-      this.store.setState({ ...previousState, ...nextState });
+      if (state.data !== prevState.data && state.data !== props.data) {
+        onChange(state.data);
+      }
+      if (state.mode !== prevState.mode) {
+        onModeChange(state.mode);
+      }
+      if (state.selected !== prevState.selected) {
+        const points = state.selected
+          ? Array.from(PointRange.iterate(state.selected))
+          : [];
+        onSelect(points);
+      }
+      if (state.active !== prevState.active && state.active) {
+        onActivate(state.active);
+      }
+      prevStateRef.current = state;
+    },
+    [onActivate, onCellCommit, onChange, onModeChange, onSelect, props.data]
+  );
+
+  React.useEffect(() => {
+    const unsubscribe = store.subscribe(handleStoreChange);
+    return unsubscribe;
+  }, [store, handleStoreChange]);
+
+  React.useEffect(() => {
+    const prevState = prevStateRef.current;
+    if (props.data !== prevState.data) {
+      const previousState = store.getState();
+      const nextState = Actions.setData(previousState, props.data);
+      store.setState({ ...previousState, ...nextState });
     }
-  }
+  }, [props.data, store]);
 
-  componentWillUnmount(): void {
-    this.unsubscribe();
-  }
+  const { data: _, ...rest } = props;
 
-  render(): React.ReactElement {
-    const { data, ...rest } = this.props;
-    return (
-      <Provider store={this.store}>
-        {/** @ts-ignore */}
-        <Spreadsheet {...rest} store={this.store} />
-      </Provider>
-    );
-  }
-}
+  return (
+    <Provider store={store}>
+      {/** @ts-ignore */}
+      <Spreadsheet {...rest} store={store} />
+    </Provider>
+  );
+};
+
+SpreadsheetStateProvider.defaultProps = {
+  onChange: (): void => {},
+  onModeChange: (): void => {},
+  onSelect: (): void => {},
+  onActivate: (): void => {},
+  onCellCommit: (): void => {},
+};
+
+export default SpreadsheetStateProvider;
