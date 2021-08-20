@@ -26,9 +26,8 @@
   },
   "dependencies": {
     "@types/array.prototype.flatmap": "^1.2.2",
-    "@types/classnames": "^2.2.11",
     "array.prototype.flatmap": "^1.2.4",
-    "classnames": "^2.2.6",
+    "classnames": "^2.3.1",
     "hot-formula-parser": "^4.0.0",
     "unistore": "^3.5.2"
   },
@@ -66,9 +65,9 @@
     "react-select": "^4.0.2",
     "rollup": "^2.32.1",
     "rollup-plugin-postcss": "^3.1.8",
-    "rollup-plugin-typescript2": "^0.29.0",
+    "rollup-plugin-typescript2": "^0.30.0",
     "ts-jest": "^26.4.4",
-    "tslib": "^2.0.3",
+    "tslib": "^2.3.1",
     "typescript": "^4.3.5",
     "webpack": "^5.21.0"
   },

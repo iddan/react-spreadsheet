@@ -13,7 +13,7 @@ export type Descriptor<T> = {
 
 /** Appends a new point to the Set object */
 const add = (set: PointSet, point: Point): PointSet =>
-  PointMap.set(point, true, set);
+  PointMap.set<boolean>(point, true, set);
 
 /** Returns a boolean asserting whether an point is present with the given value in the Set object or not */
 export const has = (set: PointSet, point: Point): boolean =>
