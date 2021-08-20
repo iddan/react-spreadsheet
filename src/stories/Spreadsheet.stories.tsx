@@ -28,7 +28,6 @@ export const Basic: Story<Props<StringCell>> = (props) => (
 );
 
 export const Controlled: Story<Props<StringCell>> = (props) => {
-  console.log(props);
   const [data, setData] = React.useState(EMPTY_DATA);
 
   const addColumn = React.useCallback(

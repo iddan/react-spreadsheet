@@ -1,3 +1,5 @@
+import "@storybook/addon-console";
+
 import "./index.css";
 
 export const parameters = {
