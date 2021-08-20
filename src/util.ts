@@ -162,7 +162,7 @@ export function normalizeSelected(
 export function getSelectedCSV(
   selected: PointRange.PointRange | null,
   data: Matrix.Matrix<Types.CellBase>
-) {
+): string {
   if (!selected) {
     return "";
   }
