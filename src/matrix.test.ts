@@ -120,15 +120,11 @@ describe("Matrix.mutableSet()", () => {
 
 describe("Matrix.unset()", () => {
   test("Removes the coordinate of matrix", () => {
-    const nextMatrix = Matrix.unset(
-      EXISTING_POINT.row,
-      EXISTING_POINT.column,
-      MATRIX
-    );
+    const nextMatrix = Matrix.unset(EXISTING_POINT, MATRIX);
     expect(Matrix.get(EXISTING_POINT, nextMatrix)).toBe(undefined);
   });
   test("Returns same matrix if nothing changed", () => {
-    expect(Matrix.unset(5, 5, MATRIX)).toBe(MATRIX);
+    expect(Matrix.unset(NON_EXISTING_POINT, MATRIX)).toBe(MATRIX);
   });
 });
 

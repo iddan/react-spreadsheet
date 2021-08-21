@@ -148,16 +148,14 @@ export async function paste<Cell extends Types.CellBase>(
   const paddedData = Matrix.padRows(state.data, requiredRows);
 
   const { data, commit } = PointMap.reduce(
-    (acc: Accumulator, value, { row, column }): Accumulator => {
+    (acc: Accumulator, value, point): Accumulator => {
       let commit = acc.commit || [];
       const nextPoint: Types.Point = {
-        row: row - minPoint.row + active.row,
-        column: column - minPoint.column + active.column,
+        row: point.row - minPoint.row + active.row,
+        column: point.column - minPoint.column + active.column,
       };
 
-      const nextData = state.cut
-        ? Matrix.unset(row, column, acc.data)
-        : acc.data;
+      const nextData = state.cut ? Matrix.unset(point, acc.data) : acc.data;
 
       if (state.cut) {
         commit = [...commit, { prevCell: value, nextCell: null }];

@@ -84,20 +84,16 @@ export function mutableSet<T>(
 }
 
 /** Removes the coordinate of matrix */
-export function unset<T>(
-  row: number,
-  column: number,
-  matrix: Matrix<T>
-): Matrix<T> {
-  if (!has({ row, column }, matrix)) {
+export function unset<T>(point: Types.Point, matrix: Matrix<T>): Matrix<T> {
+  if (!has(point, matrix)) {
     return matrix;
   }
   const nextMatrix = [...matrix];
-  const nextRow = [...matrix[row]];
+  const nextRow = [...matrix[point.row]];
 
   // Avoid deleting to preserve first row length
-  nextRow[column] = undefined;
-  nextMatrix[row] = nextRow;
+  nextRow[point.column] = undefined;
+  nextMatrix[point.row] = nextRow;
 
   return nextMatrix;
 }
