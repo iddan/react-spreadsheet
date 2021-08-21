@@ -86,3 +86,4 @@ rollup.config.js
 # Reference
 
 reference/
+typedoc.json
