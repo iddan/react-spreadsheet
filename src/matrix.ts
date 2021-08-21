@@ -154,11 +154,12 @@ export function split<T>(
   csv: string,
   transform: (value: string) => T,
   horizontalSeparator = "\t",
-  verticalSeparator = /\r\n|\n|\r/
+  verticalSeparator: string | RegExp = /\r\n|\n|\r/
 ): Matrix<T> {
+  const verticalSeparatorRegExp = typeof (verticalSeparator) === 'string' ? new RegExp(verticalSeparator) : verticalSeparator
   return csv
-    .replace(new RegExp('(' + verticalSeparator.source + ')$'), '') // delete trailing new line character
-    .split(verticalSeparator)
+    .replace(new RegExp('(' + verticalSeparatorRegExp.source + ')$'), '') // delete trailing new line character
+    .split(verticalSeparatorRegExp)
     .map((row) => row.split(horizontalSeparator).map(transform));
 }
 
