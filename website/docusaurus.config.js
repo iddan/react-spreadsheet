@@ -42,7 +42,7 @@ module.exports = {
           sidebarPath: require.resolve("./docs/sidebars.js"),
           // Please change this to your repo.
           editUrl:
-            "https://github.com/iddan/react-spreadsheet-site/edit/master/",
+            "https://github.com/iddan/react-spreadsheet/tree/master/website",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),

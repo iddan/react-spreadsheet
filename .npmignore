@@ -83,6 +83,10 @@ rollup.config.js
 *.test.ts
 *.stories.ts
 
+# Website
+
+website/
+
 # Reference
 
 reference/
