@@ -1,4 +1,5 @@
 import * as Matrix from "./matrix";
+import { Point } from "./types";
 
 const MATRIX = [
   [1, 2, 3],
@@ -6,14 +7,24 @@ const MATRIX = [
   [7, 8, 9],
 ];
 
+const EXISTING_POINT: Point = {
+  row: 2,
+  column: 2,
+};
+
+const NON_EXISTING_POINT: Point = {
+  row: 3,
+  column: 3,
+};
+
 const CSV = "1\t2\t3\n4\t5\t6\n7\t8\t9";
 
 describe("Matrix.get()", () => {
   test("Gets value", () => {
-    expect(Matrix.get(2, 2, MATRIX)).toBe(9);
+    expect(Matrix.get(EXISTING_POINT, MATRIX)).toBe(9);
   });
   test("Returns undefined for missing coordinate", () => {
-    expect(Matrix.get(3, 3, MATRIX)).toBe(undefined);
+    expect(Matrix.get(NON_EXISTING_POINT, MATRIX)).toBe(undefined);
   });
 });
 
@@ -57,12 +68,12 @@ describe("Matrix.split()", () => {
 
 describe("Matrix.set()", () => {
   test("Sets value", () => {
-    const nextMatrix = Matrix.set(2, 2, 42, MATRIX);
-    expect(Matrix.get(2, 2, nextMatrix)).toBe(42);
+    const nextMatrix = Matrix.set(EXISTING_POINT, 42, MATRIX);
+    expect(Matrix.get(EXISTING_POINT, nextMatrix)).toBe(42);
   });
   test("Modifies matrix for out of range coordinate", () => {
-    const nextMatrix = Matrix.set(3, 3, 42, MATRIX);
-    expect(Matrix.get(3, 3, nextMatrix)).toBe(42);
+    const nextMatrix = Matrix.set(NON_EXISTING_POINT, 42, MATRIX);
+    expect(Matrix.get(NON_EXISTING_POINT, nextMatrix)).toBe(42);
     expect(Matrix.getSize(nextMatrix)).toEqual({ columns: 4, rows: 4 });
   });
 });
@@ -75,10 +86,8 @@ describe("Matrix.mutableSet()", () => {
       [7, 8, 9],
     ];
     const value = 42;
-    const row = 2;
-    const column = 2;
-    Matrix.mutableSet(row, column, value, matrix);
-    expect(Matrix.get(row, column, matrix)).toBe(value);
+    Matrix.mutableSet(EXISTING_POINT, value, matrix);
+    expect(Matrix.get(EXISTING_POINT, matrix)).toBe(value);
   });
   test("Modifies matrix for out of range coordinate", () => {
     const matrix = [
@@ -87,32 +96,32 @@ describe("Matrix.mutableSet()", () => {
       [7, 8, 9],
     ];
     const value = 42;
-    const row = 3;
-    const column = 3;
-    Matrix.mutableSet(row, column, value, matrix);
-    expect(Matrix.get(row, column, matrix)).toBe(42);
+    Matrix.mutableSet(NON_EXISTING_POINT, value, matrix);
+    expect(Matrix.get(NON_EXISTING_POINT, matrix)).toBe(42);
     expect(Matrix.getSize(matrix)).toEqual({
-      columns: column + 1,
-      rows: row + 1,
+      columns: NON_EXISTING_POINT.column + 1,
+      rows: NON_EXISTING_POINT.row + 1,
     });
   });
   test("Creates first row in matrix if out of range", () => {
     const matrix: Matrix.Matrix<number> = [];
     const value = 42;
-    const row = 0;
-    const column = 0;
-    Matrix.mutableSet(row, column, value, matrix);
-    expect(Matrix.get(row, column, matrix)).toBe(42);
+    const point = {
+      row: 0,
+      column: 0,
+    };
+    Matrix.mutableSet(point, value, matrix);
+    expect(Matrix.get(point, matrix)).toBe(42);
   });
 });
 
 describe("Matrix.unset()", () => {
   test("Removes the coordinate of matrix", () => {
-    const nextMatrix = Matrix.unset(2, 2, MATRIX);
-    expect(Matrix.get(2, 2, nextMatrix)).toBe(undefined);
+    const nextMatrix = Matrix.unset(EXISTING_POINT, MATRIX);
+    expect(Matrix.get(EXISTING_POINT, nextMatrix)).toBe(undefined);
   });
   test("Returns same matrix if nothing changed", () => {
-    expect(Matrix.unset(5, 5, MATRIX)).toBe(MATRIX);
+    expect(Matrix.unset(NON_EXISTING_POINT, MATRIX)).toBe(MATRIX);
   });
 });
 

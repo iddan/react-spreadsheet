@@ -35,6 +35,7 @@ jobs:
       - run: yarn build
         env:
           NODE_ENV: production
+      - run: yarn build-typedoc
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:

@@ -17,20 +17,11 @@ export const setData = <Cell extends Types.CellBase>(
   data: Matrix.Matrix<Cell>
 ): Partial<Types.StoreState<Cell>> => {
   const nextActive =
-    state.active && Matrix.has(state.active.row, state.active.column, data)
-      ? state.active
-      : null;
+    state.active && Matrix.has(state.active, data) ? state.active : null;
   const nextSelected = normalizeSelected(state.selected, data);
   const nextBindings = PointMap.map(
-    (bindings) =>
-      PointSet.filter(
-        (point) => Matrix.has(point.row, point.column, data),
-        bindings
-      ),
-    PointMap.filter(
-      (_, point) => Matrix.has(point.row, point.column, data),
-      state.bindings
-    )
+    (bindings) => PointSet.filter((point) => Matrix.has(point, data), bindings),
+    PointMap.filter((_, point) => Matrix.has(point, data), state.bindings)
   );
   return {
     data,
@@ -119,7 +110,7 @@ export function copy<Cell extends Types.CellBase>(
     : [];
   return {
     copied: selectedPoints.reduce((acc, point) => {
-      const value = Matrix.get(point.row, point.column, state.data);
+      const value = Matrix.get(point, state.data);
       return value === undefined ? acc : PointMap.set(point, value, acc);
     }, PointMap.from<Cell>([])),
     cut: false,
@@ -157,23 +148,24 @@ export async function paste<Cell extends Types.CellBase>(
   const paddedData = Matrix.padRows(state.data, requiredRows);
 
   const { data, commit } = PointMap.reduce(
-    (acc: Accumulator, value, { row, column }): Accumulator => {
+    (acc: Accumulator, value, point): Accumulator => {
       let commit = acc.commit || [];
-      const nextRow = row - minPoint.row + active.row;
-      const nextColumn = column - minPoint.column + active.column;
+      const nextPoint: Types.Point = {
+        row: point.row - minPoint.row + active.row,
+        column: point.column - minPoint.column + active.column,
+      };
 
-      const nextData = state.cut
-        ? Matrix.unset(row, column, acc.data)
-        : acc.data;
+      const nextData = state.cut ? Matrix.unset(point, acc.data) : acc.data;
 
       if (state.cut) {
         commit = [...commit, { prevCell: value, nextCell: null }];
       }
 
-      if (!Matrix.has(nextRow, nextColumn, paddedData)) {
+      if (!Matrix.has(nextPoint, paddedData)) {
         return { data: nextData, commit };
       }
-      const currentValue = Matrix.get(nextRow, nextColumn, nextData) || null;
+
+      const currentValue = Matrix.get(nextPoint, nextData) || null;
 
       commit = [
         ...commit,
@@ -184,12 +176,7 @@ export async function paste<Cell extends Types.CellBase>(
       ];
 
       return {
-        data: Matrix.set(
-          nextRow,
-          nextColumn,
-          { ...currentValue, ...value },
-          nextData
-        ),
+        data: Matrix.set(nextPoint, { ...currentValue, ...value }, nextData),
         commit,
       };
     },
@@ -232,7 +219,7 @@ export const clear = <Cell extends Types.CellBase>(
     ? Array.from(PointRange.iterate(state.selected))
     : [];
   const changes = selectedPoints.map((point) => {
-    const cell = Matrix.get(point.row, point.column, state.data);
+    const cell = Matrix.get(point, state.data);
     return {
       prevCell: cell || null,
       nextCell: null,
@@ -266,7 +253,7 @@ export const go =
       row: state.active.row + rowDelta,
       column: state.active.column + columnDelta,
     };
-    if (!Matrix.has(nextActive.row, nextActive.column, state.data)) {
+    if (!Matrix.has(nextActive, state.data)) {
       return { mode: "view" };
     }
     return {
@@ -322,7 +309,6 @@ type KeyDownHandlers = {
   [K in string]: KeyDownHandler;
 };
 
-/** @todo handle inactive state? */
 const keyDownHandlers: KeyDownHandlers = {
   ArrowUp: go(-1, 0),
   ArrowDown: go(+1, 0),
@@ -358,9 +344,7 @@ const metaKeyDownHandlers: KeyDownHandlers = {};
 function getActive<Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>
 ): Cell | null {
-  const activeCell =
-    state.active &&
-    Matrix.get(state.active.row, state.active.column, state.data);
+  const activeCell = state.active && Matrix.get(state.active, state.data);
   return activeCell || null;
 }
 

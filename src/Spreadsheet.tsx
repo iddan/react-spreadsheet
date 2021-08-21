@@ -218,13 +218,12 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   React.useEffect(() => {
     formulaParser.on("callCellValue", (cellCoord, done) => {
       let value;
-      /** @todo More sound error, or at least document */
       try {
-        const cell = Matrix.get(
-          cellCoord.row.index,
-          cellCoord.column.index,
-          store.getState().data
-        );
+        const point = {
+          row: cellCoord.row.index,
+          column: cellCoord.column.index,
+        };
+        const cell = Matrix.get(point, store.getState().data);
         value = getComputedValue<CellType, CellType["value"]>({
           cell,
           formulaParser: formulaParser,

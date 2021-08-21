@@ -1,7 +1,5 @@
 /**
  * Immutable interface for Matrices
- *
- * @todo use Types.Point for all point references
  */
 
 import * as Types from "./types";
@@ -9,16 +7,12 @@ import * as Types from "./types";
 export type Matrix<T> = Array<Array<T | undefined>>;
 
 /** Gets the value at row and column of matrix. */
-export function get<T>(
-  row: number,
-  column: number,
-  matrix: Matrix<T>
-): T | undefined {
-  const columns = matrix[row];
+export function get<T>(point: Types.Point, matrix: Matrix<T>): T | undefined {
+  const columns = matrix[point.row];
   if (columns === undefined) {
     return undefined;
   }
-  return columns[column];
+  return columns[point.column];
 }
 
 /** Creates a slice of matrix from startPoint up to, but not including, endPoint. */
@@ -33,7 +27,10 @@ export function slice<T>(
     const slicedRow = row - startPoint.row;
     sliced[slicedRow] = sliced[slicedRow] || Array(columns);
     for (let column = startPoint.column; column <= endPoint.column; column++) {
-      sliced[slicedRow][column - startPoint.column] = get(row, column, matrix);
+      sliced[slicedRow][column - startPoint.column] = get(
+        { row, column },
+        matrix
+      );
     }
   }
   return sliced;
@@ -41,8 +38,7 @@ export function slice<T>(
 
 /** Sets the value at row and column of matrix. If a row doesn't exist, it's created. */
 export function set<T>(
-  row: number,
-  column: number,
+  point: Types.Point,
   value: T,
   matrix: Matrix<T>
 ): Matrix<T> {
@@ -51,22 +47,21 @@ export function set<T>(
   // Synchronize first row length
   const firstRow = matrix[0];
   const nextFirstRow = firstRow ? [...firstRow] : [];
-  if (nextFirstRow.length - 1 < column) {
-    nextFirstRow[column] = undefined;
+  if (nextFirstRow.length - 1 < point.column) {
+    nextFirstRow[point.column] = undefined;
     nextMatrix[0] = nextFirstRow;
   }
 
-  const nextRow = matrix[row] ? [...matrix[row]] : [];
-  nextRow[column] = value;
-  nextMatrix[row] = nextRow;
+  const nextRow = matrix[point.row] ? [...matrix[point.row]] : [];
+  nextRow[point.column] = value;
+  nextMatrix[point.row] = nextRow;
 
   return nextMatrix;
 }
 
 /** Like Matrix.set() but mutates the matrix */
 export function mutableSet<T>(
-  row: number,
-  column: number,
+  point: Types.Point,
   value: T,
   matrix: Matrix<T>
 ): void {
@@ -75,31 +70,27 @@ export function mutableSet<T>(
     firstRow = [];
     matrix[0] = firstRow;
   }
-  if (!(row in matrix)) {
-    matrix[row] = [];
+  if (!(point.row in matrix)) {
+    matrix[point.row] = [];
   }
   // Synchronize first row length
-  if (!(column in firstRow)) {
-    firstRow[column] = undefined;
+  if (!(point.column in firstRow)) {
+    firstRow[point.column] = undefined;
   }
-  matrix[row][column] = value;
+  matrix[point.row][point.column] = value;
 }
 
 /** Removes the coordinate of matrix */
-export function unset<T>(
-  row: number,
-  column: number,
-  matrix: Matrix<T>
-): Matrix<T> {
-  if (!has(row, column, matrix)) {
+export function unset<T>(point: Types.Point, matrix: Matrix<T>): Matrix<T> {
+  if (!has(point, matrix)) {
     return matrix;
   }
   const nextMatrix = [...matrix];
-  const nextRow = [...matrix[row]];
+  const nextRow = [...matrix[point.row]];
 
   // Avoid deleting to preserve first row length
-  nextRow[column] = undefined;
-  nextMatrix[row] = nextRow;
+  nextRow[point.column] = undefined;
+  nextMatrix[point.row] = nextRow;
 
   return nextMatrix;
 }
@@ -113,7 +104,7 @@ export function map<T, T2>(
   for (const [row, values] of matrix.entries()) {
     for (const [column, value] of values.entries()) {
       const point = { row, column };
-      mutableSet(row, column, func(value, point), newMatrix);
+      mutableSet(point, func(value, point), newMatrix);
     }
   }
   return newMatrix;
@@ -162,18 +153,18 @@ export function split<T>(
 }
 
 /** Returns whether the point exists in the matrix or not. */
-export function has(row: number, column: number, matrix: Matrix<any>): boolean {
+export function has(point: Types.Point, matrix: Matrix<any>): boolean {
   const firstRow = matrix[0];
   return (
     firstRow &&
     // validation
-    row >= 0 &&
-    column >= 0 &&
-    Number.isInteger(row) &&
-    Number.isInteger(column) &&
+    point.row >= 0 &&
+    point.column >= 0 &&
+    Number.isInteger(point.row) &&
+    Number.isInteger(point.column) &&
     // first row length is in sync with other rows
-    column < firstRow.length &&
-    row < matrix.length
+    point.column < firstRow.length &&
+    point.row < matrix.length
   );
 }
 
@@ -193,8 +184,8 @@ export function getSize(matrix: Matrix<any>): Size {
 
 /**
  * Pads matrix with empty rows to match given total rows
- * @param matrix matrix to pad
- * @param totalRows number of rows the matrix should have
+ * @param matrix - matrix to pad
+ * @param totalRows - number of rows the matrix should have
  * @returns the updated matrix
  */
 export function padRows<T>(matrix: Matrix<T>, totalRows: number): Matrix<T> {
@@ -218,8 +209,8 @@ export function toArray<T1, T2>(
 
 /**
  * Flattens a matrix values to an array
- * @param matrix the matrix to flatten values from
- * @param transform optional transform function to apply to each value in the
+ * @param matrix - the matrix to flatten values from
+ * @param transform - optional transform function to apply to each value in the
  * matrix
  * @returns an array of the values from matrix, transformed if a transform
  * function is passed

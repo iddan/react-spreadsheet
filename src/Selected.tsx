@@ -25,7 +25,6 @@ export default connect<{}, {}, Types.StoreState, StateProps>((state) => {
   };
 })(Selected);
 
-/** @todo move to floating rect */
 function mapStateToProps(
   state: Types.StoreState,
   range: PointRange.PointRange | null

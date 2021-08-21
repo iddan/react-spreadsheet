@@ -108,9 +108,8 @@ function mapStateToProps<Data extends Types.CellBase>(
     selected: selected ? PointRange.has(selected, point) : false,
     copied: PointMap.has(point, copied),
     mode: cellIsActive ? mode : "view",
-    data: Matrix.get(row, column, data),
+    data: Matrix.get({ row, column }, data),
     dragging,
-    /** @todo refactor */
     // @ts-ignore
     _bindingChanged:
       cellBindings && lastChanged && PointSet.has(cellBindings, lastChanged)

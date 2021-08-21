@@ -116,7 +116,7 @@ const SpreadsheetStateProvider = <CellType extends Types.CellBase>(
 
   return (
     <Provider store={store}>
-      {/** @ts-ignore */}
+      {/* @ts-ignore */}
       <Spreadsheet {...rest} store={store} />
     </Provider>
   );

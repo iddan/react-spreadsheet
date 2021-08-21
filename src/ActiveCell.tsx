@@ -120,7 +120,7 @@ function mapStateToProps<Cell extends Types.CellBase>(
   return {
     ...state.active,
     hidden: false,
-    cell: Matrix.get(state.active.row, state.active.column, state.data),
+    cell: Matrix.get(state.active, state.data),
     width: dimensions.width,
     height: dimensions.height,
     top: dimensions.top,

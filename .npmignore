@@ -82,3 +82,7 @@ babel.config*
 rollup.config.js
 *.test.ts
 *.stories.ts
+
+# Reference
+
+reference/

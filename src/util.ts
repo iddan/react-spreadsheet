@@ -9,9 +9,9 @@ export const moveCursorToEnd = (el: HTMLInputElement): void => {
 
 /**
  * Creates an array of numbers (positive and/or negative) progressing from start up to, but not including, end. A step of -1 is used if a negative start is specified without an end or step. If end is not specified, it's set to start with start then set to 0.
- * @param end
- * @param start
- * @param step
+ * @param end - an integer number specifying at which position to stop (not included).
+ * @param start - An integer number specifying at which position to start.
+ * @param step - An integer number specifying the incrementation
  */
 export function range(end: number, start = 0, step = 1): number[] {
   const array = [];
