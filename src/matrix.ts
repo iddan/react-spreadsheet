@@ -1,7 +1,5 @@
 /**
  * Immutable interface for Matrices
- *
- * @todo use Types.Point for all point references
  */
 
 import * as Types from "./types";

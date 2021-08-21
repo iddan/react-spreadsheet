@@ -218,7 +218,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   React.useEffect(() => {
     formulaParser.on("callCellValue", (cellCoord, done) => {
       let value;
-      /** @todo More sound error, or at least document */
       try {
         const point = {
           row: cellCoord.row.index,
