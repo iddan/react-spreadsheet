@@ -20,7 +20,7 @@ export function getFormula<Cell extends Types.CellBase>(
 
 /**
  * For given formula returns the cell references
- * @param formula
+ * @param formula - formula to get references for
  */
 export function getReferences(formula: string): Types.Point[] {
   const match = formula.match(FORMULA_REFERENCES);
@@ -34,8 +34,8 @@ export function getReferences(formula: string): Types.Point[] {
 
 /**
  * For given cell and spreadsheet data returns the cells affecting the cell value
- * @param cell cell to get bindings for
- * @param data spreadsheet data the cell relates to
+ * @param cell - cell to get bindings for
+ * @param data - spreadsheet data the cell relates to
  * @returns an array of coordinates in the given spreadsheet data of the cells that affect the given cell
  */
 export function getBindingsForCell<
@@ -51,7 +51,7 @@ export function getBindingsForCell<
   const references = getReferences(formula);
   // Recursively get references to dependencies
   return flatMap(references, (coords) => {
-    const dependency = Matrix.get(coords.row, coords.column, data);
+    const dependency = Matrix.get(coords, data);
     const dependencyBindings = dependency
       ? getBindingsForCell(dependency, data)
       : [];

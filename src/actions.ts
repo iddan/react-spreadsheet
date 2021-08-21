@@ -119,7 +119,7 @@ export function copy<Cell extends Types.CellBase>(
     : [];
   return {
     copied: selectedPoints.reduce((acc, point) => {
-      const value = Matrix.get(point.row, point.column, state.data);
+      const value = Matrix.get(point, state.data);
       return value === undefined ? acc : PointMap.set(point, value, acc);
     }, PointMap.from<Cell>([])),
     cut: false,
@@ -173,7 +173,8 @@ export async function paste<Cell extends Types.CellBase>(
       if (!Matrix.has(nextRow, nextColumn, paddedData)) {
         return { data: nextData, commit };
       }
-      const currentValue = Matrix.get(nextRow, nextColumn, nextData) || null;
+      const currentValue =
+        Matrix.get({ row: nextRow, column: nextColumn }, nextData) || null;
 
       commit = [
         ...commit,
@@ -232,7 +233,7 @@ export const clear = <Cell extends Types.CellBase>(
     ? Array.from(PointRange.iterate(state.selected))
     : [];
   const changes = selectedPoints.map((point) => {
-    const cell = Matrix.get(point.row, point.column, state.data);
+    const cell = Matrix.get(point, state.data);
     return {
       prevCell: cell || null,
       nextCell: null,
@@ -322,7 +323,6 @@ type KeyDownHandlers = {
   [K in string]: KeyDownHandler;
 };
 
-/** @todo handle inactive state? */
 const keyDownHandlers: KeyDownHandlers = {
   ArrowUp: go(-1, 0),
   ArrowDown: go(+1, 0),
@@ -358,9 +358,7 @@ const metaKeyDownHandlers: KeyDownHandlers = {};
 function getActive<Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>
 ): Cell | null {
-  const activeCell =
-    state.active &&
-    Matrix.get(state.active.row, state.active.column, state.data);
+  const activeCell = state.active && Matrix.get(state.active, state.data);
   return activeCell || null;
 }
 

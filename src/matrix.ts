@@ -9,16 +9,12 @@ import * as Types from "./types";
 export type Matrix<T> = Array<Array<T | undefined>>;
 
 /** Gets the value at row and column of matrix. */
-export function get<T>(
-  row: number,
-  column: number,
-  matrix: Matrix<T>
-): T | undefined {
-  const columns = matrix[row];
+export function get<T>(point: Types.Point, matrix: Matrix<T>): T | undefined {
+  const columns = matrix[point.row];
   if (columns === undefined) {
     return undefined;
   }
-  return columns[column];
+  return columns[point.column];
 }
 
 /** Creates a slice of matrix from startPoint up to, but not including, endPoint. */
@@ -33,7 +29,10 @@ export function slice<T>(
     const slicedRow = row - startPoint.row;
     sliced[slicedRow] = sliced[slicedRow] || Array(columns);
     for (let column = startPoint.column; column <= endPoint.column; column++) {
-      sliced[slicedRow][column - startPoint.column] = get(row, column, matrix);
+      sliced[slicedRow][column - startPoint.column] = get(
+        { row, column },
+        matrix
+      );
     }
   }
   return sliced;
@@ -193,8 +192,8 @@ export function getSize(matrix: Matrix<any>): Size {
 
 /**
  * Pads matrix with empty rows to match given total rows
- * @param matrix matrix to pad
- * @param totalRows number of rows the matrix should have
+ * @param matrix - matrix to pad
+ * @param totalRows - number of rows the matrix should have
  * @returns the updated matrix
  */
 export function padRows<T>(matrix: Matrix<T>, totalRows: number): Matrix<T> {
@@ -218,8 +217,8 @@ export function toArray<T1, T2>(
 
 /**
  * Flattens a matrix values to an array
- * @param matrix the matrix to flatten values from
- * @param transform optional transform function to apply to each value in the
+ * @param matrix - the matrix to flatten values from
+ * @param transform - optional transform function to apply to each value in the
  * matrix
  * @returns an array of the values from matrix, transformed if a transform
  * function is passed
