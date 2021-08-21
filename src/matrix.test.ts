@@ -68,11 +68,11 @@ describe("Matrix.split()", () => {
 
 describe("Matrix.set()", () => {
   test("Sets value", () => {
-    const nextMatrix = Matrix.set(2, 2, 42, MATRIX);
+    const nextMatrix = Matrix.set(EXISTING_POINT, 42, MATRIX);
     expect(Matrix.get(EXISTING_POINT, nextMatrix)).toBe(42);
   });
   test("Modifies matrix for out of range coordinate", () => {
-    const nextMatrix = Matrix.set(3, 3, 42, MATRIX);
+    const nextMatrix = Matrix.set(NON_EXISTING_POINT, 42, MATRIX);
     expect(Matrix.get(NON_EXISTING_POINT, nextMatrix)).toBe(42);
     expect(Matrix.getSize(nextMatrix)).toEqual({ columns: 4, rows: 4 });
   });

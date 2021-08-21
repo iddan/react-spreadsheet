@@ -173,8 +173,10 @@ export async function paste<Cell extends Types.CellBase>(
       if (!Matrix.has(nextRow, nextColumn, paddedData)) {
         return { data: nextData, commit };
       }
-      const currentValue =
-        Matrix.get({ row: nextRow, column: nextColumn }, nextData) || null;
+
+      const nextPoint = { row: nextRow, column: nextColumn };
+
+      const currentValue = Matrix.get(nextPoint, nextData) || null;
 
       commit = [
         ...commit,
@@ -185,12 +187,7 @@ export async function paste<Cell extends Types.CellBase>(
       ];
 
       return {
-        data: Matrix.set(
-          nextRow,
-          nextColumn,
-          { ...currentValue, ...value },
-          nextData
-        ),
+        data: Matrix.set(nextPoint, { ...currentValue, ...value }, nextData),
         commit,
       };
     },

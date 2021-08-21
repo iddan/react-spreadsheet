@@ -40,8 +40,7 @@ export function slice<T>(
 
 /** Sets the value at row and column of matrix. If a row doesn't exist, it's created. */
 export function set<T>(
-  row: number,
-  column: number,
+  point: Types.Point,
   value: T,
   matrix: Matrix<T>
 ): Matrix<T> {
@@ -50,14 +49,14 @@ export function set<T>(
   // Synchronize first row length
   const firstRow = matrix[0];
   const nextFirstRow = firstRow ? [...firstRow] : [];
-  if (nextFirstRow.length - 1 < column) {
-    nextFirstRow[column] = undefined;
+  if (nextFirstRow.length - 1 < point.column) {
+    nextFirstRow[point.column] = undefined;
     nextMatrix[0] = nextFirstRow;
   }
 
-  const nextRow = matrix[row] ? [...matrix[row]] : [];
-  nextRow[column] = value;
-  nextMatrix[row] = nextRow;
+  const nextRow = matrix[point.row] ? [...matrix[point.row]] : [];
+  nextRow[point.column] = value;
+  nextMatrix[point.row] = nextRow;
 
   return nextMatrix;
 }
