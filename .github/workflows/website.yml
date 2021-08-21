@@ -18,7 +18,6 @@ jobs:
       - name: Test Build
         run: |
           yarn install --frozen-lockfile;
-          yarn build-typedoc;
           cd website;
           yarn install --frozen-lockfile;
           yarn build;
@@ -41,8 +40,6 @@ jobs:
           git config --global user.email "mail@aniddan.com";
           git config --global user.name "Iddan Aaronsohn";
           yarn install --frozen-lockfile;
-          yarn build-typedoc;
-          cp -r reference website/static/;
           cd website;
           yarn install --frozen-lockfile;
           yarn deploy;

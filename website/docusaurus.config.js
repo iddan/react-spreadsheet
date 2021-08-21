@@ -50,4 +50,12 @@ module.exports = {
       },
     ],
   ],
+  plugins: [
+    [
+      "docusaurus-plugin-typedoc",
+      {
+        options: "../typedoc.json",
+      },
+    ],
+  ],
 };
