@@ -63,8 +63,7 @@ export function set<T>(
 
 /** Like Matrix.set() but mutates the matrix */
 export function mutableSet<T>(
-  row: number,
-  column: number,
+  point: Types.Point,
   value: T,
   matrix: Matrix<T>
 ): void {
@@ -73,14 +72,14 @@ export function mutableSet<T>(
     firstRow = [];
     matrix[0] = firstRow;
   }
-  if (!(row in matrix)) {
-    matrix[row] = [];
+  if (!(point.row in matrix)) {
+    matrix[point.row] = [];
   }
   // Synchronize first row length
-  if (!(column in firstRow)) {
-    firstRow[column] = undefined;
+  if (!(point.column in firstRow)) {
+    firstRow[point.column] = undefined;
   }
-  matrix[row][column] = value;
+  matrix[point.row][point.column] = value;
 }
 
 /** Removes the coordinate of matrix */
@@ -107,7 +106,7 @@ export function map<T, T2>(
   for (const [row, values] of matrix.entries()) {
     for (const [column, value] of values.entries()) {
       const point = { row, column };
-      mutableSet(row, column, func(value, point), newMatrix);
+      mutableSet(point, func(value, point), newMatrix);
     }
   }
   return newMatrix;

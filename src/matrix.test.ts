@@ -86,7 +86,7 @@ describe("Matrix.mutableSet()", () => {
       [7, 8, 9],
     ];
     const value = 42;
-    Matrix.mutableSet(EXISTING_POINT.row, EXISTING_POINT.column, value, matrix);
+    Matrix.mutableSet(EXISTING_POINT, value, matrix);
     expect(Matrix.get(EXISTING_POINT, matrix)).toBe(value);
   });
   test("Modifies matrix for out of range coordinate", () => {
@@ -96,12 +96,7 @@ describe("Matrix.mutableSet()", () => {
       [7, 8, 9],
     ];
     const value = 42;
-    Matrix.mutableSet(
-      NON_EXISTING_POINT.row,
-      NON_EXISTING_POINT.column,
-      value,
-      matrix
-    );
+    Matrix.mutableSet(NON_EXISTING_POINT, value, matrix);
     expect(Matrix.get(NON_EXISTING_POINT, matrix)).toBe(42);
     expect(Matrix.getSize(matrix)).toEqual({
       columns: NON_EXISTING_POINT.column + 1,
@@ -111,10 +106,12 @@ describe("Matrix.mutableSet()", () => {
   test("Creates first row in matrix if out of range", () => {
     const matrix: Matrix.Matrix<number> = [];
     const value = 42;
-    const row = 0;
-    const column = 0;
-    Matrix.mutableSet(row, column, value, matrix);
-    expect(Matrix.get({ row, column }, matrix)).toBe(42);
+    const point = {
+      row: 0,
+      column: 0,
+    };
+    Matrix.mutableSet(point, value, matrix);
+    expect(Matrix.get(point, matrix)).toBe(42);
   });
 });
 
