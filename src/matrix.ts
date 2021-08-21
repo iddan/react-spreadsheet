@@ -89,7 +89,7 @@ export function unset<T>(
   column: number,
   matrix: Matrix<T>
 ): Matrix<T> {
-  if (!has(row, column, matrix)) {
+  if (!has({ row, column }, matrix)) {
     return matrix;
   }
   const nextMatrix = [...matrix];
@@ -160,18 +160,18 @@ export function split<T>(
 }
 
 /** Returns whether the point exists in the matrix or not. */
-export function has(row: number, column: number, matrix: Matrix<any>): boolean {
+export function has(point: Types.Point, matrix: Matrix<any>): boolean {
   const firstRow = matrix[0];
   return (
     firstRow &&
     // validation
-    row >= 0 &&
-    column >= 0 &&
-    Number.isInteger(row) &&
-    Number.isInteger(column) &&
+    point.row >= 0 &&
+    point.column >= 0 &&
+    Number.isInteger(point.row) &&
+    Number.isInteger(point.column) &&
     // first row length is in sync with other rows
-    column < firstRow.length &&
-    row < matrix.length
+    point.column < firstRow.length &&
+    point.row < matrix.length
   );
 }
 

@@ -17,20 +17,11 @@ export const setData = <Cell extends Types.CellBase>(
   data: Matrix.Matrix<Cell>
 ): Partial<Types.StoreState<Cell>> => {
   const nextActive =
-    state.active && Matrix.has(state.active.row, state.active.column, data)
-      ? state.active
-      : null;
+    state.active && Matrix.has(state.active, data) ? state.active : null;
   const nextSelected = normalizeSelected(state.selected, data);
   const nextBindings = PointMap.map(
-    (bindings) =>
-      PointSet.filter(
-        (point) => Matrix.has(point.row, point.column, data),
-        bindings
-      ),
-    PointMap.filter(
-      (_, point) => Matrix.has(point.row, point.column, data),
-      state.bindings
-    )
+    (bindings) => PointSet.filter((point) => Matrix.has(point, data), bindings),
+    PointMap.filter((_, point) => Matrix.has(point, data), state.bindings)
   );
   return {
     data,
@@ -159,8 +150,10 @@ export async function paste<Cell extends Types.CellBase>(
   const { data, commit } = PointMap.reduce(
     (acc: Accumulator, value, { row, column }): Accumulator => {
       let commit = acc.commit || [];
-      const nextRow = row - minPoint.row + active.row;
-      const nextColumn = column - minPoint.column + active.column;
+      const nextPoint: Types.Point = {
+        row: row - minPoint.row + active.row,
+        column: column - minPoint.column + active.column,
+      };
 
       const nextData = state.cut
         ? Matrix.unset(row, column, acc.data)
@@ -170,11 +163,9 @@ export async function paste<Cell extends Types.CellBase>(
         commit = [...commit, { prevCell: value, nextCell: null }];
       }
 
-      if (!Matrix.has(nextRow, nextColumn, paddedData)) {
+      if (!Matrix.has(nextPoint, paddedData)) {
         return { data: nextData, commit };
       }
-
-      const nextPoint = { row: nextRow, column: nextColumn };
 
       const currentValue = Matrix.get(nextPoint, nextData) || null;
 
@@ -264,7 +255,7 @@ export const go =
       row: state.active.row + rowDelta,
       column: state.active.column + columnDelta,
     };
-    if (!Matrix.has(nextActive.row, nextActive.column, state.data)) {
+    if (!Matrix.has(nextActive, state.data)) {
       return { mode: "view" };
     }
     return {
