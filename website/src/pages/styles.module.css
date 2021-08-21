@@ -1,0 +1,86 @@
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+.heroBanner {
+  padding: 4rem 0;
+  background: none;
+  color: inherit;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+:global(.hero__title) {
+  color: var(--ifm-color-primary-darkest);
+}
+
+html[data-theme="dark"] :global(.hero__title) {
+  color: var(--ifm-color-primary);
+}
+
+@media screen and (max-width: 966px) {
+  .heroBanner {
+    padding: 2rem;
+  }
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 var(--ifm-paragraph-margin-bottom);
+}
+
+.spreadsheetContainer :global(.Spreadsheet),
+.spreadsheetContainer :global(.Spreadsheet) table tr:nth-child(2n),
+.spreadsheetContainer :global(.Spreadsheet__active-cell--edit) {
+  background: var(--ifm-background-surface-color);
+  color: var(--ifm-color-content);
+}
+
+.spreadsheetContainer :global(.Spreadsheet) table th {
+  background: var(--ifm-color-emphasis-100);
+  color: var(--ifm-color-content);
+}
+
+.spreadsheetContainer {
+  max-width: min(100%, 38em);
+  margin: auto;
+}
+
+.spreadsheetContainer :global(.Spreadsheet) {
+  margin: 0;
+  box-shadow: 0 1px 20px rgba(0, 0, 0, 0.3);
+}
+
+.spreadsheetContainer :global(.Spreadsheet) table td {
+  color: inherit;
+}
+
+.spreadsheetContainer :global(.Spreadsheet) input {
+  color: inherit;
+}
+
+.spreadsheetContainer table {
+  margin-bottom: 0;
+  width: auto;
+}
+
+.spreadsheetContainer table th,
+.spreadsheetContainer table td {
+  padding: 4px;
+}
+
+.features {
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.featureImage {
+  height: 200px;
+  width: 200px;
+}

@@ -1,0 +1,48 @@
+name: Website
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+jobs:
+  checks:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - name: Test Build
+        run: |
+          yarn install --frozen-lockfile;
+          yarn build-typedoc;
+          cd website;
+          yarn install --frozen-lockfile;
+          yarn build;
+  gh-release:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - uses: webfactory/ssh-agent@v0.5.0
+        with:
+          ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
+      - name: Release to GitHub Pages
+        env:
+          USE_SSH: true
+          GIT_USER: git
+        run: |
+          git config --global user.email "mail@aniddan.com";
+          git config --global user.name "Iddan Aaronsohn";
+          yarn install --frozen-lockfile;
+          yarn build-typedoc;
+          cp -r reference website/static/;
+          cd website;
+          yarn install --frozen-lockfile;
+          yarn deploy;
