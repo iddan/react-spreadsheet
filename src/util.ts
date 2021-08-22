@@ -75,6 +75,12 @@ export const readTextFromClipboard = (event: ClipboardEvent): string => {
   return "";
 };
 
+/**
+ * Creates an empty matrix with given rows and columns
+ * @param rows - integer, the amount of rows the matrix should have
+ * @param columns - integer, the amount of columns the matrix should have
+ * @returns an empty matrix with given rows and columns
+ */
 export function createEmptyMatrix<T>(
   rows: number,
   columns: number
@@ -112,6 +118,7 @@ export function getRangeDimensions(
   };
 }
 
+/** Get the computed value of a cell. */
 export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
   cell,
   formulaParser,

@@ -6,9 +6,12 @@ type Value = string | number;
 
 type Cell = Types.CellBase<Value>;
 
+/** The default Spreadsheet DataEditor component */
 const DataEditor = ({
   onChange,
-  cell,
+  cell = {
+    value: "",
+  },
 }: Types.DataEditorProps<Cell>): React.ReactElement => {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -38,12 +41,6 @@ const DataEditor = ({
       />
     </div>
   );
-};
-
-DataEditor.defaultProps = {
-  cell: {
-    value: "",
-  },
 };
 
 export default DataEditor;

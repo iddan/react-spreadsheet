@@ -1,5 +1,6 @@
 {
   "entryPoints": ["src/index.ts"],
   "out": "reference",
-  "readme": "none"
+  "readme": "none",
+  "excludeNotDocumented": true
 }

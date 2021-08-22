@@ -54,7 +54,11 @@ module.exports = {
     [
       "docusaurus-plugin-typedoc",
       {
-        options: "../typedoc.json",
+        entryPoints: ["../src/index.ts"],
+        tsconfig: "../tsconfig.json",
+        out: "reference",
+        readme: "none",
+        excludeNotDocumented: true,
       },
     ],
   ],

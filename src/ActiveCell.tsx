@@ -19,7 +19,7 @@ type Props<Cell extends Types.CellBase> = {
   mode: Types.Mode;
   edit: () => void;
   commit: Types.commit<Cell>;
-  getBindingsForCell: Types.getBindingsForCell<Cell>;
+  getBindingsForCell: Types.GetBindingsForCell<Cell>;
   data: Matrix.Matrix<Cell>;
 } & Types.Point &
   Types.Dimensions;

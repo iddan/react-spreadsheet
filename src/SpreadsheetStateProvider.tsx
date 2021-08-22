@@ -10,15 +10,20 @@ import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import Spreadsheet, { Props as SpreadsheetProps } from "./Spreadsheet";
 
+/** The Spreadsheet component props */
 export type Props<CellType extends Types.CellBase> = Omit<
   SpreadsheetProps<CellType>,
   "store"
 > & {
-  onChange: (data: Matrix.Matrix<CellType>) => void;
-  onModeChange: (mode: Types.Mode) => void;
-  onSelect: (selected: Types.Point[]) => void;
-  onActivate: (active: Types.Point) => void;
-  onCellCommit: (
+  /** Callback called when the Spreadsheet's data changes. */
+  onChange?: (data: Matrix.Matrix<CellType>) => void;
+  /** Callback called when the Spreadsheet's edit mode changes. */
+  onModeChange?: (mode: Types.Mode) => void;
+  /** Callback called when the Spreadsheet's selection changes. */
+  onSelect?: (selected: Types.Point[]) => void;
+  /** Callback called when Spreadsheet's active cell changes. */
+  onActivate?: (active: Types.Point) => void;
+  onCellCommit?: (
     prevCell: null | CellType,
     nextCell: null | CellType,
     coords: null | Types.Point
@@ -47,10 +52,19 @@ const INITIAL_STATE: Pick<
   dragging: false,
 };
 
+/**
+ * The Spreadsheet component
+ */
 const SpreadsheetStateProvider = <CellType extends Types.CellBase>(
   props: Props<CellType>
 ): React.ReactElement => {
-  const { onChange, onModeChange, onSelect, onActivate, onCellCommit } = props;
+  const {
+    onChange = () => {},
+    onModeChange = () => {},
+    onSelect = () => {},
+    onActivate = () => {},
+    onCellCommit = () => {},
+  } = props;
 
   const prevStateRef = React.useRef<Types.StoreState<CellType>>({
     ...INITIAL_STATE,
@@ -120,14 +134,6 @@ const SpreadsheetStateProvider = <CellType extends Types.CellBase>(
       <Spreadsheet {...rest} store={store} />
     </Provider>
   );
-};
-
-SpreadsheetStateProvider.defaultProps = {
-  onChange: (): void => {},
-  onModeChange: (): void => {},
-  onSelect: (): void => {},
-  onActivate: (): void => {},
-  onCellCommit: (): void => {},
 };
 
 export default SpreadsheetStateProvider;

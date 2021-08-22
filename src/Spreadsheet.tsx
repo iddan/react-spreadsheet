@@ -36,23 +36,56 @@ import "./Spreadsheet.css";
 
 export type Props<CellType extends Types.CellBase> = {
   className?: string;
+  /**
+   * Instance of `FormulaParser` to be used by the Spreadsheet.
+   * Defaults to: internal instance created by the component.
+   */
   formulaParser?: FormulaParser;
+  /**
+   * Labels to use in column indicators.
+   * Defaults to: alphabetical labels.
+   */
   columnLabels?: string[];
+  /**
+   * Labels to use in row indicators.
+   * Defaults to: row index labels.
+   */
   rowLabels?: string[];
+  /**
+   * If set to true, hides the row indicators of the spreadsheet.
+   * Defaults to: `false`.
+   */
   hideRowIndicators?: boolean;
+  /**
+   * If set to true, hides the column indicators of the spreadsheet.
+   * Defaults to: `false`.
+   */
   hideColumnIndicators?: boolean;
   // Custom Components
+  /** Component rendered above each column. */
   ColumnIndicator?: React.ComponentType<ColumnIndicatorProps>;
+  /** Component rendered in the corner of row and column indicators. */
   CornerIndicator?: React.ComponentType<CornerIndicatorProps>;
+  /** Component rendered next to each row. */
   RowIndicator?: React.ComponentType<RowIndicatorProps>;
+  /** The Spreadsheet's table component. */
   Table?: React.ComponentType<TableProps>;
+  /** The Spreadsheet's row component. */
   Row?: React.ComponentType<RowProps>;
+  /** The Spreadsheet's cell component. */
   Cell?: Types.CellComponent<CellType>;
+  /** Component rendered for cells in view mode. */
   DataViewer?: Types.DataViewerComponent<CellType>;
+  /** Component rendered for cells in edit mode. */
   DataEditor?: Types.DataEditorComponent<CellType>;
   // Handlers
+  /** Callback called on key down inside the spreadsheet. */
   onKeyDown?: (event: React.KeyboardEvent) => void;
-  getBindingsForCell?: Types.getBindingsForCell<CellType>;
+  /**
+   * Calculate which cells should be updated when given cell updates.
+   * Defaults to: internal implementation which infers dependencies according to formulas.
+   */
+  getBindingsForCell?: Types.GetBindingsForCell<CellType>;
   // Internal store
   store: Store<Types.StoreState<CellType>>;
 };
