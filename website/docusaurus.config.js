@@ -56,7 +56,7 @@ module.exports = {
       {
         entryPoints: ["../src/index.ts"],
         tsconfig: "../tsconfig.json",
-        out: "reference",
+        out: "api",
         readme: "none",
         excludeNotDocumented: true,
       },
