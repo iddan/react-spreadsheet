@@ -75,6 +75,12 @@ export const readTextFromClipboard = (event: ClipboardEvent): string => {
   return "";
 };
 
+/**
+ * Creates an empty matrix with given rows and columns
+ * @param rows - integer, the amount of rows the matrix should have
+ * @param columns - integer, the amount of columns the matrix should have
+ * @returns an empty matrix with given rows and columns
+ */
 export function createEmptyMatrix<T>(
   rows: number,
   columns: number
@@ -112,6 +118,7 @@ export function getRangeDimensions(
   };
 }
 
+/** Get the computed value of a cell. */
 export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
   cell,
   formulaParser,
@@ -152,4 +159,23 @@ export function getSelectedCSV(
   const slicedMatrix = Matrix.slice(selected.start, selected.end, data);
   const valueMatrix = Matrix.map((cell) => cell?.value || "", slicedMatrix);
   return Matrix.join(valueMatrix);
+}
+
+/**
+ * Calculate the rows and columns counts of a spreadsheet
+ * @param data - the spreadsheet's data
+ * @param rowLabels - the spreadsheet's row labels (if defined)
+ * @param columnLabels - the spreadsheet's column labels (if defined)
+ * @returns the rows and columns counts of a spreadsheet
+ */
+export function calculateSpreadsheetSize(
+  data: Matrix.Matrix<unknown>,
+  rowLabels?: string[],
+  columnLabels?: string[]
+): Matrix.Size {
+  const { columns, rows } = Matrix.getSize(data);
+  return {
+    rows: rowLabels ? Math.max(rows, rowLabels.length) : rows,
+    columns: columnLabels ? Math.max(columns, columnLabels.length) : columns,
+  };
 }
