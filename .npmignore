@@ -91,3 +91,9 @@ website/
 
 reference/
 typedoc.json
+
+# Storybook
+.storybook
+
+# Prettier
+.prettierignore
