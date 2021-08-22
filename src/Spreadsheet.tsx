@@ -160,7 +160,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
   // The size of data, synced with store state
   const [size, setSize] = React.useState(
-    calculateSize(props.data, columnLabels)
+    calculateSize(props.data, rowLabels, columnLabels)
   );
   // The spreadsheet mode, synced with store state
   const [mode, setMode] = React.useState(INITIAL_STATE.mode);
@@ -212,7 +212,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
       if (state.data !== prevState.data) {
         // Sync local size state with store state
-        const nextSize = calculateSize(state.data, columnLabels);
+        const nextSize = calculateSize(state.data, rowLabels, columnLabels);
         setSize((prevSize) =>
           prevSize.columns === nextSize.columns &&
           prevSize.rows === nextSize.rows
@@ -489,13 +489,21 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
 export default Spreadsheet;
 
+/**
+ * Calculate the rows and columns counts of a spreadsheet
+ * @param data - the spreadsheet's data
+ * @param rowLabels - the spreadsheet's row labels (if defined)
+ * @param columnLabels - the spreadsheet's column labels (if defined)
+ * @returns the rows and columns counts of a spreadsheet
+ */
 function calculateSize(
   data: Matrix.Matrix<unknown>,
+  rowLabels?: string[],
   columnLabels?: string[]
 ): Matrix.Size {
   const { columns, rows } = Matrix.getSize(data);
   return {
-    rows,
+    rows: rowLabels ? Math.max(rows, rowLabels.length) : rows,
     columns: columnLabels ? Math.max(columns, columnLabels.length) : columns,
   };
 }
