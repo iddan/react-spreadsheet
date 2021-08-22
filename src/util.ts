@@ -160,3 +160,22 @@ export function getSelectedCSV(
   const valueMatrix = Matrix.map((cell) => cell?.value || "", slicedMatrix);
   return Matrix.join(valueMatrix);
 }
+
+/**
+ * Calculate the rows and columns counts of a spreadsheet
+ * @param data - the spreadsheet's data
+ * @param rowLabels - the spreadsheet's row labels (if defined)
+ * @param columnLabels - the spreadsheet's column labels (if defined)
+ * @returns the rows and columns counts of a spreadsheet
+ */
+export function calculateSpreadsheetSize(
+  data: Matrix.Matrix<unknown>,
+  rowLabels?: string[],
+  columnLabels?: string[]
+): Matrix.Size {
+  const { columns, rows } = Matrix.getSize(data);
+  return {
+    rows: rowLabels ? Math.max(rows, rowLabels.length) : rows,
+    columns: columnLabels ? Math.max(columns, columnLabels.length) : columns,
+  };
+}
