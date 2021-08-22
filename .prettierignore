@@ -2,3 +2,10 @@ node_modules/
 dist/
 coverage/
 reference/
+
+# website
+website/node_modules
+website/build
+website/.docusaurus
+website/docs/api/
+website/typedoc-sidebar.js
