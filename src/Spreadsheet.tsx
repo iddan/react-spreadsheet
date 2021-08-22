@@ -210,8 +210,8 @@ const Spreadsheet = <CellType extends Types.CellBase>(
         }
       }
 
-      if (state.data !== prevState.data && state.data !== props.data) {
-        onChange(state.data);
+      if (state.data !== prevState.data) {
+        // Sync local size state with store state
         const nextSize = calculateSize(state.data, columnLabels);
         setSize((prevSize) =>
           prevSize.columns === nextSize.columns &&
@@ -219,20 +219,30 @@ const Spreadsheet = <CellType extends Types.CellBase>(
             ? prevSize
             : nextSize
         );
+
+        // Call on change only if the data change internal
+        if (state.data !== props.data) {
+          onChange(state.data);
+        }
       }
+
       if (state.mode !== prevState.mode) {
         onModeChange(state.mode);
+        // Sync local mode state with store state
         setMode(state.mode);
       }
+
       if (state.selected !== prevState.selected) {
         const points = state.selected
           ? Array.from(PointRange.iterate(state.selected))
           : [];
         onSelect(points);
       }
+
       if (state.active !== prevState.active && state.active) {
         onActivate(state.active);
       }
+
       prevStateRef.current = state;
     },
     [
