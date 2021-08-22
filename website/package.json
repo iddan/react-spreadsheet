@@ -24,17 +24,21 @@
     "@mdx-js/react": "^1.6.21",
     "@rehooks/component-size": "^1.0.3",
     "@svgr/webpack": "^5.5.0",
+    "@types/react": "^17.0.19",
     "clsx": "^1.1.1",
     "docusaurus-plugin-typedoc": "^0.15.3",
     "file-loader": "^6.2.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-spreadsheet": "^0.5.5",
+    "react-spreadsheet": "^0.5.9",
     "typedoc": "^0.21.6",
     "typedoc-plugin-markdown": "^3.10.4",
-    "url-loader": "^4.1.1"
+    "typescript": "^4.3.5",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.51.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.15.0",
     "@babel/eslint-parser": "^7.13.10",
     "eslint": "^7.20.0",
     "eslint-config-airbnb": "^18.2.1",
