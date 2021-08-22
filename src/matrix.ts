@@ -169,9 +169,12 @@ export function has(point: Types.Point, matrix: Matrix<any>): boolean {
   );
 }
 
-type Size = {
-  columns: number;
+/** Matrix size */
+export type Size = {
+  /** Count of the rows in the matrix */
   rows: number;
+  /** Count of the columns in the matrix */
+  columns: number;
 };
 
 /** Gets the size of matrix by returning its number of rows and columns */
