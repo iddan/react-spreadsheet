@@ -59,6 +59,7 @@ module.exports = {
         out: "api",
         readme: "none",
         excludeNotDocumented: true,
+        plugin: ["typedoc-plugin-rename-defaults"],
       },
     ],
   ],
