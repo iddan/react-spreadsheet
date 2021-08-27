@@ -68,6 +68,7 @@ src/
 
 __tests__/
 __fixtures__/
+*.test.*
 
 # Scripts
 
@@ -80,8 +81,6 @@ scripts/
 babel.config*
 .github/
 rollup.config.js
-*.test.ts
-*.stories.ts
 
 # Website
 
@@ -94,6 +93,8 @@ typedoc.json
 
 # Storybook
 .storybook
+**/stories/
+*.stories.*
 
 # Prettier
 .prettierignore
