@@ -1,7 +1,3 @@
-const OFF = 0;
-// const WARNING = 1;
-const ERROR = 2;
-
 module.exports = {
   root: true,
   env: {
@@ -19,13 +15,14 @@ module.exports = {
   rules: {
     // Ignore certain webpack alias because it can't be resolved
     "import/no-unresolved": [
-      ERROR,
+      "error",
       { ignore: ["^@theme", "^@docusaurus", "^@generated"] },
     ],
-    "import/extensions": OFF,
-    "react/jsx-closing-bracket-location": OFF, // Conflicts with Prettier.
-    "react/jsx-filename-extension": OFF,
-    "react-hooks/rules-of-hooks": ERROR,
-    "react/prop-types": OFF, // PropTypes aren't used much these days.
+    "import/extensions": "off",
+    "react/jsx-closing-bracket-location": "off", // Conflicts with Prettier.
+    "react/jsx-filename-extension": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "error",
+    "react/prop-types": "off", // PropTypes aren't used much these days.
   },
 };

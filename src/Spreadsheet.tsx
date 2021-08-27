@@ -256,6 +256,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       onChange,
       onModeChange,
       onSelect,
+      rowLabels,
       columnLabels,
       props.data,
     ]
