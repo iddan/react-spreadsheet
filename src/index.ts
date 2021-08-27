@@ -5,9 +5,15 @@ export { default as DataEditor } from "./DataEditor";
 export { default as DataViewer } from "./DataViewer";
 export type { Matrix } from "./matrix";
 export type {
+  Point,
   CellBase,
-  CellComponent,
+  CellDescriptor,
+  Mode,
+  Dimensions,
+  GetBindingsForCell,
+  CellChange,
   CellComponentProps,
+  CellComponent,
   DataViewerProps,
   DataViewerComponent,
   DataEditorProps,
