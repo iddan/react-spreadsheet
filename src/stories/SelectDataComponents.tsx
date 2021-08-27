@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import * as React from "react";
 import Select from "react-select";
 import { CellBase, DataEditorComponent, DataViewerComponent } from "..";
 
@@ -14,7 +14,7 @@ const OPTIONS = [
 ];
 
 export const SelectView: DataViewerComponent<Cell> = ({ cell }) => {
-  const option = useMemo(
+  const option = React.useMemo(
     () => cell && OPTIONS.find((option) => option.value === cell.value),
     [cell]
   );
@@ -22,13 +22,13 @@ export const SelectView: DataViewerComponent<Cell> = ({ cell }) => {
 };
 
 export const SelectEdit: DataEditorComponent<Cell> = ({ cell, onChange }) => {
-  const handleChange = useCallback(
+  const handleChange = React.useCallback(
     (selection) => {
       onChange({ ...cell, value: selection ? selection.value : null });
     },
     [cell, onChange]
   );
-  const option = useMemo(
+  const option = React.useMemo(
     () => cell && OPTIONS.find((option) => option.value === cell.value),
     [cell]
   );

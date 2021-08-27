@@ -1,18 +1,17 @@
 import * as React from "react";
-import { ReactNode } from "react";
 import { range } from "./util";
 
 export type Props = {
   columns: number;
   hideColumnIndicators?: boolean | null;
-  children: ReactNode;
+  children: React.ReactNode;
 };
 
-const Table = ({
+const Table: React.FC<Props> = ({
   children,
   columns,
   hideColumnIndicators,
-}: Props): React.ReactElement => {
+}) => {
   const columnCount = columns + (hideColumnIndicators ? 0 : 1);
   const columnNodes = range(columnCount).map((i) => <col key={i} />);
   return (

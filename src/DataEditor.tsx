@@ -7,12 +7,12 @@ type Value = string | number;
 type Cell = Types.CellBase<Value>;
 
 /** The default Spreadsheet DataEditor component */
-const DataEditor = ({
+const DataEditor: React.FC<Types.DataEditorProps<Cell>> = ({
   onChange,
   cell = {
     value: "",
   },
-}: Types.DataEditorProps<Cell>): React.ReactElement => {
+}) => {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   const handleChange = React.useCallback(

@@ -2,7 +2,7 @@
  * Example custom cell component
  */
 
-import React, { useCallback, useEffect } from "react";
+import * as React from "react";
 import classnames from "classnames";
 import { CellComponent } from "..";
 
@@ -24,7 +24,7 @@ const CustomCell: CellComponent = ({
 }) => {
   const rootRef = React.createRef<HTMLTableCellElement>();
 
-  useEffect(() => {
+  React.useEffect(() => {
     setCellDimensions(
       { row, column },
       {
@@ -36,13 +36,13 @@ const CustomCell: CellComponent = ({
     );
   }, [setCellDimensions, column, row]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (rootRef.current && active && mode === "view") {
       rootRef.current.focus();
     }
   }, [rootRef, active, mode]);
 
-  const handleMouseDown = useCallback(
+  const handleMouseDown = React.useCallback(
     (event) => {
       if (mode === "view") {
         if (event.shiftKey) {
@@ -56,7 +56,7 @@ const CustomCell: CellComponent = ({
     [select, activate, column, mode, row]
   );
 
-  const handleMouseOver = useCallback(() => {
+  const handleMouseOver = React.useCallback(() => {
     if (dragging) {
       select({ row, column });
     }

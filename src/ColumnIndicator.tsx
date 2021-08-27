@@ -6,7 +6,7 @@ export type Props = {
   label?: React.ReactNode | null;
 };
 
-const ColumnIndicator = ({ column, label }: Props): React.ReactElement => (
+const ColumnIndicator: React.FC<Props> = ({ column, label }) => (
   <th className="Spreadsheet__header">
     {label !== undefined ? label : columnIndexToLabel(String(column))}
   </th>
