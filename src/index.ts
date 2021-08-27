@@ -1,8 +1,11 @@
-export { default, default as Spreadsheet } from "./Spreadsheet";
+import Spreadsheet from "./Spreadsheet";
+import DataEditor from "./DataEditor";
+import DataViewer from "./DataViewer";
+
+export default Spreadsheet;
+export { Spreadsheet, DataEditor, DataViewer };
 export type { Props } from "./Spreadsheet";
 export { createEmptyMatrix, getComputedValue } from "./util";
-export { default as DataEditor } from "./DataEditor";
-export { default as DataViewer } from "./DataViewer";
 export type { Matrix } from "./matrix";
 export type {
   Point,

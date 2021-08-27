@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "docusaurus start",
-    "build": "docusaurus build",
+    "start": "cross-env TYPEDOC_WATCH=true docusaurus start",
+    "build": "cross-env TYPEDOC_WATCH=false docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -33,6 +33,7 @@
     "react-spreadsheet": "^0.5.9",
     "typedoc": "^0.21.6",
     "typedoc-plugin-markdown": "^3.10.4",
+    "typedoc-plugin-rename-defaults": "^0.3.0",
     "typescript": "^4.3.5",
     "url-loader": "^4.1.1",
     "webpack": "^5.51.1"
@@ -40,6 +41,7 @@
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@babel/eslint-parser": "^7.13.10",
+    "cross-env": "^7.0.3",
     "eslint": "^7.20.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^6.15.0",
