@@ -43,21 +43,6 @@ describe("PointSet.reduce()", () => {
   });
 });
 
-describe("PointSet.map()", () => {
-  test("Creates a new set with the results of calling a provided function on every point in the calling set", () => {
-    expect(
-      PointSet.map(
-        ({ row, column }) => ({ row: row + 1, column: column + 1 }),
-        set
-      )
-    ).toEqual({
-      1: { 1: true, 2: true },
-      2: { 2: true },
-      3: { 3: true },
-    });
-  });
-});
-
 describe("PointSet.filter()", () => {
   test("Creates a new set with all points that pass the test implemented by the provided function", () => {
     expect(

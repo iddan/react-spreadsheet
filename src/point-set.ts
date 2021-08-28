@@ -11,10 +11,6 @@ export type Descriptor<T> = {
   data: T;
 } & Point;
 
-/** Appends a new point to the Set object */
-const add = (set: PointSet, point: Point): PointSet =>
-  PointMap.set<boolean>(point, true, set);
-
 /** Returns a boolean asserting whether an point is present with the given value in the Set object or not */
 export const has = (set: PointSet, point: Point): boolean =>
   PointMap.has(point, set);
@@ -35,11 +31,6 @@ export function reduce<T>(
   );
 }
 
-/** Creates a new set with the results of calling a provided function on every point in the calling set */
-export function map(func: (point: Point) => Point, set: PointSet): PointSet {
-  return reduce((acc, point) => add(acc, func(point)), set, from([]));
-}
-
 /** Creates a new set with all points that pass the test implemented by the provided function */
 export function filter(
   func: (point: Point) => boolean,
@@ -58,19 +49,12 @@ export function min(set: PointSet): Point {
   return { row, column: minKey(set[row]) };
 }
 
-const maxKey = (object: Record<number, any>): number =>
-  // @ts-ignore
-  Math.max(...Object.keys(object));
-
-/** Returns the point on the maximal row in the maximal column in the set */
-export function max(set: PointSet): Point {
-  const row = maxKey(set);
-  return { row, column: maxKey(set[row]) };
-}
-
 /** Creates a new PointSet instance from an array-like or iterable object */
 export function from(points: Point[]): PointSet {
-  return points.reduce(add, PointMap.from([]));
+  return points.reduce(
+    (acc, point) => PointMap.set<boolean>(point, true, acc),
+    PointMap.from<boolean>([])
+  );
 }
 
 type OnEdge = {
@@ -104,31 +88,4 @@ export function onEdge(set: PointSet, point: Point): OnEdge {
     top: hasNot(-1, 0),
     bottom: hasNot(1, 0),
   };
-}
-
-export function getEdgeValue(
-  set: PointSet,
-  field: keyof Point,
-  delta: number
-): number {
-  const compare = Math.sign(delta) === -1 ? Math.min : Math.max;
-  if (size(set) === 0) {
-    throw new Error("getEdgeValue() should never be called with an empty set");
-  }
-
-  const result = reduce<number | null>(
-    (acc, point) => {
-      if (acc === null) {
-        return point[field];
-      }
-      return compare(acc, point[field]);
-    },
-    set,
-    null
-  );
-
-  if (result === null) {
-    throw new Error("Unexpected value");
-  }
-  return result;
 }
