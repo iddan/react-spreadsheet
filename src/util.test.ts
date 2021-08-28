@@ -5,6 +5,8 @@ import {
   range,
   getCellDimensions,
   getRangeDimensions,
+  isPointEqual,
+  isActive,
 } from "./util";
 import * as types from "./types";
 import * as PointMap from "./point-map";
@@ -209,5 +211,46 @@ describe("getRangeDimensions()", () => {
   ] as const;
   test.each(cases)("%s", (name, state, range, expected) => {
     expect(getRangeDimensions(state, range)).toEqual(expected);
+  });
+});
+
+describe("isPointEqual()", () => {
+  const cases = [
+    [
+      "returns true for equal points",
+      { row: 0, column: 0 },
+      { row: 0, column: 0 },
+      true,
+    ],
+    [
+      "returns false for non equal points",
+      { row: 0, column: 0 },
+      { row: 1, column: 1 },
+      false,
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, source, target, expected) => {
+    expect(isPointEqual(source, target)).toBe(expected);
+  });
+});
+
+describe("isActive()", () => {
+  const cases = [
+    ["returns false if active is null", null, EXAMPLE_EXISTING_POINT, false],
+    [
+      "returns false if given point is not null",
+      { row: 1, column: 1 },
+      EXAMPLE_EXISTING_POINT,
+      false,
+    ],
+    [
+      "returns true if given point is active",
+      EXAMPLE_EXISTING_POINT,
+      EXAMPLE_EXISTING_POINT,
+      true,
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, active, point, expected) => {
+    expect(isActive(active, point)).toBe(expected);
   });
 });

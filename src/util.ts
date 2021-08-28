@@ -40,11 +40,20 @@ export function updateData<Cell>(
   return nextData;
 }
 
+/** Return whether two given points are the equal */
+export function isPointEqual(
+  source: Types.Point,
+  target: Types.Point
+): boolean {
+  return source.column === target.column && source.row === target.row;
+}
+
+/** Return whether given point is active */
 export function isActive(
   active: Types.StoreState["active"],
-  { row, column }: Types.Point
+  point: Types.Point
 ): boolean {
-  return Boolean(active && column === active.column && row === active.row);
+  return Boolean(active && isPointEqual(point, active));
 }
 
 export const getOffsetRect = (element: HTMLElement): Types.Dimensions => ({
