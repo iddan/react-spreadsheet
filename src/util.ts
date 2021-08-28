@@ -79,7 +79,7 @@ export const readTextFromClipboard = (event: ClipboardEvent): string => {
     return window.clipboardData.getData("Text");
   }
   if (event.clipboardData && event.clipboardData.getData) {
-    return event.clipboardData.getData("text/plain");
+    return event.clipboardData.getData(PLAIN_TEXT_MIME);
   }
   return "";
 };
