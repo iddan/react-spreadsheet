@@ -1,5 +1,11 @@
-import { calculateSpreadsheetSize, createEmptyMatrix, range } from "./util";
+import {
+  moveCursorToEnd,
+  calculateSpreadsheetSize,
+  createEmptyMatrix,
+  range,
+} from "./util";
 
+const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
 const EXAMPLE_DATA_ROWS_COUNT = 2;
 const EXAMPLE_DATA_COLUMNS_COUNT = 2;
 const EXAMPLE_DATA = createEmptyMatrix(
@@ -8,6 +14,16 @@ const EXAMPLE_DATA = createEmptyMatrix(
 );
 const EXAMPLE_ROW_LABELS = ["Foo", "Bar", "Baz"];
 const EXAMPLE_COLUMN_LABELS = ["Foo", "Bar", "Baz"];
+
+describe("moveCursorToEnd()", () => {
+  test("moves cursor to the end", () => {
+    const el = document.createElement("input");
+    el.value = EXAMPLE_INPUT_VALUE;
+    moveCursorToEnd(el);
+    expect(el.selectionStart).toBe(EXAMPLE_INPUT_VALUE.length);
+    expect(el.selectionEnd).toBe(EXAMPLE_INPUT_VALUE.length);
+  });
+});
 
 describe("range()", () => {
   test("basic use of range", () => {
