@@ -4,6 +4,7 @@ import {
   createEmptyMatrix,
   range,
   getCellDimensions,
+  getRangeDimensions,
 } from "./util";
 import * as types from "./types";
 import * as PointMap from "./point-map";
@@ -35,15 +36,23 @@ const EXAMPLE_STATE: types.StoreState = {
   active: null,
   mode: "view",
   rowDimensions: {
-    [EXAMPLE_EXISTING_POINT.row]: {
+    0: {
       height: EXAMPLE_CELL_DIMENSIONS.height,
       top: EXAMPLE_CELL_DIMENSIONS.top,
     },
+    1: {
+      height: EXAMPLE_CELL_DIMENSIONS.height,
+      top: EXAMPLE_CELL_DIMENSIONS.top + EXAMPLE_CELL_DIMENSIONS.height,
+    },
   },
   columnDimensions: {
-    [EXAMPLE_EXISTING_POINT.column]: {
+    0: {
       width: EXAMPLE_CELL_DIMENSIONS.width,
       left: EXAMPLE_CELL_DIMENSIONS.left,
+    },
+    1: {
+      width: EXAMPLE_CELL_DIMENSIONS.width,
+      left: EXAMPLE_CELL_DIMENSIONS.left + EXAMPLE_CELL_DIMENSIONS.width,
     },
   },
   lastChanged: null,
@@ -142,4 +151,63 @@ describe("getCellDimensions()", () => {
     expect(getCellDimensions(point, state)).toEqual(expected);
   });
 });
+
+describe("getRangeDimensions()", () => {
+  const cases = [
+    [
+      "returns undefined for non existing start",
+      EXAMPLE_STATE,
+      { start: EXAMPLE_NON_EXISTING_POINT, end: EXAMPLE_EXISTING_POINT },
+      undefined,
+    ],
+    [
+      "returns undefined for non existing end",
+      EXAMPLE_STATE,
+      { start: EXAMPLE_EXISTING_POINT, end: EXAMPLE_NON_EXISTING_POINT },
+      undefined,
+    ],
+    [
+      "returns undefined for non existing start and end",
+      EXAMPLE_STATE,
+      { start: EXAMPLE_NON_EXISTING_POINT, end: EXAMPLE_NON_EXISTING_POINT },
+      undefined,
+    ],
+    [
+      "returns dimensions of range of one cell",
+      EXAMPLE_STATE,
+      { start: EXAMPLE_EXISTING_POINT, end: EXAMPLE_EXISTING_POINT },
+      EXAMPLE_CELL_DIMENSIONS,
+    ],
+    [
+      "returns dimensions of range of two horizontal cells",
+      EXAMPLE_STATE,
+      { start: { row: 0, column: 0 }, end: { row: 0, column: 1 } },
+      {
+        ...EXAMPLE_CELL_DIMENSIONS,
+        width: EXAMPLE_CELL_DIMENSIONS.width * 2,
+      },
+    ],
+    [
+      "returns dimensions of range of two vertical cells",
+      EXAMPLE_STATE,
+      { start: { row: 0, column: 0 }, end: { row: 1, column: 0 } },
+      {
+        ...EXAMPLE_CELL_DIMENSIONS,
+        height: EXAMPLE_CELL_DIMENSIONS.height * 2,
+      },
+    ],
+    [
+      "returns dimensions of range of a square of cells",
+      EXAMPLE_STATE,
+      { start: { row: 0, column: 0 }, end: { row: 1, column: 1 } },
+      {
+        ...EXAMPLE_CELL_DIMENSIONS,
+        width: EXAMPLE_CELL_DIMENSIONS.width * 2,
+        height: EXAMPLE_CELL_DIMENSIONS.height * 2,
+      },
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, state, range, expected) => {
+    expect(getRangeDimensions(state, range)).toEqual(expected);
+  });
 });

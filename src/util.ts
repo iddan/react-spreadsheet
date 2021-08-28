@@ -104,18 +104,18 @@ export const getCellDimensions = (
 export function getRangeDimensions(
   state: Types.StoreState,
   range: PointRange.PointRange
-): Types.Dimensions | null {
+): Types.Dimensions | undefined {
   const startDimensions = getCellDimensions(range.start, state);
   const endDimensions = getCellDimensions(range.end, state);
-  if (!startDimensions || !endDimensions) {
-    return null;
-  }
-  return {
-    width: endDimensions.left + endDimensions.width - startDimensions.left,
-    height: endDimensions.top + endDimensions.height - startDimensions.top,
-    top: startDimensions.top,
-    left: startDimensions.left,
-  };
+  return (
+    startDimensions &&
+    endDimensions && {
+      width: endDimensions.left + endDimensions.width - startDimensions.left,
+      height: endDimensions.top + endDimensions.height - startDimensions.top,
+      top: startDimensions.top,
+      left: startDimensions.left,
+    }
+  );
 }
 
 /** Get the computed value of a cell. */
