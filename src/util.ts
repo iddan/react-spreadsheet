@@ -1,5 +1,6 @@
 import * as Types from "./types";
 import * as Matrix from "./matrix";
+import * as Point from "./point";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import * as PointRange from "./point-range";
 
@@ -42,20 +43,12 @@ export function updateData<Cell>(
   return nextData;
 }
 
-/** Return whether two given points are the equal */
-export function isPointEqual(
-  source: Types.Point,
-  target: Types.Point
-): boolean {
-  return source.column === target.column && source.row === target.row;
-}
-
 /** Return whether given point is active */
 export function isActive(
   active: Types.StoreState["active"],
-  point: Types.Point
+  point: Point.Point
 ): boolean {
-  return Boolean(active && isPointEqual(point, active));
+  return Boolean(active && Point.isEqual(point, active));
 }
 
 export const getOffsetRect = (element: HTMLElement): Types.Dimensions => ({
@@ -98,7 +91,7 @@ export function createEmptyMatrix<T>(
 }
 
 export const getCellDimensions = (
-  point: Types.Point,
+  point: Point.Point,
   state: Types.StoreState
 ): Types.Dimensions | undefined => {
   const rowDimensions = state.rowDimensions[point.row];

@@ -1,7 +1,7 @@
 /**
  * Immutable unordered Map like interface of point to value pairs.
  */
-import * as Types from "./types";
+import * as Point from "./point";
 import { Matrix } from "./matrix";
 
 export type PointMap<T> = {
@@ -12,7 +12,7 @@ export type PointMap<T> = {
 
 /** Sets the value for point in map */
 export function set<T>(
-  point: Types.Point,
+  point: Point.Point,
   value: T,
   map: PointMap<T>
 ): PointMap<T> {
@@ -26,7 +26,7 @@ export function set<T>(
 }
 
 export function unset<T>(
-  { row, column }: Types.Point,
+  { row, column }: Point.Point,
   map: PointMap<T>
 ): PointMap<T> {
   if (!(row in map) || !(column in map[row])) {
@@ -44,12 +44,12 @@ export function unset<T>(
 }
 
 /** Gets the value for point in map */
-export function get<T>(point: Types.Point, map: PointMap<T>): undefined | T {
+export function get<T>(point: Point.Point, map: PointMap<T>): undefined | T {
   return map[point.row] && map[point.row][point.column];
 }
 
 /** Checks if map has point assigned to value */
-export function has<T>(point: Types.Point, map: PointMap<T>): boolean {
+export function has<T>(point: Point.Point, map: PointMap<T>): boolean {
   return point.row in map && point.column in map[point.row];
 }
 
@@ -75,7 +75,7 @@ export function getColumn<T>(column: number, map: PointMap<T>): T[] {
 const EMPTY: PointMap<any> = {} as any;
 
 /** Creates a new PointMap instance from an array-like or iterable object. */
-export function from<T>(pairs: [Types.Point, T][]): PointMap<T> {
+export function from<T>(pairs: [Point.Point, T][]): PointMap<T> {
   return pairs.reduce((acc, [point, value]) => set(point, value, acc), EMPTY);
 }
 
@@ -106,7 +106,7 @@ export function size(map: PointMap<unknown>): number {
 
 /** Applies a function against an accumulator and each value and point in the map (from left to right) to reduce it to a single value */
 export function reduce<A, T>(
-  func: (a: A, value: T, point: Types.Point) => A,
+  func: (acc: A, value: T, point: Point.Point) => A,
   map: PointMap<T>,
   initialValue: A
 ): A {
@@ -139,7 +139,7 @@ export function map<T1, T2>(
 
 /** Creates a new map of all values predicate returns truthy for. The predicate is invoked with two arguments: (value, key) */
 export function filter<T>(
-  predicate: (t: T, arg1: Types.Point) => boolean,
+  predicate: (value: T, point: Point.Point) => boolean,
   map: PointMap<T>
 ): PointMap<T> {
   return reduce(

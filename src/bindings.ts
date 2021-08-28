@@ -1,6 +1,7 @@
 import flatMap from "array.prototype.flatmap";
 import * as Types from "./types";
 import * as Matrix from "./matrix";
+import * as Point from "./point";
 import { extractLabel } from "hot-formula-parser";
 
 const FORMULA_REFERENCES = /\$?[A-Z]+\$?[0-9]+/g;
@@ -22,7 +23,7 @@ export function getFormula<Cell extends Types.CellBase>(
  * For given formula returns the cell references
  * @param formula - formula to get references for
  */
-export function getReferences(formula: string): Types.Point[] {
+export function getReferences(formula: string): Point.Point[] {
   const match = formula.match(FORMULA_REFERENCES);
   return match
     ? match.map((substr) => {
@@ -43,7 +44,7 @@ export function getBindingsForCell<
   Cell extends Types.CellBase & {
     value: Value;
   }
->(cell: Cell, data: Matrix.Matrix<Cell>): Types.Point[] {
+>(cell: Cell, data: Matrix.Matrix<Cell>): Point.Point[] {
   const formula = getFormula(cell);
   if (!formula) {
     return [];

@@ -1,12 +1,12 @@
 import * as PointRange from "./point-range";
-import { Point } from "./types";
+import * as Point from "./point";
 
-const POINT_0_0: Point = { row: 0, column: 0 };
-const POINT_0_1: Point = { row: 0, column: 1 };
-const POINT_0_2: Point = { row: 0, column: 2 };
+const POINT_0_0: Point.Point = { row: 0, column: 0 };
+const POINT_0_1: Point.Point = { row: 0, column: 1 };
+const POINT_0_2: Point.Point = { row: 0, column: 2 };
 
 describe("PointRange.iterate()", () => {
-  const cases: Array<[string, PointRange.PointRange, Point[]]> = [
+  const cases: Array<[string, PointRange.PointRange, Point.Point[]]> = [
     ["Range of size 1", PointRange.create(POINT_0_0, POINT_0_0), [POINT_0_0]],
     [
       "Range of size 2",
@@ -40,7 +40,7 @@ describe("PointRange.size()", () => {
 });
 
 describe("PointRange.has()", () => {
-  const cases: Array<[string, PointRange.PointRange, Point, boolean]> = [
+  const cases: Array<[string, PointRange.PointRange, Point.Point, boolean]> = [
     ["Exists", PointRange.create(POINT_0_0, POINT_0_0), POINT_0_0, true],
     [
       "Does not exist",

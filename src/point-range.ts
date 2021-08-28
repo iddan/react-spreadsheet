@@ -2,18 +2,18 @@
  * Interface for ranges between two points
  */
 
-import { Point } from "./types";
+import * as Point from "./point";
 
 /** Range between two points */
 export type PointRange = {
   /** The top-left point */
-  start: Point;
+  start: Point.Point;
   /** The bottom-right point */
-  end: Point;
+  end: Point.Point;
 };
 
 /** Creates a normalized range between two given points */
-export function create(source: Point, target: Point): PointRange {
+export function create(source: Point.Point, target: Point.Point): PointRange {
   return {
     start: {
       row: Math.min(source.row, target.row),
@@ -27,7 +27,7 @@ export function create(source: Point, target: Point): PointRange {
 }
 
 /** Iterates through all the existing points in given range */
-export function* iterate(range: PointRange): Iterable<Point> {
+export function* iterate(range: PointRange): Iterable<Point.Point> {
   for (let row = range.start.row; row <= range.end.row; row++) {
     for (
       let column = range.start.column;
@@ -47,7 +47,7 @@ export function size(range: PointRange): number {
 }
 
 /** Returns whether given point exists in given range */
-export function has(range: PointRange, point: Point): boolean {
+export function has(range: PointRange, point: Point.Point): boolean {
   return (
     point.row >= range.start.row &&
     point.column >= range.start.column &&

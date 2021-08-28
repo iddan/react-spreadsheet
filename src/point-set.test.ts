@@ -1,5 +1,5 @@
 import * as PointSet from "./point-set";
-import { Point } from "./types";
+import * as Point from "./point";
 
 const set = PointSet.from([
   { row: 0, column: 0 },
@@ -33,7 +33,7 @@ describe("PointSet.size()", () => {
 describe("PointSet.reduce()", () => {
   test("Applies a function against an accumulator and each point in the set (from left to right) to reduce it to a single value", () => {
     expect(
-      PointSet.reduce((acc, point) => [...acc, point], set, [] as Point[])
+      PointSet.reduce((acc, point) => [...acc, point], set, [] as Point.Point[])
     ).toEqual([
       { row: 0, column: 0 },
       { row: 0, column: 1 },

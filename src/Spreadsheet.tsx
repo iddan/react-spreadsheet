@@ -8,6 +8,7 @@ import * as PointRange from "./point-range";
 import * as Actions from "./actions";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
+import * as Point from "./point";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import classNames from "classnames";
 
@@ -100,13 +101,13 @@ export type Props<CellType extends Types.CellBase> = {
   /** Callback called when the Spreadsheet's edit mode changes. */
   onModeChange?: (mode: Types.Mode) => void;
   /** Callback called when the Spreadsheet's selection changes. */
-  onSelect?: (selected: Types.Point[]) => void;
+  onSelect?: (selected: Point.Point[]) => void;
   /** Callback called when Spreadsheet's active cell changes. */
-  onActivate?: (active: Types.Point) => void;
+  onActivate?: (active: Point.Point) => void;
   onCellCommit?: (
     prevCell: null | CellType,
     nextCell: null | CellType,
-    coords: null | Types.Point
+    coords: null | Point.Point
   ) => void;
 };
 

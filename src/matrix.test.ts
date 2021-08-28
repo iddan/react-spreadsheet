@@ -1,5 +1,5 @@
 import * as Matrix from "./matrix";
-import { Point } from "./types";
+import * as Point from "./point";
 
 const MATRIX = [
   [1, 2, 3],
@@ -7,12 +7,12 @@ const MATRIX = [
   [7, 8, 9],
 ];
 
-const EXISTING_POINT: Point = {
+const EXISTING_POINT: Point.Point = {
   row: 2,
   column: 2,
 };
 
-const NON_EXISTING_POINT: Point = {
+const NON_EXISTING_POINT: Point.Point = {
   row: 3,
   column: 3,
 };

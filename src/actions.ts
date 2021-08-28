@@ -3,6 +3,7 @@ import * as PointMap from "./point-map";
 import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
+import * as Point from "./point";
 import { isActive, normalizeSelected, updateData } from "./util";
 
 enum Direction {
@@ -33,7 +34,7 @@ export const setData = <Cell extends Types.CellBase>(
 
 export const select = (
   state: Types.StoreState,
-  cellPointer: Types.Point
+  cellPointer: Point.Point
 ): Partial<Types.StoreState> | null => {
   if (state.active && !isActive(state.active, cellPointer)) {
     return {
@@ -46,7 +47,7 @@ export const select = (
 
 export const activate = (
   state: Types.StoreState,
-  cellPointer: Types.Point
+  cellPointer: Point.Point
 ): Partial<Types.StoreState> | null => ({
   selected: PointRange.create(cellPointer, cellPointer),
   active: cellPointer,
@@ -55,9 +56,9 @@ export const activate = (
 
 export function setCellData<Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>,
-  active: Types.Point,
+  active: Point.Point,
   data: Cell,
-  bindings: Types.Point[]
+  bindings: Point.Point[]
 ): Partial<Types.StoreState<Cell>> | null {
   if (isActiveReadOnly(state)) {
     return null;
@@ -75,7 +76,7 @@ export function setCellData<Cell extends Types.CellBase>(
 
 export function setCellDimensions(
   state: Types.StoreState,
-  point: Types.Point,
+  point: Point.Point,
   dimensions: Types.Dimensions
 ): Partial<Types.StoreState> | null {
   const prevRowDimensions = state.rowDimensions[point.row];
@@ -150,7 +151,7 @@ export async function paste<Cell extends Types.CellBase>(
   const { data, commit } = PointMap.reduce(
     (acc: Accumulator, value, point): Accumulator => {
       let commit = acc.commit || [];
-      const nextPoint: Types.Point = {
+      const nextPoint: Point.Point = {
         row: point.row - minPoint.row + active.row,
         column: point.column - minPoint.column + active.column,
       };

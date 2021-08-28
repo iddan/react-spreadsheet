@@ -1,17 +1,10 @@
 import { ComponentType } from "react";
 import { Parser as FormulaParser } from "hot-formula-parser";
+import { Point } from "./point";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";
 import { Matrix } from "./matrix";
 import { PointRange } from "./point-range";
-
-/** A cell coordinates in the spreadsheet */
-export type Point = {
-  /** The cell's column */
-  column: number;
-  /** The cell's row */
-  row: number;
-};
 
 /** The base type of cell data in Spreadsheet */
 export type CellBase<Value = any> = {

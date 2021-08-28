@@ -5,38 +5,38 @@ import {
   range,
   getCellDimensions,
   getRangeDimensions,
-  isPointEqual,
   isActive,
   writeTextToClipboard,
   PLAIN_TEXT_MIME,
 } from "./util";
-import * as types from "./types";
+import * as Types from "./types";
 import * as PointMap from "./point-map";
+import * as Point from "./point";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
 const EXAMPLE_DATA_ROWS_COUNT = 2;
 const EXAMPLE_DATA_COLUMNS_COUNT = 2;
-const EXAMPLE_DATA = createEmptyMatrix<types.CellBase>(
+const EXAMPLE_DATA = createEmptyMatrix<Types.CellBase>(
   EXAMPLE_DATA_ROWS_COUNT,
   EXAMPLE_DATA_COLUMNS_COUNT
 );
 const EXAMPLE_ROW_LABELS = ["Foo", "Bar", "Baz"];
 const EXAMPLE_COLUMN_LABELS = ["Foo", "Bar", "Baz"];
-const EXAMPLE_EXISTING_POINT: types.Point = {
+const EXAMPLE_EXISTING_POINT: Point.Point = {
   row: 0,
   column: 0,
 };
-const EXAMPLE_NON_EXISTING_POINT: types.Point = {
+const EXAMPLE_NON_EXISTING_POINT: Point.Point = {
   row: EXAMPLE_DATA_ROWS_COUNT,
   column: EXAMPLE_DATA_COLUMNS_COUNT,
 };
-const EXAMPLE_CELL_DIMENSIONS: types.Dimensions = {
+const EXAMPLE_CELL_DIMENSIONS: Types.Dimensions = {
   height: 200,
   width: 20,
   top: 0,
   left: 0,
 };
-const EXAMPLE_STATE: types.StoreState = {
+const EXAMPLE_STATE: Types.StoreState = {
   active: null,
   mode: "view",
   rowDimensions: {
@@ -213,26 +213,6 @@ describe("getRangeDimensions()", () => {
   ] as const;
   test.each(cases)("%s", (name, state, range, expected) => {
     expect(getRangeDimensions(state, range)).toEqual(expected);
-  });
-});
-
-describe("isPointEqual()", () => {
-  const cases = [
-    [
-      "returns true for equal points",
-      { row: 0, column: 0 },
-      { row: 0, column: 0 },
-      true,
-    ],
-    [
-      "returns false for non equal points",
-      { row: 0, column: 0 },
-      { row: 1, column: 1 },
-      false,
-    ],
-  ] as const;
-  test.each(cases)("%s", (name, source, target, expected) => {
-    expect(isPointEqual(source, target)).toBe(expected);
   });
 });
 

@@ -2,13 +2,13 @@
  * Immutable interface for Matrices
  */
 
-import * as Types from "./types";
+import * as Point from "./point";
 
 /** A two-dimensional array of given type T in rows and columns */
 export type Matrix<T> = Array<Array<T | undefined>>;
 
 /** Gets the value at row and column of matrix. */
-export function get<T>(point: Types.Point, matrix: Matrix<T>): T | undefined {
+export function get<T>(point: Point.Point, matrix: Matrix<T>): T | undefined {
   const columns = matrix[point.row];
   if (columns === undefined) {
     return undefined;
@@ -18,8 +18,8 @@ export function get<T>(point: Types.Point, matrix: Matrix<T>): T | undefined {
 
 /** Creates a slice of matrix from startPoint up to, but not including, endPoint. */
 export function slice<T>(
-  startPoint: Types.Point,
-  endPoint: Types.Point,
+  startPoint: Point.Point,
+  endPoint: Point.Point,
   matrix: Matrix<T>
 ): Matrix<T> {
   const sliced: Matrix<T> = [];
@@ -39,7 +39,7 @@ export function slice<T>(
 
 /** Sets the value at row and column of matrix. If a row doesn't exist, it's created. */
 export function set<T>(
-  point: Types.Point,
+  point: Point.Point,
   value: T,
   matrix: Matrix<T>
 ): Matrix<T> {
@@ -62,7 +62,7 @@ export function set<T>(
 
 /** Like Matrix.set() but mutates the matrix */
 export function mutableSet<T>(
-  point: Types.Point,
+  point: Point.Point,
   value: T,
   matrix: Matrix<T>
 ): void {
@@ -82,7 +82,7 @@ export function mutableSet<T>(
 }
 
 /** Removes the coordinate of matrix */
-export function unset<T>(point: Types.Point, matrix: Matrix<T>): Matrix<T> {
+export function unset<T>(point: Point.Point, matrix: Matrix<T>): Matrix<T> {
   if (!has(point, matrix)) {
     return matrix;
   }
@@ -98,7 +98,7 @@ export function unset<T>(point: Types.Point, matrix: Matrix<T>): Matrix<T> {
 
 /** Creates an array of values by running each element in collection thru iteratee. */
 export function map<T, T2>(
-  func: (arg0: T | undefined, arg1: Types.Point) => T2,
+  func: (value: T | undefined, point: Point.Point) => T2,
   matrix: Matrix<T>
 ): Matrix<T2> {
   const newMatrix: Matrix<T2> = [];
@@ -154,7 +154,7 @@ export function split<T>(
 }
 
 /** Returns whether the point exists in the matrix or not. */
-export function has(point: Types.Point, matrix: Matrix<any>): boolean {
+export function has(point: Point.Point, matrix: Matrix<any>): boolean {
   const firstRow = matrix[0];
   return (
     firstRow &&
@@ -208,7 +208,7 @@ export function padRows<T>(matrix: Matrix<T>, totalRows: number): Matrix<T> {
 export function toArray<T>(matrix: Matrix<T>): T[];
 export function toArray<T1, T2>(
   matrix: Matrix<T1>,
-  transform: (cell: T1 | undefined, coords: Types.Point) => T2
+  transform: (cell: T1 | undefined, coords: Point.Point) => T2
 ): T2[];
 
 /**
@@ -222,7 +222,7 @@ export function toArray<T1, T2>(
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function toArray<T1, T2>(
   matrix: Matrix<T1>,
-  transform?: (cell: T1 | undefined, coords: Types.Point) => T2
+  transform?: (cell: T1 | undefined, coords: Point.Point) => T2
 ) {
   const array = [];
   for (let row = 0; row < matrix.length; row++) {

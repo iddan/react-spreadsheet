@@ -7,8 +7,8 @@ export { Spreadsheet, DataEditor, DataViewer };
 export type { Props } from "./Spreadsheet";
 export { createEmptyMatrix, getComputedValue } from "./util";
 export type { Matrix } from "./matrix";
+export type { Point } from "./point";
 export type {
-  Point,
   CellBase,
   CellDescriptor,
   Mode,

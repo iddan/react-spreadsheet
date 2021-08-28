@@ -2,17 +2,13 @@
  * Immutable Set like interface of points
  */
 
-import { Point } from "./types";
+import * as Point from "./point";
 import * as PointMap from "./point-map";
 
 export type PointSet = PointMap.PointMap<boolean>;
 
-export type Descriptor<T> = {
-  data: T;
-} & Point;
-
 /** Returns a boolean asserting whether an point is present with the given value in the Set object or not */
-export const has = (set: PointSet, point: Point): boolean =>
+export const has = (set: PointSet, point: Point.Point): boolean =>
   PointMap.has(point, set);
 
 /** Returns the number of points in a PointSet object */
@@ -20,7 +16,7 @@ export const size = (set: PointSet): number => PointMap.size(set);
 
 /** Applies a function against an accumulator and each point in the set (from left to right) to reduce it to a single value */
 export function reduce<T>(
-  func: (t: T, point: Point) => T,
+  func: (t: T, point: Point.Point) => T,
   set: PointSet,
   initialValue: T
 ): T {
@@ -33,7 +29,7 @@ export function reduce<T>(
 
 /** Creates a new set with all points that pass the test implemented by the provided function */
 export function filter(
-  func: (point: Point) => boolean,
+  func: (point: Point.Point) => boolean,
   set: PointSet
 ): PointSet {
   return PointMap.filter((_, point) => func(point), set);
@@ -44,13 +40,13 @@ const minKey = (object: Record<number, any>): number =>
   Math.min(...Object.keys(object));
 
 /** Returns the point on the minimal row in the minimal column in the set */
-export function min(set: PointSet): Point {
+export function min(set: PointSet): Point.Point {
   const row = minKey(set);
   return { row, column: minKey(set[row]) };
 }
 
 /** Creates a new PointSet instance from an array-like or iterable object */
-export function from(points: Point[]): PointSet {
+export function from(points: Point.Point[]): PointSet {
   return points.reduce(
     (acc, point) => PointMap.set<boolean>(point, true, acc),
     PointMap.from<boolean>([])
@@ -71,7 +67,7 @@ const NO_EDGE: OnEdge = {
   bottom: false,
 };
 
-export function onEdge(set: PointSet, point: Point): OnEdge {
+export function onEdge(set: PointSet, point: Point.Point): OnEdge {
   if (!has(set, point)) {
     return NO_EDGE;
   }

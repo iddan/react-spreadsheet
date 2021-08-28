@@ -4,15 +4,16 @@ import { connect } from "unistore/react";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
 import * as Types from "./types";
+import * as Point from "./point";
 import { getCellDimensions } from "./util";
 
 type Props<Cell extends Types.CellBase> = {
   DataEditor: Types.DataEditorComponent<Cell>;
   onChange: (data: Cell) => void;
   setCellData: (
-    active: Types.Point,
+    active: Point.Point,
     data: Cell,
-    bindings: Types.Point[]
+    bindings: Point.Point[]
   ) => void;
   cell: Cell;
   hidden: boolean;
@@ -21,7 +22,7 @@ type Props<Cell extends Types.CellBase> = {
   commit: (changes: Types.CellChange<Cell>[]) => void;
   getBindingsForCell: Types.GetBindingsForCell<Cell>;
   data: Matrix.Matrix<Cell>;
-} & Types.Point &
+} & Point.Point &
   Types.Dimensions;
 
 function ActiveCell<Cell extends Types.CellBase>(props: Props<Cell>) {
