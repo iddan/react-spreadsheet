@@ -123,15 +123,23 @@ describe("calculateSpreadsheetSize()", () => {
   });
 });
 
-describe("getCellDimensions", () => {
-  test("returns existing cell dimensions", () => {
-    expect(getCellDimensions(EXAMPLE_EXISTING_POINT, EXAMPLE_STATE)).toEqual(
-      EXAMPLE_CELL_DIMENSIONS
-    );
+describe("getCellDimensions()", () => {
+  const cases = [
+    [
+      "returns existing cell dimensions",
+      EXAMPLE_EXISTING_POINT,
+      EXAMPLE_STATE,
+      EXAMPLE_CELL_DIMENSIONS,
+    ],
+    [
+      "returns null for non existing cell",
+      EXAMPLE_NON_EXISTING_POINT,
+      EXAMPLE_STATE,
+      undefined,
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, point, state, expected) => {
+    expect(getCellDimensions(point, state)).toEqual(expected);
   });
-  test("returns null for non existing cell", () => {
-    expect(
-      getCellDimensions(EXAMPLE_NON_EXISTING_POINT, EXAMPLE_STATE)
-    ).toBeUndefined();
-  });
+});
 });
