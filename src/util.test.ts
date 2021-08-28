@@ -132,7 +132,7 @@ describe("getCellDimensions()", () => {
       EXAMPLE_CELL_DIMENSIONS,
     ],
     [
-      "returns null for non existing cell",
+      "returns undefined for non existing cell",
       EXAMPLE_NON_EXISTING_POINT,
       EXAMPLE_STATE,
       undefined,
