@@ -57,7 +57,10 @@ export type StoreState<Cell extends CellBase = CellBase<any>> = {
   active: Point | null;
   mode: Mode;
   rowDimensions: Record<number, Pick<Dimensions, "height" | "top"> | undefined>;
-  columnDimensions: Record<number, Pick<Dimensions, "width" | "left"> | undefined>;
+  columnDimensions: Record<
+    number,
+    Pick<Dimensions, "width" | "left"> | undefined
+  >;
   dragging: boolean;
   lastChanged: Point | null;
   bindings: PointMap<PointSet>;
