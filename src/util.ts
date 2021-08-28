@@ -3,6 +3,8 @@ import * as Matrix from "./matrix";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import * as PointRange from "./point-range";
 
+export const PLAIN_TEXT_MIME = "text/plain";
+
 export const moveCursorToEnd = (el: HTMLInputElement): void => {
   el.selectionStart = el.selectionEnd = el.value.length;
 };
@@ -67,9 +69,7 @@ export const writeTextToClipboard = (
   event: ClipboardEvent,
   data: string
 ): void => {
-  if (event.clipboardData) {
-    event.clipboardData.setData("text/plain", data);
-  }
+  event.clipboardData?.setData(PLAIN_TEXT_MIME, data);
 };
 
 export const readTextFromClipboard = (event: ClipboardEvent): string => {

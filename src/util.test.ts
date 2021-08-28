@@ -7,6 +7,8 @@ import {
   getRangeDimensions,
   isPointEqual,
   isActive,
+  writeTextToClipboard,
+  PLAIN_TEXT_MIME,
 } from "./util";
 import * as types from "./types";
 import * as PointMap from "./point-map";
@@ -253,4 +255,16 @@ describe("isActive()", () => {
   test.each(cases)("%s", (name, active, point, expected) => {
     expect(isActive(active, point)).toBe(expected);
   });
+});
+
+describe("writeTextToClipboard()", () => {
+  const event = {
+    clipboardData: {
+      setData: jest.fn(),
+    },
+  };
+  const data = "Hello, World!";
+  writeTextToClipboard(event as unknown as ClipboardEvent, data);
+  expect(event.clipboardData.setData).toBeCalledTimes(1);
+  expect(event.clipboardData.setData).toBeCalledWith(PLAIN_TEXT_MIME, data);
 });
