@@ -91,7 +91,7 @@ export function createEmptyMatrix<T>(
 export const getCellDimensions = (
   point: Types.Point,
   state: Types.StoreState
-): Types.Dimensions | null => {
+): Types.Dimensions | undefined => {
   const rowDimensions = state.rowDimensions[point.row];
   const columnDimensions = state.columnDimensions[point.column];
   return (
