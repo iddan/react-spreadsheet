@@ -15,28 +15,13 @@ const Selected: React.FC<Props> = (props) => (
 );
 
 export default connect<{}, {}, Types.StoreState, StateProps>((state) => {
-  const props = mapStateToProps(state, state.selected);
+  const dimensions =
+    state.selected && getRangeDimensions(state, state.selected);
   return {
-    ...props,
+    dimensions,
     hidden:
-      props.hidden ||
+      !state.selected ||
       Boolean(state.selected && PointRange.size(state.selected) === 1),
     dragging: state.dragging,
   };
 })(Selected);
-
-function mapStateToProps(
-  state: Types.StoreState,
-  range: PointRange.PointRange | null
-): Types.Dimensions & { hidden: boolean } {
-  const dimensions = (range && getRangeDimensions(state, range)) || {
-    width: 0,
-    height: 0,
-    left: 0,
-    top: 0,
-  };
-  return {
-    ...dimensions,
-    hidden: !range,
-  };
-}
