@@ -30,19 +30,6 @@ export function range(end: number, start = 0, step = 1): number[] {
   return array;
 }
 
-export function updateData<Cell>(
-  data: Matrix.Matrix<Cell>,
-  cellDescriptor: Types.CellDescriptor<Cell>
-): Matrix.Matrix<Cell> {
-  const row = data[cellDescriptor.row];
-  const nextData = [...data];
-  const nextRow = row ? [...row] : [];
-  nextRow[cellDescriptor.column] = cellDescriptor.data;
-  nextData[cellDescriptor.row] = nextRow;
-
-  return nextData;
-}
-
 /** Return whether given point is active */
 export function isActive(
   active: Types.StoreState["active"],
