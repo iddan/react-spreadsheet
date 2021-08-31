@@ -1,9 +1,13 @@
 import * as Types from "./types";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
-import { Parser as FormulaParser } from "hot-formula-parser";
+import * as hotFormulaParser from "hot-formula-parser";
 import * as PointRange from "./point-range";
 
+export type FormulaParseResult = string | boolean | number;
+export type FormulaParseError = string;
+
+export const FORMULA_VALUE_PREFIX = "=";
 export const PLAIN_TEXT_MIME = "text/plain";
 
 export const moveCursorToEnd = (el: HTMLInputElement): void => {
@@ -113,17 +117,43 @@ export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
   formulaParser,
 }: {
   cell: Cell | undefined;
-  formulaParser: FormulaParser;
-}): Value | string | number | boolean | null {
+  formulaParser: hotFormulaParser.Parser;
+}): Value | FormulaParseResult | FormulaParseError | null {
   if (cell === undefined) {
     return null;
   }
-  const rawValue = cell.value;
-  if (typeof rawValue === "string" && rawValue.startsWith("=")) {
-    const { result, error } = formulaParser.parse(rawValue.slice(1));
-    return error || result;
+  if (isFormulaCell(cell)) {
+    return getFormulaComputedValue({ cell, formulaParser });
   }
-  return rawValue;
+  return cell.value;
+}
+
+/** Get the computed value of a formula cell */
+export function getFormulaComputedValue({
+  cell,
+  formulaParser,
+}: {
+  cell: Types.CellBase<string>;
+  formulaParser: hotFormulaParser.Parser;
+}): FormulaParseResult | FormulaParseError | null {
+  const formula = extractFormula(cell.value);
+  const { result, error } = formulaParser.parse(formula);
+  return error || result;
+}
+
+/** Returns whether given cell contains a formula value */
+export function isFormulaCell(
+  cell: Types.CellBase
+): cell is Types.CellBase<string> {
+  return (
+    typeof cell.value === "string" &&
+    cell.value.startsWith(FORMULA_VALUE_PREFIX)
+  );
+}
+
+/** Extracts formula from formula cell value */
+export function extractFormula(cellValue: string): string {
+  return cellValue.slice(1);
 }
 
 export function normalizeSelected(

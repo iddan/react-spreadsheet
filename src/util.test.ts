@@ -1,3 +1,4 @@
+import type { Parser as FormulaParser } from "hot-formula-parser";
 import {
   moveCursorToEnd,
   calculateSpreadsheetSize,
@@ -8,6 +9,11 @@ import {
   isActive,
   writeTextToClipboard,
   PLAIN_TEXT_MIME,
+  getComputedValue,
+  FORMULA_VALUE_PREFIX,
+  getFormulaComputedValue,
+  isFormulaCell,
+  extractFormula,
 } from "./util";
 import * as Types from "./types";
 import * as PointMap from "./point-map";
@@ -69,6 +75,25 @@ const EXAMPLE_STATE: Types.StoreState = {
   bindings: PointMap.from([]),
   lastCommit: null,
 };
+const EXAMPLE_STRING = "EXAMPLE_STRING";
+const EXAMPLE_CELL: Types.CellBase = {
+  value: "EXAMPLE_CELL_VALUE",
+};
+const EXAMPLE_FORMULA = "TRUE()";
+const EXAMPLE_FORMULA_VALUE = `${FORMULA_VALUE_PREFIX}${EXAMPLE_FORMULA}`;
+const EXAMPLE_FORMULA_CELL: Types.CellBase = {
+  value: EXAMPLE_FORMULA_VALUE,
+};
+const MOCK_PARSE = jest.fn();
+const MOCK_FORMULA_PARSER = {
+  parse: MOCK_PARSE,
+} as unknown as FormulaParser;
+const EXAMPLE_FORMULA_RESULT = true;
+const EXAMPLE_FORMULA_ERROR = "EXAMPLE_ERROR";
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe("moveCursorToEnd()", () => {
   test("moves cursor to the end", () => {
@@ -243,8 +268,82 @@ describe("writeTextToClipboard()", () => {
       setData: jest.fn(),
     },
   };
-  const data = "Hello, World!";
-  writeTextToClipboard(event as unknown as ClipboardEvent, data);
+  writeTextToClipboard(event as unknown as ClipboardEvent, EXAMPLE_STRING);
   expect(event.clipboardData.setData).toBeCalledTimes(1);
-  expect(event.clipboardData.setData).toBeCalledWith(PLAIN_TEXT_MIME, data);
+  expect(event.clipboardData.setData).toBeCalledWith(
+    PLAIN_TEXT_MIME,
+    EXAMPLE_STRING
+  );
+});
+
+describe("getComputedValue()", () => {
+  test("Returns null if cell is not defined", () => {
+    expect(
+      getComputedValue({ cell: undefined, formulaParser: MOCK_FORMULA_PARSER })
+    ).toBe(null);
+    expect(MOCK_FORMULA_PARSER.parse).toBeCalledTimes(0);
+  });
+  test("Returns value if not formula", () => {
+    expect(
+      getComputedValue({
+        cell: EXAMPLE_CELL,
+        formulaParser: MOCK_FORMULA_PARSER,
+      })
+    ).toBe(EXAMPLE_CELL.value);
+    expect(MOCK_FORMULA_PARSER.parse).toBeCalledTimes(0);
+  });
+  test("Returns evaluated formula value", () => {
+    MOCK_PARSE.mockImplementationOnce(() => ({
+      result: EXAMPLE_FORMULA_RESULT,
+      error: null,
+    }));
+    expect(
+      getComputedValue({
+        cell: EXAMPLE_FORMULA_CELL,
+        formulaParser: MOCK_FORMULA_PARSER,
+      })
+    ).toBe(EXAMPLE_FORMULA_RESULT);
+  });
+});
+
+describe("getFormulaComputedValue()", () => {
+  const cases = [
+    [
+      "Returns parsed formula result",
+      EXAMPLE_FORMULA_RESULT,
+      { result: EXAMPLE_FORMULA_RESULT, error: null },
+    ],
+    [
+      "Returns parsed formula error",
+      EXAMPLE_FORMULA_ERROR,
+      { result: null, error: EXAMPLE_FORMULA_ERROR },
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, expected, mockParseReturn) => {
+    MOCK_PARSE.mockImplementationOnce(() => mockParseReturn);
+    expect(
+      getComputedValue({
+        cell: EXAMPLE_FORMULA_CELL,
+        formulaParser: MOCK_FORMULA_PARSER,
+      })
+    ).toBe(expected);
+    expect(MOCK_FORMULA_PARSER.parse).toBeCalledTimes(1);
+    expect(MOCK_FORMULA_PARSER.parse).toBeCalledWith(EXAMPLE_FORMULA);
+  });
+});
+
+describe("isFormulaCell()", () => {
+  const cases = [
+    ["Returns true for formula cell", EXAMPLE_FORMULA_CELL, true],
+    ["Returns true for formula cell", EXAMPLE_CELL, false],
+  ] as const;
+  test.each(cases)("%s", (name, cell, expected) => {
+    expect(isFormulaCell(cell)).toBe(expected);
+  });
+});
+
+describe("extractFormula()", () => {
+  test("extracts formula from given cell value", () => {
+    expect(extractFormula(EXAMPLE_FORMULA_VALUE)).toBe(EXAMPLE_FORMULA);
+  });
 });
