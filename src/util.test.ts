@@ -30,10 +30,7 @@ const EXAMPLE_DATA = createEmptyMatrix<Types.CellBase>(
 );
 const EXAMPLE_ROW_LABELS = ["Foo", "Bar", "Baz"];
 const EXAMPLE_COLUMN_LABELS = ["Foo", "Bar", "Baz"];
-const EXAMPLE_EXISTING_POINT: Point.Point = {
-  row: 0,
-  column: 0,
-};
+const EXAMPLE_EXISTING_POINT = Point.ORIGIN;
 const EXAMPLE_NON_EXISTING_POINT: Point.Point = {
   row: EXAMPLE_DATA_ROWS_COUNT,
   column: EXAMPLE_DATA_COLUMNS_COUNT,

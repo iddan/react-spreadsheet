@@ -2,7 +2,7 @@ import * as PointSet from "./point-set";
 import * as PointRange from "./point-range";
 import * as Point from "./point";
 
-const MIN_POINT: Point.Point = { row: 0, column: 0 };
+const MIN_POINT = Point.ORIGIN;
 const MAX_POINT: Point.Point = { row: 2, column: 2 };
 
 const EXAMPLE_SET = PointSet.from([

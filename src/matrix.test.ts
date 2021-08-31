@@ -104,13 +104,8 @@ describe("Matrix.mutableSet()", () => {
   });
   test("Creates first row in matrix if out of range", () => {
     const matrix: Matrix.Matrix<number> = [];
-    const value = 42;
-    const point = {
-      row: 0,
-      column: 0,
-    };
-    Matrix.mutableSet(point, value, matrix);
-    expect(Matrix.get(point, matrix)).toBe(42);
+    Matrix.mutableSet(Point.ORIGIN, EXAMPLE_VALUE, matrix);
+    expect(Matrix.get(Point.ORIGIN, matrix)).toBe(EXAMPLE_VALUE);
   });
 });
 
