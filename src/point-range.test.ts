@@ -1,17 +1,20 @@
 import * as PointRange from "./point-range";
 import * as Point from "./point";
 
-const POINT_0_0: Point.Point = { row: 0, column: 0 };
 const POINT_0_1: Point.Point = { row: 0, column: 1 };
 const POINT_0_2: Point.Point = { row: 0, column: 2 };
 
 describe("PointRange.iterate()", () => {
   const cases: Array<[string, PointRange.PointRange, Point.Point[]]> = [
-    ["Range of size 1", PointRange.create(POINT_0_0, POINT_0_0), [POINT_0_0]],
+    [
+      "Range of size 1",
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      [Point.ORIGIN],
+    ],
     [
       "Range of size 2",
-      PointRange.create(POINT_0_0, POINT_0_1),
-      [POINT_0_0, POINT_0_1],
+      PointRange.create(Point.ORIGIN, POINT_0_1),
+      [Point.ORIGIN, POINT_0_1],
     ],
     [
       "Range of size 2, not from zero",
@@ -26,8 +29,8 @@ describe("PointRange.iterate()", () => {
 
 describe("PointRange.size()", () => {
   const cases: Array<[string, PointRange.PointRange, number]> = [
-    ["Range of size 1", PointRange.create(POINT_0_0, POINT_0_0), 1],
-    ["Range of size 2", PointRange.create(POINT_0_0, POINT_0_1), 2],
+    ["Range of size 1", PointRange.create(Point.ORIGIN, Point.ORIGIN), 1],
+    ["Range of size 2", PointRange.create(Point.ORIGIN, POINT_0_1), 2],
     [
       "Range of size 2, not from zero",
       PointRange.create(POINT_0_1, POINT_0_2),
@@ -41,10 +44,15 @@ describe("PointRange.size()", () => {
 
 describe("PointRange.has()", () => {
   const cases: Array<[string, PointRange.PointRange, Point.Point, boolean]> = [
-    ["Exists", PointRange.create(POINT_0_0, POINT_0_0), POINT_0_0, true],
+    [
+      "Exists",
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      Point.ORIGIN,
+      true,
+    ],
     [
       "Does not exist",
-      PointRange.create(POINT_0_0, POINT_0_0),
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
       POINT_0_1,
       false,
     ],

@@ -280,7 +280,7 @@ export const modifyEdge =
 
     const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
 
-    const nextSelected = {
+    const nextSelected: PointRange.PointRange = {
       ...selected,
       [keyToModify]: {
         ...selected[keyToModify],

@@ -1,7 +1,7 @@
+import * as hotFormulaParser from "hot-formula-parser";
 import * as Types from "./types";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
-import * as hotFormulaParser from "hot-formula-parser";
 import * as PointRange from "./point-range";
 
 export type FormulaParseResult = string | boolean | number;
@@ -156,16 +156,21 @@ export function extractFormula(cellValue: string): string {
   return cellValue.slice(1);
 }
 
+/** Normalize given selected range to given data matrix */
 export function normalizeSelected(
   selected: PointRange.PointRange | null,
   data: Matrix.Matrix<unknown>
 ): PointRange.PointRange | null {
-  const dataSize = Matrix.getSize(data);
-  const dataRange = PointRange.create(
-    { row: 0, column: 0 },
-    { row: dataSize.rows - 1, column: dataSize.columns - 1 }
-  );
+  const dataRange = getMatrixRange(data);
   return selected && PointRange.mask(selected, dataRange);
+}
+
+/** Get the point range of given matrix */
+export function getMatrixRange(
+  data: Matrix.Matrix<unknown>
+): PointRange.PointRange {
+  const maxPoint = Matrix.maxPoint(data);
+  return PointRange.create(Point.ORIGIN, maxPoint);
 }
 
 export function getSelectedCSV(

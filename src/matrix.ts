@@ -234,3 +234,9 @@ export function toArray<T1, T2>(
 
   return array;
 }
+
+/** Returns the maximum point in the matrix */
+export function maxPoint(matrix: Matrix<unknown>): Point.Point {
+  const size = getSize(matrix);
+  return { row: size.rows - 1, column: size.columns - 1 };
+}

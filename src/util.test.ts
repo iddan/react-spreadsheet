@@ -1,4 +1,8 @@
 import type { Parser as FormulaParser } from "hot-formula-parser";
+import * as Types from "./types";
+import * as Point from "./point";
+import * as PointMap from "./point-map";
+import * as PointRange from "./point-range";
 import {
   moveCursorToEnd,
   calculateSpreadsheetSize,
@@ -14,10 +18,8 @@ import {
   getFormulaComputedValue,
   isFormulaCell,
   extractFormula,
+  getMatrixRange,
 } from "./util";
-import * as Types from "./types";
-import * as PointMap from "./point-map";
-import * as Point from "./point";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
 const EXAMPLE_DATA_ROWS_COUNT = 2;
@@ -210,7 +212,7 @@ describe("getRangeDimensions()", () => {
     [
       "returns dimensions of range of two horizontal cells",
       EXAMPLE_STATE,
-      { start: { row: 0, column: 0 }, end: { row: 0, column: 1 } },
+      { start: Point.ORIGIN, end: { row: 0, column: 1 } },
       {
         ...EXAMPLE_CELL_DIMENSIONS,
         width: EXAMPLE_CELL_DIMENSIONS.width * 2,
@@ -219,7 +221,7 @@ describe("getRangeDimensions()", () => {
     [
       "returns dimensions of range of two vertical cells",
       EXAMPLE_STATE,
-      { start: { row: 0, column: 0 }, end: { row: 1, column: 0 } },
+      { start: Point.ORIGIN, end: { row: 1, column: 0 } },
       {
         ...EXAMPLE_CELL_DIMENSIONS,
         height: EXAMPLE_CELL_DIMENSIONS.height * 2,
@@ -228,7 +230,7 @@ describe("getRangeDimensions()", () => {
     [
       "returns dimensions of range of a square of cells",
       EXAMPLE_STATE,
-      { start: { row: 0, column: 0 }, end: { row: 1, column: 1 } },
+      { start: Point.ORIGIN, end: { row: 1, column: 1 } },
       {
         ...EXAMPLE_CELL_DIMENSIONS,
         width: EXAMPLE_CELL_DIMENSIONS.width * 2,
@@ -345,5 +347,16 @@ describe("isFormulaCell()", () => {
 describe("extractFormula()", () => {
   test("extracts formula from given cell value", () => {
     expect(extractFormula(EXAMPLE_FORMULA_VALUE)).toBe(EXAMPLE_FORMULA);
+  });
+});
+
+describe("getMatrixRange()", () => {
+  test("Returns the point range of given matrix", () => {
+    expect(getMatrixRange(EXAMPLE_DATA)).toEqual(
+      PointRange.create(Point.ORIGIN, {
+        row: EXAMPLE_DATA_COLUMNS_COUNT - 1,
+        column: EXAMPLE_DATA_ROWS_COUNT - 1,
+      })
+    );
   });
 });
