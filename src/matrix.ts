@@ -7,6 +7,20 @@ import * as Point from "./point";
 /** A two-dimensional array of given type T in rows and columns */
 export type Matrix<T> = Array<Array<T | undefined>>;
 
+/**
+ * Creates an empty matrix with given rows and columns
+ * @param rows - integer, the amount of rows the matrix should have
+ * @param columns - integer, the amount of columns the matrix should have
+ * @returns an empty matrix with given rows and columns
+ */
+export function createEmpty<T>(rows: number, columns: number): Matrix<T> {
+  const matrix = Array(rows);
+  for (let i = 0; i < rows; i++) {
+    matrix[i] = Array(columns);
+  }
+  return matrix;
+}
+
 /** Gets the value at row and column of matrix. */
 export function get<T>(point: Point.Point, matrix: Matrix<T>): T | undefined {
   const columns = matrix[point.row];

@@ -4,6 +4,8 @@ import * as Matrix from "./matrix";
 import * as Point from "./point";
 import * as PointRange from "./point-range";
 
+export { createEmpty as createEmptyMatrix } from "./matrix";
+
 export type FormulaParseResult = string | boolean | number;
 export type FormulaParseError = string;
 
@@ -67,19 +69,6 @@ export const readTextFromClipboard = (event: ClipboardEvent): string => {
   }
   return "";
 };
-
-/**
- * Creates an empty matrix with given rows and columns
- * @param rows - integer, the amount of rows the matrix should have
- * @param columns - integer, the amount of columns the matrix should have
- * @returns an empty matrix with given rows and columns
- */
-export function createEmptyMatrix<T>(
-  rows: number,
-  columns: number
-): Matrix.Matrix<T> {
-  return range(rows).map(() => Array(columns));
-}
 
 export const getCellDimensions = (
   point: Point.Point,

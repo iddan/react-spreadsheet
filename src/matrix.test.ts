@@ -188,11 +188,23 @@ describe("Matrix.toArray()", () => {
   });
 });
 
-describe("Matrix.maxPoint", () => {
+describe("Matrix.maxPoint()", () => {
   test("Returns maximum point of given matrix", () => {
     return expect(Matrix.maxPoint(EXAMPLE_MATRIX)).toEqual({
       row: 2,
       column: 2,
     });
+  });
+});
+
+describe("Matrix.createEmpty()", () => {
+  test("Creates empty matrix with given rows and columns", () => {
+    const rows = 2;
+    const columns = 3;
+    const matrix = Matrix.createEmpty(rows, columns);
+    expect(matrix.length).toEqual(rows);
+    for (const row of matrix) {
+      expect(row).toEqual(Array(columns));
+    }
   });
 });
