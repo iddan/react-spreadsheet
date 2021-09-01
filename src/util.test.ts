@@ -1,31 +1,38 @@
+import type { Parser as FormulaParser } from "hot-formula-parser";
+import * as Types from "./types";
+import * as Matrix from "./matrix";
+import * as Point from "./point";
+import * as PointMap from "./point-map";
+import * as PointRange from "./point-range";
 import {
   moveCursorToEnd,
   calculateSpreadsheetSize,
-  createEmptyMatrix,
   range,
   getCellDimensions,
   getRangeDimensions,
   isActive,
   writeTextToClipboard,
   PLAIN_TEXT_MIME,
+  getComputedValue,
+  FORMULA_VALUE_PREFIX,
+  getFormulaComputedValue,
+  isFormulaCell,
+  extractFormula,
+  getMatrixRange,
+  getCSV,
+  getSelectedCSV,
 } from "./util";
-import * as Types from "./types";
-import * as PointMap from "./point-map";
-import * as Point from "./point";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
 const EXAMPLE_DATA_ROWS_COUNT = 2;
 const EXAMPLE_DATA_COLUMNS_COUNT = 2;
-const EXAMPLE_DATA = createEmptyMatrix<Types.CellBase>(
+const EXAMPLE_DATA = Matrix.createEmpty<Types.CellBase>(
   EXAMPLE_DATA_ROWS_COUNT,
   EXAMPLE_DATA_COLUMNS_COUNT
 );
 const EXAMPLE_ROW_LABELS = ["Foo", "Bar", "Baz"];
 const EXAMPLE_COLUMN_LABELS = ["Foo", "Bar", "Baz"];
-const EXAMPLE_EXISTING_POINT: Point.Point = {
-  row: 0,
-  column: 0,
-};
+const EXAMPLE_EXISTING_POINT = Point.ORIGIN;
 const EXAMPLE_NON_EXISTING_POINT: Point.Point = {
   row: EXAMPLE_DATA_ROWS_COUNT,
   column: EXAMPLE_DATA_COLUMNS_COUNT,
@@ -69,6 +76,25 @@ const EXAMPLE_STATE: Types.StoreState = {
   bindings: PointMap.from([]),
   lastCommit: null,
 };
+const EXAMPLE_STRING = "EXAMPLE_STRING";
+const EXAMPLE_CELL: Types.CellBase = {
+  value: "EXAMPLE_CELL_VALUE",
+};
+const EXAMPLE_FORMULA = "TRUE()";
+const EXAMPLE_FORMULA_VALUE = `${FORMULA_VALUE_PREFIX}${EXAMPLE_FORMULA}`;
+const EXAMPLE_FORMULA_CELL: Types.CellBase = {
+  value: EXAMPLE_FORMULA_VALUE,
+};
+const MOCK_PARSE = jest.fn();
+const MOCK_FORMULA_PARSER = {
+  parse: MOCK_PARSE,
+} as unknown as FormulaParser;
+const EXAMPLE_FORMULA_RESULT = true;
+const EXAMPLE_FORMULA_ERROR = "EXAMPLE_ERROR";
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe("moveCursorToEnd()", () => {
   test("moves cursor to the end", () => {
@@ -185,7 +211,7 @@ describe("getRangeDimensions()", () => {
     [
       "returns dimensions of range of two horizontal cells",
       EXAMPLE_STATE,
-      { start: { row: 0, column: 0 }, end: { row: 0, column: 1 } },
+      { start: Point.ORIGIN, end: { row: 0, column: 1 } },
       {
         ...EXAMPLE_CELL_DIMENSIONS,
         width: EXAMPLE_CELL_DIMENSIONS.width * 2,
@@ -194,7 +220,7 @@ describe("getRangeDimensions()", () => {
     [
       "returns dimensions of range of two vertical cells",
       EXAMPLE_STATE,
-      { start: { row: 0, column: 0 }, end: { row: 1, column: 0 } },
+      { start: Point.ORIGIN, end: { row: 1, column: 0 } },
       {
         ...EXAMPLE_CELL_DIMENSIONS,
         height: EXAMPLE_CELL_DIMENSIONS.height * 2,
@@ -203,7 +229,7 @@ describe("getRangeDimensions()", () => {
     [
       "returns dimensions of range of a square of cells",
       EXAMPLE_STATE,
-      { start: { row: 0, column: 0 }, end: { row: 1, column: 1 } },
+      { start: Point.ORIGIN, end: { row: 1, column: 1 } },
       {
         ...EXAMPLE_CELL_DIMENSIONS,
         width: EXAMPLE_CELL_DIMENSIONS.width * 2,
@@ -243,8 +269,117 @@ describe("writeTextToClipboard()", () => {
       setData: jest.fn(),
     },
   };
-  const data = "Hello, World!";
-  writeTextToClipboard(event as unknown as ClipboardEvent, data);
+  writeTextToClipboard(event as unknown as ClipboardEvent, EXAMPLE_STRING);
   expect(event.clipboardData.setData).toBeCalledTimes(1);
-  expect(event.clipboardData.setData).toBeCalledWith(PLAIN_TEXT_MIME, data);
+  expect(event.clipboardData.setData).toBeCalledWith(
+    PLAIN_TEXT_MIME,
+    EXAMPLE_STRING
+  );
+});
+
+describe("getComputedValue()", () => {
+  test("Returns null if cell is not defined", () => {
+    expect(
+      getComputedValue({ cell: undefined, formulaParser: MOCK_FORMULA_PARSER })
+    ).toBe(null);
+    expect(MOCK_FORMULA_PARSER.parse).toBeCalledTimes(0);
+  });
+  test("Returns value if not formula", () => {
+    expect(
+      getComputedValue({
+        cell: EXAMPLE_CELL,
+        formulaParser: MOCK_FORMULA_PARSER,
+      })
+    ).toBe(EXAMPLE_CELL.value);
+    expect(MOCK_FORMULA_PARSER.parse).toBeCalledTimes(0);
+  });
+  test("Returns evaluated formula value", () => {
+    MOCK_PARSE.mockImplementationOnce(() => ({
+      result: EXAMPLE_FORMULA_RESULT,
+      error: null,
+    }));
+    expect(
+      getComputedValue({
+        cell: EXAMPLE_FORMULA_CELL,
+        formulaParser: MOCK_FORMULA_PARSER,
+      })
+    ).toBe(EXAMPLE_FORMULA_RESULT);
+  });
+});
+
+describe("getFormulaComputedValue()", () => {
+  const cases = [
+    [
+      "Returns parsed formula result",
+      EXAMPLE_FORMULA_RESULT,
+      { result: EXAMPLE_FORMULA_RESULT, error: null },
+    ],
+    [
+      "Returns parsed formula error",
+      EXAMPLE_FORMULA_ERROR,
+      { result: null, error: EXAMPLE_FORMULA_ERROR },
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, expected, mockParseReturn) => {
+    MOCK_PARSE.mockImplementationOnce(() => mockParseReturn);
+    expect(
+      getFormulaComputedValue({
+        cell: EXAMPLE_FORMULA_CELL,
+        formulaParser: MOCK_FORMULA_PARSER,
+      })
+    ).toBe(expected);
+    expect(MOCK_FORMULA_PARSER.parse).toBeCalledTimes(1);
+    expect(MOCK_FORMULA_PARSER.parse).toBeCalledWith(EXAMPLE_FORMULA);
+  });
+});
+
+describe("isFormulaCell()", () => {
+  const cases = [
+    ["Returns true for formula cell", EXAMPLE_FORMULA_CELL, true],
+    ["Returns true for formula cell", EXAMPLE_CELL, false],
+  ] as const;
+  test.each(cases)("%s", (name, cell, expected) => {
+    expect(isFormulaCell(cell)).toBe(expected);
+  });
+});
+
+describe("extractFormula()", () => {
+  test("extracts formula from given cell value", () => {
+    expect(extractFormula(EXAMPLE_FORMULA_VALUE)).toBe(EXAMPLE_FORMULA);
+  });
+});
+
+describe("getMatrixRange()", () => {
+  test("Returns the point range of given matrix", () => {
+    expect(getMatrixRange(EXAMPLE_DATA)).toEqual(
+      PointRange.create(Point.ORIGIN, {
+        row: EXAMPLE_DATA_COLUMNS_COUNT - 1,
+        column: EXAMPLE_DATA_ROWS_COUNT - 1,
+      })
+    );
+  });
+});
+
+describe("getCSV()", () => {
+  test("Returns given data as CSV", () => {
+    expect(getCSV(EXAMPLE_DATA)).toBe(
+      Matrix.join(
+        Matrix.createEmpty(EXAMPLE_DATA_ROWS_COUNT, EXAMPLE_DATA_COLUMNS_COUNT)
+      )
+    );
+  });
+});
+
+describe("getSelectedCSV()", () => {
+  test("Returns empty for no selected range", () => {
+    expect(getSelectedCSV(null, EXAMPLE_DATA)).toBe("");
+  });
+  test("Returns CSV for selected range", () => {
+    expect(
+      getSelectedCSV(
+        { start: Point.ORIGIN, end: { row: 1, column: 1 } },
+        EXAMPLE_DATA
+      )
+    ).toEqual(Matrix.join(Matrix.createEmpty(2, 2)));
+  });
 });

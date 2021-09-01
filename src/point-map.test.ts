@@ -26,7 +26,7 @@ describe("PointMap.from()", () => {
 
 describe("PointMap.get()", () => {
   test("Return value for set point", () => {
-    expect(PointMap.get({ row: 0, column: 0 }, MAP)).toBe(42);
+    expect(PointMap.get(Point.ORIGIN, MAP)).toBe(42);
   });
   test("Return undefined for unset point", () => {
     expect(PointMap.get({ row: 5, column: 5 }, MAP)).toBe(undefined);
@@ -43,9 +43,8 @@ describe("PointMap.set()", () => {
 
 describe("PointMap.unset()", () => {
   test("Un-sets point", () => {
-    const point = { row: 0, column: 0 };
-    const newMap = PointMap.unset(point, MAP);
-    expect(PointMap.get(point, newMap)).toBeUndefined();
+    const newMap = PointMap.unset(Point.ORIGIN, MAP);
+    expect(PointMap.get(Point.ORIGIN, newMap)).toBeUndefined();
   });
   test("Does nothing if point does not exist", () => {
     const point = { row: 5, column: 5 };
@@ -56,7 +55,7 @@ describe("PointMap.unset()", () => {
 
 describe("PointMap.has()", () => {
   test("Returns true for set point", () => {
-    expect(PointMap.has({ row: 0, column: 0 }, MAP)).toBe(true);
+    expect(PointMap.has(Point.ORIGIN, MAP)).toBe(true);
   });
   test("Returns false for unset point", () => {
     expect(PointMap.has({ row: 5, column: 5 }, MAP)).toBe(false);

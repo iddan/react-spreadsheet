@@ -1,14 +1,21 @@
+import * as hotFormulaParser from "hot-formula-parser";
 import * as Types from "./types";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
-import { Parser as FormulaParser } from "hot-formula-parser";
 import * as PointRange from "./point-range";
 
+export { createEmpty as createEmptyMatrix } from "./matrix";
+
+export type FormulaParseResult = string | boolean | number;
+export type FormulaParseError = string;
+
+export const FORMULA_VALUE_PREFIX = "=";
 export const PLAIN_TEXT_MIME = "text/plain";
 
-export const moveCursorToEnd = (el: HTMLInputElement): void => {
+/** Move the cursor of given input element to the input's end */
+export function moveCursorToEnd(el: HTMLInputElement): void {
   el.selectionStart = el.selectionEnd = el.value.length;
-};
+}
 
 /**
  * Creates an array of numbers (positive and/or negative) progressing from start up to, but not including, end. A step of -1 is used if a negative start is specified without an end or step. If end is not specified, it's set to start with start then set to 0.
@@ -30,19 +37,6 @@ export function range(end: number, start = 0, step = 1): number[] {
   return array;
 }
 
-export function updateData<Cell>(
-  data: Matrix.Matrix<Cell>,
-  cellDescriptor: Types.CellDescriptor<Cell>
-): Matrix.Matrix<Cell> {
-  const row = data[cellDescriptor.row];
-  const nextData = [...data];
-  const nextRow = row ? [...row] : [];
-  nextRow[cellDescriptor.column] = cellDescriptor.data;
-  nextData[cellDescriptor.row] = nextRow;
-
-  return nextData;
-}
-
 /** Return whether given point is active */
 export function isActive(
   active: Types.StoreState["active"],
@@ -51,21 +45,26 @@ export function isActive(
   return Boolean(active && Point.isEqual(point, active));
 }
 
-export const getOffsetRect = (element: HTMLElement): Types.Dimensions => ({
-  width: element.offsetWidth,
-  height: element.offsetHeight,
-  left: element.offsetLeft,
-  top: element.offsetTop,
-});
+/** Get the offset values of given element */
+export function getOffsetRect(element: HTMLElement): Types.Dimensions {
+  return {
+    width: element.offsetWidth,
+    height: element.offsetHeight,
+    left: element.offsetLeft,
+    top: element.offsetTop,
+  };
+}
 
-export const writeTextToClipboard = (
+/** Write given data to clipboard with given event */
+export function writeTextToClipboard(
   event: ClipboardEvent,
   data: string
-): void => {
+): void {
   event.clipboardData?.setData(PLAIN_TEXT_MIME, data);
-};
+}
 
-export const readTextFromClipboard = (event: ClipboardEvent): string => {
+/** Read text from given clipboard event */
+export function readTextFromClipboard(event: ClipboardEvent): string {
   // @ts-ignore
   if (window.clipboardData && window.clipboardData.getData) {
     // @ts-ignore
@@ -75,32 +74,20 @@ export const readTextFromClipboard = (event: ClipboardEvent): string => {
     return event.clipboardData.getData(PLAIN_TEXT_MIME);
   }
   return "";
-};
-
-/**
- * Creates an empty matrix with given rows and columns
- * @param rows - integer, the amount of rows the matrix should have
- * @param columns - integer, the amount of columns the matrix should have
- * @returns an empty matrix with given rows and columns
- */
-export function createEmptyMatrix<T>(
-  rows: number,
-  columns: number
-): Matrix.Matrix<T> {
-  return range(rows).map(() => Array(columns));
 }
 
-export const getCellDimensions = (
+/** Get the dimensions of cell at point from state */
+export function getCellDimensions(
   point: Point.Point,
   state: Types.StoreState
-): Types.Dimensions | undefined => {
+): Types.Dimensions | undefined {
   const rowDimensions = state.rowDimensions[point.row];
   const columnDimensions = state.columnDimensions[point.column];
   return (
     rowDimensions &&
     columnDimensions && { ...rowDimensions, ...columnDimensions }
   );
-};
+}
 
 /** Get the dimensions of a range of cells */
 export function getRangeDimensions(
@@ -126,31 +113,63 @@ export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
   formulaParser,
 }: {
   cell: Cell | undefined;
-  formulaParser: FormulaParser;
-}): Value | string | number | boolean | null {
+  formulaParser: hotFormulaParser.Parser;
+}): Value | FormulaParseResult | FormulaParseError | null {
   if (cell === undefined) {
     return null;
   }
-  const rawValue = cell.value;
-  if (typeof rawValue === "string" && rawValue.startsWith("=")) {
-    const { result, error } = formulaParser.parse(rawValue.slice(1));
-    return error || result;
+  if (isFormulaCell(cell)) {
+    return getFormulaComputedValue({ cell, formulaParser });
   }
-  return rawValue;
+  return cell.value;
 }
 
+/** Get the computed value of a formula cell */
+export function getFormulaComputedValue({
+  cell,
+  formulaParser,
+}: {
+  cell: Types.CellBase<string>;
+  formulaParser: hotFormulaParser.Parser;
+}): FormulaParseResult | FormulaParseError | null {
+  const formula = extractFormula(cell.value);
+  const { result, error } = formulaParser.parse(formula);
+  return error || result;
+}
+
+/** Returns whether given cell contains a formula value */
+export function isFormulaCell(
+  cell: Types.CellBase
+): cell is Types.CellBase<string> {
+  return (
+    typeof cell.value === "string" &&
+    cell.value.startsWith(FORMULA_VALUE_PREFIX)
+  );
+}
+
+/** Extracts formula from formula cell value */
+export function extractFormula(cellValue: string): string {
+  return cellValue.slice(1);
+}
+
+/** Normalize given selected range to given data matrix */
 export function normalizeSelected(
   selected: PointRange.PointRange | null,
   data: Matrix.Matrix<unknown>
 ): PointRange.PointRange | null {
-  const dataSize = Matrix.getSize(data);
-  const dataRange = PointRange.create(
-    { row: 0, column: 0 },
-    { row: dataSize.rows - 1, column: dataSize.columns - 1 }
-  );
+  const dataRange = getMatrixRange(data);
   return selected && PointRange.mask(selected, dataRange);
 }
 
+/** Get the point range of given matrix */
+export function getMatrixRange(
+  data: Matrix.Matrix<unknown>
+): PointRange.PointRange {
+  const maxPoint = Matrix.maxPoint(data);
+  return PointRange.create(Point.ORIGIN, maxPoint);
+}
+
+/** Get given selected range from given data as CSV */
 export function getSelectedCSV(
   selected: PointRange.PointRange | null,
   data: Matrix.Matrix<Types.CellBase>
@@ -158,9 +177,21 @@ export function getSelectedCSV(
   if (!selected) {
     return "";
   }
-  const slicedMatrix = Matrix.slice(selected.start, selected.end, data);
-  const valueMatrix = Matrix.map((cell) => cell?.value || "", slicedMatrix);
+  const selectedData = getRangeFromMatrix(selected, data);
+  return getCSV(selectedData);
+}
+
+/** Get given data as CSV */
+export function getCSV(data: Matrix.Matrix<Types.CellBase>): string {
+  const valueMatrix = Matrix.map((cell) => cell?.value || "", data);
   return Matrix.join(valueMatrix);
+}
+
+export function getRangeFromMatrix<T>(
+  range: PointRange.PointRange,
+  matrix: Matrix.Matrix<T>
+): Matrix.Matrix<T> {
+  return Matrix.slice(range.start, range.end, matrix);
 }
 
 /**

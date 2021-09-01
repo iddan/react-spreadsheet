@@ -10,3 +10,6 @@ export type Point = {
 export function isEqual(source: Point, target: Point): boolean {
   return source.column === target.column && source.row === target.row;
 }
+
+/** The origin point in matrices */
+export const ORIGIN: Point = { row: 0, column: 0 };

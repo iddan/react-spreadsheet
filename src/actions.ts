@@ -4,7 +4,7 @@ import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
-import { isActive, normalizeSelected, updateData } from "./util";
+import { isActive, normalizeSelected } from "./util";
 
 enum Direction {
   Left = "Left",
@@ -57,7 +57,7 @@ export const activate = (
 export function setCellData<Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>,
   active: Point.Point,
-  data: Cell,
+  cellData: Cell,
   bindings: Point.Point[]
 ): Partial<Types.StoreState<Cell>> | null {
   if (isActiveReadOnly(state)) {
@@ -65,10 +65,7 @@ export function setCellData<Cell extends Types.CellBase>(
   }
   return {
     mode: "edit",
-    data: updateData<Cell>(state.data, {
-      ...active,
-      data,
-    }),
+    data: Matrix.set(active, cellData, state.data),
     lastChanged: active,
     bindings: PointMap.set(active, PointSet.from(bindings), state.bindings),
   };
@@ -228,11 +225,7 @@ export const clear = <Cell extends Types.CellBase>(
   });
   return {
     data: selectedPoints.reduce(
-      (acc, point) =>
-        updateData<Cell>(acc, {
-          ...point,
-          data: undefined,
-        }),
+      (acc, point) => Matrix.set(point, undefined, acc),
       state.data
     ),
     ...commit(state, changes),
@@ -287,7 +280,7 @@ export const modifyEdge =
 
     const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
 
-    const nextSelected = {
+    const nextSelected: PointRange.PointRange = {
       ...selected,
       [keyToModify]: {
         ...selected[keyToModify],

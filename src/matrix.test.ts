@@ -1,36 +1,36 @@
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 
-const MATRIX = [
+const createExampleMatrix = (): Matrix.Matrix<number> => [
   [1, 2, 3],
   [4, 5, 6],
   [7, 8, 9],
 ];
 
+const EXAMPLE_MATRIX: Matrix.Matrix<number> = createExampleMatrix();
 const EXISTING_POINT: Point.Point = {
   row: 2,
   column: 2,
 };
-
 const NON_EXISTING_POINT: Point.Point = {
   row: 3,
   column: 3,
 };
-
 const CSV = "1\t2\t3\n4\t5\t6\n7\t8\t9";
+const EXAMPLE_VALUE = 42;
 
 describe("Matrix.get()", () => {
   test("Gets value", () => {
-    expect(Matrix.get(EXISTING_POINT, MATRIX)).toBe(9);
+    expect(Matrix.get(EXISTING_POINT, EXAMPLE_MATRIX)).toBe(9);
   });
   test("Returns undefined for missing coordinate", () => {
-    expect(Matrix.get(NON_EXISTING_POINT, MATRIX)).toBe(undefined);
+    expect(Matrix.get(NON_EXISTING_POINT, EXAMPLE_MATRIX)).toBe(undefined);
   });
 });
 
 describe("Matrix.getSize()", () => {
   test("Gives columns and rows", () => {
-    expect(Matrix.getSize(MATRIX)).toEqual({ rows: 3, columns: 3 });
+    expect(Matrix.getSize(EXAMPLE_MATRIX)).toEqual({ rows: 3, columns: 3 });
   });
   test("Relies on first row for columns", () => {
     expect(
@@ -56,48 +56,47 @@ describe("Matrix.getSize()", () => {
 
 describe("Matrix.join()", () => {
   test("Constructs a CSV string from a matrix", () => {
-    expect(Matrix.join(MATRIX)).toEqual(CSV);
+    expect(Matrix.join(EXAMPLE_MATRIX)).toEqual(CSV);
   });
 });
 
 describe("Matrix.split()", () => {
   test("Constructs a matrix from a CSV string", () => {
-    expect(Matrix.split(CSV, Number)).toEqual(MATRIX);
+    expect(Matrix.split(CSV, Number)).toEqual(EXAMPLE_MATRIX);
   });
 });
 
 describe("Matrix.set()", () => {
   test("Sets value", () => {
-    const nextMatrix = Matrix.set(EXISTING_POINT, 42, MATRIX);
-    expect(Matrix.get(EXISTING_POINT, nextMatrix)).toBe(42);
+    const nextMatrix = Matrix.set(
+      EXISTING_POINT,
+      EXAMPLE_VALUE,
+      EXAMPLE_MATRIX
+    );
+    expect(Matrix.get(EXISTING_POINT, nextMatrix)).toBe(EXAMPLE_VALUE);
   });
   test("Modifies matrix for out of range coordinate", () => {
-    const nextMatrix = Matrix.set(NON_EXISTING_POINT, 42, MATRIX);
-    expect(Matrix.get(NON_EXISTING_POINT, nextMatrix)).toBe(42);
+    const nextMatrix = Matrix.set(
+      NON_EXISTING_POINT,
+      EXAMPLE_VALUE,
+      EXAMPLE_MATRIX
+    );
+    expect(Matrix.get(NON_EXISTING_POINT, nextMatrix)).toBe(EXAMPLE_VALUE);
     expect(Matrix.getSize(nextMatrix)).toEqual({ columns: 4, rows: 4 });
   });
 });
 
 describe("Matrix.mutableSet()", () => {
   test("Sets value", () => {
-    const matrix = [
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 8, 9],
-    ];
-    const value = 42;
-    Matrix.mutableSet(EXISTING_POINT, value, matrix);
-    expect(Matrix.get(EXISTING_POINT, matrix)).toBe(value);
+    const matrix = createExampleMatrix();
+    Matrix.mutableSet(EXISTING_POINT, EXAMPLE_VALUE, matrix);
+    expect(Matrix.get(EXISTING_POINT, matrix)).toBe(EXAMPLE_VALUE);
   });
   test("Modifies matrix for out of range coordinate", () => {
-    const matrix = [
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 8, 9],
-    ];
+    const matrix: Matrix.Matrix<number> = createExampleMatrix();
     const value = 42;
     Matrix.mutableSet(NON_EXISTING_POINT, value, matrix);
-    expect(Matrix.get(NON_EXISTING_POINT, matrix)).toBe(42);
+    expect(Matrix.get(NON_EXISTING_POINT, matrix)).toBe(EXAMPLE_VALUE);
     expect(Matrix.getSize(matrix)).toEqual({
       columns: NON_EXISTING_POINT.column + 1,
       rows: NON_EXISTING_POINT.row + 1,
@@ -105,23 +104,20 @@ describe("Matrix.mutableSet()", () => {
   });
   test("Creates first row in matrix if out of range", () => {
     const matrix: Matrix.Matrix<number> = [];
-    const value = 42;
-    const point = {
-      row: 0,
-      column: 0,
-    };
-    Matrix.mutableSet(point, value, matrix);
-    expect(Matrix.get(point, matrix)).toBe(42);
+    Matrix.mutableSet(Point.ORIGIN, EXAMPLE_VALUE, matrix);
+    expect(Matrix.get(Point.ORIGIN, matrix)).toBe(EXAMPLE_VALUE);
   });
 });
 
 describe("Matrix.unset()", () => {
   test("Removes the coordinate of matrix", () => {
-    const nextMatrix = Matrix.unset(EXISTING_POINT, MATRIX);
+    const nextMatrix = Matrix.unset(EXISTING_POINT, EXAMPLE_MATRIX);
     expect(Matrix.get(EXISTING_POINT, nextMatrix)).toBe(undefined);
   });
   test("Returns same matrix if nothing changed", () => {
-    expect(Matrix.unset(NON_EXISTING_POINT, MATRIX)).toBe(MATRIX);
+    expect(Matrix.unset(NON_EXISTING_POINT, EXAMPLE_MATRIX)).toBe(
+      EXAMPLE_MATRIX
+    );
   });
 });
 
@@ -154,7 +150,7 @@ describe("Matrix.slice()", () => {
 
 describe("Matrix.map()", () => {
   test("Creates an array of values by running each element in collection thru iteratee", () => {
-    expect(Matrix.map((value) => value && value * 2, MATRIX)).toEqual([
+    expect(Matrix.map((value) => value && value * 2, EXAMPLE_MATRIX)).toEqual([
       [2, 4, 6],
       [8, 10, 12],
       [14, 16, 18],
@@ -164,26 +160,51 @@ describe("Matrix.map()", () => {
 
 describe("Matrix.padRows()", () => {
   test("Pads matrix with empty rows to match given total rows", () => {
-    expect(Matrix.padRows(MATRIX, 5)).toEqual([
-      ...MATRIX,
+    expect(Matrix.padRows(EXAMPLE_MATRIX, 5)).toEqual([
+      ...EXAMPLE_MATRIX,
       [undefined, undefined, undefined],
       [undefined, undefined, undefined],
     ]);
   });
   test("Does nothing if matrix has total rows", () => {
-    expect(Matrix.padRows(MATRIX, 3)).toBe(MATRIX);
+    expect(Matrix.padRows(EXAMPLE_MATRIX, 3)).toBe(EXAMPLE_MATRIX);
   });
 });
 
 describe("Matrix.toArray()", () => {
-  const flattedMatrix = [...MATRIX[0], ...MATRIX[1], ...MATRIX[2]];
+  const flattedMatrix = [
+    ...EXAMPLE_MATRIX[0],
+    ...EXAMPLE_MATRIX[1],
+    ...EXAMPLE_MATRIX[2],
+  ];
   test("Flattens matrix values to an array", () => {
-    expect(Matrix.toArray(MATRIX)).toEqual(flattedMatrix);
+    expect(Matrix.toArray(EXAMPLE_MATRIX)).toEqual(flattedMatrix);
   });
   test("Transforms matrix values and collects them to an array", () => {
     const transform = (value: number | undefined) => value && value * 2;
     expect(
-      Matrix.toArray<number, number | undefined>(MATRIX, transform)
+      Matrix.toArray<number, number | undefined>(EXAMPLE_MATRIX, transform)
     ).toEqual(flattedMatrix.map(transform));
+  });
+});
+
+describe("Matrix.maxPoint()", () => {
+  test("Returns maximum point of given matrix", () => {
+    return expect(Matrix.maxPoint(EXAMPLE_MATRIX)).toEqual({
+      row: 2,
+      column: 2,
+    });
+  });
+});
+
+describe("Matrix.createEmpty()", () => {
+  test("Creates empty matrix with given rows and columns", () => {
+    const rows = 2;
+    const columns = 3;
+    const matrix = Matrix.createEmpty(rows, columns);
+    expect(matrix.length).toEqual(rows);
+    for (const row of matrix) {
+      expect(row).toEqual(Array(columns));
+    }
   });
 });
