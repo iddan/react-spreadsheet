@@ -12,9 +12,10 @@ export type FormulaParseError = string;
 export const FORMULA_VALUE_PREFIX = "=";
 export const PLAIN_TEXT_MIME = "text/plain";
 
-export const moveCursorToEnd = (el: HTMLInputElement): void => {
+/** Move the cursor of given input element to the input's end */
+export function moveCursorToEnd(el: HTMLInputElement): void {
   el.selectionStart = el.selectionEnd = el.value.length;
-};
+}
 
 /**
  * Creates an array of numbers (positive and/or negative) progressing from start up to, but not including, end. A step of -1 is used if a negative start is specified without an end or step. If end is not specified, it's set to start with start then set to 0.
@@ -44,21 +45,26 @@ export function isActive(
   return Boolean(active && Point.isEqual(point, active));
 }
 
-export const getOffsetRect = (element: HTMLElement): Types.Dimensions => ({
-  width: element.offsetWidth,
-  height: element.offsetHeight,
-  left: element.offsetLeft,
-  top: element.offsetTop,
-});
+/** Get the offset values of given element */
+export function getOffsetRect(element: HTMLElement): Types.Dimensions {
+  return {
+    width: element.offsetWidth,
+    height: element.offsetHeight,
+    left: element.offsetLeft,
+    top: element.offsetTop,
+  };
+}
 
-export const writeTextToClipboard = (
+/** Write given data to clipboard with given event */
+export function writeTextToClipboard(
   event: ClipboardEvent,
   data: string
-): void => {
+): void {
   event.clipboardData?.setData(PLAIN_TEXT_MIME, data);
-};
+}
 
-export const readTextFromClipboard = (event: ClipboardEvent): string => {
+/** Read text from given clipboard event */
+export function readTextFromClipboard(event: ClipboardEvent): string {
   // @ts-ignore
   if (window.clipboardData && window.clipboardData.getData) {
     // @ts-ignore
@@ -68,19 +74,20 @@ export const readTextFromClipboard = (event: ClipboardEvent): string => {
     return event.clipboardData.getData(PLAIN_TEXT_MIME);
   }
   return "";
-};
+}
 
-export const getCellDimensions = (
+/** Get the dimensions of cell at point from state */
+export function getCellDimensions(
   point: Point.Point,
   state: Types.StoreState
-): Types.Dimensions | undefined => {
+): Types.Dimensions | undefined {
   const rowDimensions = state.rowDimensions[point.row];
   const columnDimensions = state.columnDimensions[point.column];
   return (
     rowDimensions &&
     columnDimensions && { ...rowDimensions, ...columnDimensions }
   );
-};
+}
 
 /** Get the dimensions of a range of cells */
 export function getRangeDimensions(
@@ -162,6 +169,7 @@ export function getMatrixRange(
   return PointRange.create(Point.ORIGIN, maxPoint);
 }
 
+/** Get given selected range from given data as CSV */
 export function getSelectedCSV(
   selected: PointRange.PointRange | null,
   data: Matrix.Matrix<Types.CellBase>
@@ -169,9 +177,21 @@ export function getSelectedCSV(
   if (!selected) {
     return "";
   }
-  const slicedMatrix = Matrix.slice(selected.start, selected.end, data);
-  const valueMatrix = Matrix.map((cell) => cell?.value || "", slicedMatrix);
+  const selectedData = getRangeFromMatrix(selected, data);
+  return getCSV(selectedData);
+}
+
+/** Get given data as CSV */
+export function getCSV(data: Matrix.Matrix<Types.CellBase>): string {
+  const valueMatrix = Matrix.map((cell) => cell?.value || "", data);
   return Matrix.join(valueMatrix);
+}
+
+export function getRangeFromMatrix<T>(
+  range: PointRange.PointRange,
+  matrix: Matrix.Matrix<T>
+): Matrix.Matrix<T> {
+  return Matrix.slice(range.start, range.end, matrix);
 }
 
 /**

@@ -5,8 +5,8 @@ import DataViewer from "./DataViewer";
 export default Spreadsheet;
 export { Spreadsheet, DataEditor, DataViewer };
 export type { Props } from "./Spreadsheet";
-export { createEmptyMatrix, getComputedValue } from "./util";
-export type { Matrix } from "./matrix";
+export { getComputedValue } from "./util";
+export { Matrix, createEmpty as createEmptyMatrix } from "./matrix";
 export type { Point } from "./point";
 export type {
   CellBase,

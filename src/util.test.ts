@@ -1,12 +1,12 @@
 import type { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
+import * as Matrix from "./matrix";
 import * as Point from "./point";
 import * as PointMap from "./point-map";
 import * as PointRange from "./point-range";
 import {
   moveCursorToEnd,
   calculateSpreadsheetSize,
-  createEmptyMatrix,
   range,
   getCellDimensions,
   getRangeDimensions,
@@ -19,12 +19,13 @@ import {
   isFormulaCell,
   extractFormula,
   getMatrixRange,
+  getCSV,
 } from "./util";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
 const EXAMPLE_DATA_ROWS_COUNT = 2;
 const EXAMPLE_DATA_COLUMNS_COUNT = 2;
-const EXAMPLE_DATA = createEmptyMatrix<Types.CellBase>(
+const EXAMPLE_DATA = Matrix.createEmpty<Types.CellBase>(
   EXAMPLE_DATA_ROWS_COUNT,
   EXAMPLE_DATA_COLUMNS_COUNT
 );
@@ -354,6 +355,16 @@ describe("getMatrixRange()", () => {
         row: EXAMPLE_DATA_COLUMNS_COUNT - 1,
         column: EXAMPLE_DATA_ROWS_COUNT - 1,
       })
+    );
+  });
+});
+
+describe("getCSV()", () => {
+  test("Returns given data as CSV", () => {
+    expect(getCSV(EXAMPLE_DATA)).toBe(
+      Matrix.join(
+        Matrix.createEmpty(EXAMPLE_DATA_ROWS_COUNT, EXAMPLE_DATA_COLUMNS_COUNT)
+      )
     );
   });
 });
