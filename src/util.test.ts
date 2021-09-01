@@ -20,6 +20,7 @@ import {
   extractFormula,
   getMatrixRange,
   getCSV,
+  getSelectedCSV,
 } from "./util";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
@@ -366,5 +367,19 @@ describe("getCSV()", () => {
         Matrix.createEmpty(EXAMPLE_DATA_ROWS_COUNT, EXAMPLE_DATA_COLUMNS_COUNT)
       )
     );
+  });
+});
+
+describe("getSelectedCSV()", () => {
+  test("Returns empty for no selected range", () => {
+    expect(getSelectedCSV(null, EXAMPLE_DATA)).toBe("");
+  });
+  test("Returns CSV for selected range", () => {
+    expect(
+      getSelectedCSV(
+        { start: Point.ORIGIN, end: { row: 1, column: 1 } },
+        EXAMPLE_DATA
+      )
+    ).toEqual(Matrix.join(Matrix.createEmpty(2, 2)));
   });
 });
