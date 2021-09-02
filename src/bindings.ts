@@ -1,37 +1,7 @@
 import flatMap from "array.prototype.flatmap";
 import * as Types from "./types";
 import * as Matrix from "./matrix";
-import * as Point from "./point";
-import { extractLabel } from "hot-formula-parser";
-
-const FORMULA_REFERENCES = /\$?[A-Z]+\$?[0-9]+/g;
-
-export function isFormula(value: unknown): value is string {
-  return typeof value === "string" && value.startsWith("=");
-}
-
-export function getFormula<Cell extends Types.CellBase>(
-  cell: Cell
-): string | null {
-  if (cell && cell.value && isFormula(cell.value)) {
-    return cell.value;
-  }
-  return null;
-}
-
-/**
- * For given formula returns the cell references
- * @param formula - formula to get references for
- */
-export function getReferences(formula: string): Point.Point[] {
-  const match = formula.match(FORMULA_REFERENCES);
-  return match
-    ? match.map((substr) => {
-        const [row, column] = extractLabel(substr);
-        return { row: row.index, column: column.index };
-      })
-    : [];
-}
+import { isFormula, getReferences } from "./formula";
 
 /**
  * For given cell and spreadsheet data returns the cells affecting the cell value
@@ -39,16 +9,11 @@ export function getReferences(formula: string): Point.Point[] {
  * @param data - spreadsheet data the cell relates to
  * @returns an array of coordinates in the given spreadsheet data of the cells that affect the given cell
  */
-export function getBindingsForCell<
-  Value,
-  Cell extends Types.CellBase & {
-    value: Value;
-  }
->(cell: Cell, data: Matrix.Matrix<Cell>): Point.Point[] {
-  const formula = getFormula(cell);
-  if (!formula) {
+export const getBindingsForCell: Types.GetBindingsForCell = (cell, data) => {
+  if (!isFormula(cell.value)) {
     return [];
   }
+  const formula = cell.value;
   const references = getReferences(formula);
   // Recursively get references to dependencies
   return flatMap(references, (coords) => {
@@ -58,4 +23,4 @@ export function getBindingsForCell<
       : [];
     return [coords, ...dependencyBindings];
   });
-}
+};
