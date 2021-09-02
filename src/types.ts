@@ -48,23 +48,46 @@ export type Dimensions = {
 export enum EntireSelectionType {
   Row = "row",
   Column = "column",
+  Table = "table",
 }
 
-/** Selection made to entire rows or columns */
 export type EntireSelection = {
-  /** The entirely selected type */
   type: EntireSelectionType;
+};
+
+/** Selection of entire rows */
+export type EntireRowsSelection = EntireSelection & {
+  type: EntireSelectionType.Row;
   /** Selection start index, integer */
   start: number;
   /** Selection end index, integer */
   end: number;
 };
 
-export type Selected = PointRange | EntireSelection | null;
+/** Selection of entire columns */
+export type EntireColumnsSelection = EntireSelection & {
+  type: EntireSelectionType.Column;
+  /** Selection start index, integer */
+  start: number;
+  /** Selection end index, integer */
+  end: number;
+};
+
+/** Selection of an entire table */
+export type EntireTableSelection = EntireSelection & {
+  type: EntireSelectionType.Table;
+};
+
+export type Selection =
+  | PointRange
+  | EntireRowsSelection
+  | EntireColumnsSelection
+  | EntireTableSelection
+  | null;
 
 export type StoreState<Cell extends CellBase = CellBase> = {
   data: Matrix<Cell>;
-  selected: Selected;
+  selected: Selection;
   copied: PointMap<Cell>;
   hasPasted: boolean;
   cut: boolean;

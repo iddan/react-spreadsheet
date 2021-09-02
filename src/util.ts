@@ -146,9 +146,9 @@ export function isFormulaCell(
 
 /** Normalize given selected range to given data matrix */
 export function normalizeSelected(
-  selected: Types.Selected,
+  selected: Types.Selection,
   data: Matrix.Matrix<unknown>
-): Types.Selected {
+): Types.Selection {
   const dataRange = getMatrixRange(data);
   return PointRange.is(selected)
     ? PointRange.mask(selected, dataRange)
@@ -156,7 +156,7 @@ export function normalizeSelected(
 }
 
 /** Get selected points */
-export function getSelectedPoints(selected: Types.Selected): Point.Point[] {
+export function getSelectedPoints(selected: Types.Selection): Point.Point[] {
   return PointRange.is(selected)
     ? Array.from(PointRange.iterate(selected))
     : [];
@@ -172,7 +172,7 @@ export function getMatrixRange(
 
 /** Get given selected range from given data as CSV */
 export function getSelectedCSV(
-  selected: Types.Selected,
+  selected: Types.Selection,
   data: Matrix.Matrix<Types.CellBase>
 ): string {
   if (!PointRange.is(selected)) {
