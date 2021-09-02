@@ -22,6 +22,7 @@ import {
   getCSV,
   getSelectedCSV,
   getOffsetRect,
+  readTextFromClipboard,
 } from "./util";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
@@ -399,5 +400,42 @@ describe("getOffsetRect()", () => {
       left: MOCK_ELEMENT.offsetLeft,
       top: MOCK_ELEMENT.offsetTop,
     });
+  });
+});
+
+describe("readTextFromClipboard", () => {
+  test("Returns empty string if no text is defined", () => {
+    const EXAMPLE_CLIPBOARD_EVENT = {} as ClipboardEvent;
+    expect(readTextFromClipboard(EXAMPLE_CLIPBOARD_EVENT)).toEqual("");
+  });
+  test("Returns string from event", () => {
+    const EXAMPLE_CLIPBOARD_EVENT = {
+      clipboardData: {
+        getData: jest.fn(() => EXAMPLE_STRING),
+      },
+    } as unknown as ClipboardEvent;
+    expect(readTextFromClipboard(EXAMPLE_CLIPBOARD_EVENT)).toEqual(
+      EXAMPLE_STRING
+    );
+    expect(EXAMPLE_CLIPBOARD_EVENT.clipboardData?.getData).toBeCalledTimes(1);
+    expect(EXAMPLE_CLIPBOARD_EVENT.clipboardData?.getData).toBeCalledWith(
+      PLAIN_TEXT_MIME
+    );
+  });
+  test("Returns string from window", () => {
+    const EXAMPLE_CLIPBOARD_EVENT = {} as ClipboardEvent;
+    const MOCK_CLIPBOARD_DATA = {
+      getData: jest.fn(() => EXAMPLE_STRING),
+    };
+    // Define for the test as it is not a native JS-DOM property
+    // @ts-ignore
+    window.clipboardData = MOCK_CLIPBOARD_DATA;
+    expect(readTextFromClipboard(EXAMPLE_CLIPBOARD_EVENT)).toBe(EXAMPLE_STRING);
+    // @ts-ignore
+    expect(MOCK_CLIPBOARD_DATA.getData).toBeCalledTimes(1);
+    expect(MOCK_CLIPBOARD_DATA.getData).toBeCalledWith("Text");
+    // Undefine as it is not a native JS-DOM property
+    // @ts-ignore
+    delete window.clipoardData;
   });
 });
