@@ -21,6 +21,7 @@ import {
   getMatrixRange,
   getCSV,
   getSelectedCSV,
+  getOffsetRect,
 } from "./util";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
@@ -381,5 +382,22 @@ describe("getSelectedCSV()", () => {
         EXAMPLE_DATA
       )
     ).toEqual(Matrix.join(Matrix.createEmpty(2, 2)));
+  });
+});
+
+describe("getOffsetRect()", () => {
+  test("Returns object with the offsets of the given element", () => {
+    const MOCK_ELEMENT = {
+      offsetWidth: 42,
+      offsetHeight: 42,
+      offsetLeft: 42,
+      offsetTop: 42,
+    } as unknown as HTMLElement;
+    expect(getOffsetRect(MOCK_ELEMENT)).toEqual({
+      width: MOCK_ELEMENT.offsetWidth,
+      height: MOCK_ELEMENT.offsetHeight,
+      left: MOCK_ELEMENT.offsetLeft,
+      top: MOCK_ELEMENT.offsetTop,
+    });
   });
 });
