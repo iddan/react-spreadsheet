@@ -14,13 +14,16 @@ export type CellBase<Value = any> = {
   className?: string;
   /** The value of the cell */
   value: Value;
-  /** Custom component to render when the cell is edited, if not defined would default to the component defind for the Spreadsheet */
+  /** Custom component to render when the cell is edited, if not defined would default to the component defined for the Spreadsheet */
   DataEditor?: DataEditorComponent<CellBase<Value>>;
-  /** Custom component to render when the cell is viewed, if not defined would default to the component defind for the Spreadsheet */
+  /** Custom component to render when the cell is viewed, if not defined would default to the component defined for the Spreadsheet */
   DataViewer?: DataViewerComponent<CellBase<Value>>;
 };
 
-/** A cell with it's coordinates */
+/**
+ * A cell with it's coordinates
+ * @deprecated the component does not use cell descriptors anymore. Instead it passes cell point and cell value explicitly.
+ */
 export type CellDescriptor<Cell> = {
   /** The cell's data */
   data: Cell | undefined;
@@ -41,7 +44,7 @@ export type Dimensions = {
   left: number;
 };
 
-export type StoreState<Cell extends CellBase = CellBase<any>> = {
+export type StoreState<Cell extends CellBase = CellBase> = {
   data: Matrix<Cell>;
   selected: PointRange | null;
   copied: PointMap<Cell>;
@@ -61,12 +64,12 @@ export type StoreState<Cell extends CellBase = CellBase<any>> = {
 };
 
 /** Function for getting the cells the cell's value is bound to */
-export type GetBindingsForCell<Cell> = (
+export type GetBindingsForCell<Cell extends CellBase = CellBase> = (
   cell: Cell,
   data: Matrix<Cell>
 ) => Point[];
 
-export type CellChange<Cell> = {
+export type CellChange<Cell extends CellBase = CellBase> = {
   prevCell: Cell | null;
   nextCell: Cell | null;
 };
@@ -112,7 +115,7 @@ type DataComponentProps<Cell extends CellBase> = {
 } & Point;
 
 /** Type of the Spreadsheet DataViewer component props */
-export type DataViewerProps<Cell extends CellBase> =
+export type DataViewerProps<Cell extends CellBase = CellBase> =
   DataComponentProps<Cell> & {
     /** Instance of `FormulaParser` */
     formulaParser: FormulaParser;
@@ -123,7 +126,7 @@ export type DataViewerComponent<Cell extends CellBase = CellBase> =
   ComponentType<DataViewerProps<Cell>>;
 
 /** Type of the Spreadsheet DataEditor component props */
-export type DataEditorProps<Cell extends CellBase> =
+export type DataEditorProps<Cell extends CellBase = CellBase> =
   DataComponentProps<Cell> & {
     /** Callback to be called when the cell's value is changed */
     onChange: (cell: Cell) => void;
