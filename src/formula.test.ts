@@ -3,7 +3,7 @@ import {
   isFormulaValue,
   getReferences,
   extractFormula,
-  PREFIX,
+  FORMULA_VALUE_PREFIX,
 } from "./formula";
 
 const A1 = "A1";
@@ -12,7 +12,7 @@ const A1_POINT: Point.Point = { row: 0, column: 0 };
 const A2_POINT: Point.Point = { row: 1, column: 0 };
 const SUM_A1_A2_FORMULA = `SUM(${A1}, ${A2})`;
 const EXAMPLE_FORMULA = "TRUE()";
-const EXAMPLE_FORMULA_VALUE = `${PREFIX}${EXAMPLE_FORMULA}`;
+const EXAMPLE_FORMULA_VALUE = `${FORMULA_VALUE_PREFIX}${EXAMPLE_FORMULA}`;
 
 describe("isFormulaValue", () => {
   const cases = [
