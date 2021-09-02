@@ -23,6 +23,7 @@ import {
   getSelectedCSV,
   getOffsetRect,
   readTextFromClipboard,
+  normalizeSelected,
 } from "./util";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
@@ -437,5 +438,17 @@ describe("readTextFromClipboard()", () => {
     // Undefine as it is not a native JS-DOM property
     // @ts-ignore
     delete window.clipoardData;
+  });
+});
+
+describe("normalizeSelected()", () => {
+  test("Normalizes given selected range to given data", () => {
+    const EXAMPLE_RANGE = PointRange.create(Point.ORIGIN, {
+      row: EXAMPLE_DATA_ROWS_COUNT,
+      column: EXAMPLE_DATA_COLUMNS_COUNT,
+    });
+    expect(normalizeSelected(EXAMPLE_RANGE, EXAMPLE_DATA)).toEqual(
+      PointRange.create(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA))
+    );
   });
 });
