@@ -75,7 +75,7 @@ export type CellChange<Cell extends CellBase = CellBase> = {
 };
 
 /** Type of Spreadsheet Cell component props */
-export type CellComponentProps<Cell extends CellBase> = {
+export type CellComponentProps<Cell extends CellBase = CellBase> = {
   /** The row of the cell */
   row: number;
   /** The column of the cell */

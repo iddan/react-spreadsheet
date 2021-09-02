@@ -9,7 +9,7 @@ import * as Types from "./types";
 import * as Actions from "./actions";
 import { isActive, getOffsetRect } from "./util";
 
-export const Cell = <Data extends Types.CellBase>({
+export const Cell: React.FC<Types.CellComponentProps> = ({
   row,
   column,
   setCellDimensions,
@@ -22,7 +22,7 @@ export const Cell = <Data extends Types.CellBase>({
   active,
   DataViewer,
   data,
-}: Types.CellComponentProps<Data>): React.ReactElement => {
+}): React.ReactElement => {
   const rootRef = React.useRef<HTMLTableDataCellElement | null>(null);
   const root = rootRef.current;
 
