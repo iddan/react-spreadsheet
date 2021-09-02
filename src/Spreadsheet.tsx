@@ -37,6 +37,7 @@ import {
   getComputedValue,
   getSelectedCSV,
   calculateSpreadsheetSize,
+  getSelectedPoints,
 } from "./util";
 import "./Spreadsheet.css";
 
@@ -239,9 +240,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       }
 
       if (state.selected !== prevState.selected) {
-        const points = state.selected
-          ? Array.from(PointRange.iterate(state.selected))
-          : [];
+        const points = getSelectedPoints(state.selected);
         onSelect(points);
       }
 

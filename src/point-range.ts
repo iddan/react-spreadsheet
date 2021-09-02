@@ -76,3 +76,9 @@ export function mask(masked: PointRange, mask: PointRange): PointRange {
     },
   };
 }
+
+/** Returns whether given value is a point range */
+export function is(value: unknown): value is PointRange {
+  // @ts-ignore
+  return Point.is(value?.start) && Point.is(value?.end);
+}

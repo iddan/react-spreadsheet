@@ -105,7 +105,7 @@ function mapStateToProps<Data extends Types.CellBase>(
 
   return {
     active: cellIsActive,
-    selected: selected ? PointRange.has(selected, point) : false,
+    selected: PointRange.is(selected) ? PointRange.has(selected, point) : false,
     copied: PointMap.has(point, copied),
     mode: cellIsActive ? mode : "view",
     data: Matrix.get({ row, column }, data),

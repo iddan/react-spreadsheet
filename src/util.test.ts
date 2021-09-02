@@ -20,6 +20,7 @@ import {
   getMatrixRange,
   getCSV,
   getSelectedCSV,
+  getSelectedPoints,
   getOffsetRect,
   readTextFromClipboard,
   normalizeSelected,
@@ -443,5 +444,19 @@ describe("normalizeSelected()", () => {
     expect(normalizeSelected(EXAMPLE_RANGE, EXAMPLE_DATA)).toEqual(
       PointRange.create(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA))
     );
+  });
+});
+
+describe("getSelectedPoints()", () => {
+  const cases = [
+    ["Returns empty for non-range", null, []],
+    [
+      "Returns points for range",
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      [Point.ORIGIN],
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, selected, expected) => {
+    expect(getSelectedPoints(selected)).toEqual(expected);
   });
 });

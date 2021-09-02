@@ -44,9 +44,27 @@ export type Dimensions = {
   left: number;
 };
 
+/** Type entirely selected */
+export enum EntireSelectionType {
+  Row = "row",
+  Column = "column",
+}
+
+/** Selection made to entire rows or columns */
+export type EntireSelection = {
+  /** The entirely selected type */
+  type: EntireSelectionType;
+  /** Selection start index, integer */
+  start: number;
+  /** Selection end index, integer */
+  end: number;
+};
+
+export type Selected = PointRange | EntireSelection | null;
+
 export type StoreState<Cell extends CellBase = CellBase> = {
   data: Matrix<Cell>;
-  selected: PointRange | null;
+  selected: Selected;
   copied: PointMap<Cell>;
   hasPasted: boolean;
   cut: boolean;

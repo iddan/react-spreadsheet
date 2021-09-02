@@ -4,7 +4,7 @@ import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
-import { isActive, normalizeSelected } from "./util";
+import { getSelectedPoints, isActive, normalizeSelected } from "./util";
 
 enum Direction {
   Left = "Left",
@@ -103,9 +103,7 @@ export function setCellDimensions(
 export function copy<Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>
 ): Partial<Types.StoreState<Cell>> {
-  const selectedPoints = state.selected
-    ? Array.from(PointRange.iterate(state.selected))
-    : [];
+  const selectedPoints = getSelectedPoints(state.selected);
   return {
     copied: selectedPoints.reduce((acc, point) => {
       const value = Matrix.get(point, state.data);
@@ -213,9 +211,7 @@ export const clear = <Cell extends Types.CellBase>(
   if (!state.active) {
     return null;
   }
-  const selectedPoints = state.selected
-    ? Array.from(PointRange.iterate(state.selected))
-    : [];
+  const selectedPoints = getSelectedPoints(state.selected);
   const changes = selectedPoints.map((point) => {
     const cell = Matrix.get(point, state.data);
     return {
@@ -262,7 +258,7 @@ export const modifyEdge =
   (state: Types.StoreState): Partial<Types.StoreState> | null => {
     const { active, selected } = state;
 
-    if (!active || !selected) {
+    if (!active || !PointRange.is(selected)) {
       return null;
     }
 

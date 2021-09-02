@@ -15,13 +15,14 @@ const Selected: React.FC<Props> = (props) => (
 );
 
 export default connect<{}, {}, Types.StoreState, StateProps>((state) => {
-  const dimensions =
-    state.selected && getRangeDimensions(state, state.selected);
+  const dimensions = PointRange.is(state.selected)
+    ? getRangeDimensions(state, state.selected)
+    : undefined;
   return {
     dimensions,
     hidden:
       !state.selected ||
-      Boolean(state.selected && PointRange.size(state.selected) === 1),
+      (PointRange.is(state.selected) && PointRange.size(state.selected) === 1),
     dragging: state.dragging,
   };
 })(Selected);
