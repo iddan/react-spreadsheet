@@ -1,7 +1,7 @@
 import flatMap from "array.prototype.flatmap";
 import * as Types from "./types";
 import * as Matrix from "./matrix";
-import { isFormula, getReferences } from "./formula";
+import { isFormulaValue, getReferences } from "./formula";
 
 /**
  * For given cell and spreadsheet data returns the cells affecting the cell value
@@ -10,7 +10,7 @@ import { isFormula, getReferences } from "./formula";
  * @returns an array of coordinates in the given spreadsheet data of the cells that affect the given cell
  */
 export const getBindingsForCell: Types.GetBindingsForCell = (cell, data) => {
-  if (!isFormula(cell.value)) {
+  if (!isFormulaValue(cell.value)) {
     return [];
   }
   const formula = cell.value;

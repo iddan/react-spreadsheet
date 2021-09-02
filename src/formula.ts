@@ -5,8 +5,13 @@ export const PREFIX = "=";
 const FORMULA_REFERENCES = /\$?[A-Z]+\$?[0-9]+/g;
 
 /** Returns whether given value is a formula */
-export function isFormula(value: unknown): value is string {
+export function isFormulaValue(value: unknown): value is string {
   return typeof value === "string" && value.startsWith(PREFIX);
+}
+
+/** Extracts formula from value  */
+export function extractFormula(value: string): string {
+  return value.slice(1);
 }
 
 /**

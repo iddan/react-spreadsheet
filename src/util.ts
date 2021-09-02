@@ -3,13 +3,13 @@ import * as Types from "./types";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import * as PointRange from "./point-range";
+import * as Formula from "./formula";
 
 export { createEmpty as createEmptyMatrix } from "./matrix";
 
 export type FormulaParseResult = string | boolean | number;
 export type FormulaParseError = string;
 
-export const FORMULA_VALUE_PREFIX = "=";
 export const PLAIN_TEXT_MIME = "text/plain";
 
 /** Move the cursor of given input element to the input's end */
@@ -132,7 +132,7 @@ export function getFormulaComputedValue({
   cell: Types.CellBase<string>;
   formulaParser: hotFormulaParser.Parser;
 }): FormulaParseResult | FormulaParseError | null {
-  const formula = extractFormula(cell.value);
+  const formula = Formula.extractFormula(cell.value);
   const { result, error } = formulaParser.parse(formula);
   return error || result;
 }
@@ -141,15 +141,7 @@ export function getFormulaComputedValue({
 export function isFormulaCell(
   cell: Types.CellBase
 ): cell is Types.CellBase<string> {
-  return (
-    typeof cell.value === "string" &&
-    cell.value.startsWith(FORMULA_VALUE_PREFIX)
-  );
-}
-
-/** Extracts formula from formula cell value */
-export function extractFormula(cellValue: string): string {
-  return cellValue.slice(1);
+  return Formula.isFormulaValue(cell.value);
 }
 
 /** Normalize given selected range to given data matrix */

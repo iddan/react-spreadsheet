@@ -1,9 +1,10 @@
 import type { Parser as FormulaParser } from "hot-formula-parser";
-import * as Types from "./types";
+import * as Formula from "./formula";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import * as PointMap from "./point-map";
 import * as PointRange from "./point-range";
+import * as Types from "./types";
 import {
   moveCursorToEnd,
   calculateSpreadsheetSize,
@@ -14,10 +15,8 @@ import {
   writeTextToClipboard,
   PLAIN_TEXT_MIME,
   getComputedValue,
-  FORMULA_VALUE_PREFIX,
   getFormulaComputedValue,
   isFormulaCell,
-  extractFormula,
   getMatrixRange,
   getCSV,
   getSelectedCSV,
@@ -83,10 +82,8 @@ const EXAMPLE_STRING = "EXAMPLE_STRING";
 const EXAMPLE_CELL: Types.CellBase = {
   value: "EXAMPLE_CELL_VALUE",
 };
-const EXAMPLE_FORMULA = "TRUE()";
-const EXAMPLE_FORMULA_VALUE = `${FORMULA_VALUE_PREFIX}${EXAMPLE_FORMULA}`;
 const EXAMPLE_FORMULA_CELL: Types.CellBase = {
-  value: EXAMPLE_FORMULA_VALUE,
+  value: "=TRUE()",
 };
 const MOCK_PARSE = jest.fn();
 const MOCK_FORMULA_PARSER = {
@@ -332,7 +329,9 @@ describe("getFormulaComputedValue()", () => {
       })
     ).toBe(expected);
     expect(MOCK_FORMULA_PARSER.parse).toBeCalledTimes(1);
-    expect(MOCK_FORMULA_PARSER.parse).toBeCalledWith(EXAMPLE_FORMULA);
+    expect(MOCK_FORMULA_PARSER.parse).toBeCalledWith(
+      Formula.extractFormula(EXAMPLE_FORMULA_CELL.value)
+    );
   });
 });
 
@@ -343,12 +342,6 @@ describe("isFormulaCell()", () => {
   ] as const;
   test.each(cases)("%s", (name, cell, expected) => {
     expect(isFormulaCell(cell)).toBe(expected);
-  });
-});
-
-describe("extractFormula()", () => {
-  test("extracts formula from given cell value", () => {
-    expect(extractFormula(EXAMPLE_FORMULA_VALUE)).toBe(EXAMPLE_FORMULA);
   });
 });
 
