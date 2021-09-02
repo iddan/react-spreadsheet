@@ -403,7 +403,7 @@ describe("getOffsetRect()", () => {
   });
 });
 
-describe("readTextFromClipboard", () => {
+describe("readTextFromClipboard()", () => {
   test("Returns empty string if no text is defined", () => {
     const EXAMPLE_CLIPBOARD_EVENT = {} as ClipboardEvent;
     expect(readTextFromClipboard(EXAMPLE_CLIPBOARD_EVENT)).toEqual("");
