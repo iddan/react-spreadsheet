@@ -107,6 +107,24 @@ export function getRangeDimensions(
   );
 }
 
+/** Get the dimensions of selected */
+export function getSelectedDimensions(
+  state: Types.StoreState
+): Types.Dimensions | undefined {
+  if (!PointRange.is(state.selected)) {
+    return undefined;
+  }
+  return getRangeDimensions(state, state.selected);
+}
+
+/** Get the number of points selected */
+export function getSelectedSize(state: Types.StoreState): number {
+  if (!PointRange.is(state.selected)) {
+    return 0;
+  }
+  return PointRange.size(state.selected);
+}
+
 /** Get the computed value of a cell. */
 export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
   cell,
