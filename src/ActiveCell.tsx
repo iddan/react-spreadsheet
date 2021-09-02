@@ -7,25 +7,25 @@ import * as Types from "./types";
 import * as Point from "./point";
 import { getCellDimensions } from "./util";
 
-type Props<Cell extends Types.CellBase> = {
-  DataEditor: Types.DataEditorComponent<Cell>;
-  onChange: (data: Cell) => void;
+type Props = {
+  DataEditor: Types.DataEditorComponent;
+  onChange: (data: Types.CellBase) => void;
   setCellData: (
     active: Point.Point,
-    data: Cell,
+    data: Types.CellBase,
     bindings: Point.Point[]
   ) => void;
-  cell: Cell;
+  cell: Types.CellBase;
   hidden: boolean;
   mode: Types.Mode;
   edit: () => void;
-  commit: (changes: Types.CellChange<Cell>[]) => void;
-  getBindingsForCell: Types.GetBindingsForCell<Cell>;
-  data: Matrix.Matrix<Cell>;
+  commit: (changes: Types.CellChange<Types.CellBase>[]) => void;
+  getBindingsForCell: Types.GetBindingsForCell<Types.CellBase>;
+  data: Matrix.Matrix<Types.CellBase>;
 } & Point.Point &
   Types.Dimensions;
 
-function ActiveCell<Cell extends Types.CellBase>(props: Props<Cell>) {
+const ActiveCell: React.FC<Props> = (props) => {
   const {
     row,
     column,
@@ -42,11 +42,11 @@ function ActiveCell<Cell extends Types.CellBase>(props: Props<Cell>) {
     commit,
     data,
   } = props;
-  const initialCellRef = React.useRef<Cell | null>(null);
-  const prevPropsRef = React.useRef<Props<Cell> | null>(null);
+  const initialCellRef = React.useRef<Types.CellBase | null>(null);
+  const prevPropsRef = React.useRef<Props | null>(null);
 
   const handleChange = React.useCallback(
-    (cell: Cell) => {
+    (cell: Types.CellBase) => {
       const bindings = getBindingsForCell(cell, data);
       setCellData({ row, column }, cell, bindings);
     },
@@ -109,11 +109,11 @@ function ActiveCell<Cell extends Types.CellBase>(props: Props<Cell>) {
       )}
     </div>
   );
-}
+};
 
 function mapStateToProps<Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>
-): Partial<Props<Cell>> {
+): Partial<Props> {
   const dimensions = state.active && getCellDimensions(state.active, state);
   if (!state.active || !dimensions) {
     return { hidden: true };
