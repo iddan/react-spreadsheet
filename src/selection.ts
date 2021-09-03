@@ -43,6 +43,7 @@ export type EntireTableSelection = EntireSelection & {
   type: EntireSelectionType.Table;
 };
 
+/** Selection from a spreadsheet */
 export type Selection =
   | PointRange.PointRange
   | EntireRowsSelection
