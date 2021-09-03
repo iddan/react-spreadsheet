@@ -5,7 +5,8 @@ import FloatingRect, {
   Props as FloatingRectProps,
   StateProps,
 } from "./FloatingRect";
-import { getSelectedDimensions, getSelectedSize } from "./util";
+import * as Selection from "./selection";
+import { getSelectedDimensions } from "./util";
 
 type Props = Omit<FloatingRectProps, "variant">;
 
@@ -15,6 +16,6 @@ const Selected: React.FC<Props> = (props) => (
 
 export default connect<{}, {}, Types.StoreState, StateProps>((state) => ({
   dimensions: getSelectedDimensions(state),
-  hidden: getSelectedSize(state) < 2,
+  hidden: Selection.size(state.selected) < 2,
   dragging: state.dragging,
 }))(Selected);

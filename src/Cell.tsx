@@ -6,7 +6,8 @@ import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Actions from "./actions";
-import { isActive, getOffsetRect, isPointSelected } from "./util";
+import * as Selection from "./selection";
+import { isActive, getOffsetRect } from "./util";
 
 export const Cell: React.FC<Types.CellComponentProps> = ({
   row,
@@ -104,7 +105,7 @@ function mapStateToProps<Data extends Types.CellBase>(
 
   return {
     active: cellIsActive,
-    selected: isPointSelected(selected, point),
+    selected: Selection.has(selected, point),
     copied: PointMap.has(point, copied),
     mode: cellIsActive ? mode : "view",
     data: Matrix.get({ row, column }, data),

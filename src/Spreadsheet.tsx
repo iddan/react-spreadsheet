@@ -30,15 +30,13 @@ import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
 import { getBindingsForCell as defaultGetBindingsForCell } from "./bindings";
+import * as Selection from "./selection";
 import {
   range,
   readTextFromClipboard,
   writeTextToClipboard,
   getComputedValue,
-  getSelectedCSV,
   calculateSpreadsheetSize,
-  getSelectedPoints,
-  getSelected,
   getCSV,
 } from "./util";
 import "./Spreadsheet.css";
@@ -242,7 +240,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       }
 
       if (state.selected !== prevState.selected) {
-        const points = getSelectedPoints(state.selected);
+        const points = Selection.getPoints(state.selected);
         onSelect(points);
       }
 
@@ -279,7 +277,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const clip = React.useCallback(
     (event: ClipboardEvent): void => {
       const { data, selected } = store.getState();
-      const selectedData = getSelected(selected, data);
+      const selectedData = Selection.getSelectionFromMatrix(selected, data);
       const csv = getCSV(selectedData);
       writeTextToClipboard(event, csv);
     },

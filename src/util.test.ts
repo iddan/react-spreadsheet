@@ -11,23 +11,16 @@ import {
   range,
   getCellDimensions,
   getRangeDimensions,
+  getSelectedDimensions,
   isActive,
   writeTextToClipboard,
   PLAIN_TEXT_MIME,
   getComputedValue,
   getFormulaComputedValue,
   isFormulaCell,
-  getMatrixRange,
   getCSV,
-  getSelected,
-  getSelectedPoints,
   getOffsetRect,
   readTextFromClipboard,
-  normalizeSelection,
-  modifySelectionEdge,
-  isPointSelected,
-  getSelectedSize,
-  getSelectedDimensions,
 } from "./util";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
@@ -247,6 +240,25 @@ describe("getRangeDimensions()", () => {
   });
 });
 
+describe("getSelectedDimensions()", () => {
+  const cases = [
+    [
+      "point range",
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      getRangeDimensions(
+        EXAMPLE_STATE,
+        PointRange.create(Point.ORIGIN, Point.ORIGIN)
+      ),
+    ],
+    ["no selection", null, undefined],
+  ] as const;
+  test.each(cases)("%s", (name, selection, expected) => {
+    expect(
+      getSelectedDimensions({ ...EXAMPLE_STATE, selected: selection })
+    ).toEqual(expected);
+  });
+});
+
 describe("isActive()", () => {
   const cases = [
     ["returns false if active is null", null, EXAMPLE_EXISTING_POINT, false],
@@ -350,17 +362,6 @@ describe("isFormulaCell()", () => {
   });
 });
 
-describe("getMatrixRange()", () => {
-  test("Returns the point range of given matrix", () => {
-    expect(getMatrixRange(EXAMPLE_DATA)).toEqual(
-      PointRange.create(Point.ORIGIN, {
-        row: EXAMPLE_DATA_COLUMNS_COUNT - 1,
-        column: EXAMPLE_DATA_ROWS_COUNT - 1,
-      })
-    );
-  });
-});
-
 describe("getCSV()", () => {
   test("Returns given data as CSV", () => {
     expect(getCSV(EXAMPLE_DATA)).toBe(
@@ -368,26 +369,6 @@ describe("getCSV()", () => {
         Matrix.createEmpty(EXAMPLE_DATA_ROWS_COUNT, EXAMPLE_DATA_COLUMNS_COUNT)
       )
     );
-  });
-});
-
-describe("getSelected()", () => {
-  const cases = [
-    [
-      "Returns null for no selection",
-      null,
-      EXAMPLE_DATA,
-      Matrix.createEmpty(0, 0),
-    ],
-    [
-      "Returns matrix for point range",
-      PointRange.create(Point.ORIGIN, { row: 1, column: 1 }),
-      EXAMPLE_DATA,
-      Matrix.createEmpty(2, 2),
-    ],
-  ] as const;
-  test.each(cases)("%s", (name, selection, data, expected) => {
-    expect(getSelected(selection, data)).toEqual(expected);
   });
 });
 
@@ -442,196 +423,5 @@ describe("readTextFromClipboard()", () => {
     // Undefine as it is not a native JS-DOM property
     // @ts-ignore
     delete window.clipoardData;
-  });
-});
-
-describe("normalizeSelection()", () => {
-  test("Normalizes given selected range to given data", () => {
-    const EXAMPLE_RANGE = PointRange.create(Point.ORIGIN, {
-      row: EXAMPLE_DATA_ROWS_COUNT,
-      column: EXAMPLE_DATA_COLUMNS_COUNT,
-    });
-    expect(normalizeSelection(EXAMPLE_RANGE, EXAMPLE_DATA)).toEqual(
-      PointRange.create(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA))
-    );
-  });
-});
-
-describe("getSelectedPoints()", () => {
-  const cases = [
-    ["Returns empty for non-range", null, []],
-    [
-      "Returns points for range",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
-      [Point.ORIGIN],
-    ],
-  ] as const;
-  test.each(cases)("%s", (name, selected, expected) => {
-    expect(getSelectedPoints(selected)).toEqual(expected);
-  });
-});
-
-describe("isPointSelected", () => {
-  const cases = [
-    [
-      "in range",
-      EXAMPLE_EXISTING_POINT,
-      PointRange.create(EXAMPLE_EXISTING_POINT, EXAMPLE_EXISTING_POINT),
-      true,
-    ],
-    [
-      "not selected",
-      EXAMPLE_NON_EXISTING_POINT,
-      PointRange.create(EXAMPLE_EXISTING_POINT, EXAMPLE_EXISTING_POINT),
-      false,
-    ],
-  ] as const;
-  test.each(cases)("%s", (name, point, selected, expected) => {
-    expect(isPointSelected(selected, point)).toBe(expected);
-  });
-});
-
-describe("modifySelectionEdge()", () => {
-  const cases = [
-    [
-      "modify left",
-      PointRange.create({ row: 0, column: 1 }, { row: 0, column: 1 }),
-      { row: 0, column: 1 },
-      EXAMPLE_DATA,
-      Types.Direction.Left,
-      PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
-    ],
-    [
-      "modify left, blocked",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Types.Direction.Left,
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
-    ],
-    [
-      "modify left, backwards",
-      PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Types.Direction.Left,
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
-    ],
-    [
-      "modify right",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Types.Direction.Right,
-      PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
-    ],
-    [
-      "modify right, blocked",
-      PointRange.create({ row: 0, column: 1 }, { row: 0, column: 1 }),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Types.Direction.Right,
-      PointRange.create({ row: 0, column: 1 }, { row: 0, column: 1 }),
-    ],
-    [
-      "modify right, backwards",
-      PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
-      { row: 0, column: 1 },
-      EXAMPLE_DATA,
-      Types.Direction.Right,
-      PointRange.create({ row: 0, column: 1 }, { row: 0, column: 1 }),
-    ],
-    [
-      "modify top",
-      PointRange.create({ row: 1, column: 0 }, { row: 1, column: 0 }),
-      { row: 1, column: 0 },
-      EXAMPLE_DATA,
-      Types.Direction.Top,
-      PointRange.create(Point.ORIGIN, { row: 1, column: 0 }),
-    ],
-    [
-      "modify top, blocked",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Types.Direction.Top,
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
-    ],
-    [
-      "modify top, backwards",
-      PointRange.create(Point.ORIGIN, { row: 1, column: 0 }),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Types.Direction.Top,
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
-    ],
-    [
-      "modify bottom",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Types.Direction.Bottom,
-      PointRange.create(Point.ORIGIN, { row: 1, column: 0 }),
-    ],
-    [
-      "modify bottom, blocked",
-      PointRange.create({ row: 1, column: 0 }, { row: 1, column: 0 }),
-      { row: 1, column: 0 },
-      EXAMPLE_DATA,
-      Types.Direction.Bottom,
-      PointRange.create({ row: 1, column: 0 }, { row: 1, column: 0 }),
-    ],
-    [
-      "modify bottom, backwards",
-      PointRange.create(Point.ORIGIN, { row: 1, column: 0 }),
-      { row: 1, column: 0 },
-      EXAMPLE_DATA,
-      Types.Direction.Bottom,
-      PointRange.create({ row: 1, column: 0 }, { row: 1, column: 0 }),
-    ],
-    [
-      "does nothing if no active and selection",
-      null,
-      null,
-      EXAMPLE_DATA,
-      Types.Direction.Left,
-      null,
-    ],
-  ] as const;
-  test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
-    expect(modifySelectionEdge(selection, active, data, edge)).toEqual(
-      expected
-    );
-  });
-});
-
-describe("getSelectedSize()", () => {
-  const cases = [
-    ["point range", PointRange.create(Point.ORIGIN, Point.ORIGIN), 1],
-    ["no selection", null, 0],
-  ] as const;
-  test.each(cases)("%s", (name, selection, expected) => {
-    expect(getSelectedSize({ ...EXAMPLE_STATE, selected: selection })).toBe(
-      expected
-    );
-  });
-});
-
-describe("getSelectedDimensions()", () => {
-  const cases = [
-    [
-      "point range",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
-      getRangeDimensions(
-        EXAMPLE_STATE,
-        PointRange.create(Point.ORIGIN, Point.ORIGIN)
-      ),
-    ],
-    ["no selection", null, undefined],
-  ] as const;
-  test.each(cases)("%s", (name, selection, expected) => {
-    expect(
-      getSelectedDimensions({ ...EXAMPLE_STATE, selected: selection })
-    ).toEqual(expected);
   });
 });

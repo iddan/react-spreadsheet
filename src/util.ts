@@ -117,22 +117,6 @@ export function getSelectedDimensions(
   return getRangeDimensions(state, state.selected);
 }
 
-/** Get the number of points selected */
-export function getSelectedSize(state: Types.StoreState): number {
-  if (!PointRange.is(state.selected)) {
-    return 0;
-  }
-  return PointRange.size(state.selected);
-}
-
-/** Is the given point selected */
-export function isPointSelected(
-  selected: Types.Selection,
-  point: Point.Point
-): boolean {
-  return PointRange.is(selected) && PointRange.has(selected, point);
-}
-
 /** Get the computed value of a cell. */
 export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
   cell,
@@ -170,54 +154,10 @@ export function isFormulaCell(
   return Formula.isFormulaValue(cell.value);
 }
 
-/** Normalize given selected range to given data matrix */
-export function normalizeSelection(
-  selected: Types.Selection,
-  data: Matrix.Matrix<unknown>
-): Types.Selection {
-  const dataRange = getMatrixRange(data);
-  return PointRange.is(selected)
-    ? PointRange.mask(selected, dataRange)
-    : selected;
-}
-
-/** Get selected points */
-export function getSelectedPoints(selected: Types.Selection): Point.Point[] {
-  return PointRange.is(selected)
-    ? Array.from(PointRange.iterate(selected))
-    : [];
-}
-
-/** Get the point range of given matrix */
-export function getMatrixRange(
-  data: Matrix.Matrix<unknown>
-): PointRange.PointRange {
-  const maxPoint = Matrix.maxPoint(data);
-  return PointRange.create(Point.ORIGIN, maxPoint);
-}
-
-/** Get given selection from given data */
-export function getSelected<T>(
-  selection: Types.Selection,
-  data: Matrix.Matrix<T>
-): Matrix.Matrix<T> {
-  if (!PointRange.is(selection)) {
-    return [];
-  }
-  return getRangeFromMatrix(selection, data);
-}
-
 /** Get given data as CSV */
 export function getCSV(data: Matrix.Matrix<Types.CellBase>): string {
   const valueMatrix = Matrix.map((cell) => cell?.value || "", data);
   return Matrix.join(valueMatrix);
-}
-
-export function getRangeFromMatrix<T>(
-  range: PointRange.PointRange,
-  matrix: Matrix.Matrix<T>
-): Matrix.Matrix<T> {
-  return Matrix.slice(range.start, range.end, matrix);
 }
 
 /**
@@ -237,44 +177,4 @@ export function calculateSpreadsheetSize(
     rows: rowLabels ? Math.max(rows, rowLabels.length) : rows,
     columns: columnLabels ? Math.max(columns, columnLabels.length) : columns,
   };
-}
-
-/** Modify given edge of given selection according to given active point and data matrix */
-export function modifySelectionEdge(
-  selection: Types.Selection,
-  active: Point.Point | null,
-  data: Matrix.Matrix<unknown>,
-  edge: Types.Direction
-): Types.Selection {
-  if (!active || !PointRange.is(selection)) {
-    return selection;
-  }
-
-  const field =
-    edge === Types.Direction.Left || edge === Types.Direction.Right
-      ? "column"
-      : "row";
-
-  const key =
-    edge === Types.Direction.Left || edge === Types.Direction.Top
-      ? "start"
-      : "end";
-  const delta = key === "start" ? -1 : 1;
-
-  const edgeOffsets = PointRange.has(selection, {
-    ...active,
-    [field]: active[field] + delta * -1,
-  });
-
-  const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
-
-  const nextSelection: PointRange.PointRange = {
-    ...selection,
-    [keyToModify]: {
-      ...selection[keyToModify],
-      [field]: selection[keyToModify][field] + delta,
-    },
-  };
-
-  return normalizeSelection(nextSelection, data);
 }

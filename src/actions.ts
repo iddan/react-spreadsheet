@@ -4,12 +4,8 @@ import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
-import {
-  getSelectedPoints,
-  isActive,
-  normalizeSelection,
-  modifySelectionEdge,
-} from "./util";
+import * as Selection from "./selection";
+import { isActive } from "./util";
 
 export const setData = <Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>,
@@ -17,7 +13,7 @@ export const setData = <Cell extends Types.CellBase>(
 ): Partial<Types.StoreState<Cell>> => {
   const nextActive =
     state.active && Matrix.has(state.active, data) ? state.active : null;
-  const nextSelected = normalizeSelection(state.selected, data);
+  const nextSelected = Selection.normalize(state.selected, data);
   const nextBindings = PointMap.map(
     (bindings) => PointSet.filter((point) => Matrix.has(point, data), bindings),
     PointMap.filter((_, point) => Matrix.has(point, data), state.bindings)
@@ -101,7 +97,7 @@ export function setCellDimensions(
 export function copy<Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>
 ): Partial<Types.StoreState<Cell>> {
-  const selectedPoints = getSelectedPoints(state.selected);
+  const selectedPoints = Selection.getPoints(state.selected);
   return {
     copied: selectedPoints.reduce((acc, point) => {
       const value = Matrix.get(point, state.data);
@@ -209,7 +205,7 @@ export const clear = <Cell extends Types.CellBase>(
   if (!state.active) {
     return null;
   }
-  const selectedPoints = getSelectedPoints(state.selected);
+  const selectedPoints = Selection.getPoints(state.selected);
   const changes = selectedPoints.map((point) => {
     const cell = Matrix.get(point, state.data);
     return {
@@ -252,9 +248,9 @@ export const go =
   };
 
 export const modifyEdge =
-  (edge: Types.Direction) =>
+  (edge: Selection.Direction) =>
   (state: Types.StoreState): Partial<Types.StoreState> | null => ({
-    selected: modifySelectionEdge(
+    selected: Selection.modifyEdge(
       state.selected,
       state.active,
       state.data,
@@ -294,10 +290,10 @@ const editShiftKeyDownHandlers: KeyDownHandlers = {
 };
 
 const shiftKeyDownHandlers: KeyDownHandlers = {
-  ArrowUp: modifyEdge(Types.Direction.Top),
-  ArrowDown: modifyEdge(Types.Direction.Bottom),
-  ArrowLeft: modifyEdge(Types.Direction.Left),
-  ArrowRight: modifyEdge(Types.Direction.Right),
+  ArrowUp: modifyEdge(Selection.Direction.Top),
+  ArrowDown: modifyEdge(Selection.Direction.Bottom),
+  ArrowLeft: modifyEdge(Selection.Direction.Left),
+  ArrowRight: modifyEdge(Selection.Direction.Right),
   Tab: go(0, -1),
 };
 

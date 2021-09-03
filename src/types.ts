@@ -4,7 +4,7 @@ import { Point } from "./point";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";
 import { Matrix } from "./matrix";
-import { PointRange } from "./point-range";
+import { Selection } from "./selection";
 
 /** The base type of cell data in Spreadsheet */
 export type CellBase<Value = any> = {
@@ -43,47 +43,6 @@ export type Dimensions = {
   /** The distance of the element from it's container left border in pixels */
   left: number;
 };
-
-/** Type entirely selected */
-export enum EntireSelectionType {
-  Row = "row",
-  Column = "column",
-  Table = "table",
-}
-
-export type EntireSelection = {
-  type: EntireSelectionType;
-};
-
-/** Selection of entire rows */
-export type EntireRowsSelection = EntireSelection & {
-  type: EntireSelectionType.Row;
-  /** Selection start index, integer */
-  start: number;
-  /** Selection end index, integer */
-  end: number;
-};
-
-/** Selection of entire columns */
-export type EntireColumnsSelection = EntireSelection & {
-  type: EntireSelectionType.Column;
-  /** Selection start index, integer */
-  start: number;
-  /** Selection end index, integer */
-  end: number;
-};
-
-/** Selection of an entire table */
-export type EntireTableSelection = EntireSelection & {
-  type: EntireSelectionType.Table;
-};
-
-export type Selection =
-  | PointRange
-  | EntireRowsSelection
-  | EntireColumnsSelection
-  | EntireTableSelection
-  | null;
 
 export type StoreState<Cell extends CellBase = CellBase> = {
   data: Matrix<Cell>;
@@ -176,10 +135,3 @@ export type DataEditorProps<Cell extends CellBase = CellBase> =
 /** Type of the Spreadsheet DataEditor component */
 export type DataEditorComponent<Cell extends CellBase = CellBase> =
   ComponentType<DataEditorProps<Cell>>;
-
-export enum Direction {
-  Left = "Left",
-  Right = "Right",
-  Top = "Top",
-  Bottom = "Bottom",
-}
