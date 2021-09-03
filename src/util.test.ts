@@ -26,6 +26,7 @@ import {
   normalizeSelection,
   modifySelectionEdge,
   isPointSelected,
+  getSelectedSize,
 } from "./util";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
@@ -592,6 +593,18 @@ describe("modifySelectionEdge()", () => {
   ] as const;
   test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
     expect(modifySelectionEdge(selection, active, data, edge)).toEqual(
+      expected
+    );
+  });
+});
+
+describe("getSelectedSize()", () => {
+  const cases = [
+    ["point range", PointRange.create(Point.ORIGIN, Point.ORIGIN), 1],
+    ["no selection", null, 0],
+  ] as const;
+  test.each(cases)("%s", (name, selection, expected) => {
+    expect(getSelectedSize({ ...EXAMPLE_STATE, selected: selection })).toBe(
       expected
     );
   });
