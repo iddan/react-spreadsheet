@@ -581,6 +581,14 @@ describe("modifySelectionEdge()", () => {
       Types.Direction.Bottom,
       PointRange.create({ row: 1, column: 0 }, { row: 1, column: 0 }),
     ],
+    [
+      "does nothing if no active and selection",
+      null,
+      null,
+      EXAMPLE_DATA,
+      Types.Direction.Left,
+      null,
+    ],
   ] as const;
   test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
     expect(modifySelectionEdge(selection, active, data, edge)).toEqual(
