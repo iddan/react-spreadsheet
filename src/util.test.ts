@@ -19,6 +19,7 @@ import {
   isFormulaCell,
   getMatrixRange,
   getCSV,
+  getSelected,
   getSelectedCSV,
   getSelectedPoints,
   getOffsetRect,
@@ -371,17 +372,33 @@ describe("getCSV()", () => {
   });
 });
 
-describe("getSelectedCSV()", () => {
-  test("Returns empty for no selected range", () => {
-    expect(getSelectedCSV(null, EXAMPLE_DATA)).toBe("");
+describe("getSelected()", () => {
+  const cases = [
+    ["Returns null for no selection", null, EXAMPLE_DATA, null],
+    [
+      "Returns matrix for point range",
+      PointRange.create(Point.ORIGIN, { row: 1, column: 1 }),
+      EXAMPLE_DATA,
+      Matrix.createEmpty(2, 2),
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, selection, data, expected) => {
+    expect(getSelected(selection, data)).toEqual(expected);
   });
-  test("Returns CSV for selected range", () => {
-    expect(
-      getSelectedCSV(
-        { start: Point.ORIGIN, end: { row: 1, column: 1 } },
-        EXAMPLE_DATA
-      )
-    ).toEqual(Matrix.join(Matrix.createEmpty(2, 2)));
+});
+
+describe("getSelectedCSV()", () => {
+  const cases = [
+    ["Returns empty for no selected range", null, EXAMPLE_DATA, ""],
+    [
+      "Returns CSV for selected range",
+      PointRange.create(Point.ORIGIN, { row: 1, column: 1 }),
+      EXAMPLE_DATA,
+      Matrix.join(Matrix.createEmpty(2, 2)),
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, selection, data, expected) => {
+    expect(getSelectedCSV(selection, data)).toBe(expected);
   });
 });
 

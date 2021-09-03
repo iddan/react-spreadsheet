@@ -196,16 +196,24 @@ export function getMatrixRange(
   return PointRange.create(Point.ORIGIN, maxPoint);
 }
 
-/** Get given selected range from given data as CSV */
+/** Get given selection from given data */
+export function getSelected<T>(
+  selection: Types.Selection,
+  data: Matrix.Matrix<T>
+): Matrix.Matrix<T> | null {
+  if (!PointRange.is(selection)) {
+    return null;
+  }
+  return getRangeFromMatrix(selection, data);
+}
+
+/** Get given selection range from given data as CSV */
 export function getSelectedCSV(
-  selected: Types.Selection,
+  selection: Types.Selection,
   data: Matrix.Matrix<Types.CellBase>
 ): string {
-  if (!PointRange.is(selected)) {
-    return "";
-  }
-  const selectedData = getRangeFromMatrix(selected, data);
-  return getCSV(selectedData);
+  const selectedData = getSelected(selection, data);
+  return selectedData ? getCSV(selectedData) : "";
 }
 
 /** Get given data as CSV */
