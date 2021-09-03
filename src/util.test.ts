@@ -27,6 +27,7 @@ import {
   modifySelectionEdge,
   isPointSelected,
   getSelectedSize,
+  getSelectedDimensions,
 } from "./util";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
@@ -607,5 +608,24 @@ describe("getSelectedSize()", () => {
     expect(getSelectedSize({ ...EXAMPLE_STATE, selected: selection })).toBe(
       expected
     );
+  });
+});
+
+describe("getSelectedDimensions()", () => {
+  const cases = [
+    [
+      "point range",
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      getRangeDimensions(
+        EXAMPLE_STATE,
+        PointRange.create(Point.ORIGIN, Point.ORIGIN)
+      ),
+    ],
+    ["no selection", null, undefined],
+  ] as const;
+  test.each(cases)("%s", (name, selection, expected) => {
+    expect(
+      getSelectedDimensions({ ...EXAMPLE_STATE, selected: selection })
+    ).toEqual(expected);
   });
 });
