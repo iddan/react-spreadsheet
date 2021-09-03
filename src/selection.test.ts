@@ -3,16 +3,56 @@ import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Selection from "./selection";
 
-const EXAMPLE_DATA_ROWS_COUNT = 2;
-const EXAMPLE_DATA_COLUMNS_COUNT = 2;
+const EXAMPLE_DATA_ROWS_COUNT = 4;
+const EXAMPLE_DATA_COLUMNS_COUNT = 4;
 const EXAMPLE_DATA = Matrix.createEmpty(
   EXAMPLE_DATA_ROWS_COUNT,
   EXAMPLE_DATA_COLUMNS_COUNT
 );
+const EXAMPLE_DATA_MAX_POINT = Matrix.maxPoint(EXAMPLE_DATA);
 const EXAMPLE_NON_EXISTING_POINT: Point.Point = {
   row: EXAMPLE_DATA_ROWS_COUNT,
   column: EXAMPLE_DATA_COLUMNS_COUNT,
 };
+
+describe("Selection.toRange()", () => {
+  const cases = [
+    ["null", null, EXAMPLE_DATA, null],
+    [
+      "range",
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      EXAMPLE_DATA,
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+    ],
+    [
+      "entire rows",
+      { type: Selection.EntireSelectionType.Row, start: 1, end: 2 },
+      EXAMPLE_DATA,
+      PointRange.create(
+        { row: 1, column: 0 },
+        { row: 2, column: EXAMPLE_DATA_MAX_POINT.column }
+      ),
+    ],
+    [
+      "entire columns",
+      { type: Selection.EntireSelectionType.Column, start: 1, end: 2 },
+      EXAMPLE_DATA,
+      PointRange.create(
+        { row: 0, column: 1 },
+        { row: EXAMPLE_DATA_MAX_POINT.row, column: 2 }
+      ),
+    ],
+    [
+      "entire table",
+      { type: Selection.EntireSelectionType.Table },
+      EXAMPLE_DATA,
+      Selection.getMatrixRange(EXAMPLE_DATA),
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, selection, data, expected) => {
+    expect(Selection.toRange(selection, data)).toEqual(expected);
+  });
+});
 
 describe("Selection.getSelectionFromMatrix()", () => {
   const cases = [
@@ -116,11 +156,11 @@ describe("Selection.modifyEdge()", () => {
     ],
     [
       "modify right, blocked",
-      PointRange.create({ row: 0, column: 1 }, { row: 0, column: 1 }),
-      Point.ORIGIN,
+      PointRange.create(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
+      EXAMPLE_DATA_MAX_POINT,
       EXAMPLE_DATA,
       Selection.Direction.Right,
-      PointRange.create({ row: 0, column: 1 }, { row: 0, column: 1 }),
+      PointRange.create(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
     ],
     [
       "modify right, backwards",
@@ -164,11 +204,11 @@ describe("Selection.modifyEdge()", () => {
     ],
     [
       "modify bottom, blocked",
-      PointRange.create({ row: 1, column: 0 }, { row: 1, column: 0 }),
-      { row: 1, column: 0 },
+      PointRange.create(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
+      EXAMPLE_DATA_MAX_POINT,
       EXAMPLE_DATA,
       Selection.Direction.Bottom,
-      PointRange.create({ row: 1, column: 0 }, { row: 1, column: 0 }),
+      PointRange.create(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
     ],
     [
       "modify bottom, backwards",
