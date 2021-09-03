@@ -20,7 +20,6 @@ import {
   getMatrixRange,
   getCSV,
   getSelected,
-  getSelectedCSV,
   getSelectedPoints,
   getOffsetRect,
   readTextFromClipboard,
