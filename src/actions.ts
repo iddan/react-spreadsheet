@@ -97,7 +97,7 @@ export function setCellDimensions(
 export function copy<Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>
 ): Partial<Types.StoreState<Cell>> {
-  const selectedPoints = Selection.getPoints(state.selected);
+  const selectedPoints = Selection.getPoints(state.selected, state.data);
   return {
     copied: selectedPoints.reduce((acc, point) => {
       const value = Matrix.get(point, state.data);
@@ -205,7 +205,7 @@ export const clear = <Cell extends Types.CellBase>(
   if (!state.active) {
     return null;
   }
-  const selectedPoints = Selection.getPoints(state.selected);
+  const selectedPoints = Selection.getPoints(state.selected, state.data);
   const changes = selectedPoints.map((point) => {
     const cell = Matrix.get(point, state.data);
     return {

@@ -240,7 +240,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       }
 
       if (state.selected !== prevState.selected) {
-        const points = Selection.getPoints(state.selected);
+        const points = Selection.getPoints(state.selected, state.data);
         onSelect(points);
       }
 

@@ -16,6 +16,6 @@ const Selected: React.FC<Props> = (props) => (
 
 export default connect<{}, {}, Types.StoreState, StateProps>((state) => ({
   dimensions: getSelectedDimensions(state),
-  hidden: Selection.size(state.selected) < 2,
+  hidden: Selection.size(state.selected, state.data) < 2,
   dragging: state.dragging,
 }))(Selected);
