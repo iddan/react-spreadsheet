@@ -51,17 +51,55 @@ export type Selection =
   | EntireTableSelection
   | null;
 
-/** Get the number of points selected */
-export function size(selection: Selection): number {
-  if (!PointRange.is(selection)) {
-    return 0;
+/** Get concrete range in given data of given selection */
+export function toRange(
+  selection: Selection,
+  data: Matrix.Matrix<unknown>
+): PointRange.PointRange | null {
+  if (selection === null) {
+    return null;
   }
-  return PointRange.size(selection);
+  if (PointRange.is(selection)) {
+    return selection;
+  }
+  switch (selection.type) {
+    case EntireSelectionType.Row: {
+      const max = Matrix.maxPoint(data);
+      return PointRange.create(
+        { row: selection.start, column: 0 },
+        { row: selection.end, column: max.column }
+      );
+    }
+    case EntireSelectionType.Column: {
+      const max = Matrix.maxPoint(data);
+      return PointRange.create(
+        { row: 0, column: selection.start },
+        { row: max.row, column: selection.end }
+      );
+    }
+    case EntireSelectionType.Table: {
+      return getMatrixRange(data);
+    }
+  }
+}
+
+/** Get the number of points selected */
+export function size(
+  selection: Selection,
+  data: Matrix.Matrix<unknown>
+): number {
+  const range = toRange(selection, data);
+  return range ? PointRange.size(range) : 0;
 }
 
 /** Is the given point selected */
-export function has(selection: Selection, point: Point.Point): boolean {
-  return PointRange.is(selection) && PointRange.has(selection, point);
+export function has(
+  selection: Selection,
+  data: Matrix.Matrix<unknown>,
+  point: Point.Point
+): boolean {
+  const range = toRange(selection, data);
+  return range !== null && PointRange.has(range, point);
 }
 
 /** Normalize given selected range to given data matrix */
@@ -69,17 +107,20 @@ export function normalize(
   selection: Selection,
   data: Matrix.Matrix<unknown>
 ): Selection {
+  if (!PointRange.is(selection)) {
+    return selection;
+  }
   const dataRange = getMatrixRange(data);
-  return PointRange.is(selection)
-    ? PointRange.mask(selection, dataRange)
-    : selection;
+  return PointRange.mask(selection, dataRange);
 }
 
 /** Get selected points */
-export function getPoints(selected: Selection): Point.Point[] {
-  return PointRange.is(selected)
-    ? Array.from(PointRange.iterate(selected))
-    : [];
+export function getPoints(
+  selection: Selection,
+  data: Matrix.Matrix<unknown>
+): Point.Point[] {
+  const range = toRange(selection, data);
+  return range ? Array.from(PointRange.iterate(range)) : [];
 }
 
 /** Get given selection from given data */
@@ -87,10 +128,8 @@ export function getSelectionFromMatrix<T>(
   selection: Selection,
   data: Matrix.Matrix<T>
 ): Matrix.Matrix<T> {
-  if (!PointRange.is(selection)) {
-    return [];
-  }
-  return getRangeFromMatrix(selection, data);
+  const range = toRange(selection, data);
+  return range ? getRangeFromMatrix(range, data) : [];
 }
 
 /** Modify given edge of given selection according to given active point and data matrix */
@@ -100,6 +139,7 @@ export function modifyEdge(
   data: Matrix.Matrix<unknown>,
   edge: Direction
 ): Selection {
+  /* @todo support entire selections */
   if (!active || !PointRange.is(selection)) {
     return selection;
   }

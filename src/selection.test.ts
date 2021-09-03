@@ -56,7 +56,7 @@ describe("Selection.getPoints()", () => {
     ],
   ] as const;
   test.each(cases)("%s", (name, selected, expected) => {
-    expect(Selection.getPoints(selected)).toEqual(expected);
+    expect(Selection.getPoints(selected, EXAMPLE_DATA)).toEqual(expected);
   });
 });
 
@@ -76,7 +76,7 @@ describe("Selection.has()", () => {
     ],
   ] as const;
   test.each(cases)("%s", (name, point, selected, expected) => {
-    expect(Selection.has(selected, point)).toBe(expected);
+    expect(Selection.has(selected, EXAMPLE_DATA, point)).toBe(expected);
   });
 });
 
@@ -200,7 +200,7 @@ describe("Selection.size()", () => {
     ["no selection", null, 0],
   ] as const;
   test.each(cases)("%s", (name, selection, expected) => {
-    expect(Selection.size(selection)).toBe(expected);
+    expect(Selection.size(selection, EXAMPLE_DATA)).toBe(expected);
   });
 });
 
