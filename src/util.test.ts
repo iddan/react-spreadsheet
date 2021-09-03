@@ -374,7 +374,12 @@ describe("getCSV()", () => {
 
 describe("getSelected()", () => {
   const cases = [
-    ["Returns null for no selection", null, EXAMPLE_DATA, null],
+    [
+      "Returns null for no selection",
+      null,
+      EXAMPLE_DATA,
+      Matrix.createEmpty(0, 0),
+    ],
     [
       "Returns matrix for point range",
       PointRange.create(Point.ORIGIN, { row: 1, column: 1 }),

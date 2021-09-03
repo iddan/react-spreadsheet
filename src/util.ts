@@ -200,9 +200,9 @@ export function getMatrixRange(
 export function getSelected<T>(
   selection: Types.Selection,
   data: Matrix.Matrix<T>
-): Matrix.Matrix<T> | null {
+): Matrix.Matrix<T> {
   if (!PointRange.is(selection)) {
-    return null;
+    return [];
   }
   return getRangeFromMatrix(selection, data);
 }
@@ -213,7 +213,7 @@ export function getSelectedCSV(
   data: Matrix.Matrix<Types.CellBase>
 ): string {
   const selectedData = getSelected(selection, data);
-  return selectedData ? getCSV(selectedData) : "";
+  return getCSV(selectedData);
 }
 
 /** Get given data as CSV */
