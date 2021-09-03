@@ -207,15 +207,6 @@ export function getSelected<T>(
   return getRangeFromMatrix(selection, data);
 }
 
-/** Get given selection range from given data as CSV */
-export function getSelectedCSV(
-  selection: Types.Selection,
-  data: Matrix.Matrix<Types.CellBase>
-): string {
-  const selectedData = getSelected(selection, data);
-  return getCSV(selectedData);
-}
-
 /** Get given data as CSV */
 export function getCSV(data: Matrix.Matrix<Types.CellBase>): string {
   const valueMatrix = Matrix.map((cell) => cell?.value || "", data);

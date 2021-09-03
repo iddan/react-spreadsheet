@@ -392,21 +392,6 @@ describe("getSelected()", () => {
   });
 });
 
-describe("getSelectedCSV()", () => {
-  const cases = [
-    ["Returns empty for no selected range", null, EXAMPLE_DATA, ""],
-    [
-      "Returns CSV for selected range",
-      PointRange.create(Point.ORIGIN, { row: 1, column: 1 }),
-      EXAMPLE_DATA,
-      Matrix.join(Matrix.createEmpty(2, 2)),
-    ],
-  ] as const;
-  test.each(cases)("%s", (name, selection, data, expected) => {
-    expect(getSelectedCSV(selection, data)).toBe(expected);
-  });
-});
-
 describe("getOffsetRect()", () => {
   test("Returns object with the offsets of the given element", () => {
     const MOCK_ELEMENT = {

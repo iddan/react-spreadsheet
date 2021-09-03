@@ -38,6 +38,8 @@ import {
   getSelectedCSV,
   calculateSpreadsheetSize,
   getSelectedPoints,
+  getSelected,
+  getCSV,
 } from "./util";
 import "./Spreadsheet.css";
 
@@ -277,7 +279,8 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const clip = React.useCallback(
     (event: ClipboardEvent): void => {
       const { data, selected } = store.getState();
-      const csv = getSelectedCSV(selected, data);
+      const selectedData = getSelected(selected, data);
+      const csv = getCSV(selectedData);
       writeTextToClipboard(event, csv);
     },
     [store]
