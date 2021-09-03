@@ -125,6 +125,14 @@ export function getSelectedSize(state: Types.StoreState): number {
   return PointRange.size(state.selected);
 }
 
+/** Is the given point selected */
+export function isPointSelected(
+  selected: Types.Selection,
+  point: Point.Point
+): boolean {
+  return PointRange.is(selected) && PointRange.has(selected, point);
+}
+
 /** Get the computed value of a cell. */
 export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
   cell,

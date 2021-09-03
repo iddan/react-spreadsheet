@@ -3,11 +3,10 @@ import classnames from "classnames";
 import { connect } from "unistore/react";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
-import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Actions from "./actions";
-import { isActive, getOffsetRect } from "./util";
+import { isActive, getOffsetRect, isPointSelected } from "./util";
 
 export const Cell: React.FC<Types.CellComponentProps> = ({
   row,
@@ -105,7 +104,7 @@ function mapStateToProps<Data extends Types.CellBase>(
 
   return {
     active: cellIsActive,
-    selected: PointRange.is(selected) ? PointRange.has(selected, point) : false,
+    selected: isPointSelected(selected, point),
     copied: PointMap.has(point, copied),
     mode: cellIsActive ? mode : "view",
     data: Matrix.get({ row, column }, data),

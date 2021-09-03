@@ -24,6 +24,7 @@ import {
   getOffsetRect,
   readTextFromClipboard,
   normalizeSelected,
+  isPointSelected,
 } from "./util";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
@@ -458,5 +459,25 @@ describe("getSelectedPoints()", () => {
   ] as const;
   test.each(cases)("%s", (name, selected, expected) => {
     expect(getSelectedPoints(selected)).toEqual(expected);
+  });
+});
+
+describe("isPointSelected", () => {
+  const cases = [
+    [
+      "in range",
+      EXAMPLE_EXISTING_POINT,
+      PointRange.create(EXAMPLE_EXISTING_POINT, EXAMPLE_EXISTING_POINT),
+      true,
+    ],
+    [
+      "not selected",
+      EXAMPLE_NON_EXISTING_POINT,
+      PointRange.create(EXAMPLE_EXISTING_POINT, EXAMPLE_EXISTING_POINT),
+      false,
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, point, selected, expected) => {
+    expect(isPointSelected(selected, point)).toBe(expected);
   });
 });
