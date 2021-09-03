@@ -176,3 +176,10 @@ export type DataEditorProps<Cell extends CellBase = CellBase> =
 /** Type of the Spreadsheet DataEditor component */
 export type DataEditorComponent<Cell extends CellBase = CellBase> =
   ComponentType<DataEditorProps<Cell>>;
+
+export enum Direction {
+  Left = "Left",
+  Right = "Right",
+  Top = "Top",
+  Bottom = "Bottom",
+}

@@ -171,7 +171,7 @@ export function isFormulaCell(
 }
 
 /** Normalize given selected range to given data matrix */
-export function normalizeSelected(
+export function normalizeSelection(
   selected: Types.Selection,
   data: Matrix.Matrix<unknown>
 ): Types.Selection {
@@ -238,4 +238,44 @@ export function calculateSpreadsheetSize(
     rows: rowLabels ? Math.max(rows, rowLabels.length) : rows,
     columns: columnLabels ? Math.max(columns, columnLabels.length) : columns,
   };
+}
+
+/** Modify given edge of given selection according to given active point and data matrix */
+export function modifySelectionEdge(
+  selection: Types.Selection,
+  active: Point.Point | null,
+  data: Matrix.Matrix<unknown>,
+  edge: Types.Direction
+): Types.Selection {
+  if (!active || !PointRange.is(selection)) {
+    return selection;
+  }
+
+  const field =
+    edge === Types.Direction.Left || edge === Types.Direction.Right
+      ? "column"
+      : "row";
+
+  const key =
+    edge === Types.Direction.Left || edge === Types.Direction.Top
+      ? "start"
+      : "end";
+  const delta = key === "start" ? -1 : 1;
+
+  const edgeOffsets = PointRange.has(selection, {
+    ...active,
+    [field]: active[field] + delta * -1,
+  });
+
+  const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
+
+  const nextSelection: PointRange.PointRange = {
+    ...selection,
+    [keyToModify]: {
+      ...selection[keyToModify],
+      [field]: selection[keyToModify][field] + delta,
+    },
+  };
+
+  return normalizeSelection(nextSelection, data);
 }

@@ -23,7 +23,8 @@ import {
   getSelectedPoints,
   getOffsetRect,
   readTextFromClipboard,
-  normalizeSelected,
+  normalizeSelection,
+  modifySelectionEdge,
   isPointSelected,
 } from "./util";
 
@@ -436,13 +437,13 @@ describe("readTextFromClipboard()", () => {
   });
 });
 
-describe("normalizeSelected()", () => {
+describe("normalizeSelection()", () => {
   test("Normalizes given selected range to given data", () => {
     const EXAMPLE_RANGE = PointRange.create(Point.ORIGIN, {
       row: EXAMPLE_DATA_ROWS_COUNT,
       column: EXAMPLE_DATA_COLUMNS_COUNT,
     });
-    expect(normalizeSelected(EXAMPLE_RANGE, EXAMPLE_DATA)).toEqual(
+    expect(normalizeSelection(EXAMPLE_RANGE, EXAMPLE_DATA)).toEqual(
       PointRange.create(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA))
     );
   });
@@ -479,5 +480,79 @@ describe("isPointSelected", () => {
   ] as const;
   test.each(cases)("%s", (name, point, selected, expected) => {
     expect(isPointSelected(selected, point)).toBe(expected);
+  });
+});
+
+describe("modifySelectionEdge()", () => {
+  const cases = [
+    [
+      "modify left",
+      PointRange.create({ row: 0, column: 1 }, { row: 0, column: 1 }),
+      { row: 0, column: 1 },
+      EXAMPLE_DATA,
+      Types.Direction.Left,
+      PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
+    ],
+    [
+      "modify left, blocked",
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Types.Direction.Left,
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+    ],
+    [
+      "modify right",
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Types.Direction.Right,
+      PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
+    ],
+    [
+      "modify right, blocked",
+      PointRange.create({ row: 0, column: 1 }, { row: 0, column: 1 }),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Types.Direction.Right,
+      PointRange.create({ row: 0, column: 1 }, { row: 0, column: 1 }),
+    ],
+    [
+      "modify top",
+      PointRange.create({ row: 1, column: 0 }, { row: 1, column: 0 }),
+      { row: 1, column: 0 },
+      EXAMPLE_DATA,
+      Types.Direction.Top,
+      PointRange.create(Point.ORIGIN, { row: 1, column: 0 }),
+    ],
+    [
+      "modify top, blocked",
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Types.Direction.Top,
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+    ],
+    [
+      "modify bottom",
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Types.Direction.Bottom,
+      PointRange.create(Point.ORIGIN, { row: 1, column: 0 }),
+    ],
+    [
+      "modify bottom, blocked",
+      PointRange.create({ row: 1, column: 0 }, { row: 1, column: 0 }),
+      { row: 1, column: 0 },
+      EXAMPLE_DATA,
+      Types.Direction.Bottom,
+      PointRange.create({ row: 1, column: 0 }, { row: 1, column: 0 }),
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
+    expect(modifySelectionEdge(selection, active, data, edge)).toEqual(
+      expected
+    );
   });
 });

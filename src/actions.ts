@@ -4,14 +4,12 @@ import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
-import { getSelectedPoints, isActive, normalizeSelected } from "./util";
-
-enum Direction {
-  Left = "Left",
-  Right = "Right",
-  Top = "Top",
-  Down = "Down",
-}
+import {
+  getSelectedPoints,
+  isActive,
+  normalizeSelection,
+  modifySelectionEdge,
+} from "./util";
 
 export const setData = <Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>,
@@ -19,7 +17,7 @@ export const setData = <Cell extends Types.CellBase>(
 ): Partial<Types.StoreState<Cell>> => {
   const nextActive =
     state.active && Matrix.has(state.active, data) ? state.active : null;
-  const nextSelected = normalizeSelected(state.selected, data);
+  const nextSelected = normalizeSelection(state.selected, data);
   const nextBindings = PointMap.map(
     (bindings) => PointSet.filter((point) => Matrix.has(point, data), bindings),
     PointMap.filter((_, point) => Matrix.has(point, data), state.bindings)
@@ -254,40 +252,15 @@ export const go =
   };
 
 export const modifyEdge =
-  (edge: Direction) =>
-  (state: Types.StoreState): Partial<Types.StoreState> | null => {
-    const { active, selected } = state;
-
-    if (!active || !PointRange.is(selected)) {
-      return null;
-    }
-
-    const field =
-      edge === Direction.Left || edge === Direction.Right ? "column" : "row";
-
-    const key =
-      edge === Direction.Left || edge === Direction.Top ? "start" : "end";
-    const delta = key === "start" ? -1 : 1;
-
-    const edgeOffsets = PointRange.has(selected, {
-      ...active,
-      [field]: active[field] + delta * -1,
-    });
-
-    const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
-
-    const nextSelected: PointRange.PointRange = {
-      ...selected,
-      [keyToModify]: {
-        ...selected[keyToModify],
-        [field]: selected[keyToModify][field] + delta,
-      },
-    };
-
-    return {
-      selected: normalizeSelected(nextSelected, state.data),
-    };
-  };
+  (edge: Types.Direction) =>
+  (state: Types.StoreState): Partial<Types.StoreState> | null => ({
+    selected: modifySelectionEdge(
+      state.selected,
+      state.active,
+      state.data,
+      edge
+    ),
+  });
 
 export const blur = (): Partial<Types.StoreState> => ({
   active: null,
@@ -321,10 +294,10 @@ const editShiftKeyDownHandlers: KeyDownHandlers = {
 };
 
 const shiftKeyDownHandlers: KeyDownHandlers = {
-  ArrowUp: modifyEdge(Direction.Top),
-  ArrowDown: modifyEdge(Direction.Down),
-  ArrowLeft: modifyEdge(Direction.Left),
-  ArrowRight: modifyEdge(Direction.Right),
+  ArrowUp: modifyEdge(Types.Direction.Top),
+  ArrowDown: modifyEdge(Types.Direction.Bottom),
+  ArrowLeft: modifyEdge(Types.Direction.Left),
+  ArrowRight: modifyEdge(Types.Direction.Right),
   Tab: go(0, -1),
 };
 
