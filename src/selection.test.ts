@@ -63,7 +63,7 @@ describe("Selection.getSelectionFromMatrix()", () => {
       Matrix.createEmpty(0, 0),
     ],
     [
-      "Returns matrix for point range",
+      "Returns matrix for selection",
       PointRange.create(Point.ORIGIN, { row: 1, column: 1 }),
       EXAMPLE_DATA,
       Matrix.createEmpty(2, 2),
@@ -75,14 +75,19 @@ describe("Selection.getSelectionFromMatrix()", () => {
 });
 
 describe("Selection.normalize()", () => {
-  test("Normalizes given selected range to given data", () => {
-    const EXAMPLE_RANGE = PointRange.create(Point.ORIGIN, {
-      row: EXAMPLE_DATA_ROWS_COUNT,
-      column: EXAMPLE_DATA_COLUMNS_COUNT,
-    });
-    expect(Selection.normalize(EXAMPLE_RANGE, EXAMPLE_DATA)).toEqual(
-      PointRange.create(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA))
-    );
+  const cases = [
+    [
+      "Normalizes given selection range to given data",
+      PointRange.create(Point.ORIGIN, {
+        row: EXAMPLE_DATA_ROWS_COUNT,
+        column: EXAMPLE_DATA_COLUMNS_COUNT,
+      }),
+      PointRange.create(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA)),
+    ],
+    ["Does nothing for non-range selection", null, null],
+  ] as const;
+  test.each(cases)("%s", (name, selection, expected) => {
+    expect(Selection.normalize(selection, EXAMPLE_DATA)).toEqual(expected);
   });
 });
 
@@ -236,7 +241,7 @@ describe("Selection.modifyEdge()", () => {
 
 describe("Selection.size()", () => {
   const cases = [
-    ["point range", PointRange.create(Point.ORIGIN, Point.ORIGIN), 1],
+    ["defined selection", PointRange.create(Point.ORIGIN, Point.ORIGIN), 1],
     ["no selection", null, 0],
   ] as const;
   test.each(cases)("%s", (name, selection, expected) => {
