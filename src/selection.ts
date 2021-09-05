@@ -115,6 +115,9 @@ export function normalize(
       case EntireType.Row: {
         return normalizeEntireRows(selection, data);
       }
+      case EntireType.Column: {
+        return normalizeEntireColumns(selection, data);
+      }
     }
   }
   return selection;
@@ -137,6 +140,19 @@ export function normalizeEntireRows(
   const count = Matrix.getRowsCount(data);
   return {
     type: EntireType.Row,
+    start: Math.max(selection.start, 0),
+    end: Math.min(selection.end, count - 1),
+  };
+}
+
+/** Normalize given entire columns selection to given data matrix */
+export function normalizeEntireColumns(
+  selection: EntireColumns,
+  data: Matrix.Matrix<unknown>
+): EntireColumns {
+  const count = Matrix.getColumnsCount(data);
+  return {
+    type: EntireType.Column,
     start: Math.max(selection.start, 0),
     end: Math.min(selection.end, count - 1),
   };
@@ -167,7 +183,6 @@ export function modifyEdge(
   data: Matrix.Matrix<unknown>,
   edge: Direction
 ): Selection {
-  /* @todo support entire selections */
   if (active && selection) {
     if (PointRange.is(selection)) {
       return modifyRangeEdge(selection, active, data, edge);
@@ -177,6 +192,7 @@ export function modifyEdge(
         return modifyEntireRowsEdge(selection, active, data, edge);
       }
       case EntireType.Column: {
+        return modifyEntireColumnsEdge(selection, active, data, edge);
       }
     }
   }
@@ -213,6 +229,38 @@ export function modifyEntireRowsEdge(
     };
   }
   return normalizeEntireRows(nextSelection, data);
+}
+
+/** Modify given edge of given entire rows selection according to given active point and active matrix */
+export function modifyEntireColumnsEdge(
+  selection: EntireColumns,
+  active: Point.Point,
+  data: Matrix.Matrix<unknown>,
+  edge: Direction
+): EntireColumns {
+  if (edge === Direction.Top || edge === Direction.Bottom) {
+    return selection;
+  }
+  const delta = edge === Direction.Left ? -1 : 1;
+  const property = edge === Direction.Left ? "start" : "end";
+  const oppositeProperty = property === "start" ? "end" : "start";
+  let nextSelection;
+  if (
+    edge === Direction.Left
+      ? selection.end > active.row
+      : selection.start < active.row
+  ) {
+    nextSelection = {
+      ...selection,
+      [oppositeProperty]: selection[oppositeProperty] + delta,
+    };
+  } else {
+    nextSelection = {
+      ...selection,
+      [property]: selection[property] + delta,
+    };
+  }
+  return normalizeEntireColumns(nextSelection, data);
 }
 
 /** Modify given edge of given range according to given active point and data matrix */
