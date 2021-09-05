@@ -4,7 +4,6 @@ import createStore from "unistore";
 import devtools from "unistore/devtools";
 import { Provider } from "unistore/react";
 import * as Types from "./types";
-import * as PointRange from "./point-range";
 import * as Actions from "./actions";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
@@ -22,6 +21,7 @@ import DefaultColumnIndicator, {
 } from "./ColumnIndicator";
 import DefaultRowIndicator, {
   Props as RowIndicatorProps,
+  enhance as enhanceRowIndicator,
 } from "./RowIndicator";
 import { Cell as DefaultCell, enhance as enhanceCell } from "./Cell";
 import DefaultDataViewer from "./DataViewer";
@@ -152,7 +152,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     DataEditor = DefaultDataEditor,
     DataViewer = DefaultDataViewer,
     getBindingsForCell = defaultGetBindingsForCell,
-    RowIndicator = DefaultRowIndicator,
     ColumnIndicator = DefaultColumnIndicator,
     onChange = () => {},
     onModeChange = () => {},
@@ -371,6 +370,13 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     // @ts-ignore
     return enhanceCell(props.Cell || DefaultCell);
   }, [props.Cell]);
+
+  const RowIndicator = React.useMemo((): React.FC<
+    Omit<RowIndicatorProps, "selected" | "onSelect">
+  > => {
+    // @ts-ignore
+    return enhanceRowIndicator(props.RowIndicator || DefaultRowIndicator);
+  }, [props.RowIndicator]);
 
   React.useEffect(() => {
     document.addEventListener("cut", handleCut);

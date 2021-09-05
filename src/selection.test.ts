@@ -26,7 +26,7 @@ describe("Selection.toRange()", () => {
     ],
     [
       "entire rows",
-      { type: Selection.EntireType.Row, start: 1, end: 2 },
+      Selection.createEntireRows(1, 2),
       EXAMPLE_DATA,
       PointRange.create(
         { row: 1, column: 0 },
@@ -121,7 +121,7 @@ describe("Selection.getPoints()", () => {
   });
 });
 
-describe("Selection.has()", () => {
+describe("Selection.hasPoint()", () => {
   const cases = [
     [
       "in range",
@@ -137,7 +137,7 @@ describe("Selection.has()", () => {
     ],
   ] as const;
   test.each(cases)("%s", (name, point, selected, expected) => {
-    expect(Selection.has(selected, EXAMPLE_DATA, point)).toBe(expected);
+    expect(Selection.hasPoint(selected, EXAMPLE_DATA, point)).toBe(expected);
   });
 });
 
@@ -277,75 +277,73 @@ describe("Selection.modifyPointRangeEdge()", () => {
   const cases = [
     [
       "modify left",
-      { type: Selection.EntireType.Row, start: 0, end: 0 },
+      Selection.createEntireRows(0, 0),
       { row: 0, column: 1 },
       EXAMPLE_DATA,
       Selection.Direction.Left,
-      { type: Selection.EntireType.Row, start: 0, end: 0 },
+      Selection.createEntireRows(0, 0),
     ],
     [
       "modify right",
-      { type: Selection.EntireType.Row, start: 0, end: 0 },
+      Selection.createEntireRows(0, 0),
       Point.ORIGIN,
       EXAMPLE_DATA,
       Selection.Direction.Right,
-      { type: Selection.EntireType.Row, start: 0, end: 0 },
+      Selection.createEntireRows(0, 0),
     ],
     [
       "modify top",
-      { type: Selection.EntireType.Row, start: 1, end: 1 },
+      Selection.createEntireRows(1, 1),
       { row: 1, column: 0 },
       EXAMPLE_DATA,
       Selection.Direction.Top,
-      { type: Selection.EntireType.Row, start: 0, end: 1 },
+      Selection.createEntireRows(0, 1),
     ],
     [
       "modify top, blocked",
-      { type: Selection.EntireType.Row, start: 0, end: 0 },
+      Selection.createEntireRows(0, 0),
       Point.ORIGIN,
       EXAMPLE_DATA,
       Selection.Direction.Top,
-      { type: Selection.EntireType.Row, start: 0, end: 0 },
+      Selection.createEntireRows(0, 0),
     ],
     [
       "modify top, backwards",
-      { type: Selection.EntireType.Row, start: 0, end: 1 },
+      Selection.createEntireRows(0, 1),
       Point.ORIGIN,
       EXAMPLE_DATA,
       Selection.Direction.Top,
-      { type: Selection.EntireType.Row, start: 0, end: 0 },
+      Selection.createEntireRows(0, 0),
     ],
     [
       "modify bottom",
-      { type: Selection.EntireType.Row, start: 0, end: 0 },
+      Selection.createEntireRows(0, 0),
       Point.ORIGIN,
       EXAMPLE_DATA,
       Selection.Direction.Bottom,
-      { type: Selection.EntireType.Row, start: 0, end: 1 },
+      Selection.createEntireRows(0, 1),
     ],
     [
       "modify bottom, blocked",
-      {
-        type: Selection.EntireType.Row,
-        start: EXAMPLE_DATA_MAX_POINT.row,
-        end: EXAMPLE_DATA_MAX_POINT.row,
-      },
+      Selection.createEntireRows(
+        EXAMPLE_DATA_MAX_POINT.row,
+        EXAMPLE_DATA_MAX_POINT.row
+      ),
       EXAMPLE_DATA_MAX_POINT,
       EXAMPLE_DATA,
       Selection.Direction.Bottom,
-      {
-        type: Selection.EntireType.Row,
-        start: EXAMPLE_DATA_MAX_POINT.row,
-        end: EXAMPLE_DATA_MAX_POINT.row,
-      },
+      Selection.createEntireRows(
+        EXAMPLE_DATA_MAX_POINT.row,
+        EXAMPLE_DATA_MAX_POINT.row
+      ),
     ],
     [
       "modify bottom, backwards",
-      { type: Selection.EntireType.Row, start: 0, end: 1 },
+      Selection.createEntireRows(0, 1),
       { row: 1, column: 0 },
       EXAMPLE_DATA,
       Selection.Direction.Bottom,
-      { type: Selection.EntireType.Row, start: 1, end: 1 },
+      Selection.createEntireRows(1, 1),
     ],
   ] as const;
   test.each(cases)("%s", (name, selection, active, data, edge, expected) => {

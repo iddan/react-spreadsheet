@@ -51,6 +51,22 @@ export type Selection =
   | EntireTable
   | null;
 
+export function isEntireRows(selection: Selection): selection is EntireRows {
+  return (
+    selection !== null &&
+    "type" in selection &&
+    selection.type === EntireType.Row
+  );
+}
+
+export function createEntireRows(start: number, end: number): EntireRows {
+  return {
+    type: EntireType.Row,
+    start,
+    end,
+  };
+}
+
 /** Get concrete range in given data of given selection */
 export function toRange(
   selection: Selection,
@@ -92,14 +108,21 @@ export function size(
   return range ? PointRange.size(range) : 0;
 }
 
-/** Is the given point selected */
-export function has(
+/** Return whether the given point is within given selection */
+export function hasPoint(
   selection: Selection,
   data: Matrix.Matrix<unknown>,
   point: Point.Point
 ): boolean {
   const range = toRange(selection, data);
   return range !== null && PointRange.has(range, point);
+}
+
+/** Return whether the given entire row is within given selection */
+export function hasEntireRow(selection: Selection, row: number): boolean {
+  return (
+    isEntireRows(selection) && row >= selection.start && row <= selection.end
+  );
 }
 
 /** Normalize given selection to given data matrix */
@@ -138,11 +161,10 @@ export function normalizeEntireRows(
   data: Matrix.Matrix<unknown>
 ): EntireRows {
   const count = Matrix.getRowsCount(data);
-  return {
-    type: EntireType.Row,
-    start: Math.max(selection.start, 0),
-    end: Math.min(selection.end, count - 1),
-  };
+  return createEntireRows(
+    Math.max(selection.start, 0),
+    Math.min(selection.end, count - 1)
+  );
 }
 
 /** Normalize given entire columns selection to given data matrix */
