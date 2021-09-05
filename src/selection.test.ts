@@ -26,7 +26,7 @@ describe("Selection.toRange()", () => {
     ],
     [
       "entire rows",
-      { type: Selection.EntireSelectionType.Row, start: 1, end: 2 },
+      { type: Selection.EntireType.Row, start: 1, end: 2 },
       EXAMPLE_DATA,
       PointRange.create(
         { row: 1, column: 0 },
@@ -35,7 +35,7 @@ describe("Selection.toRange()", () => {
     ],
     [
       "entire columns",
-      { type: Selection.EntireSelectionType.Column, start: 1, end: 2 },
+      { type: Selection.EntireType.Column, start: 1, end: 2 },
       EXAMPLE_DATA,
       PointRange.create(
         { row: 0, column: 1 },
@@ -44,7 +44,7 @@ describe("Selection.toRange()", () => {
     ],
     [
       "entire table",
-      { type: Selection.EntireSelectionType.Table },
+      { type: Selection.EntireType.Table },
       EXAMPLE_DATA,
       Selection.getMatrixRange(EXAMPLE_DATA),
     ],
@@ -270,6 +270,88 @@ describe("Selection.modifyPointRangeEdge()", () => {
     expect(Selection.modifyRangeEdge(selection, active, data, edge)).toEqual(
       expected
     );
+  });
+});
+
+describe("Selection.modifyPointRangeEdge()", () => {
+  const cases = [
+    [
+      "modify left",
+      { type: Selection.EntireType.Row, start: 0, end: 0 },
+      { row: 0, column: 1 },
+      EXAMPLE_DATA,
+      Selection.Direction.Left,
+      { type: Selection.EntireType.Row, start: 0, end: 0 },
+    ],
+    [
+      "modify right",
+      { type: Selection.EntireType.Row, start: 0, end: 0 },
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Selection.Direction.Right,
+      { type: Selection.EntireType.Row, start: 0, end: 0 },
+    ],
+    [
+      "modify top",
+      { type: Selection.EntireType.Row, start: 1, end: 1 },
+      { row: 1, column: 0 },
+      EXAMPLE_DATA,
+      Selection.Direction.Top,
+      { type: Selection.EntireType.Row, start: 0, end: 1 },
+    ],
+    [
+      "modify top, blocked",
+      { type: Selection.EntireType.Row, start: 0, end: 0 },
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Selection.Direction.Top,
+      { type: Selection.EntireType.Row, start: 0, end: 0 },
+    ],
+    [
+      "modify top, backwards",
+      { type: Selection.EntireType.Row, start: 0, end: 1 },
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Selection.Direction.Top,
+      { type: Selection.EntireType.Row, start: 0, end: 0 },
+    ],
+    [
+      "modify bottom",
+      { type: Selection.EntireType.Row, start: 0, end: 0 },
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Selection.Direction.Bottom,
+      { type: Selection.EntireType.Row, start: 0, end: 1 },
+    ],
+    [
+      "modify bottom, blocked",
+      {
+        type: Selection.EntireType.Row,
+        start: EXAMPLE_DATA_MAX_POINT.row,
+        end: EXAMPLE_DATA_MAX_POINT.row,
+      },
+      EXAMPLE_DATA_MAX_POINT,
+      EXAMPLE_DATA,
+      Selection.Direction.Bottom,
+      {
+        type: Selection.EntireType.Row,
+        start: EXAMPLE_DATA_MAX_POINT.row,
+        end: EXAMPLE_DATA_MAX_POINT.row,
+      },
+    ],
+    [
+      "modify bottom, backwards",
+      { type: Selection.EntireType.Row, start: 0, end: 1 },
+      { row: 1, column: 0 },
+      EXAMPLE_DATA,
+      Selection.Direction.Bottom,
+      { type: Selection.EntireType.Row, start: 1, end: 1 },
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
+    expect(
+      Selection.modifyEntireRowsEdge(selection, active, data, edge)
+    ).toEqual(expected);
   });
 });
 

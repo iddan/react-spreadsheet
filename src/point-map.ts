@@ -155,6 +155,6 @@ export function filter<T>(
 }
 
 /** Returns whether map has any points set to value */
-export function isEmpty(map: PointMap<any>): boolean {
+export function isEmpty(map: PointMap<unknown>): boolean {
   return Object.keys(map).length === 0;
 }

@@ -10,19 +10,19 @@ export enum Direction {
 }
 
 /** Type entirely selected */
-export enum EntireSelectionType {
+export enum EntireType {
   Row = "row",
   Column = "column",
   Table = "table",
 }
 
-export type EntireSelection = {
-  type: EntireSelectionType;
+export type Entire = {
+  type: EntireType;
 };
 
 /** Selection of entire rows */
-export type EntireRowsSelection = EntireSelection & {
-  type: EntireSelectionType.Row;
+export type EntireRows = Entire & {
+  type: EntireType.Row;
   /** Selection start index, integer */
   start: number;
   /** Selection end index, integer */
@@ -30,8 +30,8 @@ export type EntireRowsSelection = EntireSelection & {
 };
 
 /** Selection of entire columns */
-export type EntireColumnsSelection = EntireSelection & {
-  type: EntireSelectionType.Column;
+export type EntireColumns = Entire & {
+  type: EntireType.Column;
   /** Selection start index, integer */
   start: number;
   /** Selection end index, integer */
@@ -39,16 +39,16 @@ export type EntireColumnsSelection = EntireSelection & {
 };
 
 /** Selection of an entire table */
-export type EntireTableSelection = EntireSelection & {
-  type: EntireSelectionType.Table;
+export type EntireTable = Entire & {
+  type: EntireType.Table;
 };
 
 /** Selection from a spreadsheet */
 export type Selection =
   | PointRange.PointRange
-  | EntireRowsSelection
-  | EntireColumnsSelection
-  | EntireTableSelection
+  | EntireRows
+  | EntireColumns
+  | EntireTable
   | null;
 
 /** Get concrete range in given data of given selection */
@@ -63,21 +63,21 @@ export function toRange(
     return selection;
   }
   switch (selection.type) {
-    case EntireSelectionType.Row: {
+    case EntireType.Row: {
       const max = Matrix.maxPoint(data);
       return PointRange.create(
         { row: selection.start, column: 0 },
         { row: selection.end, column: max.column }
       );
     }
-    case EntireSelectionType.Column: {
+    case EntireType.Column: {
       const max = Matrix.maxPoint(data);
       return PointRange.create(
         { row: 0, column: selection.start },
         { row: max.row, column: selection.end }
       );
     }
-    case EntireSelectionType.Table: {
+    case EntireType.Table: {
       return getMatrixRange(data);
     }
   }
@@ -107,10 +107,17 @@ export function normalize(
   selection: Selection,
   data: Matrix.Matrix<unknown>
 ): Selection {
-  if (!PointRange.is(selection)) {
-    return selection;
+  if (selection) {
+    if (PointRange.is(selection)) {
+      return normalizeRange(selection, data);
+    }
+    switch (selection.type) {
+      case EntireType.Row: {
+        return normalizeEntireRows(selection, data);
+      }
+    }
   }
-  return normalizeRange(selection, data);
+  return selection;
 }
 
 /** Normalize given range to given data matrix */
@@ -120,6 +127,19 @@ export function normalizeRange(
 ): PointRange.PointRange {
   const dataRange = getMatrixRange(data);
   return PointRange.mask(range, dataRange);
+}
+
+/** Normalize given entire rows selection to given data matrix */
+export function normalizeEntireRows(
+  selection: EntireRows,
+  data: Matrix.Matrix<unknown>
+): EntireRows {
+  const count = Matrix.getRowsCount(data);
+  return {
+    type: EntireType.Row,
+    start: Math.max(selection.start, 0),
+    end: Math.min(selection.end, count - 1),
+  };
 }
 
 /** Get selected points */
@@ -148,10 +168,51 @@ export function modifyEdge(
   edge: Direction
 ): Selection {
   /* @todo support entire selections */
-  if (!active || !PointRange.is(selection)) {
+  if (active && selection) {
+    if (PointRange.is(selection)) {
+      return modifyRangeEdge(selection, active, data, edge);
+    }
+    switch (selection.type) {
+      case EntireType.Row: {
+        return modifyEntireRowsEdge(selection, active, data, edge);
+      }
+      case EntireType.Column: {
+      }
+    }
+  }
+  return selection;
+}
+
+/** Modify given edge of given entire rows selection according to given active point and active matrix */
+export function modifyEntireRowsEdge(
+  selection: EntireRows,
+  active: Point.Point,
+  data: Matrix.Matrix<unknown>,
+  edge: Direction
+): EntireRows {
+  if (edge === Direction.Left || edge === Direction.Right) {
     return selection;
   }
-  return modifyRangeEdge(selection, active, data, edge);
+  const delta = edge === Direction.Top ? -1 : 1;
+  const property = edge === Direction.Top ? "start" : "end";
+  const oppositeProperty = property === "start" ? "end" : "start";
+  let nextSelection;
+  if (
+    edge === Direction.Top
+      ? selection.end > active.row
+      : selection.start < active.row
+  ) {
+    nextSelection = {
+      ...selection,
+      [oppositeProperty]: selection[oppositeProperty] + delta,
+    };
+  } else {
+    nextSelection = {
+      ...selection,
+      [property]: selection[property] + delta,
+    };
+  }
+  return normalizeEntireRows(nextSelection, data);
 }
 
 /** Modify given edge of given range according to given active point and data matrix */
