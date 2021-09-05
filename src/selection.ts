@@ -102,7 +102,7 @@ export function has(
   return range !== null && PointRange.has(range, point);
 }
 
-/** Normalize given selected range to given data matrix */
+/** Normalize given selection to given data matrix */
 export function normalize(
   selection: Selection,
   data: Matrix.Matrix<unknown>
@@ -110,8 +110,16 @@ export function normalize(
   if (!PointRange.is(selection)) {
     return selection;
   }
+  return normalizeRange(selection, data);
+}
+
+/** Normalize given range to given data matrix */
+export function normalizeRange(
+  range: PointRange.PointRange,
+  data: Matrix.Matrix<unknown>
+): PointRange.PointRange {
   const dataRange = getMatrixRange(data);
-  return PointRange.mask(selection, dataRange);
+  return PointRange.mask(range, dataRange);
 }
 
 /** Get selected points */
@@ -143,7 +151,16 @@ export function modifyEdge(
   if (!active || !PointRange.is(selection)) {
     return selection;
   }
+  return modifyRangeEdge(selection, active, data, edge);
+}
 
+/** Modify given edge of given range according to given active point and data matrix */
+export function modifyRangeEdge(
+  range: PointRange.PointRange,
+  active: Point.Point,
+  data: Matrix.Matrix<unknown>,
+  edge: Direction
+): PointRange.PointRange {
   const field =
     edge === Direction.Left || edge === Direction.Right ? "column" : "row";
 
@@ -151,22 +168,22 @@ export function modifyEdge(
     edge === Direction.Left || edge === Direction.Top ? "start" : "end";
   const delta = key === "start" ? -1 : 1;
 
-  const edgeOffsets = PointRange.has(selection, {
+  const edgeOffsets = PointRange.has(range, {
     ...active,
     [field]: active[field] + delta * -1,
   });
 
   const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
 
-  const nextSelection: PointRange.PointRange = {
-    ...selection,
+  const nextRange = {
+    ...range,
     [keyToModify]: {
-      ...selection[keyToModify],
-      [field]: selection[keyToModify][field] + delta,
+      ...range[keyToModify],
+      [field]: range[keyToModify][field] + delta,
     },
   };
 
-  return normalize(nextSelection, data);
+  return normalizeRange(nextRange, data);
 }
 
 /** Get the point range of given matrix */

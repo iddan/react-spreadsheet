@@ -91,6 +91,22 @@ describe("Selection.normalize()", () => {
   });
 });
 
+describe("Selection.normalizeRange()", () => {
+  const cases = [
+    [
+      "Normalizes given selection range to given data",
+      PointRange.create(Point.ORIGIN, {
+        row: EXAMPLE_DATA_ROWS_COUNT,
+        column: EXAMPLE_DATA_COLUMNS_COUNT,
+      }),
+      PointRange.create(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA)),
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, selection, expected) => {
+    expect(Selection.normalizeRange(selection, EXAMPLE_DATA)).toEqual(expected);
+  });
+});
+
 describe("Selection.getPoints()", () => {
   const cases = [
     ["Returns empty for non-range", null, []],
@@ -126,6 +142,32 @@ describe("Selection.has()", () => {
 });
 
 describe("Selection.modifyEdge()", () => {
+  const cases = [
+    [
+      "modifies range",
+      PointRange.create({ row: 0, column: 1 }, { row: 0, column: 1 }),
+      { row: 0, column: 1 },
+      EXAMPLE_DATA,
+      Selection.Direction.Left,
+      PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
+    ],
+    [
+      "does nothing if no active and selection",
+      null,
+      null,
+      EXAMPLE_DATA,
+      Selection.Direction.Left,
+      null,
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
+    expect(Selection.modifyEdge(selection, active, data, edge)).toEqual(
+      expected
+    );
+  });
+});
+
+describe("Selection.modifyPointRangeEdge()", () => {
   const cases = [
     [
       "modify left",
@@ -223,17 +265,9 @@ describe("Selection.modifyEdge()", () => {
       Selection.Direction.Bottom,
       PointRange.create({ row: 1, column: 0 }, { row: 1, column: 0 }),
     ],
-    [
-      "does nothing if no active and selection",
-      null,
-      null,
-      EXAMPLE_DATA,
-      Selection.Direction.Left,
-      null,
-    ],
   ] as const;
   test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
-    expect(Selection.modifyEdge(selection, active, data, edge)).toEqual(
+    expect(Selection.modifyRangeEdge(selection, active, data, edge)).toEqual(
       expected
     );
   });
