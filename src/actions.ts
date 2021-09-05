@@ -54,6 +54,21 @@ export const selectEntireRow = (
   mode: "view",
 });
 
+export const selectEntireColumn = (
+  state: Types.StoreState,
+  column: number
+): Partial<Types.StoreState> => ({
+  active:
+    state.active && state.active.column === column
+      ? state.active
+      : {
+          row: 0,
+          column,
+        },
+  selected: Selection.createEntireColumns(column, column),
+  mode: "view",
+});
+
 export const activate = (
   state: Types.StoreState,
   cellPointer: Point.Point

@@ -59,9 +59,25 @@ export function isEntireRows(selection: Selection): selection is EntireRows {
   );
 }
 
+export function isEntireColumns(selection: Selection): selection is EntireRows {
+  return (
+    selection !== null &&
+    "type" in selection &&
+    selection.type === EntireType.Column
+  );
+}
+
 export function createEntireRows(start: number, end: number): EntireRows {
   return {
     type: EntireType.Row,
+    start,
+    end,
+  };
+}
+
+export function createEntireColumns(start: number, end: number): EntireColumns {
+  return {
+    type: EntireType.Column,
     start,
     end,
   };
@@ -118,10 +134,19 @@ export function hasPoint(
   return range !== null && PointRange.has(range, point);
 }
 
-/** Return whether the given entire row is within given selection */
+/** Return whether the given row is entirely selected in given selection */
 export function hasEntireRow(selection: Selection, row: number): boolean {
   return (
     isEntireRows(selection) && row >= selection.start && row <= selection.end
+  );
+}
+
+/** Return whether the given column is entirely selected in given selection */
+export function hasEntireColumn(selection: Selection, column: number): boolean {
+  return (
+    isEntireColumns(selection) &&
+    column >= selection.start &&
+    column <= selection.end
   );
 }
 

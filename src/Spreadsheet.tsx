@@ -18,6 +18,7 @@ import DefaultCornerIndicator, {
 } from "./CornerIndicator";
 import DefaultColumnIndicator, {
   Props as ColumnIndicatorProps,
+  enhance as enhanceColumnIndicator,
 } from "./ColumnIndicator";
 import DefaultRowIndicator, {
   Props as RowIndicatorProps,
@@ -152,7 +153,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     DataEditor = DefaultDataEditor,
     DataViewer = DefaultDataViewer,
     getBindingsForCell = defaultGetBindingsForCell,
-    ColumnIndicator = DefaultColumnIndicator,
     onChange = () => {},
     onModeChange = () => {},
     onSelect = () => {},
@@ -377,6 +377,15 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     // @ts-ignore
     return enhanceRowIndicator(props.RowIndicator || DefaultRowIndicator);
   }, [props.RowIndicator]);
+
+  const ColumnIndicator = React.useMemo((): React.FC<
+    Omit<ColumnIndicatorProps, "selected" | "onSelect">
+  > => {
+    // @ts-ignore
+    return enhanceColumnIndicator(
+      props.ColumnIndicator || DefaultColumnIndicator
+    );
+  }, [props.ColumnIndicator]);
 
   React.useEffect(() => {
     document.addEventListener("cut", handleCut);
