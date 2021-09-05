@@ -36,7 +36,9 @@ const ColumnIndicator: React.FC<Props> = ({
 
 export const enhance = connect(
   (state: Types.StoreState, props: Props) => ({
-    selected: Selection.hasEntireColumn(state.selected, props.column),
+    selected:
+      Selection.hasEntireColumn(state.selected, props.column) ||
+      Selection.isEntireTable(state.selected),
   }),
   {
     onSelect: Actions.selectEntireColumn,

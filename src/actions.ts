@@ -69,6 +69,13 @@ export const selectEntireColumn = (
   mode: "view",
 });
 
+export const selectEntireTable = (
+  state: Types.StoreState
+): Partial<Types.StoreState> => ({
+  active: state.active ? state.active : Point.ORIGIN,
+  selected: Selection.createEntireTable(),
+});
+
 export const activate = (
   state: Types.StoreState,
   cellPointer: Point.Point

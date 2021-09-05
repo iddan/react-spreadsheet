@@ -15,6 +15,7 @@ import DefaultTable, { Props as TableProps } from "./Table";
 import DefaultRow, { Props as RowProps } from "./Row";
 import DefaultCornerIndicator, {
   Props as CornerIndicatorProps,
+  enhance as enhanceCornerIndicator,
 } from "./CornerIndicator";
 import DefaultColumnIndicator, {
   Props as ColumnIndicatorProps,
@@ -149,7 +150,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onKeyDown,
     Table = DefaultTable,
     Row = DefaultRow,
-    CornerIndicator = DefaultCornerIndicator,
     DataEditor = DefaultDataEditor,
     DataViewer = DefaultDataViewer,
     getBindingsForCell = defaultGetBindingsForCell,
@@ -370,6 +370,15 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     // @ts-ignore
     return enhanceCell(props.Cell || DefaultCell);
   }, [props.Cell]);
+
+  const CornerIndicator = React.useMemo((): React.FC<
+    Omit<CornerIndicatorProps, "selected" | "onSelect">
+  > => {
+    // @ts-ignore
+    return enhanceCornerIndicator(
+      props.CornerIndicator || DefaultCornerIndicator
+    );
+  }, [props.CornerIndicator]);
 
   const RowIndicator = React.useMemo((): React.FC<
     Omit<RowIndicatorProps, "selected" | "onSelect">

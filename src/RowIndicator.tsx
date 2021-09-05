@@ -37,7 +37,7 @@ export const RowIndicator: React.FC<Props> = ({
 export const enhance = connect(
   (state: Types.StoreState<Types.CellBase>, props: Props) => {
     return {
-      selected: Selection.hasEntireRow(state.selected, props.row),
+      selected: Selection.hasEntireRow(state.selected, props.row) || Selection.isEntireTable(state.selected),
     };
   },
   {

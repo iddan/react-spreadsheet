@@ -67,6 +67,14 @@ export function isEntireColumns(selection: Selection): selection is EntireRows {
   );
 }
 
+export function isEntireTable(selection: Selection): selection is EntireTable {
+  return (
+    selection !== null &&
+    "type" in selection &&
+    selection.type === EntireType.Table
+  );
+}
+
 export function createEntireRows(start: number, end: number): EntireRows {
   return {
     type: EntireType.Row,
@@ -81,6 +89,11 @@ export function createEntireColumns(start: number, end: number): EntireColumns {
     start,
     end,
   };
+}
+
+export function createEntireTable(): EntireTable {
+  // create an object as in the future this might hold the worksheet number
+  return { type: EntireType.Table };
 }
 
 /** Get concrete range in given data of given selection */
