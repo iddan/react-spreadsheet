@@ -247,17 +247,6 @@ export const go =
     };
   };
 
-export const modifyEdge =
-  (edge: Selection.Direction) =>
-  (state: Types.StoreState): Partial<Types.StoreState> | null => ({
-    selected: Selection.modifyEdge(
-      state.selected,
-      state.active,
-      state.data,
-      edge
-    ),
-  });
-
 export const blur = (): Partial<Types.StoreState> => ({
   active: null,
 });
@@ -290,10 +279,38 @@ const editShiftKeyDownHandlers: KeyDownHandlers = {
 };
 
 const shiftKeyDownHandlers: KeyDownHandlers = {
-  ArrowUp: modifyEdge(Selection.Direction.Top),
-  ArrowDown: modifyEdge(Selection.Direction.Bottom),
-  ArrowLeft: modifyEdge(Selection.Direction.Left),
-  ArrowRight: modifyEdge(Selection.Direction.Right),
+  ArrowUp: (state) => ({
+    selected: Selection.modifyEdge(
+      state.selected,
+      state.active,
+      state.data,
+      Selection.Direction.Top
+    ),
+  }),
+  ArrowDown: (state) => ({
+    selected: Selection.modifyEdge(
+      state.selected,
+      state.active,
+      state.data,
+      Selection.Direction.Bottom
+    ),
+  }),
+  ArrowLeft: (state) => ({
+    selected: Selection.modifyEdge(
+      state.selected,
+      state.active,
+      state.data,
+      Selection.Direction.Left
+    ),
+  }),
+  ArrowRight: (state) => ({
+    selected: Selection.modifyEdge(
+      state.selected,
+      state.active,
+      state.data,
+      Selection.Direction.Right
+    ),
+  }),
   Tab: go(0, -1),
 };
 
