@@ -34,11 +34,11 @@ export const setData = <Cell extends Types.CellBase>(
 
 export const select = (
   state: Types.StoreState,
-  cellPointer: Point.Point
+  point: Point.Point
 ): Partial<Types.StoreState> | null => {
-  if (state.active && !isActive(state.active, cellPointer)) {
+  if (state.active && !isActive(state.active, point)) {
     return {
-      selected: PointRange.create(cellPointer, state.active),
+      selected: PointRange.create(point, state.active),
       mode: "view",
     };
   }
@@ -47,11 +47,11 @@ export const select = (
 
 export const activate = (
   state: Types.StoreState,
-  cellPointer: Point.Point
+  point: Point.Point
 ): Partial<Types.StoreState> | null => ({
-  selected: PointRange.create(cellPointer, cellPointer),
-  active: cellPointer,
-  mode: isActive(state.active, cellPointer) ? "edit" : "view",
+  selected: PointRange.create(point, point),
+  active: point,
+  mode: isActive(state.active, point) ? "edit" : "view",
 });
 
 export function setCellData<Cell extends Types.CellBase>(

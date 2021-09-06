@@ -96,10 +96,10 @@ export type CellComponentProps<Cell extends CellBase = CellBase> = {
   mode: Mode;
   /** The data of the cell */
   data: Cell | undefined;
-  /** Select the cell at the given pointer */
-  select: (cellPointer: Point) => void;
-  /** Activate the cell at the given pointer */
-  activate: (cellPointer: Point) => void;
+  /** Select the cell at the given point */
+  select: (point: Point) => void;
+  /** Activate the cell at the given point */
+  activate: (point: Point) => void;
   /** Set the dimensions of the cell at the given point with the given dimensions */
   setCellDimensions: (point: Point, dimensions: Dimensions) => void;
 };
