@@ -51,6 +51,7 @@ export type Selection =
   | EntireTable
   | null;
 
+/** Returns whether given selection is entire rows */
 export function isEntireRows(selection: Selection): selection is EntireRows {
   return (
     selection !== null &&
@@ -59,6 +60,7 @@ export function isEntireRows(selection: Selection): selection is EntireRows {
   );
 }
 
+/** Returns whether given selection is entire columns */
 export function isEntireColumns(selection: Selection): selection is EntireRows {
   return (
     selection !== null &&
@@ -67,6 +69,7 @@ export function isEntireColumns(selection: Selection): selection is EntireRows {
   );
 }
 
+/** Returns whether given selection is entire table */
 export function isEntireTable(selection: Selection): selection is EntireTable {
   return (
     selection !== null &&
@@ -75,6 +78,11 @@ export function isEntireTable(selection: Selection): selection is EntireTable {
   );
 }
 
+/**
+ * Creates entire rows selection
+ * @param start - row index where the selection starts, integer
+ * @param end - row index where the selection ends, integer
+ */
 export function createEntireRows(start: number, end: number): EntireRows {
   return {
     type: EntireType.Row,
@@ -83,6 +91,11 @@ export function createEntireRows(start: number, end: number): EntireRows {
   };
 }
 
+/**
+ * Creates entire columns selection
+ * @param start - column index where the selection starts, integer
+ * @param end - column index where the selection starts, integer
+ */
 export function createEntireColumns(start: number, end: number): EntireColumns {
   return {
     type: EntireType.Column,
@@ -91,6 +104,7 @@ export function createEntireColumns(start: number, end: number): EntireColumns {
   };
 }
 
+/** Creates entire table selection */
 export function createEntireTable(): EntireTable {
   // create an object as in the future this might hold the worksheet number
   return { type: EntireType.Table };
@@ -363,6 +377,7 @@ export function getMatrixRange(
   return PointRange.create(Point.ORIGIN, maxPoint);
 }
 
+/** Get a matrix of values in given range from given matrix */
 export function getRangeFromMatrix<T>(
   range: PointRange.PointRange,
   matrix: Matrix.Matrix<T>
