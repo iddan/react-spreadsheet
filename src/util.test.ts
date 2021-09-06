@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import type { Parser as FormulaParser } from "hot-formula-parser";
 import * as Formula from "./formula";
 import * as Matrix from "./matrix";
