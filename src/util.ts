@@ -3,6 +3,7 @@ import * as Types from "./types";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import * as PointRange from "./point-range";
+import * as Selection from "./selection";
 import * as Formula from "./formula";
 
 export { createEmpty as createEmptyMatrix } from "./matrix";
@@ -111,10 +112,8 @@ export function getRangeDimensions(
 export function getSelectedDimensions(
   state: Types.StoreState
 ): Types.Dimensions | undefined {
-  if (!PointRange.is(state.selected)) {
-    return undefined;
-  }
-  return getRangeDimensions(state, state.selected);
+  const range = Selection.toRange(state.selected, state.data);
+  return range ? getRangeDimensions(state, range) : undefined;
 }
 
 /** Get the computed value of a cell. */
