@@ -103,6 +103,16 @@
     },
     "plugins": [
       "eslint-plugin-tsdoc"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "*.test.ts"
+        ],
+        "rules": {
+          "tsdoc/syntax": "off"
+        }
+      }
     ]
   },
   "repository": {
