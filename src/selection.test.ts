@@ -15,6 +15,58 @@ const EXAMPLE_NON_EXISTING_POINT: Point.Point = {
   column: EXAMPLE_DATA_COLUMNS_COUNT,
 };
 
+describe("Selection.createEntireRows()", () => {
+  test("creates entire rows selection", () => {
+    const start = 0;
+    const end = 0;
+    expect(Selection.createEntireRows(start, end)).toEqual({
+      type: Selection.EntireType.Row,
+      start,
+      end,
+    });
+  });
+  test("throws for invalid start", () => {
+    expect(() => Selection.createEntireRows(-1, 0)).toThrow(
+      new Selection.InvalidIndexError("start")
+    );
+  });
+  test("throws for invalid end", () => {
+    expect(() => Selection.createEntireRows(0, -1)).toThrow(
+      new Selection.InvalidIndexError("end")
+    );
+  });
+});
+
+describe("Selection.createEntireColumns()", () => {
+  test("creates entire columns selection", () => {
+    const start = 0;
+    const end = 0;
+    expect(Selection.createEntireColumns(start, end)).toEqual({
+      type: Selection.EntireType.Column,
+      start,
+      end,
+    });
+  });
+  test("throws for invalid start", () => {
+    expect(() => Selection.createEntireColumns(-1, 0)).toThrow(
+      new Selection.InvalidIndexError("start")
+    );
+  });
+  test("throws for invalid end", () => {
+    expect(() => Selection.createEntireColumns(0, -1)).toThrow(
+      new Selection.InvalidIndexError("end")
+    );
+  });
+});
+
+describe("Selection.createEntireTable()", () => {
+  test("creates entire table selection", () => {
+    expect(Selection.createEntireTable()).toEqual({
+      type: Selection.EntireType.Table,
+    });
+  });
+});
+
 describe("Selection.toRange()", () => {
   const cases = [
     ["null", null, EXAMPLE_DATA, null],

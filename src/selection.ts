@@ -82,8 +82,15 @@ export function isEntireTable(selection: Selection): selection is EntireTable {
  * Creates entire rows selection
  * @param start - row index where the selection starts, integer
  * @param end - row index where the selection ends, integer
+ * @throws {@link InvalidIndexError}
  */
 export function createEntireRows(start: number, end: number): EntireRows {
+  if (isIndex(start)) {
+    throw new InvalidIndexError("start");
+  }
+  if (isIndex(end)) {
+    throw new InvalidIndexError("end");
+  }
   return {
     type: EntireType.Row,
     start,
@@ -97,6 +104,12 @@ export function createEntireRows(start: number, end: number): EntireRows {
  * @param end - column index where the selection starts, integer
  */
 export function createEntireColumns(start: number, end: number): EntireColumns {
+  if (isIndex(start)) {
+    throw new InvalidIndexError("start");
+  }
+  if (isIndex(end)) {
+    throw new InvalidIndexError("end");
+  }
   return {
     type: EntireType.Column,
     start,
@@ -383,4 +396,16 @@ export function getRangeFromMatrix<T>(
   matrix: Matrix.Matrix<T>
 ): Matrix.Matrix<T> {
   return Matrix.slice(range.start, range.end, matrix);
+}
+
+/** Returns whether given value is a valid index */
+export function isIndex(value: number): boolean {
+  return value < 0 || !Number.isInteger(value);
+}
+
+/** Error thrown when passing a non-index value where index is expected */
+export class InvalidIndexError extends Error {
+  constructor(name: string) {
+    super(`${name} is not a valid index. It must be 0 or a positive integer`);
+  }
 }
