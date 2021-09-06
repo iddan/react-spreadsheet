@@ -67,6 +67,33 @@ describe("Selection.createEntireTable()", () => {
   });
 });
 
+describe("isEntireRows()", () => {
+  test.each([
+    ["entire rows", Selection.createEntireRows(0, 0), true],
+    ["null", null, false],
+  ] as const)("%s", (name, value, expected) => {
+    expect(Selection.isEntireRows(value)).toBe(expected);
+  });
+});
+
+describe("isEntireColumns()", () => {
+  test.each([
+    ["entire columns", Selection.createEntireColumns(0, 0), true],
+    ["null", null, false],
+  ] as const)("%s", (name, value, expected) => {
+    expect(Selection.isEntireColumns(value)).toBe(expected);
+  });
+});
+
+describe("isEntireTable()", () => {
+  test.each([
+    ["entire table", Selection.createEntireTable(), true],
+    ["null", null, false],
+  ] as const)("%s", (name, value, expected) => {
+    expect(Selection.isEntireTable(value)).toBe(expected);
+  });
+});
+
 describe("Selection.toRange()", () => {
   const cases = [
     ["null", null, EXAMPLE_DATA, null],
