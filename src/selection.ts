@@ -85,10 +85,10 @@ export function isEntireTable(selection: Selection): selection is EntireTable {
  * @throws {@link InvalidIndexError}
  */
 export function createEntireRows(start: number, end: number): EntireRows {
-  if (isIndex(start)) {
+  if (!isIndex(start)) {
     throw new InvalidIndexError("start");
   }
-  if (isIndex(end)) {
+  if (!isIndex(end)) {
     throw new InvalidIndexError("end");
   }
   return {
@@ -104,10 +104,10 @@ export function createEntireRows(start: number, end: number): EntireRows {
  * @param end - column index where the selection starts, integer
  */
 export function createEntireColumns(start: number, end: number): EntireColumns {
-  if (isIndex(start)) {
+  if (!isIndex(start)) {
     throw new InvalidIndexError("start");
   }
-  if (isIndex(end)) {
+  if (!isIndex(end)) {
     throw new InvalidIndexError("end");
   }
   return {
@@ -400,7 +400,7 @@ export function getRangeFromMatrix<T>(
 
 /** Returns whether given value is a valid index */
 export function isIndex(value: number): boolean {
-  return value < 0 || !Number.isInteger(value);
+  return Number.isInteger(value) && value >= 0;
 }
 
 /** Error thrown when passing a non-index value where index is expected */

@@ -494,3 +494,14 @@ describe("Selection.hasEntireColumn()", () => {
     expect(Selection.hasEntireColumn(selection, column)).toBe(expected);
   });
 });
+
+describe("isIndex", () => {
+  const cases = [
+    ["returns true for a valid index", 0, true],
+    ["returns false for non integer", 0.1, false],
+    ["returns false for a negative integer", -1, false],
+  ] as const;
+  test.each(cases)("%s", (name, value, expected) => {
+    expect(Selection.isIndex(value)).toEqual(expected);
+  });
+});
