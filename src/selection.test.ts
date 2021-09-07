@@ -452,3 +452,14 @@ describe("Selection.getMatrixRange()", () => {
     );
   });
 });
+
+describe("Selection.hasEntireRow()", () => {
+  const cases = [
+    ["returns true for entire row in selection", Selection.createEntireRows(0, 0), 0, true],
+    ["returns false for row not in entire row selection", Selection.createEntireRows(0, 0), 1, false],
+    ["returns false for non-entire-rows selection", null, 0, false],
+  ] as const;
+  test.each(cases)("%s", (name, selection, row, expected) => {
+    expect(Selection.hasEntireRow(selection, row)).toBe(expected);
+  })
+})
