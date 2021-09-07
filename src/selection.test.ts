@@ -163,6 +163,16 @@ describe("Selection.normalize()", () => {
       }),
       PointRange.create(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA)),
     ],
+    [
+      "Normalizes entire rows selection to given data",
+      Selection.createEntireRows(0, EXAMPLE_DATA_ROWS_COUNT),
+      Selection.createEntireRows(0, EXAMPLE_DATA_ROWS_COUNT - 1),
+    ],
+    [
+      "Normalizes entire columns selection to given data",
+      Selection.createEntireColumns(0, EXAMPLE_DATA_COLUMNS_COUNT),
+      Selection.createEntireColumns(0, EXAMPLE_DATA_COLUMNS_COUNT - 1),
+    ],
     ["Does nothing for non-range selection", null, null],
   ] as const;
   test.each(cases)("%s", (name, selection, expected) => {
