@@ -455,11 +455,42 @@ describe("Selection.getMatrixRange()", () => {
 
 describe("Selection.hasEntireRow()", () => {
   const cases = [
-    ["returns true for entire row in selection", Selection.createEntireRows(0, 0), 0, true],
-    ["returns false for row not in entire row selection", Selection.createEntireRows(0, 0), 1, false],
+    [
+      "returns true for entire row in selection",
+      Selection.createEntireRows(0, 0),
+      0,
+      true,
+    ],
+    [
+      "returns false for row not in entire row selection",
+      Selection.createEntireRows(0, 0),
+      1,
+      false,
+    ],
     ["returns false for non-entire-rows selection", null, 0, false],
   ] as const;
   test.each(cases)("%s", (name, selection, row, expected) => {
     expect(Selection.hasEntireRow(selection, row)).toBe(expected);
-  })
-})
+  });
+});
+
+describe("Selection.hasEntireColumn()", () => {
+  const cases = [
+    [
+      "returns true for entire column in selection",
+      Selection.createEntireColumns(0, 0),
+      0,
+      true,
+    ],
+    [
+      "returns false for column not in entire column selection",
+      Selection.createEntireColumns(0, 0),
+      1,
+      false,
+    ],
+    ["returns false for non-entire-columns selection", null, 0, false],
+  ] as const;
+  test.each(cases)("%s", (name, selection, column, expected) => {
+    expect(Selection.hasEntireColumn(selection, column)).toBe(expected);
+  });
+});
