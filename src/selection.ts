@@ -93,8 +93,8 @@ export function createEntireRows(start: number, end: number): EntireRows {
   }
   return {
     type: EntireType.Row,
-    start,
-    end,
+    start: Math.min(start, end),
+    end: Math.max(start, end),
   };
 }
 
@@ -112,8 +112,8 @@ export function createEntireColumns(start: number, end: number): EntireColumns {
   }
   return {
     type: EntireType.Column,
-    start,
-    end,
+    start: Math.min(start, end),
+    end: Math.max(start, end),
   };
 }
 
@@ -238,11 +238,10 @@ export function normalizeEntireColumns(
   data: Matrix.Matrix<unknown>
 ): EntireColumns {
   const count = Matrix.getColumnsCount(data);
-  return {
-    type: EntireType.Column,
-    start: Math.max(selection.start, 0),
-    end: Math.min(selection.end, count - 1),
-  };
+  return createEntireColumns(
+    Math.max(selection.start, 0),
+    Math.min(selection.end, count - 1)
+  );
 }
 
 /** Get selected points */
@@ -334,8 +333,8 @@ export function modifyEntireColumnsEdge(
   let nextSelection;
   if (
     edge === Direction.Left
-      ? selection.end > active.row
-      : selection.start < active.row
+      ? selection.end > active.column
+      : selection.start < active.column
   ) {
     nextSelection = {
       ...selection,

@@ -234,11 +234,27 @@ describe("Selection.modifyEdge()", () => {
   const cases = [
     [
       "modifies range",
-      PointRange.create({ row: 0, column: 1 }, { row: 0, column: 1 }),
-      { row: 0, column: 1 },
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      Point.ORIGIN,
       EXAMPLE_DATA,
-      Selection.Direction.Left,
+      Selection.Direction.Right,
       PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
+    ],
+    [
+      "modifies entire rows",
+      Selection.createEntireRows(0, 0),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Selection.Direction.Bottom,
+      Selection.createEntireRows(0, 1),
+    ],
+    [
+      "modifies entire columns",
+      Selection.createEntireColumns(0, 0),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Selection.Direction.Right,
+      Selection.createEntireColumns(0, 1),
     ],
     [
       "does nothing if no active and selection",
@@ -362,7 +378,7 @@ describe("Selection.modifyPointRangeEdge()", () => {
   });
 });
 
-describe("Selection.modifyPointRangeEdge()", () => {
+describe("Selection.modifyEntireRowsEdge()", () => {
   const cases = [
     [
       "modify left",
@@ -438,6 +454,86 @@ describe("Selection.modifyPointRangeEdge()", () => {
   test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
     expect(
       Selection.modifyEntireRowsEdge(selection, active, data, edge)
+    ).toEqual(expected);
+  });
+});
+
+describe("Selection.modifyEntireColumnsEdge()", () => {
+  const cases = [
+    [
+      "modify top",
+      Selection.createEntireColumns(0, 0),
+      { row: 1, column: 0 },
+      EXAMPLE_DATA,
+      Selection.Direction.Top,
+      Selection.createEntireColumns(0, 0),
+    ],
+    [
+      "modify bottom",
+      Selection.createEntireColumns(0, 0),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Selection.Direction.Bottom,
+      Selection.createEntireColumns(0, 0),
+    ],
+    [
+      "modify left",
+      Selection.createEntireColumns(1, 1),
+      { row: 0, column: 1 },
+      EXAMPLE_DATA,
+      Selection.Direction.Left,
+      Selection.createEntireColumns(0, 1),
+    ],
+    [
+      "modify left, blocked",
+      Selection.createEntireColumns(0, 0),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Selection.Direction.Left,
+      Selection.createEntireColumns(0, 0),
+    ],
+    [
+      "modify left, backwards",
+      Selection.createEntireColumns(0, 1),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Selection.Direction.Left,
+      Selection.createEntireColumns(0, 0),
+    ],
+    [
+      "modify right",
+      Selection.createEntireColumns(0, 0),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Selection.Direction.Right,
+      Selection.createEntireColumns(0, 1),
+    ],
+    [
+      "modify right, blocked",
+      Selection.createEntireColumns(
+        EXAMPLE_DATA_MAX_POINT.row,
+        EXAMPLE_DATA_MAX_POINT.row
+      ),
+      EXAMPLE_DATA_MAX_POINT,
+      EXAMPLE_DATA,
+      Selection.Direction.Right,
+      Selection.createEntireColumns(
+        EXAMPLE_DATA_MAX_POINT.row,
+        EXAMPLE_DATA_MAX_POINT.row
+      ),
+    ],
+    [
+      "modify right, backwards",
+      Selection.createEntireColumns(0, 1),
+      { row: 0, column: 1 },
+      EXAMPLE_DATA,
+      Selection.Direction.Right,
+      Selection.createEntireColumns(1, 1),
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
+    expect(
+      Selection.modifyEntireColumnsEdge(selection, active, data, edge)
     ).toEqual(expected);
   });
 });
