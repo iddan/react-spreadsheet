@@ -3,9 +3,9 @@ import * as Types from "./types";
 import classnames from "classnames";
 
 export type StateProps = {
-  dimensions: Types.Dimensions | null | undefined;
-  hidden: boolean;
-  dragging: boolean;
+  dimensions?: Types.Dimensions | null | undefined;
+  hidden?: boolean;
+  dragging?: boolean;
 };
 
 export type Props = StateProps & {

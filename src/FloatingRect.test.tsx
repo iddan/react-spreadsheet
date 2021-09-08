@@ -8,18 +8,30 @@ import FloatingRect from "./FloatingRect";
 
 describe("<FloatingRect />", () => {
   test("renders", () => {
+    render(<FloatingRect variant="selected" />);
+    const element = document.querySelector(
+      ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--selected"
+    );
+    expect(element).not.toBeNull();
+    if (!element) {
+      throw new Error("element must be defined");
+    }
+    const style = window.getComputedStyle(element);
+    expect(style.left).toBe("");
+    expect(style.top).toBe("");
+    expect(style.width).toBe("");
+    expect(style.height).toBe("");
+  });
+  test("renders dimensions", () => {
     render(
       <FloatingRect
         dimensions={{ left: 100, top: 100, width: 100, height: 100 }}
-        hidden={false}
-        dragging={false}
         variant="selected"
       />
     );
     const element = document.querySelector(
       ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--selected"
     );
-    expect(element).not.toBeNull();
     if (!element) {
       throw new Error("element must be defined");
     }
@@ -30,14 +42,7 @@ describe("<FloatingRect />", () => {
     expect(style.height).toBe("100px");
   });
   test("renders hidden", () => {
-    render(
-      <FloatingRect
-        dimensions={{ left: 0, top: 0, width: 0, height: 0 }}
-        hidden
-        dragging={false}
-        variant="selected"
-      />
-    );
+    render(<FloatingRect hidden variant="selected" />);
     expect(
       document.querySelectorAll(
         ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--hidden"
@@ -45,14 +50,7 @@ describe("<FloatingRect />", () => {
     ).toBe(1);
   });
   test("renders dragging", () => {
-    render(
-      <FloatingRect
-        dimensions={{ left: 0, top: 0, width: 0, height: 0 }}
-        hidden={false}
-        dragging
-        variant="selected"
-      />
-    );
+    render(<FloatingRect dragging variant="selected" />);
     expect(
       document.querySelectorAll(
         ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--dragging"
