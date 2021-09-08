@@ -44,6 +44,7 @@
     "@storybook/manager-webpack5": "^6.3.8",
     "@storybook/react": "^6.3.8",
     "@storybook/theming": "^6.3.8",
+    "@testing-library/react": "^12.0.0",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.7.10",
     "@types/react": "^16.14.0",
@@ -107,7 +108,8 @@
     "overrides": [
       {
         "files": [
-          "*.test.ts"
+          "*.test.ts",
+          "*.test.tsx"
         ],
         "rules": {
           "tsdoc/syntax": "off"
