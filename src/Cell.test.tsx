@@ -28,18 +28,36 @@ const EXAMPLE_PROPS: Types.CellComponentProps = {
   activate: MOCK_ACTIVATE,
   setCellDimensions: MOCK_SET_CELL_DIMENSIONS,
 };
+const EXAMPLE_DATA_VIEWER_PROPS: Types.DataViewerProps = {
+  row: EXAMPLE_PROPS.row,
+  column: EXAMPLE_PROPS.column,
+  cell: EXAMPLE_PROPS.data,
+  formulaParser: MOCK_FORMULA_PARSER,
+};
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+const EXAMPLE_READ_ONLY_DATA = { value: null, readOnly: true };
 describe("<Cell />", () => {
   test("renders", () => {
     render(<Cell {...EXAMPLE_PROPS} />);
     const element = document.querySelector(".Spreadsheet__cell");
     expect(element).not.toBeNull();
+    expect(MOCK_DATA_VIEWER).toBeCalledTimes(1);
+    expect(MOCK_DATA_VIEWER).toBeCalledWith(EXAMPLE_DATA_VIEWER_PROPS, {});
   });
   test("renders read only", () => {
-    render(<Cell {...EXAMPLE_PROPS} data={{ value: null, readOnly: true }} />);
+    render(<Cell {...EXAMPLE_PROPS} data={EXAMPLE_READ_ONLY_DATA} />);
     const element = document.querySelector(
       ".Spreadsheet__cell.Spreadsheet__cell--readonly"
     );
     expect(element).not.toBeNull();
+    expect(MOCK_DATA_VIEWER).toBeCalledTimes(1);
+    expect(MOCK_DATA_VIEWER).toBeCalledWith(
+      { ...EXAMPLE_DATA_VIEWER_PROPS, cell: EXAMPLE_READ_ONLY_DATA },
+      {}
+    );
   });
 });
