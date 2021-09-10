@@ -34,12 +34,16 @@ const EXAMPLE_DATA_VIEWER_PROPS: Types.DataViewerProps = {
   cell: EXAMPLE_PROPS.data,
   formulaParser: MOCK_FORMULA_PARSER,
 };
+const EXAMPLE_READ_ONLY_DATA: Types.CellBase = { value: null, readOnly: true };
+const EXAMPLE_DATA_WITH_CLASS_NAME: Types.CellBase = {
+  value: null,
+  className: "example",
+};
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const EXAMPLE_READ_ONLY_DATA = { value: null, readOnly: true };
 describe("<Cell />", () => {
   test("renders", () => {
     render(<Cell {...EXAMPLE_PROPS} />);
@@ -57,6 +61,18 @@ describe("<Cell />", () => {
     expect(MOCK_DATA_VIEWER).toBeCalledTimes(1);
     expect(MOCK_DATA_VIEWER).toBeCalledWith(
       { ...EXAMPLE_DATA_VIEWER_PROPS, cell: EXAMPLE_READ_ONLY_DATA },
+      {}
+    );
+  });
+  test("renders with given class name", () => {
+    render(<Cell {...EXAMPLE_PROPS} data={EXAMPLE_DATA_WITH_CLASS_NAME} />);
+    const element = document.querySelector(
+      `.Spreadsheet__cell.${EXAMPLE_DATA_WITH_CLASS_NAME.className}`
+    );
+    expect(element).not.toBeNull();
+    expect(MOCK_DATA_VIEWER).toBeCalledTimes(1);
+    expect(MOCK_DATA_VIEWER).toBeCalledWith(
+      { ...EXAMPLE_DATA_VIEWER_PROPS, cell: EXAMPLE_DATA_WITH_CLASS_NAME },
       {}
     );
   });
