@@ -7,15 +7,18 @@ import { render } from "@testing-library/react";
 import { Cell } from "./Cell";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
+import { getOffsetRect } from "./util";
 
 const MOCK_DATA_VIEWER = jest.fn(() => null);
 const MOCK_FORMULA_PARSER = {} as FormulaParser;
 const MOCK_SELECT = jest.fn();
 const MOCK_ACTIVATE = jest.fn();
 const MOCK_SET_CELL_DIMENSIONS = jest.fn();
+const EXAMPLE_ROW = 0;
+const EXAMPLE_COLUMN = 0;
 const EXAMPLE_PROPS: Types.CellComponentProps = {
-  row: 0,
-  column: 0,
+  row: EXAMPLE_ROW,
+  column: EXAMPLE_COLUMN,
   DataViewer: MOCK_DATA_VIEWER,
   formulaParser: MOCK_FORMULA_PARSER,
   selected: false,
@@ -29,8 +32,8 @@ const EXAMPLE_PROPS: Types.CellComponentProps = {
   setCellDimensions: MOCK_SET_CELL_DIMENSIONS,
 };
 const EXAMPLE_DATA_VIEWER_PROPS: Types.DataViewerProps = {
-  row: EXAMPLE_PROPS.row,
-  column: EXAMPLE_PROPS.column,
+  row: EXAMPLE_ROW,
+  column: EXAMPLE_COLUMN,
   cell: EXAMPLE_PROPS.data,
   formulaParser: MOCK_FORMULA_PARSER,
 };
@@ -75,5 +78,27 @@ describe("<Cell />", () => {
       { ...EXAMPLE_DATA_VIEWER_PROPS, cell: EXAMPLE_DATA_WITH_CLASS_NAME },
       {}
     );
+  });
+  test("renders selected", () => {
+    render(<Cell {...EXAMPLE_PROPS} selected />);
+    const element = document.querySelector<HTMLElement>(".Spreadsheet__cell");
+    expect(element).not.toBeNull();
+    if (!element) {
+      throw new Error("element must be defined");
+    }
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(1);
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledWith(
+      { row: EXAMPLE_ROW, column: EXAMPLE_COLUMN },
+      getOffsetRect(element)
+    );
+  });
+  test("renders active", () => {
+    render(<Cell {...EXAMPLE_PROPS} active />);
+    const element = document.querySelector<HTMLElement>(".Spreadsheet__cell");
+    expect(element).not.toBeNull();
+    if (!element) {
+      throw new Error("element must be defined");
+    }
+    expect(document.activeElement === element);
   });
 });
