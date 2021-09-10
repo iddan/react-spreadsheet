@@ -54,6 +54,7 @@ describe("<Cell />", () => {
     expect(element).not.toBeNull();
     expect(MOCK_DATA_VIEWER).toBeCalledTimes(1);
     expect(MOCK_DATA_VIEWER).toBeCalledWith(EXAMPLE_DATA_VIEWER_PROPS, {});
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
   });
   test("renders read only", () => {
     render(<Cell {...EXAMPLE_PROPS} data={EXAMPLE_READ_ONLY_DATA} />);
@@ -66,6 +67,7 @@ describe("<Cell />", () => {
       { ...EXAMPLE_DATA_VIEWER_PROPS, cell: EXAMPLE_READ_ONLY_DATA },
       {}
     );
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
   });
   test("renders with given class name", () => {
     render(<Cell {...EXAMPLE_PROPS} data={EXAMPLE_DATA_WITH_CLASS_NAME} />);
@@ -78,6 +80,7 @@ describe("<Cell />", () => {
       { ...EXAMPLE_DATA_VIEWER_PROPS, cell: EXAMPLE_DATA_WITH_CLASS_NAME },
       {}
     );
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
   });
   test("renders selected", () => {
     render(<Cell {...EXAMPLE_PROPS} selected />);
@@ -100,5 +103,6 @@ describe("<Cell />", () => {
       throw new Error("element must be defined");
     }
     expect(document.activeElement === element);
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
   });
 });
