@@ -7,6 +7,7 @@ import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Actions from "./actions";
+import * as Point from "./point";
 import { isActive, getOffsetRect } from "./util";
 
 export const Cell: React.FC<Types.CellComponentProps> = ({
@@ -24,41 +25,48 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
   data,
 }): React.ReactElement => {
   const rootRef = React.useRef<HTMLTableDataCellElement | null>(null);
-  const root = rootRef.current;
+  const point = React.useMemo(
+    (): Point.Point => ({
+      row,
+      column,
+    }),
+    [row, column]
+  );
 
   const handleMouseDown = React.useCallback(
     (event: React.MouseEvent<HTMLTableDataCellElement>) => {
       if (mode === "view") {
-        setCellDimensions({ row, column }, getOffsetRect(event.currentTarget));
+        setCellDimensions(point, getOffsetRect(event.currentTarget));
 
         if (event.shiftKey) {
-          select({ row, column });
+          select(point);
         } else {
-          activate({ row, column });
+          activate(point);
         }
       }
     },
-    [mode, setCellDimensions, row, column, select, activate]
+    [mode, setCellDimensions, point, select, activate]
   );
 
   const handleMouseOver = React.useCallback(
     (event: React.MouseEvent<HTMLTableDataCellElement>) => {
       if (dragging) {
-        setCellDimensions({ row, column }, getOffsetRect(event.currentTarget));
-        select({ row, column });
+        setCellDimensions(point, getOffsetRect(event.currentTarget));
+        select(point);
       }
     },
-    [setCellDimensions, select, dragging, row, column]
+    [setCellDimensions, select, dragging, point]
   );
 
   React.useEffect(() => {
+    const root = rootRef.current;
     if (selected && root) {
-      setCellDimensions({ row, column }, getOffsetRect(root));
+      setCellDimensions(point, getOffsetRect(root));
     }
     if (root && active && mode === "view") {
       root.focus();
     }
-  }, [setCellDimensions, root, select, active, mode, column, row, selected]);
+  }, [setCellDimensions, selected, active, mode, point]);
 
   if (data && data.DataViewer) {
     // @ts-ignore
@@ -98,7 +106,7 @@ function mapStateToProps<Data extends Types.CellBase>(
   }: Types.StoreState<Data>,
   { column, row }: Types.CellComponentProps<Data>
 ) {
-  const point = { row, column };
+  const point: Point.Point = { row, column };
   const cellIsActive = isActive(active, point);
 
   const cellBindings = PointMap.get(point, bindings);
