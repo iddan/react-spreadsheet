@@ -108,7 +108,7 @@ describe("<Cell />", () => {
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
   });
   test("handles mouse down", () => {
-    render(<Cell {...EXAMPLE_PROPS} active />);
+    render(<Cell {...EXAMPLE_PROPS} />);
     const element = document.querySelector<HTMLElement>(".Spreadsheet__cell");
     expect(element).not.toBeNull();
     if (!element) {
@@ -125,13 +125,30 @@ describe("<Cell />", () => {
     expect(MOCK_SELECT).toBeCalledTimes(0);
   });
   test("handles mouse down + shift", () => {
-    render(<Cell {...EXAMPLE_PROPS} active />);
+    render(<Cell {...EXAMPLE_PROPS} />);
     const element = document.querySelector<HTMLElement>(".Spreadsheet__cell");
     expect(element).not.toBeNull();
     if (!element) {
       throw new Error("element must be defined");
     }
     fireEvent.mouseDown(element, { shiftKey: true });
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(1);
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledWith(
+      EXAMPLE_POINT,
+      getOffsetRect(element)
+    );
+    expect(MOCK_ACTIVATE).toBeCalledTimes(0);
+    expect(MOCK_SELECT).toBeCalledTimes(1);
+    expect(MOCK_SELECT).toBeCalledWith(EXAMPLE_POINT);
+  });
+  test("handles mouse over with dragging", () => {
+    render(<Cell {...EXAMPLE_PROPS} dragging />);
+    const element = document.querySelector<HTMLElement>(".Spreadsheet__cell");
+    expect(element).not.toBeNull();
+    if (!element) {
+      throw new Error("element must be defined");
+    }
+    fireEvent.mouseOver(element);
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(1);
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledWith(
       EXAMPLE_POINT,
