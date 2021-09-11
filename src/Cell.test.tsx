@@ -124,4 +124,21 @@ describe("<Cell />", () => {
     expect(MOCK_ACTIVATE).toBeCalledWith(EXAMPLE_POINT);
     expect(MOCK_SELECT).toBeCalledTimes(0);
   });
+  test("handles mouse down + shift", () => {
+    render(<Cell {...EXAMPLE_PROPS} active />);
+    const element = document.querySelector<HTMLElement>(".Spreadsheet__cell");
+    expect(element).not.toBeNull();
+    if (!element) {
+      throw new Error("element must be defined");
+    }
+    fireEvent.mouseDown(element, { shiftKey: true });
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(1);
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledWith(
+      EXAMPLE_POINT,
+      getOffsetRect(element)
+    );
+    expect(MOCK_ACTIVATE).toBeCalledTimes(0);
+    expect(MOCK_SELECT).toBeCalledTimes(1);
+    expect(MOCK_SELECT).toBeCalledWith(EXAMPLE_POINT);
+  });
 });
