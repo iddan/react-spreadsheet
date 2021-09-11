@@ -23,15 +23,28 @@ const EXAMPLE_PROPS: Types.DataViewerProps = {
 
 describe("<DataViewer />", () => {
   const cases = [
-    ["renders value", EXAMPLE_VALUE, EXAMPLE_VALUE],
-    ["renders boolean", true, convertBooleanToText(true)],
+    [
+      "renders value",
+      EXAMPLE_VALUE,
+      ".Spreadsheet__data-viewer",
+      EXAMPLE_VALUE,
+    ],
+    [
+      "renders boolean",
+      true,
+      ".Spreadsheet__data-viewer.Spreadsheet__data-viewer--boolean",
+      convertBooleanToText(true),
+    ],
   ] as const;
-  test.each(cases)("%s", (name, value, expectedTextContent) => {
-    render(<DataViewer {...EXAMPLE_PROPS} cell={{ value }} />);
-    const element = document.querySelector("span");
-    expect(element).not.toBeNull();
-    expect(element?.textContent).toBe(expectedTextContent);
-  });
+  test.each(cases)(
+    "%s",
+    (name, value, expectedSelector, expectedTextContent) => {
+      render(<DataViewer {...EXAMPLE_PROPS} cell={{ value }} />);
+      const element = document.querySelector(expectedSelector);
+      expect(element).not.toBeNull();
+      expect(element?.textContent).toBe(expectedTextContent);
+    }
+  );
 });
 
 describe("convertBooleanToText()", () => {
