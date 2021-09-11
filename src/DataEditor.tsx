@@ -3,12 +3,7 @@ import * as Types from "./types";
 import { moveCursorToEnd } from "./util";
 
 /** The default Spreadsheet DataEditor component */
-const DataEditor: React.FC<Types.DataEditorProps> = ({
-  onChange,
-  cell = {
-    value: "",
-  },
-}) => {
+const DataEditor: React.FC<Types.DataEditorProps> = ({ onChange, cell }) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const handleChange = React.useCallback(
@@ -24,7 +19,7 @@ const DataEditor: React.FC<Types.DataEditorProps> = ({
     }
   }, [inputRef]);
 
-  const value = cell?.value || "";
+  const value = cell?.value ?? "";
 
   return (
     <div className="Spreadsheet__data-editor">
