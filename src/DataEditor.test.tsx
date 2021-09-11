@@ -11,12 +11,14 @@ import * as Util from "./util";
 
 const MOVE_CURSOR_TO_END_MOCK = jest.spyOn(Util, "moveCursorToEnd");
 
-const EXAMPLE_VALUE = "EXAMPLE_VALUE";
 const ON_CHANGE_MOCK = jest.fn();
+const EXAMPLE_VALUE = "EXAMPLE_VALUE";
+const EXAMPLE_NEW_VALUE = "EXAMPLE_NEW_VALUE";
+const EXAMPLE_CELL: Types.CellBase = { value: EXAMPLE_VALUE };
 const EXAMPLE_PROPS: Types.DataEditorProps = {
   row: 0,
   column: 0,
-  cell: { value: EXAMPLE_VALUE },
+  cell: EXAMPLE_CELL,
   onChange: ON_CHANGE_MOCK,
 };
 
@@ -28,9 +30,12 @@ describe("<DataEditor />", () => {
   test("renders", () => {
     render(<DataEditor {...EXAMPLE_PROPS} />);
     const element = document.querySelector(".Spreadsheet__data-editor");
+    const input = document.querySelector(".Spreadsheet__data-editor input");
     expect(element).not.toBeNull();
+    expect(input).not.toBeNull();
     expect(ON_CHANGE_MOCK).toBeCalledTimes(0);
     expect(MOVE_CURSOR_TO_END_MOCK).toBeCalledTimes(1);
+    expect(MOVE_CURSOR_TO_END_MOCK).toBeCalledWith(input);
   });
   test("renders correctly with null value", () => {
     render(<DataEditor {...EXAMPLE_PROPS} cell={{ value: null }} />);
@@ -49,7 +54,7 @@ describe("<DataEditor />", () => {
     expect(ON_CHANGE_MOCK).toBeCalledTimes(0);
     expect(MOVE_CURSOR_TO_END_MOCK).toBeCalledTimes(1);
   });
-  test("handles change events correctly", () => {
+  test("handles change events correctly", async () => {
     render(<DataEditor {...EXAMPLE_PROPS} />);
     const input = document.querySelector<HTMLInputElement>(
       ".Spreadsheet__data-editor input"
@@ -60,9 +65,13 @@ describe("<DataEditor />", () => {
     }
     expect(ON_CHANGE_MOCK).toBeCalledTimes(0);
     expect(MOVE_CURSOR_TO_END_MOCK).toBeCalledTimes(1);
-    fireEvent.change(input);
-    waitFor(() => {
+    fireEvent.change(input, { target: { value: EXAMPLE_NEW_VALUE } });
+    await waitFor(() => {
       expect(ON_CHANGE_MOCK).toBeCalledTimes(1);
+      expect(ON_CHANGE_MOCK).toBeCalledWith({
+        ...EXAMPLE_CELL,
+        value: EXAMPLE_NEW_VALUE,
+      });
     });
   });
 });
