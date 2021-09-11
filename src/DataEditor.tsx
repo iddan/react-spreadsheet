@@ -2,22 +2,18 @@ import * as React from "react";
 import * as Types from "./types";
 import { moveCursorToEnd } from "./util";
 
-type Value = string | number;
-
-type Cell = Types.CellBase<Value>;
-
 /** The default Spreadsheet DataEditor component */
-const DataEditor: React.FC<Types.DataEditorProps<Cell>> = ({
+const DataEditor: React.FC<Types.DataEditorProps> = ({
   onChange,
   cell = {
     value: "",
   },
 }) => {
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const handleChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange({ ...cell, value: e.target.value });
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onChange({ ...cell, value: event.target.value });
     },
     [onChange, cell]
   );
