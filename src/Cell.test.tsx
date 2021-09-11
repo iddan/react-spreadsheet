@@ -3,10 +3,11 @@
  */
 
 import React from "react";
-import { render } from "@testing-library/react";
+import { fireEvent, render } from "@testing-library/react";
 import { Cell } from "./Cell";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
+import * as Point from "./point";
 import { getOffsetRect } from "./util";
 
 const MOCK_DATA_VIEWER = jest.fn(() => null);
@@ -42,6 +43,7 @@ const EXAMPLE_DATA_WITH_CLASS_NAME: Types.CellBase = {
   value: null,
   className: "example",
 };
+const EXAMPLE_POINT: Point.Point = { row: EXAMPLE_ROW, column: EXAMPLE_COLUMN };
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -91,7 +93,7 @@ describe("<Cell />", () => {
     }
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(1);
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledWith(
-      { row: EXAMPLE_ROW, column: EXAMPLE_COLUMN },
+      EXAMPLE_POINT,
       getOffsetRect(element)
     );
   });
@@ -104,5 +106,22 @@ describe("<Cell />", () => {
     }
     expect(document.activeElement === element);
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
+  });
+  test("handles mouse down", () => {
+    render(<Cell {...EXAMPLE_PROPS} active />);
+    const element = document.querySelector<HTMLElement>(".Spreadsheet__cell");
+    expect(element).not.toBeNull();
+    if (!element) {
+      throw new Error("element must be defined");
+    }
+    fireEvent.mouseDown(element);
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(1);
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledWith(
+      EXAMPLE_POINT,
+      getOffsetRect(element)
+    );
+    expect(MOCK_ACTIVATE).toBeCalledTimes(1);
+    expect(MOCK_ACTIVATE).toBeCalledWith(EXAMPLE_POINT);
+    expect(MOCK_SELECT).toBeCalledTimes(0);
   });
 });
