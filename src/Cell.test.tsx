@@ -11,6 +11,7 @@ import * as Point from "./point";
 import { getOffsetRect } from "./util";
 
 const MOCK_DATA_VIEWER = jest.fn(() => null);
+const MOCK_CUSTOM_DATA_VIEWER = jest.fn(() => null);
 const MOCK_FORMULA_PARSER = {} as FormulaParser;
 const MOCK_SELECT = jest.fn();
 const MOCK_ACTIVATE = jest.fn();
@@ -42,6 +43,16 @@ const EXAMPLE_READ_ONLY_DATA: Types.CellBase = { value: null, readOnly: true };
 const EXAMPLE_DATA_WITH_CLASS_NAME: Types.CellBase = {
   value: null,
   className: "example",
+};
+const EXAMPLE_DATA_WITH_CUSTOM_DATA_VIEWER: Types.CellBase = {
+  value: null,
+  DataViewer: MOCK_CUSTOM_DATA_VIEWER,
+};
+const EXAMPLE_CUSTOM_DATA_VIEWER_PROPS: Types.DataViewerProps = {
+  row: EXAMPLE_ROW,
+  column: EXAMPLE_COLUMN,
+  cell: EXAMPLE_DATA_WITH_CUSTOM_DATA_VIEWER,
+  formulaParser: MOCK_FORMULA_PARSER,
 };
 const EXAMPLE_POINT: Point.Point = { row: EXAMPLE_ROW, column: EXAMPLE_COLUMN };
 
@@ -114,6 +125,7 @@ describe("<Cell />", () => {
     if (!element) {
       throw new Error("element must be defined");
     }
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
     fireEvent.mouseDown(element);
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(1);
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledWith(
@@ -131,6 +143,7 @@ describe("<Cell />", () => {
     if (!element) {
       throw new Error("element must be defined");
     }
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
     fireEvent.mouseDown(element, { shiftKey: true });
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(1);
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledWith(
@@ -148,6 +161,7 @@ describe("<Cell />", () => {
     if (!element) {
       throw new Error("element must be defined");
     }
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
     fireEvent.mouseOver(element);
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(1);
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledWith(
@@ -157,5 +171,18 @@ describe("<Cell />", () => {
     expect(MOCK_ACTIVATE).toBeCalledTimes(0);
     expect(MOCK_SELECT).toBeCalledTimes(1);
     expect(MOCK_SELECT).toBeCalledWith(EXAMPLE_POINT);
+  });
+  test("custom cell DataViewer", () => {
+    render(
+      <Cell {...EXAMPLE_PROPS} data={EXAMPLE_DATA_WITH_CUSTOM_DATA_VIEWER} />
+    );
+    const element = document.querySelector(".Spreadsheet__cell");
+    expect(element).not.toBeNull();
+    expect(MOCK_CUSTOM_DATA_VIEWER).toBeCalledTimes(1);
+    expect(MOCK_CUSTOM_DATA_VIEWER).toBeCalledWith(
+      EXAMPLE_CUSTOM_DATA_VIEWER_PROPS,
+      {}
+    );
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
   });
 });
