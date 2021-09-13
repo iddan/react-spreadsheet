@@ -425,8 +425,8 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     });
   }, [formulaParser, store, handleCut, handleCopy, handlePaste]);
 
-  return (
-    <Provider store={store}>
+  const rootNode = React.useMemo(
+    () => (
       <div
         ref={rootRef}
         className={classNames("Spreadsheet", className)}
@@ -490,8 +490,31 @@ const Spreadsheet = <CellType extends Types.CellBase>(
         <Selected />
         <Copied />
       </div>
-    </Provider>
+    ),
+    [
+      className,
+      onKeyPress,
+      handleKeyDown,
+      handleMouseMove,
+      Table,
+      size,
+      hideColumnIndicators,
+      Row,
+      hideRowIndicators,
+      CornerIndicator,
+      DataEditor,
+      getBindingsForCell,
+      columnLabels,
+      ColumnIndicator,
+      rowLabels,
+      RowIndicator,
+      Cell,
+      DataViewer,
+      formulaParser,
+    ]
   );
+
+  return <Provider store={store}>{rootNode}</Provider>;
 };
 
 export default Spreadsheet;
