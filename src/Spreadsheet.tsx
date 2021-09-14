@@ -5,7 +5,7 @@ import devtools from "unistore/devtools";
 import { Provider } from "unistore/react";
 import * as Types from "./types";
 import * as PointRange from "./point-range";
-import * as Actions from "./actions";
+import * as UnistoreActions from "./unistore-actions";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
@@ -38,6 +38,7 @@ import {
   getSelectedCSV,
   calculateSpreadsheetSize,
 } from "./util";
+import { hasKeyDownHandler } from "./reducer";
 import "./Spreadsheet.css";
 
 /** The Spreadsheet component props */
@@ -184,23 +185,32 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       : devtools(createStore(prevState));
   }, []);
 
-  const copy = React.useMemo(() => store.action(Actions.copy), [store]);
-  const cut = React.useMemo(() => store.action(Actions.cut), [store]);
-  const paste = React.useMemo(() => store.action(Actions.paste), [store]);
+  const copy = React.useMemo(() => store.action(UnistoreActions.copy), [store]);
+  const cut = React.useMemo(() => store.action(UnistoreActions.cut), [store]);
+  const paste = React.useMemo(
+    () => store.action(UnistoreActions.paste),
+    [store]
+  );
   const onKeyDownAction = React.useMemo(
-    () => store.action(Actions.keyDown),
+    () => store.action(UnistoreActions.keyDown),
     [store]
   );
   const onKeyPress = React.useMemo(
-    () => store.action(Actions.keyPress),
+    () => store.action(UnistoreActions.keyPress),
     [store]
   );
   const onDragStart = React.useMemo(
-    () => store.action(Actions.dragStart),
+    () => store.action(UnistoreActions.dragStart),
     [store]
   );
-  const onDragEnd = React.useMemo(() => store.action(Actions.dragEnd), [store]);
-  const setData = React.useMemo(() => store.action(Actions.setData), [store]);
+  const onDragEnd = React.useMemo(
+    () => store.action(UnistoreActions.dragEnd),
+    [store]
+  );
+  const setData = React.useMemo(
+    () => store.action(UnistoreActions.setData),
+    [store]
+  );
 
   const handleStoreChange = React.useCallback(
     (state: Types.StoreState<CellType>) => {
@@ -339,7 +349,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       // Do not use event in case preventDefault() was called inside onKeyDown
       if (!event.defaultPrevented) {
         // Only disable default behavior if an handler exist
-        if (Actions.getKeyDownHandler(store.getState(), event)) {
+        if (hasKeyDownHandler(event)) {
           event.nativeEvent.preventDefault();
         }
         onKeyDownAction(event);

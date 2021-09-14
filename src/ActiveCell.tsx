@@ -2,7 +2,7 @@ import * as React from "react";
 import classnames from "classnames";
 import { connect } from "unistore/react";
 import * as Matrix from "./matrix";
-import * as Actions from "./actions";
+import * as UnistoreActions from "./unistore-actions";
 import * as Types from "./types";
 import * as Point from "./point";
 import { getCellDimensions } from "./util";
@@ -132,8 +132,8 @@ function mapStateToProps<Cell extends Types.CellBase>(
 }
 
 export default connect(mapStateToProps, {
-  setCellData: Actions.setCellData,
-  edit: Actions.edit,
-  commit: Actions.commit,
+  setCellData: UnistoreActions.setCellData,
+  edit: UnistoreActions.edit,
+  commit: UnistoreActions.commit,
   // @ts-ignore
 })(ActiveCell);

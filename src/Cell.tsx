@@ -6,7 +6,7 @@ import * as PointMap from "./point-map";
 import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
-import * as Actions from "./actions";
+import * as UnistoreActions from "./unistore-actions";
 import * as Point from "./point";
 import { isActive, getOffsetRect } from "./util";
 
@@ -127,7 +127,7 @@ function mapStateToProps<Data extends Types.CellBase>(
 }
 
 export const enhance = connect(mapStateToProps, () => ({
-  select: Actions.select,
-  activate: Actions.activate,
-  setCellDimensions: Actions.setCellDimensions,
+  select: UnistoreActions.select,
+  activate: UnistoreActions.activate,
+  setCellDimensions: UnistoreActions.setCellDimensions,
 }));

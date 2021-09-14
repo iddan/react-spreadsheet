@@ -26,6 +26,7 @@
     "build-typedoc": "typedoc"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.6.1",
     "@types/array.prototype.flatmap": "^1.2.2",
     "array.prototype.flatmap": "^1.2.4",
     "classnames": "^2.3.1",
