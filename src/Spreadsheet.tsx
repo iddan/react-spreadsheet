@@ -349,7 +349,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       // Do not use event in case preventDefault() was called inside onKeyDown
       if (!event.defaultPrevented) {
         // Only disable default behavior if an handler exist
-        if (hasKeyDownHandler(event)) {
+        if (hasKeyDownHandler(store.getState(), event)) {
           event.nativeEvent.preventDefault();
         }
         onKeyDownAction(event);

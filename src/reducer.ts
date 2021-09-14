@@ -15,7 +15,7 @@ enum Direction {
   Down = "Down",
 }
 
-const INITIAL_STATE: Types.StoreState = {
+export const INITIAL_STATE: Types.StoreState = {
   active: null,
   mode: "view",
   rowDimensions: {},
@@ -437,8 +437,8 @@ export function getKeyDownHandler(
 }
 
 /** Returns whether the reducer has a handler for the given keydown event */
-export function hasKeyDownHandler(event: React.KeyboardEvent): boolean {
-  return getKeyDownHandler(INITIAL_STATE, event) !== undefined;
+export function hasKeyDownHandler(state: Types.StoreState, event: React.KeyboardEvent): boolean {
+  return getKeyDownHandler(state, event) !== undefined;
 }
 
 function getActive<Cell extends Types.CellBase>(

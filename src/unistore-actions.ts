@@ -32,13 +32,11 @@ export const activate = (
 
 export const setCellData = (
   state: Types.StoreState,
-  payload: {
-    active: Point.Point;
-    data: Types.CellBase;
-    bindings: Point.Point[];
-  }
+  active: Point.Point,
+  data: Types.CellBase,
+  bindings: Point.Point[]
 ): Types.StoreState => {
-  const action = Actions.setCellData(payload);
+  const action = Actions.setCellData({ active, data, bindings });
   return reducer(state, action);
 };
 
