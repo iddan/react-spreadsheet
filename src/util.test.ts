@@ -171,18 +171,22 @@ describe("getCellDimensions()", () => {
     [
       "returns existing cell dimensions",
       EXAMPLE_EXISTING_POINT,
-      EXAMPLE_STATE,
       EXAMPLE_CELL_DIMENSIONS,
     ],
     [
       "returns undefined for non existing cell",
       EXAMPLE_NON_EXISTING_POINT,
-      EXAMPLE_STATE,
       undefined,
     ],
   ] as const;
-  test.each(cases)("%s", (name, point, state, expected) => {
-    expect(getCellDimensions(point, state)).toEqual(expected);
+  test.each(cases)("%s", (name, point, expected) => {
+    expect(
+      getCellDimensions(
+        point,
+        EXAMPLE_STATE.rowDimensions,
+        EXAMPLE_STATE.columnDimensions
+      )
+    ).toEqual(expected);
   });
 });
 

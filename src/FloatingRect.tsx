@@ -2,14 +2,11 @@ import * as React from "react";
 import * as Types from "./types";
 import classnames from "classnames";
 
-export type StateProps = {
-  dimensions?: Types.Dimensions | null | undefined;
-  hidden?: boolean;
-  dragging?: boolean;
-};
-
-export type Props = StateProps & {
+export type Props = {
   variant: "copied" | "selected";
+  dimensions: Types.Dimensions | null | undefined;
+  hidden: boolean;
+  dragging: boolean;
 };
 
 const FloatingRect: React.FC<Props> = ({

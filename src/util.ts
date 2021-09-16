@@ -3,6 +3,8 @@ import * as Types from "./types";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import * as PointRange from "./point-range";
+import * as PointMap from "./point-map";
+import * as PointSet from "./point-set";
 import * as Formula from "./formula";
 
 export { createEmpty as createEmptyMatrix } from "./matrix";
@@ -79,23 +81,36 @@ export function readTextFromClipboard(event: ClipboardEvent): string {
 /** Get the dimensions of cell at point from state */
 export function getCellDimensions(
   point: Point.Point,
-  state: Types.StoreState
+  rowDimensions: Types.StoreState["rowDimensions"] | undefined,
+  columnDimensions: Types.StoreState["columnDimensions"] | undefined
 ): Types.Dimensions | undefined {
-  const rowDimensions = state.rowDimensions[point.row];
-  const columnDimensions = state.columnDimensions[point.column];
+  const cellRowDimensions = rowDimensions && rowDimensions[point.row];
+  const cellColumnDimensions = columnDimensions && columnDimensions[point.row];
   return (
-    rowDimensions &&
-    columnDimensions && { ...rowDimensions, ...columnDimensions }
+    cellRowDimensions &&
+    cellColumnDimensions && {
+      ...cellRowDimensions,
+      ...cellColumnDimensions,
+    }
   );
 }
 
 /** Get the dimensions of a range of cells */
 export function getRangeDimensions(
-  state: Types.StoreState,
+  rowDimensions: Types.StoreState["rowDimensions"],
+  columnDimensions: Types.StoreState["columnDimensions"],
   range: PointRange.PointRange
 ): Types.Dimensions | undefined {
-  const startDimensions = getCellDimensions(range.start, state);
-  const endDimensions = getCellDimensions(range.end, state);
+  const startDimensions = getCellDimensions(
+    range.start,
+    rowDimensions,
+    columnDimensions
+  );
+  const endDimensions = getCellDimensions(
+    range.end,
+    rowDimensions,
+    columnDimensions
+  );
   return (
     startDimensions &&
     endDimensions && {
@@ -203,4 +218,11 @@ export function calculateSpreadsheetSize(
     rows: rowLabels ? Math.max(rows, rowLabels.length) : rows,
     columns: columnLabels ? Math.max(columns, columnLabels.length) : columns,
   };
+}
+
+/** Transform given point map to a point set */
+export function convertPointMapToPointSet(
+  map: PointMap.PointMap<unknown>
+): PointSet.PointSet {
+  return PointMap.map(() => true, map);
 }

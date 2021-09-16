@@ -1,84 +1,101 @@
 import * as React from "react";
 import classnames from "classnames";
-import { connect } from "unistore/react";
+import { useContextSelector } from "use-context-selector";
 import * as Matrix from "./matrix";
-import * as UnistoreActions from "./unistore-actions";
+import * as Actions from "./actions";
 import * as Types from "./types";
 import * as Point from "./point";
+import context from "./context";
 import { getCellDimensions } from "./util";
 
 type Props = {
   DataEditor: Types.DataEditorComponent;
-  onChange: (data: Types.CellBase) => void;
-  setCellData: (
-    active: Point.Point,
-    data: Types.CellBase,
-    bindings: Point.Point[]
-  ) => void;
-  cell: Types.CellBase;
-  hidden: boolean;
-  mode: Types.Mode;
-  edit: () => void;
-  commit: (changes: Types.CellChange<Types.CellBase>[]) => void;
   getBindingsForCell: Types.GetBindingsForCell<Types.CellBase>;
-  data: Matrix.Matrix<Types.CellBase>;
-} & Point.Point &
-  Types.Dimensions;
+};
 
 const ActiveCell: React.FC<Props> = (props) => {
-  const {
-    row,
-    column,
-    cell,
-    width,
-    height,
-    top,
-    left,
-    hidden,
-    mode,
-    edit,
-    setCellData,
-    getBindingsForCell,
-    commit,
-    data,
-  } = props;
-  const initialCellRef = React.useRef<Types.CellBase | null>(null);
-  const prevPropsRef = React.useRef<Props | null>(null);
+  const { getBindingsForCell } = props;
+
+  const dispatch = useContextSelector(context, ([state, dispatch]) => dispatch);
+  const setCellData = React.useCallback(
+    (active: Point.Point, data: Types.CellBase) =>
+      dispatch(Actions.setCellData({ active, data, getBindingsForCell })),
+    [dispatch, getBindingsForCell]
+  );
+  const edit = React.useCallback(() => dispatch(Actions.edit()), [dispatch]);
+  const commit = React.useCallback(
+    (changes: Types.CommitChanges<Types.CellBase>) =>
+      dispatch(Actions.commit({ changes })),
+    [dispatch]
+  );
+  const active = useContextSelector(context, ([state]) => state.active);
+  const rowDimensions = useContextSelector(
+    context,
+    ([state]) => state.rowDimensions
+  );
+  const columnDimensions = useContextSelector(
+    context,
+    ([state]) => state.columnDimensions
+  );
+  const mode = useContextSelector(context, ([state]) => state.mode);
+  const cell = useContextSelector(context, ([state]) =>
+    state.active ? Matrix.get(state.active, state.data) : undefined
+  );
+  const dimensions = React.useMemo(
+    () =>
+      active
+        ? getCellDimensions(active, rowDimensions, columnDimensions)
+        : undefined,
+    [active, rowDimensions, columnDimensions]
+  );
+  const hidden = React.useMemo(
+    () => !active || !dimensions,
+    [active, dimensions]
+  );
+
+  const initialCellRef = React.useRef<Types.CellBase | undefined>(undefined);
+  const prevActiveRef = React.useRef<Point.Point | null>(null);
+  const prevCellRef = React.useRef<Types.CellBase | undefined>(undefined);
 
   const handleChange = React.useCallback(
     (cell: Types.CellBase) => {
-      const bindings = getBindingsForCell(cell, data);
-      setCellData({ row, column }, cell, bindings);
+      if (!active) {
+        return;
+      }
+      setCellData(active, cell);
     },
-    [getBindingsForCell, setCellData, row, column, data]
+    [setCellData, active]
   );
 
   React.useEffect(() => {
-    const prevProps = prevPropsRef.current;
-    prevPropsRef.current = props;
+    const prevActive = prevActiveRef.current;
+    const prevCell = prevCellRef.current;
+    prevActiveRef.current = active;
+    prevCellRef.current = cell;
 
-    if (!prevProps) {
+    if (!prevActive || !prevCell) {
       return;
     }
 
     // Commit
-    const coordsChanged = row !== prevProps.row || column !== prevProps.column;
+    const coordsChanged =
+      active?.row !== prevActive.row || active?.column !== prevActive.column;
     const exitedEditMode = mode !== "edit";
 
     if (coordsChanged || exitedEditMode) {
       const initialCell = initialCellRef.current;
-      if (prevProps.cell !== initialCell) {
+      if (prevCell !== initialCell) {
         commit([
           {
-            prevCell: initialCell,
-            nextCell: prevProps.cell,
+            prevCell: initialCell || null,
+            nextCell: prevCell,
           },
         ]);
-      } else if (!coordsChanged && cell !== prevProps.cell) {
+      } else if (!coordsChanged && cell !== prevCell) {
         commit([
           {
-            prevCell: prevProps.cell,
-            nextCell: cell,
+            prevCell,
+            nextCell: cell || null,
           },
         ]);
       }
@@ -95,13 +112,13 @@ const ActiveCell: React.FC<Props> = (props) => {
         "Spreadsheet__active-cell",
         `Spreadsheet__active-cell--${mode}`
       )}
-      style={{ width, height, top, left }}
+      style={dimensions}
       onClick={mode === "view" && !readOnly ? edit : undefined}
     >
-      {mode === "edit" && (
+      {mode === "edit" && active && (
         <DataEditor
-          row={row}
-          column={column}
+          row={active.row}
+          column={active.column}
           cell={cell}
           // @ts-ignore
           onChange={handleChange}
@@ -111,29 +128,4 @@ const ActiveCell: React.FC<Props> = (props) => {
   );
 };
 
-function mapStateToProps<Cell extends Types.CellBase>(
-  state: Types.StoreState<Cell>
-): Partial<Props> {
-  const dimensions = state.active && getCellDimensions(state.active, state);
-  if (!state.active || !dimensions) {
-    return { hidden: true };
-  }
-  return {
-    ...state.active,
-    hidden: false,
-    cell: Matrix.get(state.active, state.data),
-    width: dimensions.width,
-    height: dimensions.height,
-    top: dimensions.top,
-    left: dimensions.left,
-    mode: state.mode,
-    data: state.data,
-  };
-}
-
-export default connect(mapStateToProps, {
-  setCellData: UnistoreActions.setCellData,
-  edit: UnistoreActions.edit,
-  commit: UnistoreActions.commit,
-  // @ts-ignore
-})(ActiveCell);
+export default ActiveCell;

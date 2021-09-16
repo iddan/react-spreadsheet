@@ -15,7 +15,7 @@ export const setCellData = createAction<
   {
     active: Point.Point;
     data: Types.CellBase;
-    bindings: Point.Point[];
+    getBindingsForCell: Types.GetBindingsForCell;
   },
   "SET_CELL_DATA"
 >("SET_CELL_DATA");

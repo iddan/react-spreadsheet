@@ -1,30 +1,50 @@
 import * as React from "react";
-import { connect } from "unistore/react";
-import * as Types from "./types";
+import { useContextSelector } from "use-context-selector";
 import * as PointSet from "./point-set";
-import * as PointMap from "./point-map";
-import { getRangeDimensions } from "./util";
-import FloatingRect, {
-  Props as FloatingRectProps,
-  StateProps,
-} from "./FloatingRect";
+import { convertPointMapToPointSet, getRangeDimensions } from "./util";
+import FloatingRect from "./FloatingRect";
+import context from "./context";
 
-type Props = Omit<FloatingRectProps, "variant">;
+const Copied: React.FC = () => {
+  const rowDimensions = useContextSelector(
+    context,
+    ([state]) => state.rowDimensions
+  );
+  const columnDimensions = useContextSelector(
+    context,
+    ([state]) => state.columnDimensions
+  );
+  const copied = useContextSelector(context, ([state]) =>
+    state.hasPasted ? null : state.copied
+  );
+  const copiedSet = React.useMemo(
+    () => copied && convertPointMapToPointSet(copied),
+    [copied]
+  );
+  const hidden = React.useMemo(
+    () => !copiedSet || PointSet.size(copiedSet) === 0,
+    [copiedSet]
+  );
+  const dimensions = React.useMemo(
+    () =>
+      hidden || !copiedSet
+        ? null
+        : getRangeDimensions(
+            rowDimensions,
+            columnDimensions,
+            PointSet.toRange(copiedSet)
+          ),
+    [rowDimensions, columnDimensions, hidden, copiedSet]
+  );
 
-const Copied: React.FC<Props> = (props) => (
-  <FloatingRect {...props} variant="copied" />
-);
+  return (
+    <FloatingRect
+      variant="copied"
+      dimensions={dimensions}
+      hidden={hidden}
+      dragging={false}
+    />
+  );
+};
 
-export default connect<{}, {}, Types.StoreState, StateProps>((state) => {
-  const cells = state.hasPasted
-    ? PointSet.from([])
-    : PointMap.map(() => true, state.copied);
-  const hidden = PointSet.size(cells) === 0;
-  return {
-    dimensions: hidden
-      ? null
-      : getRangeDimensions(state, PointSet.toRange(cells)),
-    hidden,
-    dragging: false,
-  };
-})(Copied);
+export default Copied;

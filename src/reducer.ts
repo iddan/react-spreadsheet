@@ -70,7 +70,8 @@ export const reducer = createReducer(INITIAL_STATE, (builder) => {
     };
   });
   builder.addCase(Actions.setCellData, (state, action) => {
-    const { active, data: cellData, bindings } = action.payload;
+    const { active, data: cellData, getBindingsForCell } = action.payload;
+    const bindings = getBindingsForCell(cellData, state.data);
     if (isActiveReadOnly(state)) {
       return;
     }
