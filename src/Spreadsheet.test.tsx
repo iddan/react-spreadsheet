@@ -88,9 +88,9 @@ describe("<Spreadsheet />", () => {
       activeCell?.getBoundingClientRect()
     );
     expect(onActivate).toHaveBeenCalledTimes(1);
-    expect(onActivate).toHaveBeenCalledWith();
+    expect(onActivate).toHaveBeenCalledWith(Point.ORIGIN);
   });
-  test("Pressing Enter when a cell is active enters to edit mode", () => {
+  test("pressing Enter when a cell is active enters to edit mode", () => {
     const onModeChange = jest.fn();
     render(<Spreadsheet {...EXAMPLE_PROPS} onModeChange={onModeChange} />);
     const element = document.querySelector(".Spreadsheet");
@@ -176,14 +176,24 @@ describe("<Spreadsheet />", () => {
     const element = document.querySelector(".Spreadsheet");
     expect(element).toHaveClass(EXAMPLE_CLASS_NAME);
   });
-  test("hideColumnIndicators", () => {
+  test("setting hideColumnIndicators hides column indicators", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} hideColumnIndicators />);
     const ths = document.querySelectorAll(".Spreadsheet th");
     expect(ths).toHaveLength(ROWS);
   });
-  test("hideRowIndicatos", () => {
+  test("setting hideRowIndicatos hides row indicators", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} hideRowIndicators />);
     const ths = document.querySelectorAll(".Spreadsheet th");
     expect(ths).toHaveLength(COLUMNS);
+  });
+  test("calls onKeyDown on key down", () => {
+    const onKeyDown = jest.fn();
+    render(<Spreadsheet {...EXAMPLE_PROPS} onKeyDown={onKeyDown} />);
+    const element = document.querySelector(".Spreadsheet");
+    if (!element) {
+      throw new Error("element must be defined");
+    }
+    fireEvent.keyDown(element, "Enter");
+    expect(onKeyDown).toHaveBeenCalledTimes(1);
   });
 });
