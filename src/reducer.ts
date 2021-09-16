@@ -438,7 +438,10 @@ export function getKeyDownHandler(
 }
 
 /** Returns whether the reducer has a handler for the given keydown event */
-export function hasKeyDownHandler(state: Types.StoreState, event: React.KeyboardEvent): boolean {
+export function hasKeyDownHandler(
+  state: Types.StoreState,
+  event: React.KeyboardEvent
+): boolean {
   return getKeyDownHandler(state, event) !== undefined;
 }
 

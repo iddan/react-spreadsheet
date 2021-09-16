@@ -96,7 +96,20 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
 
 export const enhance = (
   CellComponent: React.FC<Types.CellComponentProps>
-): React.FC<Omit<Types.CellComponentProps, "selected" | "active" | "copied" | "dragging" | "mode" | "data" | "select" | "activate" | "setCellDimensions">> => {
+): React.FC<
+  Omit<
+    Types.CellComponentProps,
+    | "selected"
+    | "active"
+    | "copied"
+    | "dragging"
+    | "mode"
+    | "data"
+    | "select"
+    | "activate"
+    | "setCellDimensions"
+  >
+> => {
   return function CellWrapper(props) {
     const { row, column } = props;
     const dispatch = useContextSelector(
