@@ -164,4 +164,10 @@ describe("<Spreadsheet />", () => {
     // Make sure the cell is in the right row
     expect(tableChildren.indexOf(row)).toBe(1);
   });
+  test("renders class name", () => {
+    const EXAMPLE_CLASS_NAME = "EXAMPLE_CLASS_NAME";
+    render(<Spreadsheet {...EXAMPLE_PROPS} className={EXAMPLE_CLASS_NAME} />);
+    const element = document.querySelector(".Spreadsheet");
+    expect(element).toHaveClass(EXAMPLE_CLASS_NAME);
+  });
 });
