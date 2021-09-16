@@ -88,7 +88,8 @@ describe("<Spreadsheet />", () => {
     );
   });
   test("Pressing Enter when a cell is active enters to edit mode", () => {
-    render(<Spreadsheet {...EXAMPLE_PROPS} />);
+    const onModeChange = jest.fn();
+    render(<Spreadsheet {...EXAMPLE_PROPS} onModeChange={onModeChange} />);
     const element = document.querySelector(".Spreadsheet");
     const cell = element?.querySelector("td");
     if (!cell) {
@@ -109,6 +110,8 @@ describe("<Spreadsheet />", () => {
       throw new Error("input must be defined");
     }
     expect(input).toHaveFocus();
+    expect(onModeChange).toHaveBeenCalledTimes(1);
+    expect(onModeChange).toHaveBeenCalledWith("edit");
   });
   test("input triggers onChange", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
