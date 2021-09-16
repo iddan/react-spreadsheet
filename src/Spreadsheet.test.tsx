@@ -55,6 +55,18 @@ describe("<Spreadsheet />", () => {
     expect(ths.length).toBe(ROWS + COLUMNS + 1);
     // Make sure active cell is not rendered before a cell is activated
     expect(element.querySelector(".Spreadsheet__active-cell")).toBeNull();
+    // Make sure selected is hidden
+    expect(
+      element.querySelector(
+        ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--selected.Spreadsheet__floating-rect--hidden"
+      )
+    ).not.toBeNull();
+    // Make sure copied is hidden
+    expect(
+      element.querySelector(
+        ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--copied.Spreadsheet__floating-rect--hidden"
+      )
+    ).not.toBeNull();
 
     const cell = tds.item(0);
     fireEvent.mouseDown(cell);
