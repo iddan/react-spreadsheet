@@ -85,7 +85,8 @@ export function getCellDimensions(
   columnDimensions: Types.StoreState["columnDimensions"] | undefined
 ): Types.Dimensions | undefined {
   const cellRowDimensions = rowDimensions && rowDimensions[point.row];
-  const cellColumnDimensions = columnDimensions && columnDimensions[point.row];
+  const cellColumnDimensions =
+    columnDimensions && columnDimensions[point.column];
   return (
     cellRowDimensions &&
     cellColumnDimensions && {
