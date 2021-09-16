@@ -67,8 +67,17 @@ describe("<Spreadsheet />", () => {
         ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--copied.Spreadsheet__floating-rect--hidden"
       )
     ).not.toBeNull();
-
-    const cell = tds.item(0);
+  });
+  test("input triggers onChange", () => {
+    render(<Spreadsheet {...EXAMPLE_PROPS} />);
+    const element = document.querySelector(".Spreadsheet");
+    if (!element) {
+      throw new Error("element must be defined");
+    }
+    const cell = element.querySelector("td");
+    if (!cell) {
+      throw new Error("cell must be defined");
+    }
     fireEvent.mouseDown(cell);
     const activeCell = element.querySelector(
       ".Spreadsheet__active-cell.Spreadsheet__active-cell--view"
