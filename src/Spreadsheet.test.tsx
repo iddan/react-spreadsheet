@@ -109,7 +109,7 @@ describe("<Spreadsheet />", () => {
       throw new Error("input must be defined");
     }
     expect(input).toHaveFocus();
-  })
+  });
   test("input triggers onChange", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
     const element = document.querySelector(".Spreadsheet");
