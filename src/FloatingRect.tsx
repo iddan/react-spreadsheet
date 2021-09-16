@@ -9,7 +9,7 @@ export type StateProps = {
 };
 
 export type Props = StateProps & {
-  variant: "copied" | "selected";
+  variant?: string;
 };
 
 const FloatingRect: React.FC<Props> = ({
