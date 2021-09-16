@@ -4,9 +4,9 @@ import classnames from "classnames";
 
 export type Props = {
   variant: "copied" | "selected";
-  dimensions: Types.Dimensions | null | undefined;
-  hidden: boolean;
-  dragging: boolean;
+  dimensions?: Types.Dimensions | null | undefined;
+  hidden?: boolean;
+  dragging?: boolean;
 };
 
 const FloatingRect: React.FC<Props> = ({
