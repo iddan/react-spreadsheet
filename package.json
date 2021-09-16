@@ -83,7 +83,10 @@
     "preset": "ts-jest",
     "testPathIgnorePatterns": [
       "dist"
-    ]
+    ],
+    "moduleNameMapper": {
+      "\\.css$": "<rootDir>/src/__mocks__/style-mock.ts"
+    }
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
