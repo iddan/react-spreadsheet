@@ -48,11 +48,11 @@ describe("<Spreadsheet />", () => {
       throw new Error("table must be defined");
     }
     const trs = table.querySelectorAll("tr");
-    expect(trs.length).toBe(ROWS + 1);
+    expect(trs).toHaveLength(ROWS + 1);
     const tds = table.querySelectorAll("tr td.Spreadsheet__cell");
-    expect(tds.length).toBe(ROWS * COLUMNS);
+    expect(tds).toHaveLength(ROWS * COLUMNS);
     const ths = table.querySelectorAll("tr th.Spreadsheet__header");
-    expect(ths.length).toBe(ROWS + COLUMNS + 1);
+    expect(ths).toHaveLength(ROWS + COLUMNS + 1);
     // Make sure active cell is not rendered before a cell is activated
     expect(element.querySelector(".Spreadsheet__active-cell")).toBeNull();
     // Make sure selected is hidden
@@ -106,7 +106,7 @@ describe("<Spreadsheet />", () => {
     const { rerender } = render(<Spreadsheet {...EXAMPLE_PROPS} />);
     rerender(<Spreadsheet {...EXAMPLE_PROPS} data={EXAMPLE_MODIFIED_DATA} />);
     const matchingCells = screen.getAllByText(EXAMPLE_CELL.value);
-    expect(matchingCells.length).toBe(1);
+    expect(matchingCells).toHaveLength(1);
     const [textSpan] = matchingCells;
     expect(textSpan).not.toBeNull();
     expect(EXAMPLE_PROPS.onChange).toBeCalledTimes(0);
