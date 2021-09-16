@@ -170,4 +170,14 @@ describe("<Spreadsheet />", () => {
     const element = document.querySelector(".Spreadsheet");
     expect(element).toHaveClass(EXAMPLE_CLASS_NAME);
   });
+  test("hideColumnIndicators", () => {
+    render(<Spreadsheet {...EXAMPLE_PROPS} hideColumnIndicators />);
+    const ths = document.querySelectorAll(".Spreadsheet th");
+    expect(ths).toHaveLength(ROWS);
+  });
+  test("hideRowIndicatos", () => {
+    render(<Spreadsheet {...EXAMPLE_PROPS} hideRowIndicators />);
+    const ths = document.querySelectorAll(".Spreadsheet th");
+    expect(ths).toHaveLength(COLUMNS);
+  });
 });
