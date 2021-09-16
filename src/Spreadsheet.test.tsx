@@ -69,7 +69,8 @@ describe("<Spreadsheet />", () => {
     ).not.toBeNull();
   });
   test("click activates cell", () => {
-    render(<Spreadsheet {...EXAMPLE_PROPS} />);
+    const onActivate = jest.fn();
+    render(<Spreadsheet {...EXAMPLE_PROPS} onActivate={onActivate} />);
     const element = document.querySelector(".Spreadsheet");
     if (!element) {
       throw new Error("element must be defined");
@@ -86,6 +87,8 @@ describe("<Spreadsheet />", () => {
     expect(cell.getBoundingClientRect()).toEqual(
       activeCell?.getBoundingClientRect()
     );
+    expect(onActivate).toHaveBeenCalledTimes(1);
+    expect(onActivate).toHaveBeenCalledWith();
   });
   test("Pressing Enter when a cell is active enters to edit mode", () => {
     const onModeChange = jest.fn();
