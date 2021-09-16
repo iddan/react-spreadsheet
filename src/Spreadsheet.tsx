@@ -37,7 +37,6 @@ import {
 import { reducer, INITIAL_STATE, hasKeyDownHandler } from "./reducer";
 import context from "./context";
 import "./Spreadsheet.css";
-import { useEffect } from "@storybook/addons";
 
 /** The Spreadsheet component props */
 export type Props<CellType extends Types.CellBase> = {
@@ -194,7 +193,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     [dispatch]
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     const prevState = prevStateRef.current;
     if (state.lastCommit && state.lastCommit !== prevState.lastCommit) {
       for (const change of state.lastCommit) {
