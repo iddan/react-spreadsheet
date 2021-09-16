@@ -68,7 +68,7 @@ describe("<Spreadsheet />", () => {
       )
     ).not.toBeNull();
   });
-  test("input triggers onChange", () => {
+  test("click activates cell", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
     const element = document.querySelector(".Spreadsheet");
     if (!element) {
@@ -78,22 +78,57 @@ describe("<Spreadsheet />", () => {
     if (!cell) {
       throw new Error("cell must be defined");
     }
+    expect(element.querySelector(".Spreadsheet__active-cell")).toBeNull();
     fireEvent.mouseDown(cell);
-    const activeCell = element.querySelector(
-      ".Spreadsheet__active-cell.Spreadsheet__active-cell--view"
+    const activeCell = element.querySelector(".Spreadsheet__active-cell");
+    expect(activeCell).toHaveClass("Spreadsheet__active-cell--view");
+    expect(activeCell).not.toBeNull();
+    expect(cell.getBoundingClientRect()).toEqual(
+      activeCell?.getBoundingClientRect()
     );
+  });
+  test("Pressing Enter when a cell is active enters to edit mode", () => {
+    render(<Spreadsheet {...EXAMPLE_PROPS} />);
+    const element = document.querySelector(".Spreadsheet");
+    const cell = element?.querySelector("td");
+    if (!cell) {
+      throw new Error("cell must be defined");
+    }
+    fireEvent.mouseDown(cell);
+    const activeCell = element?.querySelector(".Spreadsheet__active-cell");
     if (!activeCell) {
       throw new Error("active cell must be defined");
     }
     fireEvent.keyDown(activeCell, {
       key: "Enter",
     });
+    // Check mode has changed to edit
     expect(activeCell).toHaveClass("Spreadsheet__active-cell--edit");
     const input = activeCell.querySelector("input");
     if (!input) {
       throw new Error("input must be defined");
     }
     expect(input).toHaveFocus();
+  })
+  test("input triggers onChange", () => {
+    render(<Spreadsheet {...EXAMPLE_PROPS} />);
+    const element = document.querySelector(".Spreadsheet");
+    const cell = element?.querySelector("td");
+    if (!cell) {
+      throw new Error("cell must be defined");
+    }
+    fireEvent.mouseDown(cell);
+    const activeCell = element?.querySelector(".Spreadsheet__active-cell");
+    if (!activeCell) {
+      throw new Error("active cell must be defined");
+    }
+    fireEvent.keyDown(activeCell, {
+      key: "Enter",
+    });
+    const input = activeCell.querySelector("input");
+    if (!input) {
+      throw new Error("input must be defined");
+    }
     fireEvent.change(input, {
       target: {
         value: EXAMPLE_VALUE,
