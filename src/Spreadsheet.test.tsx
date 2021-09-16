@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { fireEvent, render, getAllByText } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import Spreadsheet, { Props } from "./Spreadsheet";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
@@ -67,13 +67,12 @@ describe("<Spreadsheet />", () => {
     fireEvent.keyDown(activeCell, {
       key: "Enter",
     });
-    expect(
-      activeCell.classList.contains("Spreadsheet__active-cell--edit")
-    ).toBe(true);
+    expect(activeCell).toHaveClass("Spreadsheet__active-cell--edit");
     const input = activeCell.querySelector("input");
     if (!input) {
       throw new Error("input must be defined");
     }
+    expect(input).toHaveFocus();
     fireEvent.change(input, {
       target: {
         value: EXAMPLE_VALUE,
@@ -85,12 +84,7 @@ describe("<Spreadsheet />", () => {
   test("handles external change of data correctly", () => {
     const { rerender } = render(<Spreadsheet {...EXAMPLE_PROPS} />);
     rerender(<Spreadsheet {...EXAMPLE_PROPS} data={EXAMPLE_MODIFIED_DATA} />);
-    const element = document.querySelector<HTMLElement>(".Spreadsheet");
-    expect(element).not.toBeNull();
-    if (!element) {
-      throw new Error("element must be defined");
-    }
-    const matchingCells = getAllByText(element, EXAMPLE_CELL.value);
+    const matchingCells = screen.getAllByText(EXAMPLE_CELL.value);
     expect(matchingCells.length).toBe(1);
     const [textSpan] = matchingCells;
     expect(textSpan).not.toBeNull();
