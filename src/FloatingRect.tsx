@@ -3,7 +3,7 @@ import * as Types from "./types";
 import classnames from "classnames";
 
 export type Props = {
-  variant: "copied" | "selected";
+  variant?: string;
   dimensions?: Types.Dimensions | null | undefined;
   hidden?: boolean;
   dragging?: boolean;

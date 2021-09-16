@@ -8,10 +8,8 @@ import FloatingRect from "./FloatingRect";
 
 describe("<FloatingRect />", () => {
   test("renders", () => {
-    render(<FloatingRect variant="selected" />);
-    const element = document.querySelector(
-      ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--selected"
-    );
+    render(<FloatingRect />);
+    const element = document.querySelector(".Spreadsheet__floating-rect");
     expect(element).not.toBeNull();
     if (!element) {
       throw new Error("element must be defined");
@@ -26,12 +24,9 @@ describe("<FloatingRect />", () => {
     render(
       <FloatingRect
         dimensions={{ left: 100, top: 100, width: 100, height: 100 }}
-        variant="selected"
       />
     );
-    const element = document.querySelector(
-      ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--selected"
-    );
+    const element = document.querySelector(".Spreadsheet__floating-rect");
     if (!element) {
       throw new Error("element must be defined");
     }
@@ -42,7 +37,7 @@ describe("<FloatingRect />", () => {
     expect(style.height).toBe("100px");
   });
   test("renders hidden", () => {
-    render(<FloatingRect hidden variant="selected" />);
+    render(<FloatingRect hidden />);
     expect(
       document.querySelectorAll(
         ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--hidden"
@@ -50,10 +45,18 @@ describe("<FloatingRect />", () => {
     ).toBe(1);
   });
   test("renders dragging", () => {
-    render(<FloatingRect dragging variant="selected" />);
+    render(<FloatingRect dragging />);
     expect(
       document.querySelectorAll(
         ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--dragging"
+      ).length
+    ).toBe(1);
+  });
+  test("renders variant", () => {
+    render(<FloatingRect variant="selected" />);
+    expect(
+      document.querySelectorAll(
+        ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--selected"
       ).length
     ).toBe(1);
   });

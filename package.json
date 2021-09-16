@@ -50,6 +50,7 @@
     "@storybook/manager-webpack5": "^6.3.8",
     "@storybook/react": "^6.3.8",
     "@storybook/theming": "^6.3.8",
+    "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.7.10",
@@ -90,6 +91,12 @@
     "preset": "ts-jest",
     "testPathIgnorePatterns": [
       "dist"
+    ],
+    "moduleNameMapper": {
+      "\\.css$": "<rootDir>/src/__mocks__/style-mock.ts"
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/jest-setup.ts"
     ]
   },
   "eslintConfig": {
