@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { render, getAllByText } from "@testing-library/react";
+import { fireEvent, render, getAllByText } from "@testing-library/react";
 import Spreadsheet, { Props } from "./Spreadsheet";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
@@ -22,46 +22,69 @@ const COLUMNS = 4;
 const EXAMPLE_DATA = createEmptyMatrix<CellType>(ROWS, COLUMNS);
 const EXAMPLE_PROPS: Props<CellType> = {
   data: EXAMPLE_DATA,
+  onChange: jest.fn(),
 };
-const EXAMPLE_CELL: CellType = { value: "EXAMPLE_VALUE" };
+const EXAMPLE_VALUE: Value = "EXAMPLE_VALUE";
+const EXAMPLE_CELL: CellType = { value: EXAMPLE_VALUE };
 const EXAMPLE_MODIFIED_DATA = Matrix.set(
   Point.ORIGIN,
   EXAMPLE_CELL,
   EXAMPLE_DATA
 );
 
+beforeAll(() => {
+  jest.clearAllMocks();
+});
+
 describe("<Spreadsheet />", () => {
   test("renders", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
     const element = document.querySelector(".Spreadsheet");
-    expect(element).not.toBeNull();
-    const table = document.querySelector(
-      ".Spreadsheet table.Spreadsheet__table"
-    );
-    expect(table).not.toBeNull();
-    const trs = document.querySelectorAll(".Spreadsheet table tr");
+    if (!element) {
+      throw new Error("element must be defined");
+    }
+    const table = element.querySelector("table.Spreadsheet__table");
+    if (!table) {
+      throw new Error("table must be defined");
+    }
+    const trs = table.querySelectorAll("tr");
     expect(trs.length).toBe(ROWS + 1);
-    const tds = document.querySelectorAll(
-      ".Spreadsheet table.Spreadsheet__table tr td.Spreadsheet__cell"
-    );
+    const tds = table.querySelectorAll("tr td.Spreadsheet__cell");
     expect(tds.length).toBe(ROWS * COLUMNS);
-    const ths = document.querySelectorAll(
-      ".Spreadsheet table.Spreadsheet__table tr th.Spreadsheet__header"
-    );
+    const ths = table.querySelectorAll("tr th.Spreadsheet__header");
     expect(ths.length).toBe(ROWS + COLUMNS + 1);
+    // Make sure active cell is not rendered before a cell is activated
+    expect(element.querySelector(".Spreadsheet__active-cell")).toBeNull();
+
+    const cell = tds.item(0);
+    fireEvent.mouseDown(cell);
+    const activeCell = element.querySelector(
+      ".Spreadsheet__active-cell.Spreadsheet__active-cell--view"
+    );
+    if (!activeCell) {
+      throw new Error("active cell must be defined");
+    }
+    fireEvent.keyDown(activeCell, {
+      key: "Enter",
+    });
+    expect(
+      activeCell.classList.contains("Spreadsheet__active-cell--edit")
+    ).toBe(true);
+    const input = activeCell.querySelector("input");
+    if (!input) {
+      throw new Error("input must be defined");
+    }
+    fireEvent.change(input, {
+      target: {
+        value: EXAMPLE_VALUE,
+      },
+    });
+    expect(EXAMPLE_PROPS.onChange).toBeCalledTimes(1);
+    expect(EXAMPLE_PROPS.onChange).toBeCalledWith(EXAMPLE_MODIFIED_DATA);
   });
   test("handles external change of data correctly", () => {
-    const onChange = jest.fn();
-    const { rerender } = render(
-      <Spreadsheet {...EXAMPLE_PROPS} onChange={onChange} />
-    );
-    rerender(
-      <Spreadsheet
-        {...EXAMPLE_PROPS}
-        data={EXAMPLE_MODIFIED_DATA}
-        onChange={onChange}
-      />
-    );
+    const { rerender } = render(<Spreadsheet {...EXAMPLE_PROPS} />);
+    rerender(<Spreadsheet {...EXAMPLE_PROPS} data={EXAMPLE_MODIFIED_DATA} />);
     const element = document.querySelector<HTMLElement>(".Spreadsheet");
     expect(element).not.toBeNull();
     if (!element) {
@@ -71,7 +94,7 @@ describe("<Spreadsheet />", () => {
     expect(matchingCells.length).toBe(1);
     const [textSpan] = matchingCells;
     expect(textSpan).not.toBeNull();
-    expect(onChange).toBeCalledTimes(0);
+    expect(EXAMPLE_PROPS.onChange).toBeCalledTimes(0);
     if (!textSpan.parentElement) {
       throw new Error("textSpan must have a parent element");
     }
