@@ -82,11 +82,15 @@ describe("<Spreadsheet />", () => {
     expect(element.querySelector(".Spreadsheet__active-cell")).toBeNull();
     fireEvent.mouseDown(cell);
     const activeCell = element.querySelector(".Spreadsheet__active-cell");
+    const selected = element.querySelector(
+      ".Spreadsheet__floating-rect--selected"
+    );
     expect(activeCell).toHaveClass("Spreadsheet__active-cell--view");
     expect(activeCell).not.toBeNull();
     expect(cell.getBoundingClientRect()).toEqual(
       activeCell?.getBoundingClientRect()
     );
+    expect(selected).toHaveClass("Spreadsheet__floating-rect--hidden");
     expect(onActivate).toHaveBeenCalledTimes(1);
     expect(onActivate).toHaveBeenCalledWith(Point.ORIGIN);
   });
