@@ -39,119 +39,128 @@ beforeAll(() => {
 describe("<Spreadsheet />", () => {
   test("renders", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
-    const element = document.querySelector(".Spreadsheet");
-    expectNotToBeNull(element);
-    const table = element.querySelector("table.Spreadsheet__table");
-    expectNotToBeNull(table);
+    // Get elements
+    const element = safeQuerySelector(document, ".Spreadsheet");
+    const table = safeQuerySelector(element, "table.Spreadsheet__table");
+    const selected = safeQuerySelector(
+      element,
+      ".Spreadsheet__floating-rect--selected"
+    );
+    const copied = safeQuerySelector(
+      element,
+      ".Spreadsheet__floating-rect--copied"
+    );
+    // Check all sub elements are rendered correctly
     const trs = table.querySelectorAll("tr");
     expect(trs).toHaveLength(ROWS + 1);
     const tds = table.querySelectorAll("tr td.Spreadsheet__cell");
     expect(tds).toHaveLength(ROWS * COLUMNS);
     const ths = table.querySelectorAll("tr th.Spreadsheet__header");
     expect(ths).toHaveLength(ROWS + COLUMNS + 1);
-    // Make sure active cell is not rendered before a cell is activated
+    // Check active cell is not rendered
     expect(element.querySelector(".Spreadsheet__active-cell")).toBeNull();
     // Make sure selected is hidden
-    expectNotToBeNull(
-      element.querySelector(
-        ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--selected.Spreadsheet__floating-rect--hidden"
-      )
-    );
+    expect(selected).toHaveClass("Spreadsheet__floating-rect--hidden");
     // Make sure copied is hidden
-    expectNotToBeNull(
-      element.querySelector(
-        ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--copied.Spreadsheet__floating-rect--hidden"
-      )
-    );
+    expect(copied).toHaveClass("Spreadsheet__floating-rect--hidden");
   });
   test("click activates cell", () => {
     const onActivate = jest.fn();
     render(<Spreadsheet {...EXAMPLE_PROPS} onActivate={onActivate} />);
-    const element = document.querySelector(".Spreadsheet");
-    expectNotToBeNull(element);
-    const cell = element.querySelector("td");
-    expectNotToBeNull(cell);
-    expect(element.querySelector(".Spreadsheet__active-cell")).toBeNull();
-    fireEvent.mouseDown(cell);
-    const activeCell = element.querySelector(".Spreadsheet__active-cell");
-    const selected = element.querySelector(
+    // Get elements
+    const element = safeQuerySelector(document, ".Spreadsheet");
+    const cell = safeQuerySelector(element, "td");
+    const selected = safeQuerySelector(
+      element,
       ".Spreadsheet__floating-rect--selected"
     );
+    // Select a cell
+    fireEvent.mouseDown(cell);
+    // Get active cell
+    const activeCell = safeQuerySelector(element, ".Spreadsheet__active-cell");
     expect(activeCell).toHaveClass("Spreadsheet__active-cell--view");
-    expectNotToBeNull(activeCell);
     expect(cell.getBoundingClientRect()).toEqual(
       activeCell?.getBoundingClientRect()
     );
+    // Check selected is not hidden
     expect(selected).toHaveClass("Spreadsheet__floating-rect--hidden");
+    // Check onActivate is called
     expect(onActivate).toHaveBeenCalledTimes(1);
     expect(onActivate).toHaveBeenCalledWith(Point.ORIGIN);
   });
   test("pressing Enter when a cell is active enters to edit mode", () => {
     const onModeChange = jest.fn();
     render(<Spreadsheet {...EXAMPLE_PROPS} onModeChange={onModeChange} />);
-    const element = document.querySelector(".Spreadsheet");
-    const cell = element?.querySelector("td");
-    expectNotToBeNull(cell);
+    // Get elements
+    const element = safeQuerySelector(document, ".Spreadsheet");
+    const cell = safeQuerySelector(element, "td");
+    // Select cell
     fireEvent.mouseDown(cell);
-    const activeCell = element?.querySelector(".Spreadsheet__active-cell");
-    expectNotToBeNull(activeCell);
+    // Get active cell
+    const activeCell = safeQuerySelector(element, ".Spreadsheet__active-cell");
+    // Press Enter
     fireEvent.keyDown(activeCell, {
       key: "Enter",
     });
     // Check mode has changed to edit
     expect(activeCell).toHaveClass("Spreadsheet__active-cell--edit");
-    const input = activeCell.querySelector("input");
-    expectNotToBeNull(input);
+    // Get input
+    const input = safeQuerySelector(activeCell, "input");
     expect(input).toHaveFocus();
+    // Check onModeChange is called
     expect(onModeChange).toHaveBeenCalledTimes(1);
     expect(onModeChange).toHaveBeenCalledWith("edit");
   });
   test("input triggers onChange", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
-    const element = document.querySelector(".Spreadsheet");
-    const cell = element?.querySelector("td");
-    expectNotToBeNull(cell);
+    // Get elements
+    const element = safeQuerySelector(document, ".Spreadsheet");
+    const cell = safeQuerySelector(element, "td");
+    // Select cell
     fireEvent.mouseDown(cell);
-    const activeCell = element?.querySelector(".Spreadsheet__active-cell");
-    expectNotToBeNull(activeCell);
+    // Get active cell
+    const activeCell = safeQuerySelector(element, ".Spreadsheet__active-cell");
+    // Press Enter
     fireEvent.keyDown(activeCell, {
       key: "Enter",
     });
-    const input = activeCell.querySelector("input");
-    expectNotToBeNull(input);
+    // Get input
+    const input = safeQuerySelector(activeCell, "input");
+    // Change input
     fireEvent.change(input, {
       target: {
         value: EXAMPLE_VALUE,
       },
     });
+    // Check onChange is called
     expect(EXAMPLE_PROPS.onChange).toBeCalledTimes(1);
     expect(EXAMPLE_PROPS.onChange).toBeCalledWith(EXAMPLE_MODIFIED_DATA);
   });
   test("handles external change of data correctly", () => {
     const { rerender } = render(<Spreadsheet {...EXAMPLE_PROPS} />);
     rerender(<Spreadsheet {...EXAMPLE_PROPS} data={EXAMPLE_MODIFIED_DATA} />);
-    const matchingCells = screen.getAllByText(EXAMPLE_CELL.value);
-    expect(matchingCells).toHaveLength(1);
-    const [textSpan] = matchingCells;
-    expectNotToBeNull(textSpan);
-    expect(EXAMPLE_PROPS.onChange).toBeCalledTimes(0);
-    expectNotToBeNull(textSpan.parentElement);
+    // Get text span
+    const matchingElements = screen.getAllByText(EXAMPLE_CELL.value);
+    expect(matchingElements).toHaveLength(1);
+    const [textSpan] = matchingElements;
+    // Get cell
     const cell = textSpan.parentElement;
-    expectNotToBeNull(cell.parentElement);
+    expectNotToBeNull(cell);
+    // Get row
     const row = cell.parentElement;
-    const rowChildren = Array.from(row.children);
+    expectNotToBeNull(row);
     // Make sure the cell is in the right column
-    expect(rowChildren.indexOf(cell)).toBe(1);
-    expectNotToBeNull(row.parentElement);
+    expect(getHTMLCollectionIndexOf(row.children, cell)).toBe(1);
+    // Get table
     const table = row.parentElement;
-    const tableChildren = Array.from(table.children);
+    expectNotToBeNull(table);
     // Make sure the cell is in the right row
-    expect(tableChildren.indexOf(row)).toBe(1);
+    expect(getHTMLCollectionIndexOf(table.children, row)).toBe(1);
   });
   test("renders class name", () => {
     const EXAMPLE_CLASS_NAME = "EXAMPLE_CLASS_NAME";
     render(<Spreadsheet {...EXAMPLE_PROPS} className={EXAMPLE_CLASS_NAME} />);
-    const element = document.querySelector(".Spreadsheet");
+    const element = safeQuerySelector(document, ".Spreadsheet");
     expect(element).toHaveClass(EXAMPLE_CLASS_NAME);
   });
   test("setting hideColumnIndicators hides column indicators", () => {
@@ -167,15 +176,36 @@ describe("<Spreadsheet />", () => {
   test("calls onKeyDown on key down", () => {
     const onKeyDown = jest.fn();
     render(<Spreadsheet {...EXAMPLE_PROPS} onKeyDown={onKeyDown} />);
-    const element = document.querySelector(".Spreadsheet");
-    expectNotToBeNull(element);
+    const element = safeQuerySelector(document, ".Spreadsheet");
     fireEvent.keyDown(element, "Enter");
     expect(onKeyDown).toHaveBeenCalledTimes(1);
   });
 });
 
+/** Like .querySelector() but throws for no match */
+function safeQuerySelector<T extends Element = Element>(
+  node: ParentNode,
+  selector: string
+): T {
+  const element = node.querySelector<T>(selector);
+  if (!element) {
+    throw new Error(`Selector ${selector} has no matching elements`);
+  }
+  return element;
+}
+
+/** Wrapper for expect(actual).not.toBeNull() with type assertion */
 function expectNotToBeNull<T>(
   actual: T | null | undefined
 ): asserts actual is T {
   expect(actual).not.toBe(null);
+}
+
+/** Like index of for HTMLCollection */
+function getHTMLCollectionIndexOf(
+  collection: HTMLCollection,
+  element: Element
+): number {
+  const items = Array.from(collection);
+  return items.indexOf(element);
 }
