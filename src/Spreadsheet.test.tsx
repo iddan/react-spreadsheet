@@ -235,6 +235,24 @@ describe("<Spreadsheet />", () => {
     );
     expect(rowLabels).toEqual(EXAMPLE_ROW_LABELS);
   });
+  test("setting column labels changes colum indicators labels", () => {
+    const EXAMPLE_COLUMN_LABELS = ["First", "Second", "Third", "Fourth"];
+    render(
+      <Spreadsheet {...EXAMPLE_PROPS} columnLabels={EXAMPLE_COLUMN_LABELS} />
+    );
+    const element = getSpreadsheetElement();
+    // Get column label elements.
+    // Select from first row as it holds all the column indicators
+    // Do not select first child as it is corner indicator
+    const columnLabelElements = element.querySelectorAll(
+      "tr:first-child th:not(:first-child)"
+    );
+    const columnLabels = Array.from(
+      columnLabelElements,
+      (element) => element.textContent
+    );
+    expect(columnLabels).toEqual(EXAMPLE_COLUMN_LABELS);
+  });
 });
 
 /** Like .querySelector() but throws for no match */
