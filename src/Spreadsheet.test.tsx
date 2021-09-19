@@ -66,7 +66,14 @@ describe("<Spreadsheet />", () => {
   });
   test("click activates cell", () => {
     const onActivate = jest.fn();
-    render(<Spreadsheet {...EXAMPLE_PROPS} onActivate={onActivate} />);
+    const onSelect = jest.fn();
+    render(
+      <Spreadsheet
+        {...EXAMPLE_PROPS}
+        onActivate={onActivate}
+        onSelect={onSelect}
+      />
+    );
     // Get elements
     const element = safeQuerySelector(document, ".Spreadsheet");
     const cell = safeQuerySelector(element, "td");
@@ -87,6 +94,9 @@ describe("<Spreadsheet />", () => {
     // Check onActivate is called
     expect(onActivate).toHaveBeenCalledTimes(1);
     expect(onActivate).toHaveBeenCalledWith(Point.ORIGIN);
+    // Check onSelect is called
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onSelect).toHaveBeenCalledWith([Point.ORIGIN]);
   });
   test("pressing Enter when a cell is active enters to edit mode", () => {
     const onModeChange = jest.fn();
@@ -180,18 +190,22 @@ describe("<Spreadsheet />", () => {
     fireEvent.keyDown(element, "Enter");
     expect(onKeyDown).toHaveBeenCalledTimes(1);
   });
-  test("calls onSelect on select", async () => {
+  test("shift-click cell when a cell is activated selects a range of cells", async () => {
     const onSelect = jest.fn();
     render(<Spreadsheet {...EXAMPLE_PROPS} onSelect={onSelect} />);
     // Get elements
     const element = safeQuerySelector(document, ".Spreadsheet");
-    const firstCell = safeQuerySelector(element, "td:nth-of-type(1)");
-    const thirdCell = safeQuerySelector(element, "td:nth-of-type(3)");
+    const firstCell = safeQuerySelector(
+      element,
+      "tr:nth-of-type(2) td:nth-of-type(1)"
+    );
+    const thirdCell = safeQuerySelector(
+      element,
+      "tr:nth-of-type(3) td:nth-of-type(2)"
+    );
     // Activate a cell
     fireEvent.mouseDown(firstCell);
-    // Check onSelect is called on activation with the activated cell
-    expect(onSelect).toBeCalledTimes(1);
-    expect(onSelect).toBeCalledWith([Point.ORIGIN]);
+    // Clear onSelect previous calls
     onSelect.mockClear();
     // Select range of cells
     fireEvent.mouseDown(thirdCell, {
@@ -202,7 +216,8 @@ describe("<Spreadsheet />", () => {
     expect(onSelect).toBeCalledWith([
       { row: 0, column: 0 },
       { row: 0, column: 1 },
-      { row: 0, column: 2 },
+      { row: 1, column: 0 },
+      { row: 1, column: 1 },
     ]);
   });
 });
