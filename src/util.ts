@@ -3,6 +3,8 @@ import * as Types from "./types";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import * as PointRange from "./point-range";
+import * as PointMap from "./point-map";
+import * as PointSet from "./point-set";
 import * as Formula from "./formula";
 
 export { createEmpty as createEmptyMatrix } from "./matrix";
@@ -203,4 +205,16 @@ export function calculateSpreadsheetSize(
     rows: rowLabels ? Math.max(rows, rowLabels.length) : rows,
     columns: columnLabels ? Math.max(columns, columnLabels.length) : columns,
   };
+}
+
+/** Get the range of copied cells. If none are copied return null */
+export function getCopiedRange(
+  copied: Types.StoreState["copied"],
+  hasPasted: boolean
+): PointRange.PointRange | null {
+  if (hasPasted || PointMap.isEmpty(copied)) {
+    return null;
+  }
+  const set: PointSet.PointSet = PointMap.map(() => true, copied);
+  return PointSet.toRange(set);
 }

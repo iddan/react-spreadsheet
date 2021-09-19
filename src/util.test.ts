@@ -27,6 +27,7 @@ import {
   getOffsetRect,
   readTextFromClipboard,
   normalizeSelected,
+  getCopiedRange,
 } from "./util";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
@@ -95,6 +96,8 @@ const MOCK_FORMULA_PARSER = {
 } as unknown as FormulaParser;
 const EXAMPLE_FORMULA_RESULT = true;
 const EXAMPLE_FORMULA_ERROR = "EXAMPLE_ERROR";
+const EXAMPLE_EMPTY_COPIED = PointMap.from<Types.CellBase>([]);
+const EXAMPLE_COPIED = PointMap.from([[Point.ORIGIN, EXAMPLE_CELL]]);
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -447,5 +450,21 @@ describe("normalizeSelected()", () => {
     expect(normalizeSelected(EXAMPLE_RANGE, EXAMPLE_DATA)).toEqual(
       PointRange.create(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA))
     );
+  });
+});
+
+describe("getCopiedRange()", () => {
+  const cases = [
+    [
+      "Returns range of copied cells",
+      EXAMPLE_COPIED,
+      false,
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+    ],
+    ["Returns null if none is copied", EXAMPLE_EMPTY_COPIED, false, null],
+    ["Returns null if hasPasted is true", EXAMPLE_COPIED, true, null],
+  ] as const;
+  test.each(cases)("%s", (name, copied, hasPasted, expected) => {
+    expect(getCopiedRange(copied, hasPasted)).toEqual(expected);
   });
 });
