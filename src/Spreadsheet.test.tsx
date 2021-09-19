@@ -40,7 +40,7 @@ describe("<Spreadsheet />", () => {
   test("renders", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
     // Get elements
-    const element = safeQuerySelector(document, ".Spreadsheet");
+    const element = getSpreadsheetElement();
     const table = safeQuerySelector(element, "table.Spreadsheet__table");
     const selected = safeQuerySelector(
       element,
@@ -75,7 +75,7 @@ describe("<Spreadsheet />", () => {
       />
     );
     // Get elements
-    const element = safeQuerySelector(document, ".Spreadsheet");
+    const element = getSpreadsheetElement();
     const cell = safeQuerySelector(element, "td");
     const selected = safeQuerySelector(
       element,
@@ -102,7 +102,7 @@ describe("<Spreadsheet />", () => {
     const onModeChange = jest.fn();
     render(<Spreadsheet {...EXAMPLE_PROPS} onModeChange={onModeChange} />);
     // Get elements
-    const element = safeQuerySelector(document, ".Spreadsheet");
+    const element = getSpreadsheetElement();
     const cell = safeQuerySelector(element, "td");
     // Select cell
     fireEvent.mouseDown(cell);
@@ -124,7 +124,7 @@ describe("<Spreadsheet />", () => {
   test("input triggers onChange", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
     // Get elements
-    const element = safeQuerySelector(document, ".Spreadsheet");
+    const element = getSpreadsheetElement();
     const cell = safeQuerySelector(element, "td");
     // Select cell
     fireEvent.mouseDown(cell);
@@ -170,7 +170,7 @@ describe("<Spreadsheet />", () => {
   test("renders class name", () => {
     const EXAMPLE_CLASS_NAME = "EXAMPLE_CLASS_NAME";
     render(<Spreadsheet {...EXAMPLE_PROPS} className={EXAMPLE_CLASS_NAME} />);
-    const element = safeQuerySelector(document, ".Spreadsheet");
+    const element = getSpreadsheetElement();
     expect(element).toHaveClass(EXAMPLE_CLASS_NAME);
   });
   test("setting hideColumnIndicators hides column indicators", () => {
@@ -186,7 +186,7 @@ describe("<Spreadsheet />", () => {
   test("calls onKeyDown on key down", () => {
     const onKeyDown = jest.fn();
     render(<Spreadsheet {...EXAMPLE_PROPS} onKeyDown={onKeyDown} />);
-    const element = safeQuerySelector(document, ".Spreadsheet");
+    const element = getSpreadsheetElement();
     fireEvent.keyDown(element, "Enter");
     expect(onKeyDown).toHaveBeenCalledTimes(1);
   });
@@ -194,7 +194,7 @@ describe("<Spreadsheet />", () => {
     const onSelect = jest.fn();
     render(<Spreadsheet {...EXAMPLE_PROPS} onSelect={onSelect} />);
     // Get elements
-    const element = safeQuerySelector(document, ".Spreadsheet");
+    const element = getSpreadsheetElement();
     const firstCell = safeQuerySelector(
       element,
       "tr:nth-of-type(2) td:nth-of-type(1)"
@@ -219,6 +219,21 @@ describe("<Spreadsheet />", () => {
       { row: 1, column: 0 },
       { row: 1, column: 1 },
     ]);
+  });
+  test("setting row labels changes row indicators labels", () => {
+    const EXAMPLE_ROW_LABELS = ["A", "B", "C", "D"];
+    render(<Spreadsheet {...EXAMPLE_PROPS} rowLabels={EXAMPLE_ROW_LABELS} />);
+    const element = getSpreadsheetElement();
+    // Get row label elements.
+    // Do not select from first row because it only contains corner and column indicators
+    const rowLabelElements = element.querySelectorAll(
+      "tr:not(:first-child) th"
+    );
+    const rowLabels = Array.from(
+      rowLabelElements,
+      (element) => element.textContent
+    );
+    expect(rowLabels).toEqual(EXAMPLE_ROW_LABELS);
   });
 });
 
@@ -248,4 +263,8 @@ function getHTMLCollectionIndexOf(
 ): number {
   const items = Array.from(collection);
   return items.indexOf(element);
+}
+
+function getSpreadsheetElement(): Element {
+  return safeQuerySelector(document, ".Spreadsheet");
 }
