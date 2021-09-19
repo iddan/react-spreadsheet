@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import Spreadsheet, { Props } from "./Spreadsheet";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
@@ -179,6 +179,31 @@ describe("<Spreadsheet />", () => {
     const element = safeQuerySelector(document, ".Spreadsheet");
     fireEvent.keyDown(element, "Enter");
     expect(onKeyDown).toHaveBeenCalledTimes(1);
+  });
+  test("calls onSelect on select", async () => {
+    const onSelect = jest.fn();
+    render(<Spreadsheet {...EXAMPLE_PROPS} onSelect={onSelect} />);
+    // Get elements
+    const element = safeQuerySelector(document, ".Spreadsheet");
+    const firstCell = safeQuerySelector(element, "td:nth-of-type(1)");
+    const thirdCell = safeQuerySelector(element, "td:nth-of-type(3)");
+    // Activate a cell
+    fireEvent.mouseDown(firstCell);
+    // Check onSelect is called on activation with the activated cell
+    expect(onSelect).toBeCalledTimes(1);
+    expect(onSelect).toBeCalledWith([Point.ORIGIN]);
+    onSelect.mockClear();
+    // Select range of cells
+    fireEvent.mouseDown(thirdCell, {
+      shiftKey: true,
+    });
+    // Check onSelect is called with the range of cells on selection
+    expect(onSelect).toBeCalledTimes(1);
+    expect(onSelect).toBeCalledWith([
+      { row: 0, column: 0 },
+      { row: 0, column: 1 },
+      { row: 0, column: 2 },
+    ]);
   });
 });
 
