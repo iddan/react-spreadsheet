@@ -40,13 +40,9 @@ describe("<Spreadsheet />", () => {
   test("renders", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
     const element = document.querySelector(".Spreadsheet");
-    if (!element) {
-      throw new Error("element must be defined");
-    }
+    expectNotToBeNull(element);
     const table = element.querySelector("table.Spreadsheet__table");
-    if (!table) {
-      throw new Error("table must be defined");
-    }
+    expectNotToBeNull(table);
     const trs = table.querySelectorAll("tr");
     expect(trs).toHaveLength(ROWS + 1);
     const tds = table.querySelectorAll("tr td.Spreadsheet__cell");
@@ -56,29 +52,25 @@ describe("<Spreadsheet />", () => {
     // Make sure active cell is not rendered before a cell is activated
     expect(element.querySelector(".Spreadsheet__active-cell")).toBeNull();
     // Make sure selected is hidden
-    expect(
+    expectNotToBeNull(
       element.querySelector(
         ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--selected.Spreadsheet__floating-rect--hidden"
       )
-    ).not.toBeNull();
+    );
     // Make sure copied is hidden
-    expect(
+    expectNotToBeNull(
       element.querySelector(
         ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--copied.Spreadsheet__floating-rect--hidden"
       )
-    ).not.toBeNull();
+    );
   });
   test("click activates cell", () => {
     const onActivate = jest.fn();
     render(<Spreadsheet {...EXAMPLE_PROPS} onActivate={onActivate} />);
     const element = document.querySelector(".Spreadsheet");
-    if (!element) {
-      throw new Error("element must be defined");
-    }
+    expectNotToBeNull(element);
     const cell = element.querySelector("td");
-    if (!cell) {
-      throw new Error("cell must be defined");
-    }
+    expectNotToBeNull(cell);
     expect(element.querySelector(".Spreadsheet__active-cell")).toBeNull();
     fireEvent.mouseDown(cell);
     const activeCell = element.querySelector(".Spreadsheet__active-cell");
@@ -86,7 +78,7 @@ describe("<Spreadsheet />", () => {
       ".Spreadsheet__floating-rect--selected"
     );
     expect(activeCell).toHaveClass("Spreadsheet__active-cell--view");
-    expect(activeCell).not.toBeNull();
+    expectNotToBeNull(activeCell);
     expect(cell.getBoundingClientRect()).toEqual(
       activeCell?.getBoundingClientRect()
     );
@@ -99,23 +91,17 @@ describe("<Spreadsheet />", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} onModeChange={onModeChange} />);
     const element = document.querySelector(".Spreadsheet");
     const cell = element?.querySelector("td");
-    if (!cell) {
-      throw new Error("cell must be defined");
-    }
+    expectNotToBeNull(cell);
     fireEvent.mouseDown(cell);
     const activeCell = element?.querySelector(".Spreadsheet__active-cell");
-    if (!activeCell) {
-      throw new Error("active cell must be defined");
-    }
+    expectNotToBeNull(activeCell);
     fireEvent.keyDown(activeCell, {
       key: "Enter",
     });
     // Check mode has changed to edit
     expect(activeCell).toHaveClass("Spreadsheet__active-cell--edit");
     const input = activeCell.querySelector("input");
-    if (!input) {
-      throw new Error("input must be defined");
-    }
+    expectNotToBeNull(input);
     expect(input).toHaveFocus();
     expect(onModeChange).toHaveBeenCalledTimes(1);
     expect(onModeChange).toHaveBeenCalledWith("edit");
@@ -124,21 +110,15 @@ describe("<Spreadsheet />", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
     const element = document.querySelector(".Spreadsheet");
     const cell = element?.querySelector("td");
-    if (!cell) {
-      throw new Error("cell must be defined");
-    }
+    expectNotToBeNull(cell);
     fireEvent.mouseDown(cell);
     const activeCell = element?.querySelector(".Spreadsheet__active-cell");
-    if (!activeCell) {
-      throw new Error("active cell must be defined");
-    }
+    expectNotToBeNull(activeCell);
     fireEvent.keyDown(activeCell, {
       key: "Enter",
     });
     const input = activeCell.querySelector("input");
-    if (!input) {
-      throw new Error("input must be defined");
-    }
+    expectNotToBeNull(input);
     fireEvent.change(input, {
       target: {
         value: EXAMPLE_VALUE,
@@ -153,22 +133,16 @@ describe("<Spreadsheet />", () => {
     const matchingCells = screen.getAllByText(EXAMPLE_CELL.value);
     expect(matchingCells).toHaveLength(1);
     const [textSpan] = matchingCells;
-    expect(textSpan).not.toBeNull();
+    expectNotToBeNull(textSpan);
     expect(EXAMPLE_PROPS.onChange).toBeCalledTimes(0);
-    if (!textSpan.parentElement) {
-      throw new Error("textSpan must have a parent element");
-    }
+    expectNotToBeNull(textSpan.parentElement);
     const cell = textSpan.parentElement;
-    if (!cell.parentElement) {
-      throw new Error("cell must have a parent element");
-    }
+    expectNotToBeNull(cell.parentElement);
     const row = cell.parentElement;
     const rowChildren = Array.from(row.children);
     // Make sure the cell is in the right column
     expect(rowChildren.indexOf(cell)).toBe(1);
-    if (!row.parentElement) {
-      throw new Error("row must have a parent element");
-    }
+    expectNotToBeNull(row.parentElement);
     const table = row.parentElement;
     const tableChildren = Array.from(table.children);
     // Make sure the cell is in the right row
@@ -194,10 +168,14 @@ describe("<Spreadsheet />", () => {
     const onKeyDown = jest.fn();
     render(<Spreadsheet {...EXAMPLE_PROPS} onKeyDown={onKeyDown} />);
     const element = document.querySelector(".Spreadsheet");
-    if (!element) {
-      throw new Error("element must be defined");
-    }
+    expectNotToBeNull(element);
     fireEvent.keyDown(element, "Enter");
     expect(onKeyDown).toHaveBeenCalledTimes(1);
   });
 });
+
+function expectNotToBeNull<T>(
+  actual: T | null | undefined
+): asserts actual is T {
+  expect(actual).not.toBe(null);
+}
