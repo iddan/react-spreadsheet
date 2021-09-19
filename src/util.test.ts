@@ -28,6 +28,9 @@ import {
   readTextFromClipboard,
   normalizeSelected,
   getCopiedRange,
+  transformCoordToPoint,
+  getCellValue,
+  getCellRangeValue,
 } from "./util";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
@@ -467,4 +470,32 @@ describe("getCopiedRange()", () => {
   test.each(cases)("%s", (name, copied, hasPasted, expected) => {
     expect(getCopiedRange(copied, hasPasted)).toEqual(expected);
   });
+});
+
+describe("transformCoordToPoint()", () => {
+  test("transforms coord to point", () => {
+    expect(
+      transformCoordToPoint({
+        row: { index: Point.ORIGIN.row },
+        column: { index: Point.ORIGIN.column },
+      })
+    ).toEqual(Point.ORIGIN);
+  });
+});
+
+describe("getCellValue()", () => {
+  expect(getCellValue(MOCK_FORMULA_PARSER, EXAMPLE_DATA, Point.ORIGIN)).toEqual(
+    null
+  );
+});
+
+describe("getCellRangeValue()", () => {
+  expect(
+    getCellRangeValue(
+      MOCK_FORMULA_PARSER,
+      EXAMPLE_DATA,
+      Point.ORIGIN,
+      Point.ORIGIN
+    )
+  ).toEqual([null]);
 });

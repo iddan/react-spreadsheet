@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import Spreadsheet, { Props } from "./Spreadsheet";
 import * as Matrix from "./matrix";
 import * as Types from "./types";

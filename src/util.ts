@@ -218,3 +218,44 @@ export function getCopiedRange(
   const set: PointSet.PointSet = PointMap.map(() => true, copied);
   return PointSet.toRange(set);
 }
+
+/** Tranform given hot-formula-parser coord to Point.Point */
+export function transformCoordToPoint(coord: {
+  row: { index: number };
+  column: { index: number };
+}): Point.Point {
+  return { row: coord.row.index, column: coord.column.index };
+}
+
+/**
+ * Get cell value for given point from given spreadsheet data with evaluated
+ * cells using given formulaParser
+ */
+export function getCellValue<CellType extends Types.CellBase>(
+  formulaParser: hotFormulaParser.Parser,
+  data: Matrix.Matrix<CellType>,
+  point: Point.Point
+): FormulaParseResult | CellType["value"] | null {
+  return getComputedValue({
+    cell: Matrix.get(point, data),
+    formulaParser,
+  });
+}
+
+/**
+ * Get cell range value for given start and end points from given spreadsheet
+ * data with evaluated cells using given formulaParser
+ */
+export function getCellRangeValue<CellType extends Types.CellBase>(
+  formulaParser: hotFormulaParser.Parser,
+  data: Matrix.Matrix<CellType>,
+  start: Point.Point,
+  end: Point.Point
+): Array<FormulaParseResult | CellType["value"] | null> {
+  return Matrix.toArray(Matrix.slice(start, end, data), (cell) =>
+    getComputedValue({
+      cell,
+      formulaParser,
+    })
+  );
+}

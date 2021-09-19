@@ -34,9 +34,11 @@ import {
   range,
   readTextFromClipboard,
   writeTextToClipboard,
-  getComputedValue,
   getSelectedCSV,
   calculateSpreadsheetSize,
+  transformCoordToPoint,
+  getCellRangeValue,
+  getCellValue,
 } from "./util";
 import "./Spreadsheet.css";
 
@@ -388,15 +390,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     formulaParser.on("callCellValue", (cellCoord, done) => {
       let value;
       try {
-        const point = {
-          row: cellCoord.row.index,
-          column: cellCoord.column.index,
-        };
-        const cell = Matrix.get(point, store.getState().data);
-        value = getComputedValue<CellType, CellType["value"]>({
-          cell,
-          formulaParser: formulaParser,
-        });
+        const point = transformCoordToPoint(cellCoord);
+        const data = store.getState().data;
+        value = getCellValue(formulaParser, data, point);
       } catch (error) {
         console.error(error);
       } finally {
@@ -404,24 +400,17 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       }
     });
     formulaParser.on("callRangeValue", (startCellCoord, endCellCoord, done) => {
-      const startPoint = {
-        row: startCellCoord.row.index,
-        column: startCellCoord.column.index,
-      };
-      const endPoint = {
-        row: endCellCoord.row.index,
-        column: endCellCoord.column.index,
-      };
-      const values = Matrix.toArray(
-        Matrix.slice(startPoint, endPoint, store.getState().data),
-        (cell) =>
-          getComputedValue<CellType, CellType["value"]>({
-            cell,
-            formulaParser: formulaParser,
-          })
-      );
-
-      done(values);
+      const startPoint = transformCoordToPoint(startCellCoord);
+      const endPoint = transformCoordToPoint(endCellCoord);
+      const data = store.getState().data;
+      let values;
+      try {
+        values = getCellRangeValue(formulaParser, data, startPoint, endPoint);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        done(values);
+      }
     });
   }, [formulaParser, store, handleCut, handleCopy, handlePaste]);
 
