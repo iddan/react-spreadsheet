@@ -12,7 +12,7 @@ export type Props = {
   onSelect: (row: number) => void;
 };
 
-export const RowIndicator: React.FC<Props> = ({
+const RowIndicator: React.FC<Props> = ({
   row,
   label,
   selected,
