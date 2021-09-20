@@ -135,3 +135,8 @@ export type DataEditorProps<Cell extends CellBase = CellBase> =
 /** Type of the Spreadsheet DataEditor component */
 export type DataEditorComponent<Cell extends CellBase = CellBase> =
   ComponentType<DataEditorProps<Cell>>;
+
+export type CommitChanges<Cell extends CellBase = CellBase> = Array<{
+  prevCell: Cell | null;
+  nextCell: Cell | null;
+}>;

@@ -82,23 +82,37 @@ export function readTextFromClipboard(event: ClipboardEvent): string {
 /** Get the dimensions of cell at point from state */
 export function getCellDimensions(
   point: Point.Point,
-  state: Types.StoreState
+  rowDimensions: Types.StoreState["rowDimensions"] | undefined,
+  columnDimensions: Types.StoreState["columnDimensions"] | undefined
 ): Types.Dimensions | undefined {
-  const rowDimensions = state.rowDimensions[point.row];
-  const columnDimensions = state.columnDimensions[point.column];
+  const cellRowDimensions = rowDimensions && rowDimensions[point.row];
+  const cellColumnDimensions =
+    columnDimensions && columnDimensions[point.column];
   return (
-    rowDimensions &&
-    columnDimensions && { ...rowDimensions, ...columnDimensions }
+    cellRowDimensions &&
+    cellColumnDimensions && {
+      ...cellRowDimensions,
+      ...cellColumnDimensions,
+    }
   );
 }
 
 /** Get the dimensions of a range of cells */
 export function getRangeDimensions(
-  state: Types.StoreState,
+  rowDimensions: Types.StoreState["rowDimensions"],
+  columnDimensions: Types.StoreState["columnDimensions"],
   range: PointRange.PointRange
 ): Types.Dimensions | undefined {
-  const startDimensions = getCellDimensions(range.start, state);
-  const endDimensions = getCellDimensions(range.end, state);
+  const startDimensions = getCellDimensions(
+    range.start,
+    rowDimensions,
+    columnDimensions
+  );
+  const endDimensions = getCellDimensions(
+    range.end,
+    rowDimensions,
+    columnDimensions
+  );
   return (
     startDimensions &&
     endDimensions && {
@@ -208,6 +222,13 @@ export function calculateSpreadsheetSize(
   };
 }
 
+/** Transform given point map to a point set */
+export function convertPointMapToPointSet(
+  map: PointMap.PointMap<unknown>
+): PointSet.PointSet {
+  return PointMap.map(() => true, map);
+}
+
 /** Get the range of copied cells. If none are copied return null */
 export function getCopiedRange(
   copied: Types.StoreState["copied"],
@@ -216,7 +237,7 @@ export function getCopiedRange(
   if (hasPasted || PointMap.isEmpty(copied)) {
     return null;
   }
-  const set: PointSet.PointSet = PointMap.map(() => true, copied);
+  const set = convertPointMapToPointSet(copied);
   return PointSet.toRange(set);
 }
 

@@ -1,22 +1,29 @@
 import * as React from "react";
-import { connect } from "unistore/react";
-import * as Types from "./types";
+import { useContextSelector } from "use-context-selector";
+import FloatingRect from "./FloatingRect";
+import context from "./context";
 import { getCopiedRange, getRangeDimensions } from "./util";
-import FloatingRect, {
-  Props as FloatingRectProps,
-  StateProps,
-} from "./FloatingRect";
 
-type Props = Omit<FloatingRectProps, "variant">;
+const Copied: React.FC = () => {
+  const range = useContextSelector(context, ([state]) =>
+    getCopiedRange(state.copied, state.hasPasted)
+  );
+  const dimensions = useContextSelector(
+    context,
+    ([state]) =>
+      range &&
+      getRangeDimensions(state.rowDimensions, state.columnDimensions, range)
+  );
+  const hidden = range === null;
 
-const Copied: React.FC<Props> = (props) => (
-  <FloatingRect {...props} variant="copied" dragging={false} />
-);
+  return (
+    <FloatingRect
+      variant="copied"
+      dimensions={dimensions}
+      hidden={hidden}
+      dragging={false}
+    />
+  );
+};
 
-export default connect<{}, {}, Types.StoreState, StateProps>((state) => {
-  const range = getCopiedRange(state.copied, state.hasPasted);
-  return {
-    dimensions: range && getRangeDimensions(state, range),
-    hidden: range === null,
-  };
-})(Copied);
+export default Copied;
