@@ -13,6 +13,7 @@ export type FormulaParseResult = string | boolean | number;
 export type FormulaParseError = string;
 
 export const PLAIN_TEXT_MIME = "text/plain";
+export const FOCUS_WITHIN_SELECTOR = ":focus-within";
 
 /** Move the cursor of given input element to the input's end */
 export function moveCursorToEnd(el: HTMLInputElement): void {
@@ -258,4 +259,16 @@ export function getCellRangeValue<CellType extends Types.CellBase>(
       formulaParser,
     })
   );
+}
+
+/** Should spreadsheet handle clipboard event */
+export function shouldHandleClipboardEvent(
+  root: Element | null,
+  mode: Types.Mode
+): boolean {
+  return root !== null && mode === "view" && isFocusedWithin(root);
+}
+
+export function isFocusedWithin(element: Element): boolean {
+  return element.matches(FOCUS_WITHIN_SELECTOR);
 }

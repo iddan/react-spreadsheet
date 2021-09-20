@@ -9,29 +9,7 @@ import * as Point from "./point";
 import * as PointMap from "./point-map";
 import * as PointRange from "./point-range";
 import * as Types from "./types";
-import {
-  moveCursorToEnd,
-  calculateSpreadsheetSize,
-  range,
-  getCellDimensions,
-  getRangeDimensions,
-  isActive,
-  writeTextToClipboard,
-  PLAIN_TEXT_MIME,
-  getComputedValue,
-  getFormulaComputedValue,
-  isFormulaCell,
-  getMatrixRange,
-  getCSV,
-  getSelectedCSV,
-  getOffsetRect,
-  readTextFromClipboard,
-  normalizeSelected,
-  getCopiedRange,
-  transformCoordToPoint,
-  getCellValue,
-  getCellRangeValue,
-} from "./util";
+import * as util from "./util";
 
 const EXAMPLE_INPUT_VALUE = "EXAMPLE_INPUT_VALUE";
 const EXAMPLE_DATA_ROWS_COUNT = 2;
@@ -104,13 +82,14 @@ const EXAMPLE_COPIED = PointMap.from([[Point.ORIGIN, EXAMPLE_CELL]]);
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.restoreAllMocks();
 });
 
 describe("moveCursorToEnd()", () => {
   test("moves cursor to the end", () => {
     const el = document.createElement("input");
     el.value = EXAMPLE_INPUT_VALUE;
-    moveCursorToEnd(el);
+    util.moveCursorToEnd(el);
     expect(el.selectionStart).toBe(EXAMPLE_INPUT_VALUE.length);
     expect(el.selectionEnd).toBe(EXAMPLE_INPUT_VALUE.length);
   });
@@ -121,7 +100,7 @@ describe("range()", () => {
     const end = 10;
     const start = 1;
     const step = 2;
-    const res = range(end, start, step);
+    const res = util.range(end, start, step);
 
     expect(res).toEqual([1, 3, 5, 7, 9]);
   });
@@ -131,7 +110,7 @@ describe("range()", () => {
     const start = -10;
     const step = 2;
 
-    const res = range(end, start, step);
+    const res = util.range(end, start, step);
 
     expect(res).toEqual([-10, -8, -6, -4, -2, 0, 2, 4, 6, 8]);
   });
@@ -139,7 +118,7 @@ describe("range()", () => {
   test("range with larger start to return decreasing series", () => {
     const end = 1;
     const start = 5;
-    const res = range(end, start);
+    const res = util.range(end, start);
 
     expect(res).toEqual([5, 4, 3, 2]);
   });
@@ -147,7 +126,7 @@ describe("range()", () => {
 
 describe("calculateSpreadsheetSize()", () => {
   test("Returns the size of data if row labels and column labels are not defined", () => {
-    expect(calculateSpreadsheetSize(EXAMPLE_DATA)).toStrictEqual({
+    expect(util.calculateSpreadsheetSize(EXAMPLE_DATA)).toStrictEqual({
       rows: EXAMPLE_DATA_ROWS_COUNT,
       columns: EXAMPLE_DATA_COLUMNS_COUNT,
     });
@@ -155,7 +134,7 @@ describe("calculateSpreadsheetSize()", () => {
 
   test("Returns the size of row labels if row labels is longer than data rows", () => {
     expect(
-      calculateSpreadsheetSize(EXAMPLE_DATA, EXAMPLE_ROW_LABELS)
+      util.calculateSpreadsheetSize(EXAMPLE_DATA, EXAMPLE_ROW_LABELS)
     ).toStrictEqual({
       rows: EXAMPLE_ROW_LABELS.length,
       columns: EXAMPLE_DATA_COLUMNS_COUNT,
@@ -164,7 +143,11 @@ describe("calculateSpreadsheetSize()", () => {
 
   test("Returns the size of column labels if column labels is longer than data columns", () => {
     expect(
-      calculateSpreadsheetSize(EXAMPLE_DATA, undefined, EXAMPLE_COLUMN_LABELS)
+      util.calculateSpreadsheetSize(
+        EXAMPLE_DATA,
+        undefined,
+        EXAMPLE_COLUMN_LABELS
+      )
     ).toStrictEqual({
       rows: EXAMPLE_DATA_ROWS_COUNT,
       columns: EXAMPLE_COLUMN_LABELS.length,
@@ -188,7 +171,7 @@ describe("getCellDimensions()", () => {
     ],
   ] as const;
   test.each(cases)("%s", (name, point, state, expected) => {
-    expect(getCellDimensions(point, state)).toEqual(expected);
+    expect(util.getCellDimensions(point, state)).toEqual(expected);
   });
 });
 
@@ -248,7 +231,7 @@ describe("getRangeDimensions()", () => {
     ],
   ] as const;
   test.each(cases)("%s", (name, state, range, expected) => {
-    expect(getRangeDimensions(state, range)).toEqual(expected);
+    expect(util.getRangeDimensions(state, range)).toEqual(expected);
   });
 });
 
@@ -269,7 +252,7 @@ describe("isActive()", () => {
     ],
   ] as const;
   test.each(cases)("%s", (name, active, point, expected) => {
-    expect(isActive(active, point)).toBe(expected);
+    expect(util.isActive(active, point)).toBe(expected);
   });
 });
 
@@ -279,10 +262,10 @@ describe("writeTextToClipboard()", () => {
       setData: jest.fn(),
     },
   };
-  writeTextToClipboard(event as unknown as ClipboardEvent, EXAMPLE_STRING);
+  util.writeTextToClipboard(event as unknown as ClipboardEvent, EXAMPLE_STRING);
   expect(event.clipboardData.setData).toBeCalledTimes(1);
   expect(event.clipboardData.setData).toBeCalledWith(
-    PLAIN_TEXT_MIME,
+    util.PLAIN_TEXT_MIME,
     EXAMPLE_STRING
   );
 });
@@ -290,13 +273,16 @@ describe("writeTextToClipboard()", () => {
 describe("getComputedValue()", () => {
   test("Returns null if cell is not defined", () => {
     expect(
-      getComputedValue({ cell: undefined, formulaParser: MOCK_FORMULA_PARSER })
+      util.getComputedValue({
+        cell: undefined,
+        formulaParser: MOCK_FORMULA_PARSER,
+      })
     ).toBe(null);
     expect(MOCK_FORMULA_PARSER.parse).toBeCalledTimes(0);
   });
   test("Returns value if not formula", () => {
     expect(
-      getComputedValue({
+      util.getComputedValue({
         cell: EXAMPLE_CELL,
         formulaParser: MOCK_FORMULA_PARSER,
       })
@@ -309,7 +295,7 @@ describe("getComputedValue()", () => {
       error: null,
     }));
     expect(
-      getComputedValue({
+      util.getComputedValue({
         cell: EXAMPLE_FORMULA_CELL,
         formulaParser: MOCK_FORMULA_PARSER,
       })
@@ -333,7 +319,7 @@ describe("getFormulaComputedValue()", () => {
   test.each(cases)("%s", (name, expected, mockParseReturn) => {
     MOCK_PARSE.mockImplementationOnce(() => mockParseReturn);
     expect(
-      getFormulaComputedValue({
+      util.getFormulaComputedValue({
         cell: EXAMPLE_FORMULA_CELL,
         formulaParser: MOCK_FORMULA_PARSER,
       })
@@ -351,13 +337,13 @@ describe("isFormulaCell()", () => {
     ["Returns true for formula cell", EXAMPLE_CELL, false],
   ] as const;
   test.each(cases)("%s", (name, cell, expected) => {
-    expect(isFormulaCell(cell)).toBe(expected);
+    expect(util.isFormulaCell(cell)).toBe(expected);
   });
 });
 
 describe("getMatrixRange()", () => {
   test("Returns the point range of given matrix", () => {
-    expect(getMatrixRange(EXAMPLE_DATA)).toEqual(
+    expect(util.getMatrixRange(EXAMPLE_DATA)).toEqual(
       PointRange.create(Point.ORIGIN, {
         row: EXAMPLE_DATA_COLUMNS_COUNT - 1,
         column: EXAMPLE_DATA_ROWS_COUNT - 1,
@@ -368,7 +354,7 @@ describe("getMatrixRange()", () => {
 
 describe("getCSV()", () => {
   test("Returns given data as CSV", () => {
-    expect(getCSV(EXAMPLE_DATA)).toBe(
+    expect(util.getCSV(EXAMPLE_DATA)).toBe(
       Matrix.join(
         Matrix.createEmpty(EXAMPLE_DATA_ROWS_COUNT, EXAMPLE_DATA_COLUMNS_COUNT)
       )
@@ -378,11 +364,11 @@ describe("getCSV()", () => {
 
 describe("getSelectedCSV()", () => {
   test("Returns empty for no selected range", () => {
-    expect(getSelectedCSV(null, EXAMPLE_DATA)).toBe("");
+    expect(util.getSelectedCSV(null, EXAMPLE_DATA)).toBe("");
   });
   test("Returns CSV for selected range", () => {
     expect(
-      getSelectedCSV(
+      util.getSelectedCSV(
         { start: Point.ORIGIN, end: { row: 1, column: 1 } },
         EXAMPLE_DATA
       )
@@ -398,7 +384,7 @@ describe("getOffsetRect()", () => {
       offsetLeft: 42,
       offsetTop: 42,
     } as unknown as HTMLElement;
-    expect(getOffsetRect(MOCK_ELEMENT)).toEqual({
+    expect(util.getOffsetRect(MOCK_ELEMENT)).toEqual({
       width: MOCK_ELEMENT.offsetWidth,
       height: MOCK_ELEMENT.offsetHeight,
       left: MOCK_ELEMENT.offsetLeft,
@@ -410,7 +396,7 @@ describe("getOffsetRect()", () => {
 describe("readTextFromClipboard()", () => {
   test("Returns empty string if no text is defined", () => {
     const EXAMPLE_CLIPBOARD_EVENT = {} as ClipboardEvent;
-    expect(readTextFromClipboard(EXAMPLE_CLIPBOARD_EVENT)).toEqual("");
+    expect(util.readTextFromClipboard(EXAMPLE_CLIPBOARD_EVENT)).toEqual("");
   });
   test("Returns string from event", () => {
     const EXAMPLE_CLIPBOARD_EVENT = {
@@ -418,12 +404,12 @@ describe("readTextFromClipboard()", () => {
         getData: jest.fn(() => EXAMPLE_STRING),
       },
     } as unknown as ClipboardEvent;
-    expect(readTextFromClipboard(EXAMPLE_CLIPBOARD_EVENT)).toEqual(
+    expect(util.readTextFromClipboard(EXAMPLE_CLIPBOARD_EVENT)).toEqual(
       EXAMPLE_STRING
     );
     expect(EXAMPLE_CLIPBOARD_EVENT.clipboardData?.getData).toBeCalledTimes(1);
     expect(EXAMPLE_CLIPBOARD_EVENT.clipboardData?.getData).toBeCalledWith(
-      PLAIN_TEXT_MIME
+      util.PLAIN_TEXT_MIME
     );
   });
   test("Returns string from window", () => {
@@ -434,7 +420,9 @@ describe("readTextFromClipboard()", () => {
     // Define for the test as it is not a native JS-DOM property
     // @ts-ignore
     window.clipboardData = MOCK_CLIPBOARD_DATA;
-    expect(readTextFromClipboard(EXAMPLE_CLIPBOARD_EVENT)).toBe(EXAMPLE_STRING);
+    expect(util.readTextFromClipboard(EXAMPLE_CLIPBOARD_EVENT)).toBe(
+      EXAMPLE_STRING
+    );
     // @ts-ignore
     expect(MOCK_CLIPBOARD_DATA.getData).toBeCalledTimes(1);
     expect(MOCK_CLIPBOARD_DATA.getData).toBeCalledWith("Text");
@@ -450,7 +438,7 @@ describe("normalizeSelected()", () => {
       row: EXAMPLE_DATA_ROWS_COUNT,
       column: EXAMPLE_DATA_COLUMNS_COUNT,
     });
-    expect(normalizeSelected(EXAMPLE_RANGE, EXAMPLE_DATA)).toEqual(
+    expect(util.normalizeSelected(EXAMPLE_RANGE, EXAMPLE_DATA)).toEqual(
       PointRange.create(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA))
     );
   });
@@ -468,14 +456,14 @@ describe("getCopiedRange()", () => {
     ["Returns null if hasPasted is true", EXAMPLE_COPIED, true, null],
   ] as const;
   test.each(cases)("%s", (name, copied, hasPasted, expected) => {
-    expect(getCopiedRange(copied, hasPasted)).toEqual(expected);
+    expect(util.getCopiedRange(copied, hasPasted)).toEqual(expected);
   });
 });
 
 describe("transformCoordToPoint()", () => {
   test("transforms coord to point", () => {
     expect(
-      transformCoordToPoint({
+      util.transformCoordToPoint({
         row: { index: Point.ORIGIN.row },
         column: { index: Point.ORIGIN.column },
       })
@@ -484,18 +472,68 @@ describe("transformCoordToPoint()", () => {
 });
 
 describe("getCellValue()", () => {
-  expect(getCellValue(MOCK_FORMULA_PARSER, EXAMPLE_DATA, Point.ORIGIN)).toEqual(
-    null
-  );
+  expect(
+    util.getCellValue(MOCK_FORMULA_PARSER, EXAMPLE_DATA, Point.ORIGIN)
+  ).toEqual(null);
 });
 
 describe("getCellRangeValue()", () => {
   expect(
-    getCellRangeValue(
+    util.getCellRangeValue(
       MOCK_FORMULA_PARSER,
       EXAMPLE_DATA,
       Point.ORIGIN,
       Point.ORIGIN
     )
   ).toEqual([null]);
+});
+
+describe("shouldHandleClipboardEvent()", () => {
+  const matchesMock = jest.fn();
+  const mockElement = {
+    matches: matchesMock,
+  } as unknown as Element;
+  const cases = [
+    ["return false if root is null", null, false, "view" as Types.Mode, false],
+    [
+      "return false if mode is not view",
+      mockElement,
+      false,
+      "edit" as Types.Mode,
+      false,
+    ],
+    [
+      "return true if root is focused within and mode is view",
+      mockElement,
+      true,
+      "view" as Types.Mode,
+      true,
+    ],
+  ] as const;
+  beforeEach(() => {
+    // Prevent accumulation return values
+    matchesMock.mockReset();
+  });
+  test.each(cases)("%s", (name, root, focusedWithin, mode, expected) => {
+    // Bound to implemnetation of isFocusedWithin()
+    matchesMock.mockReturnValueOnce(focusedWithin);
+    expect(util.shouldHandleClipboardEvent(root, mode)).toBe(expected);
+  });
+});
+
+describe("isFocusedWithin()", () => {
+  const matchesMock = jest.fn();
+  const mockElement = {
+    matches: matchesMock,
+  } as unknown as Element;
+  const cases = [
+    ["matches selector", mockElement, true, true],
+    ["does not match selector", mockElement, false, false],
+  ] as const;
+  test.each(cases)("%s", (name, element, matches, expected) => {
+    matchesMock.mockReturnValueOnce(matches);
+    expect(util.isFocusedWithin(element)).toBe(expected);
+    expect(matchesMock).toBeCalledTimes(1);
+    expect(matchesMock).toBeCalledWith(util.FOCUS_WITHIN_SELECTOR);
+  });
 });

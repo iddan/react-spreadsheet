@@ -39,6 +39,7 @@ import {
   transformCoordToPoint,
   getCellRangeValue,
   getCellValue,
+  shouldHandleClipboardEvent,
 } from "./util";
 import "./Spreadsheet.css";
 
@@ -286,42 +287,33 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     [store]
   );
 
-  const isFocused = React.useCallback(() => {
-    const root = rootRef.current;
-    const { activeElement } = document;
-
-    return mode === "view" && root
-      ? root === activeElement || root.contains(activeElement)
-      : false;
-  }, [rootRef, mode]);
-
   const handleCut = React.useCallback(
     (event: ClipboardEvent) => {
-      if (isFocused()) {
+      if (shouldHandleClipboardEvent(rootRef.current, mode)) {
         event.preventDefault();
         event.stopPropagation();
         clip(event);
         cut();
       }
     },
-    [isFocused, clip, cut]
+    [mode, clip, cut]
   );
 
   const handleCopy = React.useCallback(
     (event: ClipboardEvent) => {
-      if (isFocused()) {
+      if (shouldHandleClipboardEvent(rootRef.current, mode)) {
         event.preventDefault();
         event.stopPropagation();
         clip(event);
         copy();
       }
     },
-    [isFocused, clip, copy]
+    [mode, clip, copy]
   );
 
   const handlePaste = React.useCallback(
-    async (event: ClipboardEvent) => {
-      if (mode === "view" && isFocused()) {
+    (event: ClipboardEvent) => {
+      if (shouldHandleClipboardEvent(rootRef.current, mode)) {
         event.preventDefault();
         event.stopPropagation();
         if (event.clipboardData) {
@@ -330,7 +322,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
         }
       }
     },
-    [mode, isFocused, paste]
+    [mode, paste]
   );
 
   const handleKeyDown = React.useCallback(

@@ -123,10 +123,10 @@ export function cut(state: Types.StoreState): Partial<Types.StoreState> {
   };
 }
 
-export async function paste<Cell extends Types.CellBase>(
+export function paste<Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>,
   text: string
-): Promise<Partial<Types.StoreState<Cell>> | null> {
+): Partial<Types.StoreState<Cell>> | null {
   const { active } = state;
   if (!active) {
     return null;
