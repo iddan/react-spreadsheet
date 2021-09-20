@@ -39,7 +39,7 @@ const ColumnIndicator: React.FC<Props> = ({
 export default ColumnIndicator;
 
 export const enhance = (
-  ColumnIndicatorComponent: React.FC<Props>
+  ColumnIndicatorComponent: React.ComponentType<Props>
 ): React.FC<Omit<Props, "selected" | "onSelect">> => {
   return function ColumnIndicatorWrapper(props) {
     const dispatch = useContextSelector(

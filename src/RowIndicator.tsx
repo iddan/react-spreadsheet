@@ -37,7 +37,7 @@ export const RowIndicator: React.FC<Props> = ({
 export default RowIndicator;
 
 export const enhance = (
-  RowIndicatorComponent: React.FC<Props>
+  RowIndicatorComponent: React.ComponentType<Props>
 ): React.FC<Omit<Props, "selected" | "onSelect">> => {
   return function RowIndicatorWrapper(props) {
     const dispatch = useContextSelector(

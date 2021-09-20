@@ -95,7 +95,7 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
 };
 
 export const enhance = (
-  CellComponent: React.FC<Types.CellComponentProps>
+  CellComponent: React.ComponentType<Types.CellComponentProps>
 ): React.FC<
   Omit<
     Types.CellComponentProps,

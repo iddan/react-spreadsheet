@@ -27,7 +27,7 @@ const CornerIndicator: React.FC<Props> = ({ selected, onSelect }) => {
 export default CornerIndicator;
 
 export const enhance = (
-  CornerIndicatorComponent: React.FC<Props>
+  CornerIndicatorComponent: React.ComponentType<Props>
 ): React.FC<Omit<Props, "selected" | "onSelect">> => {
   return function CornerIndicatorWrapper(props) {
     const dispatch = useContextSelector(

@@ -333,30 +333,22 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     return enhanceCell(props.Cell || DefaultCell);
   }, [props.Cell]);
 
-  const CornerIndicator = React.useMemo((): React.FC<
-    Omit<CornerIndicatorProps, "selected" | "onSelect">
-  > => {
-    // @ts-ignore
-    return enhanceCornerIndicator(
-      props.CornerIndicator || DefaultCornerIndicator
-    );
-  }, [props.CornerIndicator]);
+  const CornerIndicator = React.useMemo(
+    () =>
+      enhanceCornerIndicator(props.CornerIndicator || DefaultCornerIndicator),
+    [props.CornerIndicator]
+  );
 
-  const RowIndicator = React.useMemo((): React.FC<
-    Omit<RowIndicatorProps, "selected" | "onSelect">
-  > => {
-    // @ts-ignore
-    return enhanceRowIndicator(props.RowIndicator || DefaultRowIndicator);
-  }, [props.RowIndicator]);
+  const RowIndicator = React.useMemo(
+    () => enhanceRowIndicator(props.RowIndicator || DefaultRowIndicator),
+    [props.RowIndicator]
+  );
 
-  const ColumnIndicator = React.useMemo((): React.FC<
-    Omit<ColumnIndicatorProps, "selected" | "onSelect">
-  > => {
-    // @ts-ignore
-    return enhanceColumnIndicator(
-      props.ColumnIndicator || DefaultColumnIndicator
-    );
-  }, [props.ColumnIndicator]);
+  const ColumnIndicator = React.useMemo(
+    () =>
+      enhanceColumnIndicator(props.ColumnIndicator || DefaultColumnIndicator),
+    [props.ColumnIndicator]
+  );
 
   React.useEffect(() => {
     document.addEventListener("cut", handleCut);
