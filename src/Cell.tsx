@@ -129,8 +129,15 @@ export const enhance = (
         dispatch(Actions.setCellDimensions({ point, dimensions })),
       [dispatch]
     );
-    const active = useContextSelector(context, ([state]) => state.active);
-    const mode = useContextSelector(context, ([state]) => state.mode);
+    const active = useContextSelector(context, ([state]) =>
+      isActive(state.active, {
+        row,
+        column,
+      })
+    );
+    const mode = useContextSelector(context, ([state]) =>
+      active ? state.mode : "view"
+    );
     const data = useContextSelector(context, ([state]) =>
       Matrix.get({ row, column }, state.data)
     );
@@ -152,19 +159,17 @@ export const enhance = (
         ? {}
         : null;
     });
-    const cellIsActive = isActive(active, {
-      row,
-      column,
-    });
-    const cellMode = cellIsActive ? mode : "view";
+
+    console.log("re-rendered cell wrapper");
+
     return (
       <CellComponent
         {...props}
         selected={selected}
-        active={cellIsActive}
+        active={active}
         copied={copied}
         dragging={dragging}
-        mode={cellMode}
+        mode={mode}
         data={data}
         select={select}
         activate={activate}
