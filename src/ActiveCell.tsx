@@ -29,24 +29,14 @@ const ActiveCell: React.FC<Props> = (props) => {
     [dispatch]
   );
   const active = useContextSelector(context, ([state]) => state.active);
-  const rowDimensions = useContextSelector(
-    context,
-    ([state]) => state.rowDimensions
-  );
-  const columnDimensions = useContextSelector(
-    context,
-    ([state]) => state.columnDimensions
-  );
   const mode = useContextSelector(context, ([state]) => state.mode);
   const cell = useContextSelector(context, ([state]) =>
     state.active ? Matrix.get(state.active, state.data) : undefined
   );
-  const dimensions = React.useMemo(
-    () =>
-      active
-        ? getCellDimensions(active, rowDimensions, columnDimensions)
-        : undefined,
-    [active, rowDimensions, columnDimensions]
+  const dimensions = useContextSelector(context, ([state]) =>
+    active
+      ? getCellDimensions(active, state.rowDimensions, state.columnDimensions)
+      : undefined
   );
   const hidden = React.useMemo(
     () => !active || !dimensions,
