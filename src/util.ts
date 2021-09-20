@@ -13,6 +13,7 @@ export type FormulaParseResult = string | boolean | number;
 export type FormulaParseError = string;
 
 export const PLAIN_TEXT_MIME = "text/plain";
+export const FOCUS_WITHIN_SELECTOR = ":focus-within";
 
 /** Move the cursor of given input element to the input's end */
 export function moveCursorToEnd(el: HTMLInputElement): void {
@@ -226,4 +227,69 @@ export function convertPointMapToPointSet(
   map: PointMap.PointMap<unknown>
 ): PointSet.PointSet {
   return PointMap.map(() => true, map);
+}
+
+/** Get the range of copied cells. If none are copied return null */
+export function getCopiedRange(
+  copied: Types.StoreState["copied"],
+  hasPasted: boolean
+): PointRange.PointRange | null {
+  if (hasPasted || PointMap.isEmpty(copied)) {
+    return null;
+  }
+  const set = convertPointMapToPointSet(copied);
+  return PointSet.toRange(set);
+}
+
+/** Tranform given hot-formula-parser coord to Point.Point */
+export function transformCoordToPoint(coord: {
+  row: { index: number };
+  column: { index: number };
+}): Point.Point {
+  return { row: coord.row.index, column: coord.column.index };
+}
+
+/**
+ * Get cell value for given point from given spreadsheet data with evaluated
+ * cells using given formulaParser
+ */
+export function getCellValue<CellType extends Types.CellBase>(
+  formulaParser: hotFormulaParser.Parser,
+  data: Matrix.Matrix<CellType>,
+  point: Point.Point
+): FormulaParseResult | CellType["value"] | null {
+  return getComputedValue({
+    cell: Matrix.get(point, data),
+    formulaParser,
+  });
+}
+
+/**
+ * Get cell range value for given start and end points from given spreadsheet
+ * data with evaluated cells using given formulaParser
+ */
+export function getCellRangeValue<CellType extends Types.CellBase>(
+  formulaParser: hotFormulaParser.Parser,
+  data: Matrix.Matrix<CellType>,
+  start: Point.Point,
+  end: Point.Point
+): Array<FormulaParseResult | CellType["value"] | null> {
+  return Matrix.toArray(Matrix.slice(start, end, data), (cell) =>
+    getComputedValue({
+      cell,
+      formulaParser,
+    })
+  );
+}
+
+/** Should spreadsheet handle clipboard event */
+export function shouldHandleClipboardEvent(
+  root: Element | null,
+  mode: Types.Mode
+): boolean {
+  return root !== null && mode === "view" && isFocusedWithin(root);
+}
+
+export function isFocusedWithin(element: Element): boolean {
+  return element.matches(FOCUS_WITHIN_SELECTOR);
 }

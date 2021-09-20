@@ -1,41 +1,20 @@
 import * as React from "react";
 import { useContextSelector } from "use-context-selector";
-import * as PointSet from "./point-set";
-import { convertPointMapToPointSet, getRangeDimensions } from "./util";
 import FloatingRect from "./FloatingRect";
 import context from "./context";
+import { getCopiedRange, getRangeDimensions } from "./util";
 
 const Copied: React.FC = () => {
-  const rowDimensions = useContextSelector(
+  const range = useContextSelector(context, ([state]) =>
+    getCopiedRange(state.copied, state.hasPasted)
+  );
+  const dimensions = useContextSelector(
     context,
-    ([state]) => state.rowDimensions
+    ([state]) =>
+      range &&
+      getRangeDimensions(state.rowDimensions, state.columnDimensions, range)
   );
-  const columnDimensions = useContextSelector(
-    context,
-    ([state]) => state.columnDimensions
-  );
-  const copied = useContextSelector(context, ([state]) =>
-    state.hasPasted ? null : state.copied
-  );
-  const copiedSet = React.useMemo(
-    () => copied && convertPointMapToPointSet(copied),
-    [copied]
-  );
-  const hidden = React.useMemo(
-    () => !copiedSet || PointSet.size(copiedSet) === 0,
-    [copiedSet]
-  );
-  const dimensions = React.useMemo(
-    () =>
-      hidden || !copiedSet
-        ? null
-        : getRangeDimensions(
-            rowDimensions,
-            columnDimensions,
-            PointSet.toRange(copiedSet)
-          ),
-    [rowDimensions, columnDimensions, hidden, copiedSet]
-  );
+  const hidden = range === null;
 
   return (
     <FloatingRect

@@ -30,9 +30,12 @@ import {
   range,
   readTextFromClipboard,
   writeTextToClipboard,
-  getComputedValue,
   getSelectedCSV,
   calculateSpreadsheetSize,
+  transformCoordToPoint,
+  getCellRangeValue,
+  getCellValue,
+  shouldHandleClipboardEvent,
 } from "./util";
 import { reducer, INITIAL_STATE, hasKeyDownHandler } from "./reducer";
 import context from "./context";
@@ -252,42 +255,33 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     [state]
   );
 
-  const isFocused = React.useCallback(() => {
-    const root = rootRef.current;
-    const { activeElement } = document;
-
-    return mode === "view" && root
-      ? root === activeElement || root.contains(activeElement)
-      : false;
-  }, [rootRef, mode]);
-
   const handleCut = React.useCallback(
     (event: ClipboardEvent) => {
-      if (isFocused()) {
+      if (shouldHandleClipboardEvent(rootRef.current, mode)) {
         event.preventDefault();
         event.stopPropagation();
         clip(event);
         cut();
       }
     },
-    [isFocused, clip, cut]
+    [mode, clip, cut]
   );
 
   const handleCopy = React.useCallback(
     (event: ClipboardEvent) => {
-      if (isFocused()) {
+      if (shouldHandleClipboardEvent(rootRef.current, mode)) {
         event.preventDefault();
         event.stopPropagation();
         clip(event);
         copy();
       }
     },
-    [isFocused, clip, copy]
+    [mode, clip, copy]
   );
 
   const handlePaste = React.useCallback(
-    async (event: ClipboardEvent) => {
-      if (mode === "view" && isFocused()) {
+    (event: ClipboardEvent) => {
+      if (shouldHandleClipboardEvent(rootRef.current, mode)) {
         event.preventDefault();
         event.stopPropagation();
         if (event.clipboardData) {
@@ -296,7 +290,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
         }
       }
     },
-    [mode, isFocused, paste]
+    [mode, paste]
   );
 
   const handleKeyDown = React.useCallback(
@@ -356,15 +350,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     formulaParser.on("callCellValue", (cellCoord, done) => {
       let value;
       try {
-        const point = {
-          row: cellCoord.row.index,
-          column: cellCoord.column.index,
-        };
-        const cell = Matrix.get(point, state.data);
-        value = getComputedValue<CellType, CellType["value"]>({
-          cell,
-          formulaParser: formulaParser,
-        });
+        const point = transformCoordToPoint(cellCoord);
+        const data = state.data;
+        value = getCellValue(formulaParser, data, point);
       } catch (error) {
         console.error(error);
       } finally {
@@ -372,24 +360,17 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       }
     });
     formulaParser.on("callRangeValue", (startCellCoord, endCellCoord, done) => {
-      const startPoint = {
-        row: startCellCoord.row.index,
-        column: startCellCoord.column.index,
-      };
-      const endPoint = {
-        row: endCellCoord.row.index,
-        column: endCellCoord.column.index,
-      };
-      const values = Matrix.toArray(
-        Matrix.slice(startPoint, endPoint, state.data),
-        (cell) =>
-          getComputedValue<CellType, CellType["value"]>({
-            cell,
-            formulaParser: formulaParser,
-          })
-      );
-
-      done(values);
+      const startPoint = transformCoordToPoint(startCellCoord);
+      const endPoint = transformCoordToPoint(endCellCoord);
+      const data = state.data;
+      let values;
+      try {
+        values = getCellRangeValue(formulaParser, data, startPoint, endPoint);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        done(values);
+      }
     });
   }, [formulaParser, state, handleCut, handleCopy, handlePaste]);
 

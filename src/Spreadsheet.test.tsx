@@ -39,129 +39,250 @@ beforeAll(() => {
 describe("<Spreadsheet />", () => {
   test("renders", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
-    const element = document.querySelector(".Spreadsheet");
-    if (!element) {
-      throw new Error("element must be defined");
-    }
-    const table = element.querySelector("table.Spreadsheet__table");
-    if (!table) {
-      throw new Error("table must be defined");
-    }
+    // Get elements
+    const element = getSpreadsheetElement();
+    const table = safeQuerySelector(element, "table.Spreadsheet__table");
+    const selected = safeQuerySelector(
+      element,
+      ".Spreadsheet__floating-rect--selected"
+    );
+    const copied = safeQuerySelector(
+      element,
+      ".Spreadsheet__floating-rect--copied"
+    );
+    // Check all sub elements are rendered correctly
     const trs = table.querySelectorAll("tr");
     expect(trs).toHaveLength(ROWS + 1);
     const tds = table.querySelectorAll("tr td.Spreadsheet__cell");
     expect(tds).toHaveLength(ROWS * COLUMNS);
     const ths = table.querySelectorAll("tr th.Spreadsheet__header");
     expect(ths).toHaveLength(ROWS + COLUMNS + 1);
-    // Make sure active cell is not rendered before a cell is activated
+    // Check active cell is not rendered
     expect(element.querySelector(".Spreadsheet__active-cell")).toBeNull();
     // Make sure selected is hidden
-    expect(
-      element.querySelector(
-        ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--selected.Spreadsheet__floating-rect--hidden"
-      )
-    ).not.toBeNull();
+    expect(selected).toHaveClass("Spreadsheet__floating-rect--hidden");
     // Make sure copied is hidden
-    expect(
-      element.querySelector(
-        ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--copied.Spreadsheet__floating-rect--hidden"
-      )
-    ).not.toBeNull();
+    expect(copied).toHaveClass("Spreadsheet__floating-rect--hidden");
   });
   test("click activates cell", () => {
-    render(<Spreadsheet {...EXAMPLE_PROPS} />);
-    const element = document.querySelector(".Spreadsheet");
-    if (!element) {
-      throw new Error("element must be defined");
-    }
-    const cell = element.querySelector("td");
-    if (!cell) {
-      throw new Error("cell must be defined");
-    }
-    expect(element.querySelector(".Spreadsheet__active-cell")).toBeNull();
+    const onActivate = jest.fn();
+    const onSelect = jest.fn();
+    render(
+      <Spreadsheet
+        {...EXAMPLE_PROPS}
+        onActivate={onActivate}
+        onSelect={onSelect}
+      />
+    );
+    // Get elements
+    const element = getSpreadsheetElement();
+    const cell = safeQuerySelector(element, "td");
+    const selected = safeQuerySelector(
+      element,
+      ".Spreadsheet__floating-rect--selected"
+    );
+    // Select a cell
     fireEvent.mouseDown(cell);
-    const activeCell = element.querySelector(".Spreadsheet__active-cell");
+    // Get active cell
+    const activeCell = safeQuerySelector(element, ".Spreadsheet__active-cell");
     expect(activeCell).toHaveClass("Spreadsheet__active-cell--view");
-    expect(activeCell).not.toBeNull();
     expect(cell.getBoundingClientRect()).toEqual(
       activeCell?.getBoundingClientRect()
     );
+    // Check selected is not hidden
+    expect(selected).toHaveClass("Spreadsheet__floating-rect--hidden");
+    // Check onActivate is called
+    expect(onActivate).toHaveBeenCalledTimes(1);
+    expect(onActivate).toHaveBeenCalledWith(Point.ORIGIN);
+    // Check onSelect is called
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onSelect).toHaveBeenCalledWith([Point.ORIGIN]);
   });
-  test("Pressing Enter when a cell is active enters to edit mode", () => {
-    render(<Spreadsheet {...EXAMPLE_PROPS} />);
-    const element = document.querySelector(".Spreadsheet");
-    const cell = element?.querySelector("td");
-    if (!cell) {
-      throw new Error("cell must be defined");
-    }
+  test("pressing Enter when a cell is active enters to edit mode", () => {
+    const onModeChange = jest.fn();
+    render(<Spreadsheet {...EXAMPLE_PROPS} onModeChange={onModeChange} />);
+    // Get elements
+    const element = getSpreadsheetElement();
+    const cell = safeQuerySelector(element, "td");
+    // Select cell
     fireEvent.mouseDown(cell);
-    const activeCell = element?.querySelector(".Spreadsheet__active-cell");
-    if (!activeCell) {
-      throw new Error("active cell must be defined");
-    }
+    // Get active cell
+    const activeCell = safeQuerySelector(element, ".Spreadsheet__active-cell");
+    // Press Enter
     fireEvent.keyDown(activeCell, {
       key: "Enter",
     });
     // Check mode has changed to edit
     expect(activeCell).toHaveClass("Spreadsheet__active-cell--edit");
-    const input = activeCell.querySelector("input");
-    if (!input) {
-      throw new Error("input must be defined");
-    }
+    // Get input
+    const input = safeQuerySelector(activeCell, "input");
     expect(input).toHaveFocus();
+    // Check onModeChange is called
+    expect(onModeChange).toHaveBeenCalledTimes(1);
+    expect(onModeChange).toHaveBeenCalledWith("edit");
   });
   test("input triggers onChange", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
-    const element = document.querySelector(".Spreadsheet");
-    const cell = element?.querySelector("td");
-    if (!cell) {
-      throw new Error("cell must be defined");
-    }
+    // Get elements
+    const element = getSpreadsheetElement();
+    const cell = safeQuerySelector(element, "td");
+    // Select cell
     fireEvent.mouseDown(cell);
-    const activeCell = element?.querySelector(".Spreadsheet__active-cell");
-    if (!activeCell) {
-      throw new Error("active cell must be defined");
-    }
+    // Get active cell
+    const activeCell = safeQuerySelector(element, ".Spreadsheet__active-cell");
+    // Press Enter
     fireEvent.keyDown(activeCell, {
       key: "Enter",
     });
-    const input = activeCell.querySelector("input");
-    if (!input) {
-      throw new Error("input must be defined");
-    }
+    // Get input
+    const input = safeQuerySelector(activeCell, "input");
+    // Change input
     fireEvent.change(input, {
       target: {
         value: EXAMPLE_VALUE,
       },
     });
+    // Check onChange is called
     expect(EXAMPLE_PROPS.onChange).toBeCalledTimes(1);
     expect(EXAMPLE_PROPS.onChange).toBeCalledWith(EXAMPLE_MODIFIED_DATA);
   });
   test("handles external change of data correctly", () => {
     const { rerender } = render(<Spreadsheet {...EXAMPLE_PROPS} />);
     rerender(<Spreadsheet {...EXAMPLE_PROPS} data={EXAMPLE_MODIFIED_DATA} />);
-    const matchingCells = screen.getAllByText(EXAMPLE_CELL.value);
-    expect(matchingCells).toHaveLength(1);
-    const [textSpan] = matchingCells;
-    expect(textSpan).not.toBeNull();
-    expect(EXAMPLE_PROPS.onChange).toBeCalledTimes(0);
-    if (!textSpan.parentElement) {
-      throw new Error("textSpan must have a parent element");
-    }
+    // Get text span
+    const matchingElements = screen.getAllByText(EXAMPLE_CELL.value);
+    expect(matchingElements).toHaveLength(1);
+    const [textSpan] = matchingElements;
+    // Get cell
     const cell = textSpan.parentElement;
-    if (!cell.parentElement) {
-      throw new Error("cell must have a parent element");
-    }
+    expectNotToBeNull(cell);
+    // Get row
     const row = cell.parentElement;
-    const rowChildren = Array.from(row.children);
+    expectNotToBeNull(row);
     // Make sure the cell is in the right column
-    expect(rowChildren.indexOf(cell)).toBe(1);
-    if (!row.parentElement) {
-      throw new Error("row must have a parent element");
-    }
+    expect(getHTMLCollectionIndexOf(row.children, cell)).toBe(1);
+    // Get table
     const table = row.parentElement;
-    const tableChildren = Array.from(table.children);
+    expectNotToBeNull(table);
     // Make sure the cell is in the right row
-    expect(tableChildren.indexOf(row)).toBe(1);
+    expect(getHTMLCollectionIndexOf(table.children, row)).toBe(1);
+  });
+  test("renders class name", () => {
+    const EXAMPLE_CLASS_NAME = "EXAMPLE_CLASS_NAME";
+    render(<Spreadsheet {...EXAMPLE_PROPS} className={EXAMPLE_CLASS_NAME} />);
+    const element = getSpreadsheetElement();
+    expect(element).toHaveClass(EXAMPLE_CLASS_NAME);
+  });
+  test("setting hideColumnIndicators hides column indicators", () => {
+    render(<Spreadsheet {...EXAMPLE_PROPS} hideColumnIndicators />);
+    const ths = document.querySelectorAll(".Spreadsheet th");
+    expect(ths).toHaveLength(ROWS);
+  });
+  test("setting hideRowIndicatos hides row indicators", () => {
+    render(<Spreadsheet {...EXAMPLE_PROPS} hideRowIndicators />);
+    const ths = document.querySelectorAll(".Spreadsheet th");
+    expect(ths).toHaveLength(COLUMNS);
+  });
+  test("calls onKeyDown on key down", () => {
+    const onKeyDown = jest.fn();
+    render(<Spreadsheet {...EXAMPLE_PROPS} onKeyDown={onKeyDown} />);
+    const element = getSpreadsheetElement();
+    fireEvent.keyDown(element, "Enter");
+    expect(onKeyDown).toHaveBeenCalledTimes(1);
+  });
+  test("shift-click cell when a cell is activated selects a range of cells", async () => {
+    const onSelect = jest.fn();
+    render(<Spreadsheet {...EXAMPLE_PROPS} onSelect={onSelect} />);
+    // Get elements
+    const element = getSpreadsheetElement();
+    const firstCell = safeQuerySelector(
+      element,
+      "tr:nth-of-type(2) td:nth-of-type(1)"
+    );
+    const thirdCell = safeQuerySelector(
+      element,
+      "tr:nth-of-type(3) td:nth-of-type(2)"
+    );
+    // Activate a cell
+    fireEvent.mouseDown(firstCell);
+    // Clear onSelect previous calls
+    onSelect.mockClear();
+    // Select range of cells
+    fireEvent.mouseDown(thirdCell, {
+      shiftKey: true,
+    });
+    // Check onSelect is called with the range of cells on selection
+    expect(onSelect).toBeCalledTimes(1);
+    expect(onSelect).toBeCalledWith([
+      { row: 0, column: 0 },
+      { row: 0, column: 1 },
+      { row: 1, column: 0 },
+      { row: 1, column: 1 },
+    ]);
+  });
+  test("setting row labels changes row indicators labels", () => {
+    const EXAMPLE_ROW_LABELS = ["A", "B", "C", "D"];
+    render(<Spreadsheet {...EXAMPLE_PROPS} rowLabels={EXAMPLE_ROW_LABELS} />);
+    const element = getSpreadsheetElement();
+    // Get row label elements.
+    // Do not select from first row because it only contains corner and column indicators
+    const rowLabelElements = element.querySelectorAll(
+      "tr:not(:first-child) th"
+    );
+    const rowLabels = Array.from(
+      rowLabelElements,
+      (element) => element.textContent
+    );
+    expect(rowLabels).toEqual(EXAMPLE_ROW_LABELS);
+  });
+  test("setting column labels changes colum indicators labels", () => {
+    const EXAMPLE_COLUMN_LABELS = ["First", "Second", "Third", "Fourth"];
+    render(
+      <Spreadsheet {...EXAMPLE_PROPS} columnLabels={EXAMPLE_COLUMN_LABELS} />
+    );
+    const element = getSpreadsheetElement();
+    // Get column label elements.
+    // Select from first row as it holds all the column indicators
+    // Do not select first child as it is corner indicator
+    const columnLabelElements = element.querySelectorAll(
+      "tr:first-child th:not(:first-child)"
+    );
+    const columnLabels = Array.from(
+      columnLabelElements,
+      (element) => element.textContent
+    );
+    expect(columnLabels).toEqual(EXAMPLE_COLUMN_LABELS);
   });
 });
+
+/** Like .querySelector() but throws for no match */
+function safeQuerySelector<T extends Element = Element>(
+  node: ParentNode,
+  selector: string
+): T {
+  const element = node.querySelector<T>(selector);
+  if (!element) {
+    throw new Error(`Selector ${selector} has no matching elements`);
+  }
+  return element;
+}
+
+/** Wrapper for expect(actual).not.toBeNull() with type assertion */
+function expectNotToBeNull<T>(
+  actual: T | null | undefined
+): asserts actual is T {
+  expect(actual).not.toBe(null);
+}
+
+/** Like index of for HTMLCollection */
+function getHTMLCollectionIndexOf(
+  collection: HTMLCollection,
+  element: Element
+): number {
+  const items = Array.from(collection);
+  return items.indexOf(element);
+}
+
+function getSpreadsheetElement(): Element {
+  return safeQuerySelector(document, ".Spreadsheet");
+}
