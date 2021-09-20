@@ -443,7 +443,8 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     ),
     [
       Table,
-      size,
+      size.rows,
+      size.columns,
       hideColumnIndicators,
       Row,
       hideRowIndicators,
