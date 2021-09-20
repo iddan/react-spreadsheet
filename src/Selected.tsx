@@ -6,25 +6,15 @@ import context from "./context";
 import { getRangeDimensions } from "./util";
 
 const Selected: React.FC = () => {
-  const rowDimensions = useContextSelector(
-    context,
-    ([state]) => state.rowDimensions
-  );
-  const columnDimensions = useContextSelector(
-    context,
-    ([state]) => state.columnDimensions
-  );
   const selected = useContextSelector(context, ([state]) => state.selected);
+  const dimensions = useContextSelector(
+    context,
+    ([state]) =>
+      selected &&
+      getRangeDimensions(state.rowDimensions, state.columnDimensions, selected)
+  );
   const dragging = useContextSelector(context, ([state]) => state.dragging);
-  const dimensions = React.useMemo(
-    () =>
-      selected && getRangeDimensions(rowDimensions, columnDimensions, selected),
-    [selected, rowDimensions, columnDimensions]
-  );
-  const hidden = React.useMemo(
-    () => !selected || Boolean(selected && PointRange.size(selected) === 1),
-    [selected]
-  );
+  const hidden = React.useMemo(() => isHidden(selected), [selected]);
   return (
     <FloatingRect
       variant="selected"
@@ -36,3 +26,7 @@ const Selected: React.FC = () => {
 };
 
 export default Selected;
+
+export function isHidden(selected: PointRange.PointRange | null): boolean {
+  return !selected || Boolean(selected && PointRange.size(selected) === 1);
+}
