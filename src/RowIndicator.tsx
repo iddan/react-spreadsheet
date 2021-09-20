@@ -1,8 +1,8 @@
 import * as React from "react";
 import classNames from "classnames";
-import { connect } from "unistore/react";
+import { useContextSelector } from "use-context-selector";
+import context from "./context";
 import * as Actions from "./actions";
-import * as Types from "./types";
 import * as Selection from "./selection";
 
 export type Props = {
@@ -34,17 +34,32 @@ export const RowIndicator: React.FC<Props> = ({
   );
 };
 
-export const enhance = connect(
-  (state: Types.StoreState<Types.CellBase>, props: Props) => {
-    return {
-      selected:
-        Selection.hasEntireRow(state.selected, props.row) ||
-        Selection.isEntireTable(state.selected),
-    };
-  },
-  {
-    onSelect: Actions.selectEntireRow,
-  }
-);
-
 export default RowIndicator;
+
+export const enhance = (
+  RowIndicatorComponent: React.FC<Props>
+): React.FC<Omit<Props, "selected" | "onSelect">> => {
+  return function RowIndicatorWrapper(props) {
+    const dispatch = useContextSelector(
+      context,
+      ([state, dispatch]) => dispatch
+    );
+    const selected = useContextSelector(
+      context,
+      ([state]) =>
+        Selection.hasEntireRow(state.selected, props.row) ||
+        Selection.isEntireTable(state.selected)
+    );
+    const selectEntireRow = React.useCallback(
+      (row: number) => dispatch(Actions.selectEntireRow({ row })),
+      [dispatch]
+    );
+    return (
+      <RowIndicatorComponent
+        {...props}
+        selected={selected}
+        onSelect={selectEntireRow}
+      />
+    );
+  };
+};

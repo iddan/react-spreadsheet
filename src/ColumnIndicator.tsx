@@ -1,10 +1,12 @@
 import * as React from "react";
 import classNames from "classnames";
 import { columnIndexToLabel } from "hot-formula-parser";
-import { connect } from "unistore/react";
 import * as Actions from "./actions";
 import * as Selection from "./selection";
 import * as Types from "./types";
+import { useContextSelector } from "use-context-selector";
+import context from "./context";
+import { useCallback } from "@storybook/addons";
 
 export type Props = {
   column: number;
@@ -34,15 +36,32 @@ const ColumnIndicator: React.FC<Props> = ({
   );
 };
 
-export const enhance = connect(
-  (state: Types.StoreState, props: Props) => ({
-    selected:
-      Selection.hasEntireColumn(state.selected, props.column) ||
-      Selection.isEntireTable(state.selected),
-  }),
-  {
-    onSelect: Actions.selectEntireColumn,
-  }
-);
-
 export default ColumnIndicator;
+
+export const enhance = (
+  ColumnIndicatorComponent: React.FC<Props>
+): React.FC<Omit<Props, "selected" | "onSelect">> => {
+  return function ColumnIndicatorWrapper(props) {
+    const dispatch = useContextSelector(
+      context,
+      ([state, dispatch]) => dispatch
+    );
+    const selectEntireColumn = useCallback(
+      (column: number) => dispatch(Actions.selectEntireColumn({ column })),
+      [dispatch]
+    );
+    const selected = useContextSelector(
+      context,
+      ([state]) =>
+        Selection.hasEntireColumn(state.selected, props.column) ||
+        Selection.isEntireTable(state.selected)
+    );
+    return (
+      <ColumnIndicatorComponent
+        {...props}
+        selected={selected}
+        onSelect={selectEntireColumn}
+      />
+    );
+  };
+};

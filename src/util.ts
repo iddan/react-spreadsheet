@@ -4,6 +4,8 @@ import * as Matrix from "./matrix";
 import * as Point from "./point";
 import * as PointRange from "./point-range";
 import * as Selection from "./selection";
+import * as PointMap from "./point-map";
+import * as PointSet from "./point-set";
 import * as Formula from "./formula";
 
 export { createEmpty as createEmptyMatrix } from "./matrix";
@@ -12,6 +14,7 @@ export type FormulaParseResult = string | boolean | number;
 export type FormulaParseError = string;
 
 export const PLAIN_TEXT_MIME = "text/plain";
+export const FOCUS_WITHIN_SELECTOR = ":focus-within";
 
 /** Move the cursor of given input element to the input's end */
 export function moveCursorToEnd(el: HTMLInputElement): void {
@@ -80,23 +83,37 @@ export function readTextFromClipboard(event: ClipboardEvent): string {
 /** Get the dimensions of cell at point from state */
 export function getCellDimensions(
   point: Point.Point,
-  state: Types.StoreState
+  rowDimensions: Types.StoreState["rowDimensions"] | undefined,
+  columnDimensions: Types.StoreState["columnDimensions"] | undefined
 ): Types.Dimensions | undefined {
-  const rowDimensions = state.rowDimensions[point.row];
-  const columnDimensions = state.columnDimensions[point.column];
+  const cellRowDimensions = rowDimensions && rowDimensions[point.row];
+  const cellColumnDimensions =
+    columnDimensions && columnDimensions[point.column];
   return (
-    rowDimensions &&
-    columnDimensions && { ...rowDimensions, ...columnDimensions }
+    cellRowDimensions &&
+    cellColumnDimensions && {
+      ...cellRowDimensions,
+      ...cellColumnDimensions,
+    }
   );
 }
 
 /** Get the dimensions of a range of cells */
 export function getRangeDimensions(
-  state: Types.StoreState,
+  rowDimensions: Types.StoreState["rowDimensions"],
+  columnDimensions: Types.StoreState["columnDimensions"],
   range: PointRange.PointRange
 ): Types.Dimensions | undefined {
-  const startDimensions = getCellDimensions(range.start, state);
-  const endDimensions = getCellDimensions(range.end, state);
+  const startDimensions = getCellDimensions(
+    range.start,
+    rowDimensions,
+    columnDimensions
+  );
+  const endDimensions = getCellDimensions(
+    range.end,
+    rowDimensions,
+    columnDimensions
+  );
   return (
     startDimensions &&
     endDimensions && {
@@ -110,10 +127,15 @@ export function getRangeDimensions(
 
 /** Get the dimensions of selected */
 export function getSelectedDimensions(
-  state: Types.StoreState
+  rowDimensions: Types.StoreState["rowDimensions"],
+  columnDimensions: Types.StoreState["columnDimensions"],
+  data: Matrix.Matrix<unknown>,
+  selected: Selection.Selection
 ): Types.Dimensions | undefined {
-  const range = Selection.toRange(state.selected, state.data);
-  return range ? getRangeDimensions(state, range) : undefined;
+  const range = Selection.toRange(selected, data);
+  return range
+    ? getRangeDimensions(rowDimensions, columnDimensions, range)
+    : undefined;
 }
 
 /** Get the computed value of a cell. */
@@ -176,4 +198,76 @@ export function calculateSpreadsheetSize(
     rows: rowLabels ? Math.max(rows, rowLabels.length) : rows,
     columns: columnLabels ? Math.max(columns, columnLabels.length) : columns,
   };
+}
+
+/** Transform given point map to a point set */
+export function convertPointMapToPointSet(
+  map: PointMap.PointMap<unknown>
+): PointSet.PointSet {
+  return PointMap.map(() => true, map);
+}
+
+/** Get the range of copied cells. If none are copied return null */
+export function getCopiedRange(
+  copied: Types.StoreState["copied"],
+  hasPasted: boolean
+): PointRange.PointRange | null {
+  if (hasPasted || PointMap.isEmpty(copied)) {
+    return null;
+  }
+  const set = convertPointMapToPointSet(copied);
+  return PointSet.toRange(set);
+}
+
+/** Tranform given hot-formula-parser coord to Point.Point */
+export function transformCoordToPoint(coord: {
+  row: { index: number };
+  column: { index: number };
+}): Point.Point {
+  return { row: coord.row.index, column: coord.column.index };
+}
+
+/**
+ * Get cell value for given point from given spreadsheet data with evaluated
+ * cells using given formulaParser
+ */
+export function getCellValue<CellType extends Types.CellBase>(
+  formulaParser: hotFormulaParser.Parser,
+  data: Matrix.Matrix<CellType>,
+  point: Point.Point
+): FormulaParseResult | CellType["value"] | null {
+  return getComputedValue({
+    cell: Matrix.get(point, data),
+    formulaParser,
+  });
+}
+
+/**
+ * Get cell range value for given start and end points from given spreadsheet
+ * data with evaluated cells using given formulaParser
+ */
+export function getCellRangeValue<CellType extends Types.CellBase>(
+  formulaParser: hotFormulaParser.Parser,
+  data: Matrix.Matrix<CellType>,
+  start: Point.Point,
+  end: Point.Point
+): Array<FormulaParseResult | CellType["value"] | null> {
+  return Matrix.toArray(Matrix.slice(start, end, data), (cell) =>
+    getComputedValue({
+      cell,
+      formulaParser,
+    })
+  );
+}
+
+/** Should spreadsheet handle clipboard event */
+export function shouldHandleClipboardEvent(
+  root: Element | null,
+  mode: Types.Mode
+): boolean {
+  return root !== null && mode === "view" && isFocusedWithin(root);
+}
+
+export function isFocusedWithin(element: Element): boolean {
+  return element.matches(FOCUS_WITHIN_SELECTOR);
 }

@@ -25,12 +25,18 @@
     "build-storybook": "build-storybook",
     "build-typedoc": "typedoc"
   },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0",
+    "scheduler": ">=0.19.0"
+  },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.6.1",
     "@types/array.prototype.flatmap": "^1.2.2",
     "array.prototype.flatmap": "^1.2.4",
     "classnames": "^2.3.1",
     "hot-formula-parser": "^4.0.0",
-    "unistore": "^3.5.2"
+    "use-context-selector": "^1.3.7"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
@@ -44,6 +50,8 @@
     "@storybook/manager-webpack5": "^6.3.8",
     "@storybook/react": "^6.3.8",
     "@storybook/theming": "^6.3.8",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.0.0",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.7.10",
     "@types/react": "^16.14.0",
@@ -71,6 +79,7 @@
     "rollup": "^2.56.2",
     "rollup-plugin-postcss": "^4.0.1",
     "rollup-plugin-typescript2": "^0.30.0",
+    "scheduler": "^0.20.0",
     "ts-jest": "^27.0.5",
     "tslib": "^2.3.1",
     "typedoc": "^0.21.6",
@@ -82,6 +91,12 @@
     "preset": "ts-jest",
     "testPathIgnorePatterns": [
       "dist"
+    ],
+    "moduleNameMapper": {
+      "\\.css$": "<rootDir>/src/__mocks__/style-mock.ts"
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/jest-setup.ts"
     ]
   },
   "eslintConfig": {
@@ -107,7 +122,8 @@
     "overrides": [
       {
         "files": [
-          "*.test.ts"
+          "*.test.ts",
+          "*.test.tsx"
         ],
         "rules": {
           "tsdoc/syntax": "off"

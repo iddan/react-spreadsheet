@@ -1,15 +1,11 @@
 import * as React from "react";
-
-import createStore from "unistore";
-import devtools from "unistore/devtools";
-import { Provider } from "unistore/react";
+import classNames from "classnames";
 import * as Types from "./types";
 import * as Actions from "./actions";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import { Parser as FormulaParser } from "hot-formula-parser";
-import classNames from "classnames";
 
 import DefaultTable, { Props as TableProps } from "./Table";
 import DefaultRow, { Props as RowProps } from "./Row";
@@ -37,10 +33,15 @@ import {
   range,
   readTextFromClipboard,
   writeTextToClipboard,
-  getComputedValue,
   calculateSpreadsheetSize,
   getCSV,
+  transformCoordToPoint,
+  getCellRangeValue,
+  getCellValue,
+  shouldHandleClipboardEvent,
 } from "./util";
+import { reducer, INITIAL_STATE, hasKeyDownHandler } from "./reducer";
+import context from "./context";
 import "./Spreadsheet.css";
 
 /** The Spreadsheet component props */
@@ -114,27 +115,6 @@ export type Props<CellType extends Types.CellBase> = {
   ) => void;
 };
 
-const INITIAL_STATE: Pick<
-  Types.StoreState,
-  | "active"
-  | "mode"
-  | "rowDimensions"
-  | "columnDimensions"
-  | "lastChanged"
-  | "hasPasted"
-  | "cut"
-  | "dragging"
-> = {
-  active: null,
-  mode: "view",
-  rowDimensions: {},
-  columnDimensions: {},
-  lastChanged: null,
-  hasPasted: false,
-  cut: false,
-  dragging: false,
-};
-
 /**
  * The Spreadsheet component
  */
@@ -159,13 +139,25 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onActivate = () => {},
     onCellCommit = () => {},
   } = props;
-
-  // The size of data, synced with store state
-  const [size, setSize] = React.useState(
-    calculateSpreadsheetSize(props.data, rowLabels, columnLabels)
+  const initialState = React.useMemo(
+    () =>
+      ({
+        ...INITIAL_STATE,
+        data: props.data,
+      } as Types.StoreState<CellType>),
+    [props.data]
   );
-  // The spreadsheet mode, synced with store state
-  const [mode, setMode] = React.useState(INITIAL_STATE.mode);
+  const reducerElements = React.useReducer(
+    reducer as unknown as React.Reducer<Types.StoreState<CellType>, any>,
+    initialState
+  );
+  const [state, dispatch] = reducerElements;
+
+  const size = React.useMemo(() => {
+    return calculateSpreadsheetSize(state.data, rowLabels, columnLabels);
+  }, [state.data, rowLabels, columnLabels]);
+
+  const mode = state.mode;
 
   const rootRef = React.useRef<HTMLDivElement>(null);
   const prevStateRef = React.useRef<Types.StoreState<CellType>>({
@@ -177,94 +169,73 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     lastCommit: null,
   });
 
-  const store = React.useMemo(() => {
-    const prevState = prevStateRef.current;
-    return process.env.NODE_ENV === "production"
-      ? createStore(prevState)
-      : devtools(createStore(prevState));
-  }, []);
-
-  const copy = React.useMemo(() => store.action(Actions.copy), [store]);
-  const cut = React.useMemo(() => store.action(Actions.cut), [store]);
-  const paste = React.useMemo(() => store.action(Actions.paste), [store]);
-  const onKeyDownAction = React.useMemo(
-    () => store.action(Actions.keyDown),
-    [store]
+  const copy = React.useCallback(() => dispatch(Actions.copy()), [dispatch]);
+  const cut = React.useCallback(() => dispatch(Actions.cut()), [dispatch]);
+  const paste = React.useCallback(
+    (data) => dispatch(Actions.paste({ data })),
+    [dispatch]
   );
-  const onKeyPress = React.useMemo(
-    () => store.action(Actions.keyPress),
-    [store]
+  const onKeyDownAction = React.useCallback(
+    (event) => dispatch(Actions.keyDown({ event })),
+    [dispatch]
   );
-  const onDragStart = React.useMemo(
-    () => store.action(Actions.dragStart),
-    [store]
+  const onKeyPress = React.useCallback(
+    (event) => dispatch(Actions.keyPress({ event })),
+    [dispatch]
   );
-  const onDragEnd = React.useMemo(() => store.action(Actions.dragEnd), [store]);
-  const setData = React.useMemo(() => store.action(Actions.setData), [store]);
-
-  const handleStoreChange = React.useCallback(
-    (state: Types.StoreState<CellType>) => {
-      const prevState = prevStateRef.current;
-
-      if (state.lastCommit && state.lastCommit !== prevState.lastCommit) {
-        for (const change of state.lastCommit) {
-          onCellCommit(change.prevCell, change.nextCell, state.active);
-        }
-      }
-
-      if (state.data !== prevState.data) {
-        // Sync local size state with store state
-        const nextSize = calculateSpreadsheetSize(
-          state.data,
-          rowLabels,
-          columnLabels
-        );
-        setSize((prevSize) =>
-          prevSize.columns === nextSize.columns &&
-          prevSize.rows === nextSize.rows
-            ? prevSize
-            : nextSize
-        );
-
-        // Call on change only if the data change internal
-        if (state.data !== props.data) {
-          onChange(state.data);
-        }
-      }
-
-      if (state.mode !== prevState.mode) {
-        onModeChange(state.mode);
-        // Sync local mode state with store state
-        setMode(state.mode);
-      }
-
-      if (state.selected !== prevState.selected) {
-        const points = Selection.getPoints(state.selected, state.data);
-        onSelect(points);
-      }
-
-      if (state.active !== prevState.active && state.active) {
-        onActivate(state.active);
-      }
-
-      prevStateRef.current = state;
-    },
-    [
-      onActivate,
-      onCellCommit,
-      onChange,
-      onModeChange,
-      onSelect,
-      rowLabels,
-      columnLabels,
-      props.data,
-    ]
+  const onDragStart = React.useCallback(
+    () => dispatch(Actions.dragStart()),
+    [dispatch]
+  );
+  const onDragEnd = React.useCallback(
+    () => dispatch(Actions.dragEnd()),
+    [dispatch]
+  );
+  const setData = React.useCallback(
+    (data) => dispatch(Actions.setData({ data })),
+    [dispatch]
   );
 
   React.useEffect(() => {
-    const unsubscribe = store.subscribe(handleStoreChange);
-    return unsubscribe;
-  }, [store, handleStoreChange]);
+    const prevState = prevStateRef.current;
+    if (state.lastCommit && state.lastCommit !== prevState.lastCommit) {
+      for (const change of state.lastCommit) {
+        onCellCommit(change.prevCell, change.nextCell, state.active);
+      }
+    }
+
+    if (state.data !== prevState.data) {
+      // Call on change only if the data change internal
+      if (state.data !== props.data) {
+        onChange(state.data);
+      }
+    }
+
+    if (state.selected !== prevState.selected) {
+      const points = Selection.getPoints(state.selected, state.data);
+      onSelect(points);
+    }
+
+    if (state.mode !== prevState.mode) {
+      onModeChange(state.mode);
+    }
+
+    if (state.active !== prevState.active && state.active) {
+      onActivate(state.active);
+    }
+
+    prevStateRef.current = state;
+  }, [
+    props.data,
+    state,
+    onActivate,
+    onCellCommit,
+    onChange,
+    onModeChange,
+    onSelect,
+    rowLabels,
+    columnLabels,
+  ]);
 
   React.useEffect(() => {
     const prevState = prevStateRef.current;
@@ -275,50 +246,41 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
   const clip = React.useCallback(
     (event: ClipboardEvent): void => {
-      const { data, selected } = store.getState();
+      const { data, selected } = state;
       const selectedData = Selection.getSelectionFromMatrix(selected, data);
       const csv = getCSV(selectedData);
       writeTextToClipboard(event, csv);
     },
-    [store]
+    [state]
   );
-
-  const isFocused = React.useCallback(() => {
-    const root = rootRef.current;
-    const { activeElement } = document;
-
-    return mode === "view" && root
-      ? root === activeElement || root.contains(activeElement)
-      : false;
-  }, [rootRef, mode]);
 
   const handleCut = React.useCallback(
     (event: ClipboardEvent) => {
-      if (isFocused()) {
+      if (shouldHandleClipboardEvent(rootRef.current, mode)) {
         event.preventDefault();
         event.stopPropagation();
         clip(event);
         cut();
       }
     },
-    [isFocused, clip, cut]
+    [mode, clip, cut]
   );
 
   const handleCopy = React.useCallback(
     (event: ClipboardEvent) => {
-      if (isFocused()) {
+      if (shouldHandleClipboardEvent(rootRef.current, mode)) {
         event.preventDefault();
         event.stopPropagation();
         clip(event);
         copy();
       }
     },
-    [isFocused, clip, copy]
+    [mode, clip, copy]
   );
 
   const handlePaste = React.useCallback(
-    async (event: ClipboardEvent) => {
-      if (mode === "view" && isFocused()) {
+    (event: ClipboardEvent) => {
+      if (shouldHandleClipboardEvent(rootRef.current, mode)) {
         event.preventDefault();
         event.stopPropagation();
         if (event.clipboardData) {
@@ -327,7 +289,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
         }
       }
     },
-    [mode, isFocused, paste]
+    [mode, paste]
   );
 
   const handleKeyDown = React.useCallback(
@@ -338,13 +300,13 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       // Do not use event in case preventDefault() was called inside onKeyDown
       if (!event.defaultPrevented) {
         // Only disable default behavior if an handler exist
-        if (Actions.getKeyDownHandler(store.getState(), event)) {
+        if (hasKeyDownHandler(state, event)) {
           event.nativeEvent.preventDefault();
         }
         onKeyDownAction(event);
       }
     },
-    [store, onKeyDown, onKeyDownAction]
+    [state, onKeyDown, onKeyDownAction]
   );
 
   const handleMouseUp = React.useCallback(() => {
@@ -354,12 +316,12 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
   const handleMouseMove = React.useCallback(
     (event: React.MouseEvent) => {
-      if (!store.getState().dragging && event.buttons === 1) {
+      if (!state.dragging && event.buttons === 1) {
         onDragStart();
         document.addEventListener("mouseup", handleMouseUp);
       }
     },
-    [store, onDragStart, handleMouseUp]
+    [state, onDragStart, handleMouseUp]
   );
 
   const formulaParser = React.useMemo(() => {
@@ -412,15 +374,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     formulaParser.on("callCellValue", (cellCoord, done) => {
       let value;
       try {
-        const point = {
-          row: cellCoord.row.index,
-          column: cellCoord.column.index,
-        };
-        const cell = Matrix.get(point, store.getState().data);
-        value = getComputedValue<CellType, CellType["value"]>({
-          cell,
-          formulaParser: formulaParser,
-        });
+        const point = transformCoordToPoint(cellCoord);
+        const data = state.data;
+        value = getCellValue(formulaParser, data, point);
       } catch (error) {
         console.error(error);
       } finally {
@@ -428,29 +384,100 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       }
     });
     formulaParser.on("callRangeValue", (startCellCoord, endCellCoord, done) => {
-      const startPoint = {
-        row: startCellCoord.row.index,
-        column: startCellCoord.column.index,
-      };
-      const endPoint = {
-        row: endCellCoord.row.index,
-        column: endCellCoord.column.index,
-      };
-      const values = Matrix.toArray(
-        Matrix.slice(startPoint, endPoint, store.getState().data),
-        (cell) =>
-          getComputedValue<CellType, CellType["value"]>({
-            cell,
-            formulaParser: formulaParser,
-          })
-      );
-
-      done(values);
+      const startPoint = transformCoordToPoint(startCellCoord);
+      const endPoint = transformCoordToPoint(endCellCoord);
+      const data = state.data;
+      let values;
+      try {
+        values = getCellRangeValue(formulaParser, data, startPoint, endPoint);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        done(values);
+      }
     });
-  }, [formulaParser, store, handleCut, handleCopy, handlePaste]);
+  }, [formulaParser, state, handleCut, handleCopy, handlePaste]);
 
-  return (
-    <Provider store={store}>
+  const tableNode = React.useMemo(
+    () => (
+      <Table columns={size.columns} hideColumnIndicators={hideColumnIndicators}>
+        <Row>
+          {!hideRowIndicators && !hideColumnIndicators && <CornerIndicator />}
+          {!hideColumnIndicators &&
+            range(size.columns).map((columnNumber) =>
+              columnLabels ? (
+                <ColumnIndicator
+                  key={columnNumber}
+                  column={columnNumber}
+                  label={
+                    columnNumber in columnLabels
+                      ? columnLabels[columnNumber]
+                      : null
+                  }
+                />
+              ) : (
+                <ColumnIndicator key={columnNumber} column={columnNumber} />
+              )
+            )}
+        </Row>
+        {range(size.rows).map((rowNumber) => (
+          <Row key={rowNumber}>
+            {!hideRowIndicators &&
+              (rowLabels ? (
+                <RowIndicator
+                  key={rowNumber}
+                  row={rowNumber}
+                  label={rowNumber in rowLabels ? rowLabels[rowNumber] : null}
+                />
+              ) : (
+                <RowIndicator key={rowNumber} row={rowNumber} />
+              ))}
+            {range(size.columns).map((columnNumber) => (
+              <Cell
+                key={columnNumber}
+                row={rowNumber}
+                column={columnNumber}
+                // @ts-ignore
+                DataViewer={DataViewer}
+                formulaParser={formulaParser}
+              />
+            ))}
+          </Row>
+        ))}
+      </Table>
+    ),
+    [
+      Table,
+      size.rows,
+      size.columns,
+      hideColumnIndicators,
+      Row,
+      hideRowIndicators,
+      CornerIndicator,
+      columnLabels,
+      ColumnIndicator,
+      rowLabels,
+      RowIndicator,
+      Cell,
+      DataViewer,
+      formulaParser,
+    ]
+  );
+
+  const activeCellNode = React.useMemo(
+    () => (
+      <ActiveCell
+        // @ts-ignore
+        DataEditor={DataEditor}
+        // @ts-ignore
+        getBindingsForCell={getBindingsForCell}
+      />
+    ),
+    [DataEditor, getBindingsForCell]
+  );
+
+  const rootNode = React.useMemo(
+    () => (
       <div
         ref={rootRef}
         className={classNames("Spreadsheet", className)}
@@ -458,63 +485,24 @@ const Spreadsheet = <CellType extends Types.CellBase>(
         onKeyDown={handleKeyDown}
         onMouseMove={handleMouseMove}
       >
-        <Table
-          columns={size.columns}
-          hideColumnIndicators={hideColumnIndicators}
-        >
-          <Row>
-            {!hideRowIndicators && !hideColumnIndicators && <CornerIndicator />}
-            {!hideColumnIndicators &&
-              range(size.columns).map((columnNumber) =>
-                columnLabels ? (
-                  <ColumnIndicator
-                    key={columnNumber}
-                    column={columnNumber}
-                    label={
-                      columnNumber in columnLabels
-                        ? columnLabels[columnNumber]
-                        : null
-                    }
-                  />
-                ) : (
-                  <ColumnIndicator key={columnNumber} column={columnNumber} />
-                )
-              )}
-          </Row>
-          {range(size.rows).map((rowNumber) => (
-            <Row key={rowNumber}>
-              {!hideRowIndicators &&
-                (rowLabels ? (
-                  <RowIndicator
-                    key={rowNumber}
-                    row={rowNumber}
-                    label={rowNumber in rowLabels ? rowLabels[rowNumber] : null}
-                  />
-                ) : (
-                  <RowIndicator key={rowNumber} row={rowNumber} />
-                ))}
-              {range(size.columns).map((columnNumber) => (
-                <Cell
-                  key={columnNumber}
-                  row={rowNumber}
-                  column={columnNumber}
-                  // @ts-ignore
-                  DataViewer={DataViewer}
-                  formulaParser={formulaParser}
-                />
-              ))}
-            </Row>
-          ))}
-        </Table>
-        <ActiveCell
-          // @ts-ignore
-          DataEditor={DataEditor}
-          getBindingsForCell={getBindingsForCell}
-        />
+        {tableNode}
+        {activeCellNode}
         <Selected />
         <Copied />
       </div>
-    </Provider>
+    ),
+    [
+      className,
+      onKeyPress,
+      handleKeyDown,
+      handleMouseMove,
+      tableNode,
+      activeCellNode,
+    ]
+  );
+
+  return (
+    <context.Provider value={reducerElements}>{rootNode}</context.Provider>
   );
 };
 
