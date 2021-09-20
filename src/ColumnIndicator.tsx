@@ -3,10 +3,8 @@ import classNames from "classnames";
 import { columnIndexToLabel } from "hot-formula-parser";
 import * as Actions from "./actions";
 import * as Selection from "./selection";
-import * as Types from "./types";
 import { useContextSelector } from "use-context-selector";
 import context from "./context";
-import { useCallback } from "@storybook/addons";
 
 export type Props = {
   column: number;
@@ -46,7 +44,7 @@ export const enhance = (
       context,
       ([state, dispatch]) => dispatch
     );
-    const selectEntireColumn = useCallback(
+    const selectEntireColumn = React.useCallback(
       (column: number) => dispatch(Actions.selectEntireColumn({ column })),
       [dispatch]
     );
