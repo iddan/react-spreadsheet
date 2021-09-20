@@ -160,8 +160,6 @@ export const enhance = (
         : null;
     });
 
-    console.log("re-rendered cell wrapper");
-
     return (
       <CellComponent
         {...props}
