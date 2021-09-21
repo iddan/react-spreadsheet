@@ -37,7 +37,7 @@ import {
   getCellValue,
   shouldHandleClipboardEvent,
 } from "./util";
-import { reducer, INITIAL_STATE, hasKeyDownHandler } from "./reducer";
+import reducer, { INITIAL_STATE, hasKeyDownHandler } from "./reducer";
 import context from "./context";
 import "./Spreadsheet.css";
 

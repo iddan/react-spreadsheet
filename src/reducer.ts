@@ -31,7 +31,7 @@ export const INITIAL_STATE: Types.StoreState = {
   lastCommit: null,
 };
 
-export const reducer = createReducer(INITIAL_STATE, (builder) => {
+const reducer = createReducer(INITIAL_STATE, (builder) => {
   builder.addCase(Actions.setData, (state, action) => {
     const { data } = action.payload;
     const nextActive =
@@ -261,6 +261,8 @@ export const reducer = createReducer(INITIAL_STATE, (builder) => {
     }
   );
 });
+
+export default reducer;
 
 // Shared reducers
 
