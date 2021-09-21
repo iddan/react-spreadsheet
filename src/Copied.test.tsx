@@ -16,4 +16,9 @@ describe("<Copied />", () => {
       </context.Provider>
     );
   });
+  expect(
+    document.querySelector(
+      ".Spreadsheet__floating-rect.Spreadsheet__floating-rect--copied"
+    )
+  );
 });
