@@ -1,19 +1,17 @@
 import * as React from "react";
-import { useContextSelector } from "use-context-selector";
 import FloatingRect from "./FloatingRect";
 import * as PointRange from "./point-range";
-import context from "./context";
 import { getRangeDimensions } from "./util";
+import useSelector from "./use-selector";
 
 const Selected: React.FC = () => {
-  const selected = useContextSelector(context, ([state]) => state.selected);
-  const dimensions = useContextSelector(
-    context,
-    ([state]) =>
+  const selected = useSelector((state) => state.selected);
+  const dimensions = useSelector(
+    (state) =>
       selected &&
       getRangeDimensions(state.rowDimensions, state.columnDimensions, selected)
   );
-  const dragging = useContextSelector(context, ([state]) => state.dragging);
+  const dragging = useSelector((state) => state.dragging);
   const hidden = React.useMemo(() => isHidden(selected), [selected]);
   return (
     <FloatingRect

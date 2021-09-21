@@ -1,11 +1,11 @@
 import * as React from "react";
 import classnames from "classnames";
-import { useContextSelector } from "use-context-selector";
 import * as Matrix from "./matrix";
 import * as Actions from "./actions";
 import * as Types from "./types";
 import * as Point from "./point";
-import context from "./context";
+import useSelector from "./use-selector";
+import useDispatch from "./use-dispatch";
 import { getCellDimensions } from "./util";
 
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
 const ActiveCell: React.FC<Props> = (props) => {
   const { getBindingsForCell } = props;
 
-  const dispatch = useContextSelector(context, ([state, dispatch]) => dispatch);
+  const dispatch = useDispatch();
   const setCellData = React.useCallback(
     (active: Point.Point, data: Types.CellBase) =>
       dispatch(Actions.setCellData({ active, data, getBindingsForCell })),
@@ -28,12 +28,12 @@ const ActiveCell: React.FC<Props> = (props) => {
       dispatch(Actions.commit({ changes })),
     [dispatch]
   );
-  const active = useContextSelector(context, ([state]) => state.active);
-  const mode = useContextSelector(context, ([state]) => state.mode);
-  const cell = useContextSelector(context, ([state]) =>
+  const active = useSelector((state) => state.active);
+  const mode = useSelector((state) => state.mode);
+  const cell = useSelector((state) =>
     state.active ? Matrix.get(state.active, state.data) : undefined
   );
-  const dimensions = useContextSelector(context, ([state]) =>
+  const dimensions = useSelector((state) =>
     active
       ? getCellDimensions(active, state.rowDimensions, state.columnDimensions)
       : undefined

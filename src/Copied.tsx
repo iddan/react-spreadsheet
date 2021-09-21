@@ -1,16 +1,14 @@
 import * as React from "react";
-import { useContextSelector } from "use-context-selector";
 import FloatingRect from "./FloatingRect";
-import context from "./context";
 import { getCopiedRange, getRangeDimensions } from "./util";
+import useSelector from "./use-selector";
 
 const Copied: React.FC = () => {
-  const range = useContextSelector(context, ([state]) =>
+  const range = useSelector((state) =>
     getCopiedRange(state.copied, state.hasPasted)
   );
-  const dimensions = useContextSelector(
-    context,
-    ([state]) =>
+  const dimensions = useSelector(
+    (state) =>
       range &&
       getRangeDimensions(state.rowDimensions, state.columnDimensions, range)
   );
