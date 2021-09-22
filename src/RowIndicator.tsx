@@ -12,12 +12,7 @@ export type Props = {
   onSelect: (row: number) => void;
 };
 
-const RowIndicator: React.FC<Props> = ({
-  row,
-  label,
-  selected,
-  onSelect,
-}) => {
+const RowIndicator: React.FC<Props> = ({ row, label, selected, onSelect }) => {
   const handleClick = React.useCallback(() => {
     onSelect(row);
   }, [onSelect, row]);

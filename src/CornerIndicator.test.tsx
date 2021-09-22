@@ -9,7 +9,7 @@ import CornerIndicator, { Props } from "./CornerIndicator";
 const EXAMPLE_PROPS: Props = {
   selected: false,
   onSelect: jest.fn(),
-}
+};
 
 describe("<CornerIndicator />", () => {
   test("renders", () => {
