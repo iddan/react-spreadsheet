@@ -2,7 +2,11 @@ import * as React from "react";
 import { Action } from "@reduxjs/toolkit";
 import * as Types from "./types";
 import * as Actions from "./actions";
-import reducer, { INITIAL_STATE, hasKeyDownHandler } from "./reducer";
+import reducer, {
+  INITIAL_STATE,
+  hasKeyDownHandler,
+  isActiveReadOnly,
+} from "./reducer";
 import { createEmptyMatrix } from "./util";
 import * as Point from "./point";
 import * as Matrix from "./matrix";
@@ -135,5 +139,30 @@ describe("hasKeyDownHandler", () => {
     expect(hasKeyDownHandler(state, { key } as React.KeyboardEvent)).toBe(
       expected
     );
+  });
+});
+
+describe("isActiveReadOnly", () => {
+  const cases = [
+    ["returns false if no active", INITIAL_STATE, false],
+    [
+      "returns false if active is not read only",
+      { ...INITIAL_STATE, active: Point.ORIGIN },
+      false,
+    ],
+    [
+      "returns true if active is read only",
+      {
+        ...INITIAL_STATE,
+        data: [
+          [{ readOnly: true, value: undefined }],
+        ] as Matrix.Matrix<Types.CellBase>,
+        active: Point.ORIGIN,
+      },
+      true,
+    ],
+  ] as const;
+  test.each(cases)("%s", (name, state, expected) => {
+    expect(isActiveReadOnly(state)).toBe(expected);
   });
 });

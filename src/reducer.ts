@@ -178,49 +178,17 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
       lastCommit: commit,
     };
   });
-  builder.addCase(Actions.edit, (state) => {
-    if (isActiveReadOnly(state)) {
-      return;
-    }
-    return { ...state, mode: "edit" };
-  });
-  builder.addCase(Actions.view, (state) => {
-    return { ...state, mode: "view" };
-  });
-  builder.addCase(Actions.clear, (state) => {
-    if (!state.active) {
-      return;
-    }
-    const selectedPoints = state.selected
-      ? Array.from(PointRange.iterate(state.selected))
-      : [];
-    const changes = selectedPoints.map((point) => {
-      const cell = Matrix.get(point, state.data);
-      return {
-        ...state,
-        prevCell: cell || null,
-        nextCell: null,
-      };
-    });
-    return {
-      ...state,
-      data: selectedPoints.reduce(
-        (acc, point) => Matrix.set(point, undefined, acc),
-        state.data
-      ),
-      ...commit(changes),
-    };
-  });
-  builder.addCase(Actions.blur, (state) => {
-    return { ...state, active: null };
-  });
+  builder.addCase(Actions.edit, edit);
+  builder.addCase(Actions.view, view);
+  builder.addCase(Actions.clear, clear);
+  builder.addCase(Actions.blur, blur);
   builder.addCase(Actions.keyPress, (state, action) => {
     const { event } = action.payload;
     if (isActiveReadOnly(state) || event.metaKey) {
       return;
     }
     if (state.mode === "view" && state.active) {
-      return { ...state, mode: "edit" };
+      return edit(state);
     }
     return;
   });
@@ -447,14 +415,16 @@ export function hasKeyDownHandler(
   return getKeyDownHandler(state, event) !== undefined;
 }
 
-function getActive<Cell extends Types.CellBase>(
+/** Returns whether the active cell is read only */
+export function isActiveReadOnly(state: Types.StoreState): boolean {
+  const activeCell = getActive(state);
+  return Boolean(activeCell?.readOnly);
+}
+
+/** Gets active cell from given state */
+export function getActive<Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>
 ): Cell | null {
   const activeCell = state.active && Matrix.get(state.active, state.data);
   return activeCell || null;
 }
-
-const isActiveReadOnly = (state: Types.StoreState<Types.CellBase>): boolean => {
-  const activeCell = getActive(state);
-  return Boolean(activeCell && activeCell.readOnly);
-};
