@@ -114,16 +114,16 @@ export const enhance = (
     const { row, column } = props;
     const dispatch = useDispatch();
     const select = React.useCallback(
-      (point: Point.Point) => dispatch(Actions.select({ point })),
+      (point: Point.Point) => dispatch(Actions.select(point)),
       [dispatch]
     );
     const activate = React.useCallback(
-      (point: Point.Point) => dispatch(Actions.activate({ point })),
+      (point: Point.Point) => dispatch(Actions.activate(point)),
       [dispatch]
     );
     const setCellDimensions = React.useCallback(
       (point: Point.Point, dimensions: Types.Dimensions) =>
-        dispatch(Actions.setCellDimensions({ point, dimensions })),
+        dispatch(Actions.setCellDimensions(point, dimensions)),
       [dispatch]
     );
     const active = useSelector((state) =>

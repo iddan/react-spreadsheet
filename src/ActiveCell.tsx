@@ -19,13 +19,13 @@ const ActiveCell: React.FC<Props> = (props) => {
   const dispatch = useDispatch();
   const setCellData = React.useCallback(
     (active: Point.Point, data: Types.CellBase) =>
-      dispatch(Actions.setCellData({ active, data, getBindingsForCell })),
+      dispatch(Actions.setCellData(active, data, getBindingsForCell)),
     [dispatch, getBindingsForCell]
   );
   const edit = React.useCallback(() => dispatch(Actions.edit()), [dispatch]);
   const commit = React.useCallback(
     (changes: Types.CommitChanges<Types.CellBase>) =>
-      dispatch(Actions.commit({ changes })),
+      dispatch(Actions.commit(changes)),
     [dispatch]
   );
   const active = useSelector((state) => state.active);

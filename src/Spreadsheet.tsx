@@ -172,15 +172,15 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const copy = React.useCallback(() => dispatch(Actions.copy()), [dispatch]);
   const cut = React.useCallback(() => dispatch(Actions.cut()), [dispatch]);
   const paste = React.useCallback(
-    (data) => dispatch(Actions.paste({ data })),
+    (data) => dispatch(Actions.paste(data)),
     [dispatch]
   );
   const onKeyDownAction = React.useCallback(
-    (event) => dispatch(Actions.keyDown({ event })),
+    (event) => dispatch(Actions.keyDown(event)),
     [dispatch]
   );
   const onKeyPress = React.useCallback(
-    (event) => dispatch(Actions.keyPress({ event })),
+    (event) => dispatch(Actions.keyPress(event)),
     [dispatch]
   );
   const onDragStart = React.useCallback(
@@ -192,7 +192,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     [dispatch]
   );
   const setData = React.useCallback(
-    (data) => dispatch(Actions.setData({ data })),
+    (data) => dispatch(Actions.setData(data)),
     [dispatch]
   );
 
