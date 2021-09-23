@@ -78,6 +78,7 @@ describe("<ActiveCell />", () => {
         column: Point.ORIGIN.column,
         cell: undefined,
         onChange: expect.any(Function),
+        exitEditMode: expect.any(Function),
       },
       {}
     );
