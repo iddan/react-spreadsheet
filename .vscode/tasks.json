@@ -8,6 +8,13 @@
       "problemMatcher": [],
       "label": "npm: build",
       "detail": "rollup -c"
+    },
+    {
+      "type": "npm",
+      "script": "storybook",
+      "problemMatcher": [],
+      "label": "npm: storybook",
+      "detail": "start-storybook -p 6006"
     }
   ]
 }
