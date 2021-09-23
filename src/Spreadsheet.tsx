@@ -195,6 +195,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     (data) => dispatch(Actions.setData(data)),
     [dispatch]
   );
+  const blur = React.useCallback(() => dispatch(Actions.blur()), [dispatch]);
 
   React.useEffect(() => {
     const prevState = prevStateRef.current;
@@ -323,6 +324,18 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       }
     },
     [state, onDragStart, handleMouseUp]
+  );
+
+  const handleBlur = React.useCallback(
+    (event) => {
+      const { currentTarget } = event;
+      setTimeout(() => {
+        if (!currentTarget.matches(":focus-within")) {
+          blur();
+        }
+      }, 0);
+    },
+    [blur]
   );
 
   const formulaParser = React.useMemo(() => {
@@ -460,6 +473,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
         onKeyPress={onKeyPress}
         onKeyDown={handleKeyDown}
         onMouseMove={handleMouseMove}
+        onBlur={handleBlur}
       >
         {tableNode}
         {activeCellNode}
@@ -472,6 +486,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       onKeyPress,
       handleKeyDown,
       handleMouseMove,
+      handleBlur,
       tableNode,
       activeCellNode,
     ]
