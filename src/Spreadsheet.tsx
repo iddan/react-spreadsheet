@@ -8,17 +8,11 @@ import * as Matrix from "./matrix";
 import * as Point from "./point";
 import { Parser as FormulaParser } from "hot-formula-parser";
 
-import DefaultTable, { Props as TableProps } from "./Table";
-import DefaultRow, { Props as RowProps } from "./Row";
-import DefaultCornerIndicator, {
-  Props as CornerIndicatorProps,
-} from "./CornerIndicator";
-import DefaultColumnIndicator, {
-  Props as ColumnIndicatorProps,
-} from "./ColumnIndicator";
-import DefaultRowIndicator, {
-  Props as RowIndicatorProps,
-} from "./RowIndicator";
+import DefaultTable from "./Table";
+import DefaultRow from "./Row";
+import DefaultCornerIndicator from "./CornerIndicator";
+import DefaultColumnIndicator from "./ColumnIndicator";
+import DefaultRowIndicator from "./RowIndicator";
 import { Cell as DefaultCell, enhance as enhanceCell } from "./Cell";
 import DefaultDataViewer from "./DataViewer";
 import DefaultDataEditor from "./DataEditor";
@@ -75,15 +69,15 @@ export type Props<CellType extends Types.CellBase> = {
   hideColumnIndicators?: boolean;
   // Custom Components
   /** Component rendered above each column. */
-  ColumnIndicator?: React.ComponentType<ColumnIndicatorProps>;
+  ColumnIndicator?: Types.ColumnIndicatorComponent;
   /** Component rendered in the corner of row and column indicators. */
-  CornerIndicator?: React.ComponentType<CornerIndicatorProps>;
+  CornerIndicator?: Types.CornerIndicatorComponent;
   /** Component rendered next to each row. */
-  RowIndicator?: React.ComponentType<RowIndicatorProps>;
+  RowIndicator?: Types.RowIndicatorComponent;
   /** The Spreadsheet's table component. */
-  Table?: React.ComponentType<TableProps>;
+  Table?: Types.TableComponent;
   /** The Spreadsheet's row component. */
-  Row?: React.ComponentType<RowProps>;
+  Row?: Types.RowComponent;
   /** The Spreadsheet's cell component. */
   Cell?: Types.CellComponent<CellType>;
   /** Component rendered for cells in view mode. */

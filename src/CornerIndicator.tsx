@@ -1,7 +1,8 @@
 import * as React from "react";
+import * as Types from "./types";
 
-export type Props = {};
-
-const CornerIndicator: React.FC = () => <th className="Spreadsheet__header" />;
+const CornerIndicator: Types.CornerIndicatorComponent = () => (
+  <th className="Spreadsheet__header" />
+);
 
 export default CornerIndicator;

@@ -1,4 +1,4 @@
-import { ComponentType } from "react";
+import * as React from "react";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import { Point } from "./point";
 import { PointMap } from "./point-map";
@@ -105,9 +105,8 @@ export type CellComponentProps<Cell extends CellBase = CellBase> = {
 };
 
 /** Type of the Spreadsheet Cell component */
-export type CellComponent<Cell extends CellBase = CellBase> = ComponentType<
-  CellComponentProps<Cell>
->;
+export type CellComponent<Cell extends CellBase = CellBase> =
+  React.ComponentType<CellComponentProps<Cell>>;
 
 type DataComponentProps<Cell extends CellBase> = {
   /** The rendered cell by the component */
@@ -123,7 +122,7 @@ export type DataViewerProps<Cell extends CellBase = CellBase> =
 
 /** Type of the Spreadsheet DataViewer component */
 export type DataViewerComponent<Cell extends CellBase = CellBase> =
-  ComponentType<DataViewerProps<Cell>>;
+  React.ComponentType<DataViewerProps<Cell>>;
 
 /** Type of the Spreadsheet DataEditor component props */
 export type DataEditorProps<Cell extends CellBase = CellBase> =
@@ -136,7 +135,54 @@ export type DataEditorProps<Cell extends CellBase = CellBase> =
 
 /** Type of the Spreadsheet DataEditor component */
 export type DataEditorComponent<Cell extends CellBase = CellBase> =
-  ComponentType<DataEditorProps<Cell>>;
+  React.ComponentType<DataEditorProps<Cell>>;
+
+/** Type of the Spreadsheet Table component props */
+export type TableProps = React.PropsWithChildren<{
+  /** Numebr of columns the table should render */
+  columns: number;
+  /** Whether column indicators are hidden */
+  hideColumnIndicators?: boolean | null;
+}>;
+
+/** Type of the Spreadsheet Table component */
+export type TableComponent = React.ComponentType<TableProps>;
+
+/** Type of the Spreadsheet Row component props */
+export type RowProps = React.PropsWithChildren<{}>;
+
+/** Type of the Row component */
+export type RowComponent = React.ComponentType<RowProps>;
+
+/** Type of the Spreadsheet RowIndicator component props */
+export type RowIndicatorProps = {
+  /** The row the indicator indicates */
+  row: number;
+  /** A custom label for the indicator as provided in rowLabels */
+  label?: React.ReactNode | null;
+};
+
+/** Type of the RowIndicator component */
+export type RowIndicatorComponent = React.ComponentType<RowIndicatorProps>;
+
+/** Type of the Spreadsheet ColumnIndicator component props */
+export type ColumnIndicatorProps = {
+  /** The column the indicator indicates */
+  column: number;
+  /** A custom label for the indicator as provided in columnLabels */
+  label?: React.ReactNode | null;
+};
+
+/** Type of the ColumnIndicator component */
+export type ColumnIndicatorComponent =
+  React.ComponentType<ColumnIndicatorProps>;
+
+/** Type of the Spreadsheet CornerIndicator component props */
+export type CornerIndicatorProps = {};
+
+/** Type of the CornerIndicator component */
+export type CornerIndicatorComponent =
+  React.ComponentType<CornerIndicatorProps>;
 
 export type CommitChanges<Cell extends CellBase = CellBase> = Array<{
   prevCell: Cell | null;

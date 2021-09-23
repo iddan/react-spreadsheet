@@ -1,13 +1,8 @@
 import * as React from "react";
+import * as Types from "./types";
 import { range } from "./util";
 
-export type Props = {
-  columns: number;
-  hideColumnIndicators?: boolean | null;
-  children: React.ReactNode;
-};
-
-const Table: React.FC<Props> = ({
+const Table: Types.TableComponent = ({
   children,
   columns,
   hideColumnIndicators,
