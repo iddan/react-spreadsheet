@@ -36,6 +36,7 @@ import {
   getCellRangeValue,
   getCellValue,
   shouldHandleClipboardEvent,
+  isFocusedWithin,
 } from "./util";
 import reducer, { INITIAL_STATE, hasKeyDownHandler } from "./reducer";
 import context from "./context";
@@ -105,6 +106,8 @@ export type Props<CellType extends Types.CellBase> = {
   onSelect?: (selected: Point.Point[]) => void;
   /** Callback called when Spreadsheet's active cell changes. */
   onActivate?: (active: Point.Point) => void;
+  /** Callback called when the Spreadsheet loses focus */
+  onBlur?: () => void;
   onCellCommit?: (
     prevCell: null | CellType,
     nextCell: null | CellType,
@@ -137,6 +140,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onModeChange = () => {},
     onSelect = () => {},
     onActivate = () => {},
+    onBlur = () => {},
     onCellCommit = () => {},
   } = props;
   const initialState = React.useMemo(
@@ -195,6 +199,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     (data) => dispatch(Actions.setData(data)),
     [dispatch]
   );
+  const blur = React.useCallback(() => dispatch(Actions.blur()), [dispatch]);
 
   React.useEffect(() => {
     const prevState = prevStateRef.current;
@@ -222,8 +227,16 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       onSelect(points);
     }
 
-    if (state.active !== prevState.active && state.active) {
-      onActivate(state.active);
+    if (state.active !== prevState.active) {
+      if (state.active) {
+        onActivate(state.active);
+      } else {
+        const root = rootRef.current;
+        if (root && isFocusedWithin(root) && document.activeElement) {
+          (document.activeElement as HTMLElement).blur();
+        }
+        onBlur();
+      }
     }
 
     prevStateRef.current = state;
@@ -231,6 +244,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     props.data,
     state,
     onActivate,
+    onBlur,
     onCellCommit,
     onChange,
     onModeChange,
@@ -323,6 +337,18 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       }
     },
     [state, onDragStart, handleMouseUp]
+  );
+
+  const handleBlur = React.useCallback(
+    (event) => {
+      const { currentTarget } = event;
+      setTimeout(() => {
+        if (!isFocusedWithin(currentTarget)) {
+          blur();
+        }
+      }, 0);
+    },
+    [blur]
   );
 
   const formulaParser = React.useMemo(() => {
@@ -460,6 +486,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
         onKeyPress={onKeyPress}
         onKeyDown={handleKeyDown}
         onMouseMove={handleMouseMove}
+        onBlur={handleBlur}
       >
         {tableNode}
         {activeCellNode}
@@ -472,6 +499,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       onKeyPress,
       handleKeyDown,
       handleMouseMove,
+      handleBlur,
       tableNode,
       activeCellNode,
     ]
