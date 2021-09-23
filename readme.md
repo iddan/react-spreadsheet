@@ -28,6 +28,7 @@ yarn add react react-dom scheduler react-spreadsheet
 - Implements Just Components™
 
 ### [Demo](https://iddan.github.io/react-spreadsheet)
+
 ### [Docs](https://iddan.github.io/react-spreadsheet/docs)
 
 ## License
