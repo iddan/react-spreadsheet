@@ -14,6 +14,7 @@ type Props = {
 };
 
 const ActiveCell: React.FC<Props> = (props) => {
+  const rootRef = React.useRef<HTMLDivElement>(null);
   const { getBindingsForCell } = props;
 
   const dispatch = useDispatch();
@@ -61,6 +62,13 @@ const ActiveCell: React.FC<Props> = (props) => {
   );
 
   React.useEffect(() => {
+    const root = rootRef.current;
+    if (!hidden && root) {
+      root.focus();
+    }
+  }, [rootRef, hidden]);
+
+  React.useEffect(() => {
     const prevActive = prevActiveRef.current;
     const prevCell = prevCellRef.current;
     prevActiveRef.current = active;
@@ -101,12 +109,14 @@ const ActiveCell: React.FC<Props> = (props) => {
 
   return hidden ? null : (
     <div
+      ref={rootRef}
       className={classnames(
         "Spreadsheet__active-cell",
         `Spreadsheet__active-cell--${mode}`
       )}
       style={dimensions}
       onClick={mode === "view" && !readOnly ? edit : undefined}
+      tabIndex={0}
     >
       {mode === "edit" && active && (
         <DataEditor
