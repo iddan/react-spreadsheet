@@ -2,14 +2,20 @@
 
 import typescript from "rollup-plugin-typescript2";
 import postcss from "rollup-plugin-postcss";
+import dts from "rollup-plugin-dts";
 import pkg from "./package.json";
 
-const input = "src/index.ts";
-const external = [
-  "react",
-  ...Object.keys(pkg.dependencies).flatMap(
+function createExternal(dependencies) {
+  return Object.keys(dependencies).flatMap(
     (dependency) => new RegExp(`^${dependency}(\\/.+)?`)
-  ),
+  );
+}
+
+const input = "src/index.ts";
+
+const external = [
+  ...createExternal(pkg.dependencies),
+  ...createExternal(pkg.peerDependencies),
 ];
 
 export default [
@@ -34,5 +40,14 @@ export default [
     },
     plugins: [typescript(), postcss()],
     external,
+  },
+  {
+    input,
+    output: {
+      file: "dist/index.d.ts",
+      format: "es",
+    },
+    plugins: [dts()],
+    external: [...external, /\.css$/],
   },
 ];

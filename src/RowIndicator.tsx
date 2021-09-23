@@ -1,11 +1,7 @@
 import * as React from "react";
+import * as Types from "./types";
 
-export type Props = {
-  row: number;
-  label?: React.ReactNode | null;
-};
-
-const RowIndicator: React.FC<Props> = ({ row, label }) => (
+const RowIndicator: Types.RowIndicatorComponent = ({ row, label }) => (
   <th className="Spreadsheet__header">
     {label !== undefined ? label : row + 1}
   </th>
