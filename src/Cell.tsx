@@ -1,6 +1,5 @@
 import * as React from "react";
 import classnames from "classnames";
-import { useContextSelector } from "use-context-selector";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
@@ -8,8 +7,9 @@ import * as Types from "./types";
 import * as Point from "./point";
 import * as Actions from "./actions";
 import * as Selection from "./selection";
-import context from "./context";
 import { isActive, getOffsetRect } from "./util";
+import useDispatch from "./use-dispatch";
+import useSelector from "./use-selector";
 
 export const Cell: React.FC<Types.CellComponentProps> = ({
   row,
@@ -112,45 +112,40 @@ export const enhance = (
 > => {
   return function CellWrapper(props) {
     const { row, column } = props;
-    const dispatch = useContextSelector(
-      context,
-      ([state, dispatch]) => dispatch
-    );
+    const dispatch = useDispatch();
     const select = React.useCallback(
-      (point: Point.Point) => dispatch(Actions.select({ point })),
+      (point: Point.Point) => dispatch(Actions.select(point)),
       [dispatch]
     );
     const activate = React.useCallback(
-      (point: Point.Point) => dispatch(Actions.activate({ point })),
+      (point: Point.Point) => dispatch(Actions.activate(point)),
       [dispatch]
     );
     const setCellDimensions = React.useCallback(
       (point: Point.Point, dimensions: Types.Dimensions) =>
-        dispatch(Actions.setCellDimensions({ point, dimensions })),
+        dispatch(Actions.setCellDimensions(point, dimensions)),
       [dispatch]
     );
-    const active = useContextSelector(context, ([state]) =>
+    const active = useSelector((state) =>
       isActive(state.active, {
         row,
         column,
       })
     );
-    const mode = useContextSelector(context, ([state]) =>
-      active ? state.mode : "view"
-    );
-    const data = useContextSelector(context, ([state]) =>
+    const mode = useSelector((state) => (active ? state.mode : "view"));
+    const data = useSelector((state) =>
       Matrix.get({ row, column }, state.data)
     );
-    const selected = useContextSelector(context, ([state]) =>
+    const selected = useSelector((state) =>
       Selection.hasPoint(state.selected, state.data, { row, column })
     );
-    const dragging = useContextSelector(context, ([state]) => state.dragging);
-    const copied = useContextSelector(context, ([state]) =>
+    const dragging = useSelector((state) => state.dragging);
+    const copied = useSelector((state) =>
       PointMap.has({ row, column }, state.copied)
     );
 
     // Use only to trigger re-render when cell bindings change
-    useContextSelector(context, ([state]) => {
+    useSelector((state) => {
       const point = { row, column };
       const cellBindings = PointMap.get(point, state.bindings);
       return cellBindings &&

@@ -46,7 +46,7 @@ export const enhance = (
         Selection.isEntireTable(state.selected)
     );
     const selectEntireRow = React.useCallback(
-      (row: number) => dispatch(Actions.selectEntireRow({ row })),
+      (row: number) => dispatch(Actions.selectEntireRow(row)),
       [dispatch]
     );
     return (

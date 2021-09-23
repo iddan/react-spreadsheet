@@ -45,7 +45,7 @@ export const enhance = (
       ([state, dispatch]) => dispatch
     );
     const selectEntireColumn = React.useCallback(
-      (column: number) => dispatch(Actions.selectEntireColumn({ column })),
+      (column: number) => dispatch(Actions.selectEntireColumn(column)),
       [dispatch]
     );
     const selected = useContextSelector(
