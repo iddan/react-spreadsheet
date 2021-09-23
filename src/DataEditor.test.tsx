@@ -20,6 +20,7 @@ const EXAMPLE_PROPS: Types.DataEditorProps = {
   column: 0,
   cell: EXAMPLE_CELL,
   onChange: ON_CHANGE_MOCK,
+  exitEditMode: jest.fn(),
 };
 
 beforeEach(() => {

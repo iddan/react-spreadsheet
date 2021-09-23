@@ -28,6 +28,9 @@ const ActiveCell: React.FC<Props> = (props) => {
       dispatch(Actions.commit(changes)),
     [dispatch]
   );
+  const view = React.useCallback(() => {
+    dispatch(Actions.view());
+  }, [dispatch]);
   const active = useSelector((state) => state.active);
   const mode = useSelector((state) => state.mode);
   const cell = useSelector((state) =>
@@ -112,6 +115,7 @@ const ActiveCell: React.FC<Props> = (props) => {
           cell={cell}
           // @ts-ignore
           onChange={handleChange}
+          exitEditMode={view}
         />
       )}
     </div>

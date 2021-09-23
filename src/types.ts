@@ -130,6 +130,8 @@ export type DataEditorProps<Cell extends CellBase = CellBase> =
   DataComponentProps<Cell> & {
     /** Callback to be called when the cell's value is changed */
     onChange: (cell: Cell) => void;
+    /** Callback to be called when edit mode should be exited */
+    exitEditMode: () => void;
   };
 
 /** Type of the Spreadsheet DataEditor component */
