@@ -8,7 +8,7 @@ Simple, customizable yet performant spreadsheet for React.
 
 ![Screenshot](https://github.com/iddan/react-spreadsheet/blob/master/assets/screenshot.png?raw=true)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fiddan%2Freact-spreadsheet.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fiddan%2Freact-spreadsheet?ref=badge_shield)
-![CI](https://github.com/iddan/react-spreadsheet/workflows/CI/badge.svg?branch=master)
+[![CI](https://github.com/iddan/react-spreadsheet/workflows/CI/badge.svg?branch=master)](https://github.com/iddan/react-spreadsheet/actions/workflows/ci.yaml?query=branch%3Amaster)
 [![Coverage Status](https://coveralls.io/repos/github/iddan/react-spreadsheet/badge.svg?branch=master)](https://coveralls.io/github/iddan/react-spreadsheet?branch=master)
 
 ```bash
@@ -28,67 +28,7 @@ yarn add react react-dom scheduler react-spreadsheet
 - Implements Just Components™
 
 ### [Demo](https://iddan.github.io/react-spreadsheet)
-
-### Usage
-
-#### Getting Started
-
-```javascript
-import React from "react";
-import Spreadsheet from "react-spreadsheet";
-
-const data = [
-  [{ value: "Vanilla" }, { value: "Chocolate" }],
-  [{ value: "Strawberry" }, { value: "Cookies" }],
-];
-
-const MyComponent = () => <Spreadsheet data={data} />;
-```
-
-#### Custom Components
-
-```javascript
-import React from "react";
-import Spreadsheet from "react-spreadsheet";
-
-const RangeView = ({ cell }) => (
-  <input
-    type="range"
-    value={cell.value}
-    disabled
-    style={{ pointerEvents: "none" }}
-  />
-);
-
-const RangeEdit = ({ cell, onChange }) => (
-  <input
-    type="range"
-    onChange={(e) => {
-      onChange({ ...cell, value: e.target.value });
-    }}
-    value={cell.value || 0}
-    autoFocus
-  />
-);
-
-const data = [
-  [{ value: "Flavors" }],
-  [({ value: "Vanilla" }, { value: "Chocolate" })],
-  [{ value: "Strawberry" }, { value: "Cookies" }],
-  [
-    { value: "How much do you like ice cream?" },
-    { value: 100, DataViewer: RangeView, DataEditor: RangeEdit },
-  ],
-];
-
-const MyComponent = () => <Spreadsheet data={data} />;
-```
-
-### Prior Art
-
-- [React Datasheet](https://nadbm.github.io/react-datasheet/) - Heavily inspired by, enhanced performance and API, no formulas
-- [React Spreadsheet Grid](https://denisraslov.github.io/grid/) - Virtualized, lacks significant UI parts, no formulas
-- [Handsonetable](https://handsontable.com/) - Virtualized, lacks dynamic customization. React Spreadsheet uses it's formulas parsing module
+### [Docs](https://iddan.github.io/react-spreadsheet/docs)
 
 ## License
 
