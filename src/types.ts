@@ -149,10 +149,19 @@ export type TableProps = React.PropsWithChildren<{
 export type TableComponent = React.ComponentType<TableProps>;
 
 /** Type of the Spreadsheet Row component props */
-export type RowProps = React.PropsWithChildren<{}>;
+export type RowProps = React.PropsWithChildren<{
+  /** The row index of the table */
+  row: number;
+}>;
 
 /** Type of the Row component */
 export type RowComponent = React.ComponentType<RowProps>;
+
+/** Type of the Spreadsheet HeaderRow component props */
+export type HeaderRowProps = React.PropsWithChildren<{}>;
+
+/** Type of the HeaderRow component */
+export type HeaderRowComponent = React.ComponentType<HeaderRowProps>;
 
 /** Type of the Spreadsheet RowIndicator component props */
 export type RowIndicatorProps = {
