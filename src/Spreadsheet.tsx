@@ -10,6 +10,7 @@ import { Parser as FormulaParser } from "hot-formula-parser";
 
 import DefaultTable from "./Table";
 import DefaultRow from "./Row";
+import DefaultHeaderRow from "./HeaderRow";
 import DefaultCornerIndicator from "./CornerIndicator";
 import DefaultColumnIndicator from "./ColumnIndicator";
 import DefaultRowIndicator from "./RowIndicator";
@@ -80,6 +81,8 @@ export type Props<CellType extends Types.CellBase> = {
   Table?: Types.TableComponent;
   /** The Spreadsheet's row component. */
   Row?: Types.RowComponent;
+  /** The spreadsheet's header row component */
+  HeaderRow?: Types.HeaderRowComponent;
   /** The Spreadsheet's cell component. */
   Cell?: Types.CellComponent<CellType>;
   /** Component rendered for cells in view mode. */
@@ -127,6 +130,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onKeyDown,
     Table = DefaultTable,
     Row = DefaultRow,
+    HeaderRow = DefaultHeaderRow,
     CornerIndicator = DefaultCornerIndicator,
     DataEditor = DefaultDataEditor,
     DataViewer = DefaultDataViewer,
@@ -400,7 +404,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const tableNode = React.useMemo(
     () => (
       <Table columns={size.columns} hideColumnIndicators={hideColumnIndicators}>
-        <Row>
+        <HeaderRow>
           {!hideRowIndicators && !hideColumnIndicators && <CornerIndicator />}
           {!hideColumnIndicators &&
             range(size.columns).map((columnNumber) =>
@@ -418,9 +422,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
                 <ColumnIndicator key={columnNumber} column={columnNumber} />
               )
             )}
-        </Row>
+        </HeaderRow>
         {range(size.rows).map((rowNumber) => (
-          <Row key={rowNumber}>
+          <Row key={rowNumber} row={rowNumber}>
             {!hideRowIndicators &&
               (rowLabels ? (
                 <RowIndicator
@@ -451,6 +455,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       size.columns,
       hideColumnIndicators,
       Row,
+      HeaderRow,
       hideRowIndicators,
       CornerIndicator,
       columnLabels,
