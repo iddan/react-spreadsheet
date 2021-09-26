@@ -42,6 +42,8 @@ export type Props<CellType extends Types.CellBase> = {
   data: Matrix.Matrix<CellType>;
   /** Class to be added to the spreadsheet element */
   className?: string;
+  /** Use dark colors that complenent dark mode */
+  darkMode?: boolean;
   /**
    * Instance of `FormulaParser` to be used by the Spreadsheet.
    * Defaults to: internal instance created by the component.
@@ -117,6 +119,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 ): React.ReactElement => {
   const {
     className,
+    darkMode,
     columnLabels,
     rowLabels,
     hideColumnIndicators,
@@ -476,7 +479,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     () => (
       <div
         ref={rootRef}
-        className={classNames("Spreadsheet", className)}
+        className={classNames("Spreadsheet", className, {
+          "Spreadsheet--dark-mode": darkMode,
+        })}
         onKeyPress={onKeyPress}
         onKeyDown={handleKeyDown}
         onMouseMove={handleMouseMove}
@@ -490,6 +495,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     ),
     [
       className,
+      darkMode,
       onKeyPress,
       handleKeyDown,
       handleMouseMove,
