@@ -71,7 +71,7 @@ export type Props<CellType extends Types.CellBase> = {
    */
   hideColumnIndicators?: boolean;
   /**
-   * If set to true, automatically creates missing rows when inserting
+   * If set to true, automatically creates missing rows when pasting from clipboard
    * Defaults to: `true`
    */
   autoPadRowsOnPaste?: boolean;
