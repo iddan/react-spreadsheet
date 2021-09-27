@@ -26,6 +26,7 @@ export const INITIAL_STATE: Types.StoreState = {
   dragging: false,
   data: [],
   selected: null,
+  pasted: null,
   copied: PointMap.from([]),
   bindings: PointMap.from([]),
   lastCommit: null,
@@ -110,7 +111,7 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     };
   });
   builder.addCase(Actions.paste, (state, action) => {
-    const { data: text } = action.payload;
+    const { data: text, autoPadRowsOnPaste } = action.payload;
     const { active } = state;
     if (!active) {
       return;
@@ -126,8 +127,11 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     };
 
     const copiedSize = Matrix.getSize(copiedMatrix);
-    const requiredRows = active.row + copiedSize.rows;
-    const paddedData = Matrix.padRows(state.data, requiredRows);
+    const paddedRowsCount = active.row + copiedSize.rows;
+    const requiredRowsCount = !autoPadRowsOnPaste
+      ? Math.min(paddedRowsCount, state.data.length)
+      : paddedRowsCount;
+    const paddedData = Matrix.padRows(state.data, requiredRowsCount);
 
     const { data, commit } = PointMap.reduce<Accumulator, Types.CellBase>(
       (acc, value, point) => {
@@ -165,13 +169,17 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
       copied,
       { data: paddedData, commit: [] }
     );
+
+    const selectedRange = PointRange.create(active, {
+      row: autoPadRowsOnPaste ? paddedRowsCount - 1 : requiredRowsCount - 1,
+      column: active.column + copiedSize.columns - 1,
+    });
+
     return {
       ...state,
       data,
-      selected: PointRange.create(active, {
-        row: active.row + copiedSize.rows - 1,
-        column: active.column + copiedSize.columns - 1,
-      }),
+      selected: selectedRange,
+      pasted: selectedRange,
       cut: false,
       hasPasted: true,
       mode: "view",

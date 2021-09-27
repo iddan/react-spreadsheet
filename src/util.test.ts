@@ -60,6 +60,7 @@ const EXAMPLE_STATE: Types.StoreState = {
   dragging: false,
   data: EXAMPLE_DATA,
   selected: null,
+  pasted: null,
   copied: PointMap.from([]),
   bindings: PointMap.from([]),
   lastCommit: null,

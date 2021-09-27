@@ -47,6 +47,7 @@ export type Dimensions = {
 export type StoreState<Cell extends CellBase = CellBase> = {
   data: Matrix<Cell>;
   selected: PointRange | null;
+  pasted: PointRange | null;
   copied: PointMap<Cell>;
   hasPasted: boolean;
   cut: boolean;
