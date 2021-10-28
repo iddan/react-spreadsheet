@@ -259,7 +259,7 @@ function clear(state: Types.StoreState): Types.StoreState | void {
   return {
     ...state,
     data: selectedPoints.reduce(
-      (acc, point) => Matrix.set(point, undefined, acc),
+      (acc, point) => Matrix.set(point, { ...cell, value: undefined }, acc),
       state.data
     ),
     ...commit(changes),
