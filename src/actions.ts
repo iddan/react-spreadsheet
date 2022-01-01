@@ -16,7 +16,7 @@ export const selectEntireRow = createAction<
 export const selectEntireColumn = createAction<
   (column: number) => { payload: { column: number } },
   "SELECT_ENTIRE_COLUMN"
->("SELECT_ENTIRE_COLUMN", column => ({ payload: { column } }));
+>("SELECT_ENTIRE_COLUMN", (column) => ({ payload: { column } }));
 export const selectEntireTable = createAction("SELECT_ENTIRE_TABLE");
 export const select = createAction<
   (point: Point.Point) => { payload: { point: Point.Point } },
