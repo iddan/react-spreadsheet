@@ -42,6 +42,9 @@ flow-typed/
 # Typescript v1 declaration files
 typings/
 
+# Typescript
+tsconfig.json
+
 # Optional npm cache directory
 .npm
 
@@ -98,3 +101,7 @@ typedoc.json
 
 # Prettier
 .prettierignore
+
+# Stylelint
+.stylelintrc.json
+.stylelintignore

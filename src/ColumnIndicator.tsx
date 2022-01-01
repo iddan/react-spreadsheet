@@ -1,19 +1,13 @@
 import * as React from "react";
 import classNames from "classnames";
 import { columnIndexToLabel } from "hot-formula-parser";
+import { useContextSelector } from "use-context-selector";
+import * as Types from "./types";
 import * as Actions from "./actions";
 import * as Selection from "./selection";
-import { useContextSelector } from "use-context-selector";
 import context from "./context";
 
-export type Props = {
-  column: number;
-  label?: React.ReactNode | null;
-  selected: boolean;
-  onSelect: (column: number) => void;
-};
-
-const ColumnIndicator: React.FC<Props> = ({
+const ColumnIndicator: Types.ColumnIndicatorComponent = ({
   column,
   label,
   selected,
@@ -37,8 +31,8 @@ const ColumnIndicator: React.FC<Props> = ({
 export default ColumnIndicator;
 
 export const enhance = (
-  ColumnIndicatorComponent: React.ComponentType<Props>
-): React.FC<Omit<Props, "selected" | "onSelect">> => {
+  ColumnIndicatorComponent: Types.ColumnIndicatorComponent
+): React.FC<Omit<Types.ColumnIndicatorProps, "selected" | "onSelect">> => {
   return function ColumnIndicatorWrapper(props) {
     const dispatch = useContextSelector(
       context,

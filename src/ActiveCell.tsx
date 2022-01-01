@@ -14,6 +14,7 @@ type Props = {
 };
 
 const ActiveCell: React.FC<Props> = (props) => {
+  const rootRef = React.useRef<HTMLDivElement>(null);
   const { getBindingsForCell } = props;
 
   const dispatch = useDispatch();
@@ -28,6 +29,9 @@ const ActiveCell: React.FC<Props> = (props) => {
       dispatch(Actions.commit(changes)),
     [dispatch]
   );
+  const view = React.useCallback(() => {
+    dispatch(Actions.view());
+  }, [dispatch]);
   const active = useSelector((state) => state.active);
   const mode = useSelector((state) => state.mode);
   const cell = useSelector((state) =>
@@ -56,6 +60,13 @@ const ActiveCell: React.FC<Props> = (props) => {
     },
     [setCellData, active]
   );
+
+  React.useEffect(() => {
+    const root = rootRef.current;
+    if (!hidden && root) {
+      root.focus();
+    }
+  }, [rootRef, hidden]);
 
   React.useEffect(() => {
     const prevActive = prevActiveRef.current;
@@ -98,12 +109,14 @@ const ActiveCell: React.FC<Props> = (props) => {
 
   return hidden ? null : (
     <div
+      ref={rootRef}
       className={classnames(
         "Spreadsheet__active-cell",
         `Spreadsheet__active-cell--${mode}`
       )}
       style={dimensions}
       onClick={mode === "view" && !readOnly ? edit : undefined}
+      tabIndex={0}
     >
       {mode === "edit" && active && (
         <DataEditor
@@ -112,6 +125,7 @@ const ActiveCell: React.FC<Props> = (props) => {
           cell={cell}
           // @ts-ignore
           onChange={handleChange}
+          exitEditMode={view}
         />
       )}
     </div>

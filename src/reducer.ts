@@ -257,7 +257,7 @@ function clear(state: Types.StoreState): Types.StoreState | void {
 }
 
 function blur(state: Types.StoreState): Types.StoreState {
-  return { ...state, active: null };
+  return { ...state, active: null, selected: null };
 }
 
 function view(state: Types.StoreState): Types.StoreState {

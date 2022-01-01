@@ -6,7 +6,8 @@
   "recommendations": [
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "orta.vscode-jest"
+    "orta.vscode-jest",
+    "stylelint.vscode-stylelint"
   ],
   // List of extensions recommended by VS Code that should not be recommended for users of this workspace.
   "unwantedRecommendations": []

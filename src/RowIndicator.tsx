@@ -3,16 +3,15 @@ import classNames from "classnames";
 import { useContextSelector } from "use-context-selector";
 import context from "./context";
 import * as Actions from "./actions";
+import * as Types from "./types";
 import * as Selection from "./selection";
 
-export type Props = {
-  row: number;
-  label?: React.ReactNode | null;
-  selected: boolean;
-  onSelect: (row: number) => void;
-};
-
-const RowIndicator: React.FC<Props> = ({ row, label, selected, onSelect }) => {
+const RowIndicator: Types.RowIndicatorComponent = ({
+  row,
+  label,
+  selected,
+  onSelect,
+}) => {
   const handleClick = React.useCallback(() => {
     onSelect(row);
   }, [onSelect, row]);
@@ -32,8 +31,8 @@ const RowIndicator: React.FC<Props> = ({ row, label, selected, onSelect }) => {
 export default RowIndicator;
 
 export const enhance = (
-  RowIndicatorComponent: React.ComponentType<Props>
-): React.FC<Omit<Props, "selected" | "onSelect">> => {
+  RowIndicatorComponent: Types.RowIndicatorComponent
+): React.FC<Omit<Types.RowIndicatorProps, "selected" | "onSelect">> => {
   return function RowIndicatorWrapper(props) {
     const dispatch = useContextSelector(
       context,

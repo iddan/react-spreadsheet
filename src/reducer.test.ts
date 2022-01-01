@@ -101,7 +101,11 @@ describe("reducer", () => {
     ["view", EDIT_STATE, Actions.view(), INITIAL_STATE],
     [
       "blur",
-      { ...INITIAL_STATE, active: Point.ORIGIN },
+      {
+        ...INITIAL_STATE,
+        active: Point.ORIGIN,
+        selected: PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      },
       Actions.blur(),
       INITIAL_STATE,
     ],

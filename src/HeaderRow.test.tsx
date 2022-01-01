@@ -4,21 +4,21 @@
 
 import React from "react";
 import { render } from "@testing-library/react";
-import Row from "./Row";
+import HeaderRow from "./HeaderRow";
 
-describe("<Row />", () => {
+describe("<HeaderRow />", () => {
   test("renders", () => {
-    render(<Row row={0} />);
+    render(<HeaderRow />);
     const row = document.querySelector("tr");
     expect(row).not.toBeNull();
   });
   test("renders with children", () => {
     render(
-      <Row row={1}>
-        <td></td>
-      </Row>
+      <HeaderRow>
+        <th></th>
+      </HeaderRow>
     );
-    const cell = document.querySelector("tr td");
+    const cell = document.querySelector("tr th");
     expect(cell).not.toBeNull();
   });
 });

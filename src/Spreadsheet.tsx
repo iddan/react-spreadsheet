@@ -7,18 +7,16 @@ import * as Matrix from "./matrix";
 import * as Point from "./point";
 import { Parser as FormulaParser } from "hot-formula-parser";
 
-import DefaultTable, { Props as TableProps } from "./Table";
-import DefaultRow, { Props as RowProps } from "./Row";
+import DefaultTable from "./Table";
+import DefaultRow from "./Row";
+import DefaultHeaderRow from "./HeaderRow";
 import DefaultCornerIndicator, {
-  Props as CornerIndicatorProps,
   enhance as enhanceCornerIndicator,
 } from "./CornerIndicator";
 import DefaultColumnIndicator, {
-  Props as ColumnIndicatorProps,
   enhance as enhanceColumnIndicator,
 } from "./ColumnIndicator";
 import DefaultRowIndicator, {
-  Props as RowIndicatorProps,
   enhance as enhanceRowIndicator,
 } from "./RowIndicator";
 import { Cell as DefaultCell, enhance as enhanceCell } from "./Cell";
@@ -39,6 +37,7 @@ import {
   getCellRangeValue,
   getCellValue,
   shouldHandleClipboardEvent,
+  isFocusedWithin,
 } from "./util";
 import reducer, { INITIAL_STATE, hasKeyDownHandler } from "./reducer";
 import context from "./context";
@@ -50,6 +49,8 @@ export type Props<CellType extends Types.CellBase> = {
   data: Matrix.Matrix<CellType>;
   /** Class to be added to the spreadsheet element */
   className?: string;
+  /** Use dark colors that complenent dark mode */
+  darkMode?: boolean;
   /**
    * Instance of `FormulaParser` to be used by the Spreadsheet.
    * Defaults to: internal instance created by the component.
@@ -77,15 +78,17 @@ export type Props<CellType extends Types.CellBase> = {
   hideColumnIndicators?: boolean;
   // Custom Components
   /** Component rendered above each column. */
-  ColumnIndicator?: React.ComponentType<ColumnIndicatorProps>;
+  ColumnIndicator?: Types.ColumnIndicatorComponent;
   /** Component rendered in the corner of row and column indicators. */
-  CornerIndicator?: React.ComponentType<CornerIndicatorProps>;
+  CornerIndicator?: Types.CornerIndicatorComponent;
   /** Component rendered next to each row. */
-  RowIndicator?: React.ComponentType<RowIndicatorProps>;
+  RowIndicator?: Types.RowIndicatorComponent;
   /** The Spreadsheet's table component. */
-  Table?: React.ComponentType<TableProps>;
+  Table?: Types.TableComponent;
   /** The Spreadsheet's row component. */
-  Row?: React.ComponentType<RowProps>;
+  Row?: Types.RowComponent;
+  /** The spreadsheet's header row component */
+  HeaderRow?: Types.HeaderRowComponent;
   /** The Spreadsheet's cell component. */
   Cell?: Types.CellComponent<CellType>;
   /** Component rendered for cells in view mode. */
@@ -108,6 +111,8 @@ export type Props<CellType extends Types.CellBase> = {
   onSelect?: (selected: Point.Point[]) => void;
   /** Callback called when Spreadsheet's active cell changes. */
   onActivate?: (active: Point.Point) => void;
+  /** Callback called when the Spreadsheet loses focus */
+  onBlur?: () => void;
   onCellCommit?: (
     prevCell: null | CellType,
     nextCell: null | CellType,
@@ -123,6 +128,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 ): React.ReactElement => {
   const {
     className,
+    darkMode,
     columnLabels,
     rowLabels,
     hideColumnIndicators,
@@ -130,6 +136,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onKeyDown,
     Table = DefaultTable,
     Row = DefaultRow,
+    HeaderRow = DefaultHeaderRow,
     DataEditor = DefaultDataEditor,
     DataViewer = DefaultDataViewer,
     getBindingsForCell = defaultGetBindingsForCell,
@@ -137,6 +144,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onModeChange = () => {},
     onSelect = () => {},
     onActivate = () => {},
+    onBlur = () => {},
     onCellCommit = () => {},
   } = props;
   const initialState = React.useMemo(
@@ -195,6 +203,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     (data) => dispatch(Actions.setData(data)),
     [dispatch]
   );
+  const blur = React.useCallback(() => dispatch(Actions.blur()), [dispatch]);
 
   React.useEffect(() => {
     const prevState = prevStateRef.current;
@@ -220,8 +229,16 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       onModeChange(state.mode);
     }
 
-    if (state.active !== prevState.active && state.active) {
-      onActivate(state.active);
+    if (state.active !== prevState.active) {
+      if (state.active) {
+        onActivate(state.active);
+      } else {
+        const root = rootRef.current;
+        if (root && isFocusedWithin(root) && document.activeElement) {
+          (document.activeElement as HTMLElement).blur();
+        }
+        onBlur();
+      }
     }
 
     prevStateRef.current = state;
@@ -229,6 +246,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     props.data,
     state,
     onActivate,
+    onBlur,
     onCellCommit,
     onChange,
     onModeChange,
@@ -324,6 +342,18 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     [state, onDragStart, handleMouseUp]
   );
 
+  const handleBlur = React.useCallback(
+    (event) => {
+      const { currentTarget } = event;
+      setTimeout(() => {
+        if (!isFocusedWithin(currentTarget)) {
+          blur();
+        }
+      }, 0);
+    },
+    [blur]
+  );
+
   const formulaParser = React.useMemo(() => {
     return props.formulaParser || new FormulaParser();
   }, [props.formulaParser]);
@@ -393,7 +423,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const tableNode = React.useMemo(
     () => (
       <Table columns={size.columns} hideColumnIndicators={hideColumnIndicators}>
-        <Row>
+        <HeaderRow>
           {!hideRowIndicators && !hideColumnIndicators && <CornerIndicator />}
           {!hideColumnIndicators &&
             range(size.columns).map((columnNumber) =>
@@ -411,9 +441,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
                 <ColumnIndicator key={columnNumber} column={columnNumber} />
               )
             )}
-        </Row>
+        </HeaderRow>
         {range(size.rows).map((rowNumber) => (
-          <Row key={rowNumber}>
+          <Row key={rowNumber} row={rowNumber}>
             {!hideRowIndicators &&
               (rowLabels ? (
                 <RowIndicator
@@ -444,6 +474,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       size.columns,
       hideColumnIndicators,
       Row,
+      HeaderRow,
       hideRowIndicators,
       CornerIndicator,
       columnLabels,
@@ -472,10 +503,13 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     () => (
       <div
         ref={rootRef}
-        className={classNames("Spreadsheet", className)}
+        className={classNames("Spreadsheet", className, {
+          "Spreadsheet--dark-mode": darkMode,
+        })}
         onKeyPress={onKeyPress}
         onKeyDown={handleKeyDown}
         onMouseMove={handleMouseMove}
+        onBlur={handleBlur}
       >
         {tableNode}
         {activeCellNode}
@@ -485,9 +519,11 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     ),
     [
       className,
+      darkMode,
       onKeyPress,
       handleKeyDown,
       handleMouseMove,
+      handleBlur,
       tableNode,
       activeCellNode,
     ]

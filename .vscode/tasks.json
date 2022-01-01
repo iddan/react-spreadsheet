@@ -8,6 +8,20 @@
       "problemMatcher": [],
       "label": "npm: build",
       "detail": "rollup -c"
+    },
+    {
+      "type": "npm",
+      "script": "storybook",
+      "problemMatcher": [],
+      "label": "npm: storybook",
+      "detail": "start-storybook -p 6006"
+    },
+    {
+      "type": "npm",
+      "script": "format",
+      "problemMatcher": [],
+      "label": "npm: format",
+      "detail": "prettier --write ."
     }
   ]
 }

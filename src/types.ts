@@ -1,4 +1,4 @@
-import { ComponentType } from "react";
+import * as React from "react";
 import { Parser as FormulaParser } from "hot-formula-parser";
 import { Point } from "./point";
 import { PointMap } from "./point-map";
@@ -105,9 +105,8 @@ export type CellComponentProps<Cell extends CellBase = CellBase> = {
 };
 
 /** Type of the Spreadsheet Cell component */
-export type CellComponent<Cell extends CellBase = CellBase> = ComponentType<
-  CellComponentProps<Cell>
->;
+export type CellComponent<Cell extends CellBase = CellBase> =
+  React.ComponentType<CellComponentProps<Cell>>;
 
 type DataComponentProps<Cell extends CellBase> = {
   /** The rendered cell by the component */
@@ -123,18 +122,89 @@ export type DataViewerProps<Cell extends CellBase = CellBase> =
 
 /** Type of the Spreadsheet DataViewer component */
 export type DataViewerComponent<Cell extends CellBase = CellBase> =
-  ComponentType<DataViewerProps<Cell>>;
+  React.ComponentType<DataViewerProps<Cell>>;
 
 /** Type of the Spreadsheet DataEditor component props */
 export type DataEditorProps<Cell extends CellBase = CellBase> =
   DataComponentProps<Cell> & {
     /** Callback to be called when the cell's value is changed */
     onChange: (cell: Cell) => void;
+    /** Callback to be called when edit mode should be exited */
+    exitEditMode: () => void;
   };
 
 /** Type of the Spreadsheet DataEditor component */
 export type DataEditorComponent<Cell extends CellBase = CellBase> =
-  ComponentType<DataEditorProps<Cell>>;
+  React.ComponentType<DataEditorProps<Cell>>;
+
+/** Type of the Spreadsheet Table component props */
+export type TableProps = React.PropsWithChildren<{
+  /** Numebr of columns the table should render */
+  columns: number;
+  /** Whether column indicators are hidden */
+  hideColumnIndicators?: boolean | null;
+}>;
+
+/** Type of the Spreadsheet Table component */
+export type TableComponent = React.ComponentType<TableProps>;
+
+/** Type of the Spreadsheet Row component props */
+export type RowProps = React.PropsWithChildren<{
+  /** The row index of the table */
+  row: number;
+}>;
+
+/** Type of the Row component */
+export type RowComponent = React.ComponentType<RowProps>;
+
+/** Type of the Spreadsheet HeaderRow component props */
+export type HeaderRowProps = React.PropsWithChildren<{}>;
+
+/** Type of the HeaderRow component */
+export type HeaderRowComponent = React.ComponentType<HeaderRowProps>;
+
+/** Type of the Spreadsheet RowIndicator component props */
+export type RowIndicatorProps = {
+  /** The row the indicator indicates */
+  row: number;
+  /** A custom label for the indicator as provided in rowLabels */
+  label?: React.ReactNode | null;
+  /** Whether the entire row is selected */
+  selected: boolean;
+  /** Callback to select the entire row */
+  onSelect: (row: number) => void;
+};
+
+/** Type of the RowIndicator component */
+export type RowIndicatorComponent = React.ComponentType<RowIndicatorProps>;
+
+/** Type of the Spreadsheet ColumnIndicator component props */
+export type ColumnIndicatorProps = {
+  /** The column the indicator indicates */
+  column: number;
+  /** A custom label for the indicator as provided in columnLabels */
+  label?: React.ReactNode | null;
+  /** Whether the entire column in selected */
+  selected: boolean;
+  /** Callback to select the entire the column */
+  onSelect: (column: number) => void;
+};
+
+/** Type of the ColumnIndicator component */
+export type ColumnIndicatorComponent =
+  React.ComponentType<ColumnIndicatorProps>;
+
+/** Type of the Spreadsheet CornerIndicator component props */
+export type CornerIndicatorProps = {
+  /** Whether the entire table is selected */
+  selected: boolean;
+  /** Callback to select the entire table */
+  onSelect: () => void;
+};
+
+/** Type of the CornerIndicator component */
+export type CornerIndicatorComponent =
+  React.ComponentType<CornerIndicatorProps>;
 
 export type CommitChanges<Cell extends CellBase = CellBase> = Array<{
   prevCell: Cell | null;

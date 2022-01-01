@@ -1,16 +1,15 @@
 import * as React from "react";
 import classNames from "classnames";
+import { useContextSelector } from "use-context-selector";
 import * as Actions from "./actions";
 import * as Selection from "./selection";
-import { useContextSelector } from "use-context-selector";
+import * as Types from "./types";
 import context from "./context";
 
-export type Props = {
-  selected: boolean;
-  onSelect: () => void;
-};
-
-const CornerIndicator: React.FC<Props> = ({ selected, onSelect }) => {
+const CornerIndicator: Types.CornerIndicatorComponent = ({
+  selected,
+  onSelect,
+}) => {
   const handleClick = React.useCallback(() => {
     onSelect();
   }, [onSelect]);
@@ -27,8 +26,8 @@ const CornerIndicator: React.FC<Props> = ({ selected, onSelect }) => {
 export default CornerIndicator;
 
 export const enhance = (
-  CornerIndicatorComponent: React.ComponentType<Props>
-): React.FC<Omit<Props, "selected" | "onSelect">> => {
+  CornerIndicatorComponent: Types.CornerIndicatorComponent
+): React.FC<Omit<Types.CornerIndicatorProps, "selected" | "onSelect">> => {
   return function CornerIndicatorWrapper(props) {
     const dispatch = useContextSelector(
       context,
