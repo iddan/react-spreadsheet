@@ -4,9 +4,10 @@
 
 import React from "react";
 import { render } from "@testing-library/react";
-import CornerIndicator, { Props } from "./CornerIndicator";
+import * as Types from "./types";
+import CornerIndicator from "./CornerIndicator";
 
-const EXAMPLE_PROPS: Props = {
+const EXAMPLE_PROPS: Types.CornerIndicatorProps = {
   selected: false,
   onSelect: jest.fn(),
 };

@@ -4,9 +4,10 @@
 
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import RowIndicator, { Props } from "./RowIndicator";
+import * as Types from "./types";
+import RowIndicator from "./RowIndicator";
 
-const EXAMPLE_PROPS: Props = {
+const EXAMPLE_PROPS: Types.RowIndicatorProps = {
   row: 0,
   selected: false,
   onSelect: jest.fn(),
