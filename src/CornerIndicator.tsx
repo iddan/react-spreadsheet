@@ -2,7 +2,7 @@ import * as React from "react";
 import classNames from "classnames";
 import { useContextSelector } from "use-context-selector";
 import * as Actions from "./actions";
-import * as Selection from "./selection";
+import * as Selections from "./selections";
 import * as Types from "./types";
 import context from "./context";
 
@@ -38,7 +38,7 @@ export const enhance = (
       [dispatch]
     );
     const selected = useContextSelector(context, ([state]) =>
-      Selection.isEntireTable(state.selected)
+      Selections.isEntireTable(state.selected)
     );
     return (
       <CornerIndicatorComponent

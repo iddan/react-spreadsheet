@@ -48,7 +48,7 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: PointRange.create(Point.ORIGIN, EXAMPLE_POINT),
+        selected: [PointRange.create(Point.ORIGIN, EXAMPLE_POINT)],
       },
     ],
     [
@@ -58,7 +58,7 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: PointRange.create(Point.ORIGIN, Point.ORIGIN),
+        selected: [PointRange.create(Point.ORIGIN, Point.ORIGIN)],
       },
     ],
     [
@@ -104,7 +104,7 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: PointRange.create(Point.ORIGIN, Point.ORIGIN),
+        selected: [PointRange.create(Point.ORIGIN, Point.ORIGIN)],
       },
       Actions.blur(),
       INITIAL_STATE,

@@ -59,10 +59,12 @@ const EXAMPLE_STATE: Types.StoreState = {
   cut: false,
   dragging: false,
   data: EXAMPLE_DATA,
-  selected: null,
+  selected: [],
   copied: PointMap.from([]),
   bindings: PointMap.from([]),
   lastCommit: null,
+  shiftKey: false,
+  ctrlKey: false,
 };
 const EXAMPLE_STRING = "EXAMPLE_STRING";
 const EXAMPLE_CELL: Types.CellBase = {

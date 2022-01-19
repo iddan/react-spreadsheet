@@ -67,6 +67,7 @@ describe("<Spreadsheet />", () => {
   test("click activates cell", () => {
     const onActivate = jest.fn();
     const onSelect = jest.fn();
+    expect(onSelect).toHaveBeenCalledTimes(0);
     render(
       <Spreadsheet
         {...EXAMPLE_PROPS}
@@ -74,14 +75,15 @@ describe("<Spreadsheet />", () => {
         onSelect={onSelect}
       />
     );
+    onSelect.mockReset();
     // Get elements
     const element = getSpreadsheetElement();
-    const cell = safeQuerySelector(element, "td");
     const selected = safeQuerySelector(
       element,
       ".Spreadsheet__floating-rect--selected"
     );
     // Select a cell
+    const cell = safeQuerySelector(element, "td");
     fireEvent.mouseDown(cell);
     // Get active cell
     const activeCell = safeQuerySelector(element, ".Spreadsheet__active-cell");
@@ -89,7 +91,7 @@ describe("<Spreadsheet />", () => {
     expect(cell.getBoundingClientRect()).toEqual(
       activeCell?.getBoundingClientRect()
     );
-    // Check selected is not hidden
+    // Check selected is hidden
     expect(selected).toHaveClass("Spreadsheet__floating-rect--hidden");
     // Check onActivate is called
     expect(onActivate).toHaveBeenCalledTimes(1);
@@ -97,6 +99,48 @@ describe("<Spreadsheet />", () => {
     // Check onSelect is called
     expect(onSelect).toHaveBeenCalledTimes(1);
     expect(onSelect).toHaveBeenCalledWith([Point.ORIGIN]);
+  });
+  test("click activates row", () => {
+    const onActivate = jest.fn();
+    const onSelect = jest.fn();
+    render(
+      <Spreadsheet
+        {...EXAMPLE_PROPS}
+        onActivate={onActivate}
+        onSelect={onSelect}
+      />
+    );
+    onSelect.mockReset();
+    // Get elements
+    const element = getSpreadsheetElement();
+    const selected = safeQuerySelector(
+      element,
+      ".Spreadsheet__floating-rect--selected"
+    );
+    // Select a RowIndicator
+    const rowIndicator = safeQuerySelector(
+      element,
+      "[row='0'] .Spreadsheet__header"
+    );
+    fireEvent.mouseDown(rowIndicator);
+    // Check row is selected
+    expect(rowIndicator).toHaveClass("Spreadsheet__header--selected");
+    // Get active cell
+    const activeCell = safeQuerySelector(element, ".Spreadsheet__active-cell");
+    expect(activeCell).toHaveClass("Spreadsheet__active-cell--view");
+    // Check selected is hidden
+    expect(selected).toHaveClass("Spreadsheet__floating-rect--hidden");
+    // Check onActivate is called
+    expect(onActivate).toHaveBeenCalledTimes(1);
+    expect(onActivate).toHaveBeenCalledWith(Point.ORIGIN);
+    // Check onSelect is called
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onSelect).toHaveBeenCalledWith([
+      { row: 0, column: 0 },
+      { row: 0, column: 1 },
+      { row: 0, column: 2 },
+      { row: 0, column: 3 },
+    ]);
   });
   test("pressing Enter when a cell is active enters to edit mode", () => {
     const onModeChange = jest.fn();

@@ -69,6 +69,20 @@ export function isEntireColumns(selection: Selection): selection is EntireRows {
   );
 }
 
+export function isRowsEntireTable(
+  row: EntireRows,
+  data: Matrix.Matrix<unknown>
+): boolean {
+  return toRange(row, data) === toRange(createEntireTable(), data);
+}
+
+export function isColumnsEntireTable(
+  column: EntireColumns,
+  data: Matrix.Matrix<unknown>
+): boolean {
+  return toRange(column, data) === toRange(createEntireTable(), data);
+}
+
 /** Returns whether given selection is entire table */
 export function isEntireTable(selection: Selection): selection is EntireTable {
   return (

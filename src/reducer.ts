@@ -4,7 +4,9 @@ import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
+import * as EntireRows from "./entire-rows";
 import * as Selection from "./selection";
+import * as Selections from "./selections";
 import { isActive } from "./util";
 import { createReducer } from "@reduxjs/toolkit";
 import * as Actions from "./actions";
@@ -19,10 +21,12 @@ export const INITIAL_STATE: Types.StoreState = {
   cut: false,
   dragging: false,
   data: [],
-  selected: null,
+  selected: [],
   copied: PointMap.from([]),
   bindings: PointMap.from([]),
   lastCommit: null,
+  shiftKey: false,
+  ctrlKey: false,
 };
 
 const reducer = createReducer(INITIAL_STATE, (builder) => {
@@ -30,7 +34,7 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     const { data } = action.payload;
     const nextActive =
       state.active && Matrix.has(state.active, data) ? state.active : null;
-    const nextSelected = Selection.normalize(state.selected, data);
+    const nextSelected = Selections.normalize(state.selected, data);
     const nextBindings = PointMap.map(
       (bindings) =>
         PointSet.filter((point) => Matrix.has(point, data), bindings),
@@ -49,16 +53,55 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     if (state.active && !isActive(state.active, point)) {
       return {
         ...state,
-        selected: PointRange.create(point, state.active),
+        selected: [PointRange.create(point, state.active)],
         mode: "view",
       };
     }
+  });
+  builder.addCase(Actions.selectEntireRow, (state, action) => {
+    const { row } = action.payload;
+    let selection = Selection.createEntireRows(row, row);
+    let selections: Selections.Selections = [selection];
+    let active = { row: selection.start, column: 0 };
+
+    if (state.selected?.length) {
+      const [lastSelection, ...rest] = state.selected;
+
+      if (Selection.isEntireRows(lastSelection) && state.active) {
+        if (state.dragging || state.shiftKey) {
+          active = state.active;
+          const minRow = Math.min(active.row, row);
+          const maxRow = Math.max(active.row, row);
+          selection = Selection.createEntireRows(minRow, maxRow);
+          selections = EntireRows.mergeSelectionsWithRow(rest, selection);
+        } else if (state.ctrlKey) {
+          selections = EntireRows.mergeSelectionsWithRow(
+            state.selected,
+            selection
+          );
+        } else {
+          selections = [selection];
+        }
+      } else {
+        selections = EntireRows.mergeSelectionsWithRow(
+          state.selected,
+          selection
+        );
+      }
+    }
+
+    return {
+      ...state,
+      selected: selections,
+      active,
+      mode: "view",
+    };
   });
   builder.addCase(Actions.activate, (state, action) => {
     const { point } = action.payload;
     return {
       ...state,
-      selected: PointRange.create(point, point),
+      selected: [PointRange.create(point, point)],
       active: point,
       mode: isActive(state.active, point) ? "edit" : "view",
     };
@@ -162,10 +205,12 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     return {
       ...state,
       data,
-      selected: PointRange.create(active, {
-        row: active.row + copiedSize.rows - 1,
-        column: active.column + copiedSize.columns - 1,
-      }),
+      selected: [
+        PointRange.create(active, {
+          row: active.row + copiedSize.rows - 1,
+          column: active.column + copiedSize.columns - 1,
+        }),
+      ],
       cut: false,
       hasPasted: true,
       mode: "view",
@@ -190,9 +235,18 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     const { event } = action.payload;
     const handler = getKeyDownHandler(state, event);
     if (handler) {
-      return { ...state, ...handler(state, event) };
+      return {
+        ...state,
+        ...handler(state, event),
+        shiftKey: event.shiftKey,
+        ctrlKey: event.ctrlKey,
+      };
     }
-    return;
+    return { ...state, shiftKey: event.shiftKey, ctrlKey: event.ctrlKey };
+  });
+  builder.addCase(Actions.keyUp, (state, action) => {
+    const { event } = action.payload;
+    return { ...state, shiftKey: event.shiftKey, ctrlKey: event.ctrlKey };
   });
   builder.addCase(Actions.dragStart, (state, action) => {
     return { ...state, dragging: true };
@@ -208,7 +262,10 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     (action) =>
       action.type === Actions.copy.type || action.type === Actions.cut.type,
     (state, action) => {
-      const selectedPoints = Selection.getPoints(state.selected, state.data);
+      const selectedPoints: Point.Point[] = Selections.getPoints(
+        state.selected,
+        state.data
+      );
       return {
         ...state,
         copied: selectedPoints.reduce((acc, point) => {
@@ -237,7 +294,10 @@ function clear(state: Types.StoreState): Types.StoreState | void {
   if (!state.active) {
     return;
   }
-  const selectedPoints = Selection.getPoints(state.selected, state.data);
+  const selectedPoints: Point.Point[] = Selections.getPoints(
+    state.selected,
+    state.data
+  );
   const changes = selectedPoints.map((point) => {
     const cell = Matrix.get(point, state.data);
     return {
@@ -257,7 +317,7 @@ function clear(state: Types.StoreState): Types.StoreState | void {
 }
 
 function blur(state: Types.StoreState): Types.StoreState {
-  return { ...state, active: null, selected: null };
+  return { ...state, active: null, selected: [] };
 }
 
 function view(state: Types.StoreState): Types.StoreState {
@@ -286,7 +346,7 @@ export const go =
     return {
       ...state,
       active: nextActive,
-      selected: PointRange.create(nextActive, nextActive),
+      selected: [PointRange.create(nextActive, nextActive)],
       mode: "view",
     };
   };
@@ -310,6 +370,7 @@ const keyDownHandlers: KeyDownHandlers = {
   Tab: go(0, +1),
   Enter: edit,
   Backspace: clear,
+  Delete: clear,
   Escape: blur,
 };
 
@@ -326,7 +387,7 @@ const editShiftKeyDownHandlers: KeyDownHandlers = {
 const shiftKeyDownHandlers: KeyDownHandlers = {
   ArrowUp: (state) => ({
     ...state,
-    selected: Selection.modifyEdge(
+    selected: Selections.modifyEdge(
       state.selected,
       state.active,
       state.data,
@@ -335,7 +396,7 @@ const shiftKeyDownHandlers: KeyDownHandlers = {
   }),
   ArrowDown: (state) => ({
     ...state,
-    selected: Selection.modifyEdge(
+    selected: Selections.modifyEdge(
       state.selected,
       state.active,
       state.data,
@@ -344,7 +405,7 @@ const shiftKeyDownHandlers: KeyDownHandlers = {
   }),
   ArrowLeft: (state) => ({
     ...state,
-    selected: Selection.modifyEdge(
+    selected: Selections.modifyEdge(
       state.selected,
       state.active,
       state.data,
@@ -353,7 +414,7 @@ const shiftKeyDownHandlers: KeyDownHandlers = {
   }),
   ArrowRight: (state) => ({
     ...state,
-    selected: Selection.modifyEdge(
+    selected: Selections.modifyEdge(
       state.selected,
       state.active,
       state.data,
@@ -363,8 +424,8 @@ const shiftKeyDownHandlers: KeyDownHandlers = {
   Tab: go(0, -1),
 };
 
-const shiftMetaKeyDownHandlers: KeyDownHandlers = {};
-const metaKeyDownHandlers: KeyDownHandlers = {};
+const shiftCtrlKeyDownHandlers: KeyDownHandlers = {};
+const ctrlKeyDownHandlers: KeyDownHandlers = {};
 
 export function getKeyDownHandler(
   state: Types.StoreState,
@@ -379,12 +440,12 @@ export function getKeyDownHandler(
     } else {
       handlers = editKeyDownHandlers;
     }
-  } else if (event.shiftKey && event.metaKey) {
-    handlers = shiftMetaKeyDownHandlers;
+  } else if (event.shiftKey && event.ctrlKey) {
+    handlers = shiftCtrlKeyDownHandlers;
   } else if (event.shiftKey) {
     handlers = shiftKeyDownHandlers;
-  } else if (event.metaKey) {
-    handlers = metaKeyDownHandlers;
+  } else if (event.ctrlKey) {
+    handlers = ctrlKeyDownHandlers;
   } else {
     handlers = keyDownHandlers;
   }

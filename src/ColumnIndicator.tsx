@@ -4,7 +4,7 @@ import { columnIndexToLabel } from "hot-formula-parser";
 import { useContextSelector } from "use-context-selector";
 import * as Types from "./types";
 import * as Actions from "./actions";
-import * as Selection from "./selection";
+import * as Selections from "./selections";
 import context from "./context";
 
 const ColumnIndicator: Types.ColumnIndicatorComponent = ({
@@ -45,8 +45,8 @@ export const enhance = (
     const selected = useContextSelector(
       context,
       ([state]) =>
-        Selection.hasEntireColumn(state.selected, props.column) ||
-        Selection.isEntireTable(state.selected)
+        Selections.hasEntireColumn(state.selected, props.column) ||
+        Selections.isEntireTable(state.selected)
     );
     return (
       <ColumnIndicatorComponent

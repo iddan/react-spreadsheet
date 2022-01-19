@@ -27,6 +27,7 @@ import Selected from "./Selected";
 import Copied from "./Copied";
 import { getBindingsForCell as defaultGetBindingsForCell } from "./bindings";
 import * as Selection from "./selection";
+import * as Selections from "./selections";
 import {
   range,
   readTextFromClipboard,
@@ -171,7 +172,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const prevStateRef = React.useRef<Types.StoreState<CellType>>({
     ...INITIAL_STATE,
     data: props.data,
-    selected: null,
+    selected: [],
     copied: PointMap.from([]),
     bindings: PointMap.from([]),
     lastCommit: null,
@@ -185,6 +186,10 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   );
   const onKeyDownAction = React.useCallback(
     (event) => dispatch(Actions.keyDown(event)),
+    [dispatch]
+  );
+  const onKeyUpAction = React.useCallback(
+    (event) => dispatch(Actions.keyUp(event)),
     [dispatch]
   );
   const onKeyPress = React.useCallback(
@@ -221,7 +226,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     }
 
     if (state.selected !== prevState.selected) {
-      const points = Selection.getPoints(state.selected, state.data);
+      const points = Selections.getPoints(state.selected, state.data);
       onSelect(points);
     }
 
@@ -265,7 +270,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const clip = React.useCallback(
     (event: ClipboardEvent): void => {
       const { data, selected } = state;
-      const selectedData = Selection.getSelectionFromMatrix(selected, data);
+      const selectedData = Selections.getSelectionsFromMatrix(selected, data);
       const csv = getCSV(selectedData);
       writeTextToClipboard(event, csv);
     },
@@ -508,6 +513,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
         })}
         onKeyPress={onKeyPress}
         onKeyDown={handleKeyDown}
+        onKeyUp={onKeyUpAction}
         onMouseMove={handleMouseMove}
         onBlur={handleBlur}
       >
@@ -521,6 +527,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       className,
       darkMode,
       onKeyPress,
+      onKeyUpAction,
       handleKeyDown,
       handleMouseMove,
       handleBlur,

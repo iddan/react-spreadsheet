@@ -6,7 +6,7 @@ import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
 import * as Actions from "./actions";
-import * as Selection from "./selection";
+import * as Selections from "./selections";
 import { isActive, getOffsetRect } from "./util";
 import useDispatch from "./use-dispatch";
 import useSelector from "./use-selector";
@@ -137,7 +137,7 @@ export const enhance = (
       Matrix.get({ row, column }, state.data)
     );
     const selected = useSelector((state) =>
-      Selection.hasPoint(state.selected, state.data, { row, column })
+      Selections.hasPoint(state.selected, state.data, { row, column })
     );
     const dragging = useSelector((state) => state.dragging);
     const copied = useSelector((state) =>

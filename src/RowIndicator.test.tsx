@@ -11,6 +11,7 @@ const EXAMPLE_PROPS: Types.RowIndicatorProps = {
   row: 0,
   selected: false,
   onSelect: jest.fn(),
+  dragging: false,
 };
 
 describe("<RowIndicator />", () => {
