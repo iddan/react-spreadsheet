@@ -236,7 +236,7 @@ export function toArray<T1, T2>(
 ) {
   const array = [];
   for (let row = 0; row < matrix.length; row++) {
-    for (let column = 0; column < matrix.length; column++) {
+    for (let column = 0; column < matrix[row].length; column++) {
       const value = matrix[row][column];
       array.push(transform ? transform(value, { row, column }) : value);
     }
