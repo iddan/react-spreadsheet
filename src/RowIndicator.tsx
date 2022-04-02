@@ -5,6 +5,8 @@ import context from "./context";
 import * as Actions from "./actions";
 import * as Types from "./types";
 import * as Selection from "./selection";
+import useDispatch from "./use-dispatch";
+import useSelector from "./use-selector";
 
 const RowIndicator: Types.RowIndicatorComponent = ({
   row,
@@ -34,13 +36,9 @@ export const enhance = (
   RowIndicatorComponent: Types.RowIndicatorComponent
 ): React.FC<Omit<Types.RowIndicatorProps, "selected" | "onSelect">> => {
   return function RowIndicatorWrapper(props) {
-    const dispatch = useContextSelector(
-      context,
-      ([state, dispatch]) => dispatch
-    );
-    const selected = useContextSelector(
-      context,
-      ([state]) =>
+    const dispatch = useDispatch();
+    const selected = useSelector(
+      (state) =>
         Selection.hasEntireRow(state.selected, props.row) ||
         Selection.isEntireTable(state.selected)
     );

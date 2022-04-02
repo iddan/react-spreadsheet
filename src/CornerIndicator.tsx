@@ -5,6 +5,8 @@ import * as Actions from "./actions";
 import * as Selection from "./selection";
 import * as Types from "./types";
 import context from "./context";
+import useDispatch from "./use-dispatch";
+import useSelector from "./use-selector";
 
 const CornerIndicator: Types.CornerIndicatorComponent = ({
   selected,
@@ -29,15 +31,12 @@ export const enhance = (
   CornerIndicatorComponent: Types.CornerIndicatorComponent
 ): React.FC<Omit<Types.CornerIndicatorProps, "selected" | "onSelect">> => {
   return function CornerIndicatorWrapper(props) {
-    const dispatch = useContextSelector(
-      context,
-      ([state, dispatch]) => dispatch
-    );
+    const dispatch = useDispatch();
     const selectEntireTable = React.useCallback(
       () => dispatch(Actions.selectEntireTable()),
       [dispatch]
     );
-    const selected = useContextSelector(context, ([state]) =>
+    const selected = useSelector((state) =>
       Selection.isEntireTable(state.selected)
     );
     return (

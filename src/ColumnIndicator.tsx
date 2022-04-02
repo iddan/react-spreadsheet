@@ -6,6 +6,8 @@ import * as Types from "./types";
 import * as Actions from "./actions";
 import * as Selection from "./selection";
 import context from "./context";
+import useDispatch from "./use-dispatch";
+import useSelector from "./use-selector";
 
 const ColumnIndicator: Types.ColumnIndicatorComponent = ({
   column,
@@ -34,17 +36,13 @@ export const enhance = (
   ColumnIndicatorComponent: Types.ColumnIndicatorComponent
 ): React.FC<Omit<Types.ColumnIndicatorProps, "selected" | "onSelect">> => {
   return function ColumnIndicatorWrapper(props) {
-    const dispatch = useContextSelector(
-      context,
-      ([state, dispatch]) => dispatch
-    );
+    const dispatch = useDispatch();
     const selectEntireColumn = React.useCallback(
       (column: number) => dispatch(Actions.selectEntireColumn(column)),
       [dispatch]
     );
-    const selected = useContextSelector(
-      context,
-      ([state]) =>
+    const selected = useSelector(
+      (state) =>
         Selection.hasEntireColumn(state.selected, props.column) ||
         Selection.isEntireTable(state.selected)
     );
