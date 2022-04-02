@@ -177,8 +177,31 @@ describe("Matrix.toArray()", () => {
     ...EXAMPLE_MATRIX[1],
     ...EXAMPLE_MATRIX[2],
   ];
-  test("Flattens matrix values to an array", () => {
+  test("Flattens square matrix values to an array", () => {
     expect(Matrix.toArray(EXAMPLE_MATRIX)).toEqual(flattedMatrix);
+  });
+  test("Flattens horizontal matrix values to an array", () => {
+    expect(
+      Matrix.toArray([
+        [1, 2, 3],
+        [4, 5, 6],
+      ])
+    ).toEqual([1, 2, 3, 4, 5, 6]);
+  });
+  test("Flattens vertical matrix values to an array", () => {
+    expect(
+      Matrix.toArray([
+        [1, 2],
+        [3, 4],
+        [5, 6],
+      ])
+    ).toEqual([1, 2, 3, 4, 5, 6]);
+  });
+  test("Flattens column matrix values to an array", () => {
+    expect(Matrix.toArray([[1], [2], [3]])).toEqual([1, 2, 3]);
+  });
+  test("Flattens row matrix values to an array", () => {
+    expect(Matrix.toArray([[1, 2, 3]])).toEqual([1, 2, 3]);
   });
   test("Transforms matrix values and collects them to an array", () => {
     const transform = (value: number | undefined) => value && value * 2;

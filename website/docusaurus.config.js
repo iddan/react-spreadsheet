@@ -60,6 +60,8 @@ module.exports = {
         readme: "none",
         excludeNotDocumented: true,
         plugin: ["typedoc-plugin-rename-defaults"],
+        exclude: ["**/*.test.ts", "**/*.test.tsx", "**/*.stories.tsx"],
+        readmeTitle: "API",
       },
     ],
   ],
