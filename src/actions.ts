@@ -47,9 +47,14 @@ export const setCellDimensions = createAction<
 export const copy = createAction("COPY");
 export const cut = createAction("CUT");
 export const paste = createAction<
-  (data: string) => { payload: { data: string } },
+  (
+    data: string,
+    autoPadRowsOnPaste: boolean
+  ) => { payload: { data: string; autoPadRowsOnPaste: boolean } },
   "PASTE"
->("PASTE", (data) => ({ payload: { data } }));
+>("PASTE", (data, autoPadRowsOnPaste) => ({
+  payload: { data, autoPadRowsOnPaste },
+}));
 export const edit = createAction("EDIT");
 export const view = createAction("VIEW");
 export const clear = createAction("CLEAR");

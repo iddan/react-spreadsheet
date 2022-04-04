@@ -70,6 +70,11 @@ export type Props<CellType extends Types.CellBase> = {
    * Defaults to: `false`.
    */
   hideColumnIndicators?: boolean;
+  /**
+   * If set to true, automatically creates missing rows when pasting from clipboard
+   * Defaults to: `true`
+   */
+  autoPadRowsOnPaste?: boolean;
   // Custom Components
   /** Component rendered above each column. */
   ColumnIndicator?: Types.ColumnIndicatorComponent;
@@ -105,6 +110,8 @@ export type Props<CellType extends Types.CellBase> = {
   onSelect?: (selected: Point.Point[]) => void;
   /** Callback called when Spreadsheet's active cell changes. */
   onActivate?: (active: Point.Point) => void;
+  /** Callback called when Spreadhseet data pasted */
+  onPaste?: (selected: Point.Point[]) => void;
   /** Callback called when the Spreadsheet loses focus */
   onBlur?: () => void;
   onCellCommit?: (
@@ -127,6 +134,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     rowLabels,
     hideColumnIndicators,
     hideRowIndicators,
+    autoPadRowsOnPaste = true,
     onKeyDown,
     Table = DefaultTable,
     Row = DefaultRow,
@@ -140,6 +148,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onChange = () => {},
     onModeChange = () => {},
     onSelect = () => {},
+    onPaste = () => {},
     onActivate = () => {},
     onBlur = () => {},
     onCellCommit = () => {},
@@ -168,6 +177,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const prevStateRef = React.useRef<Types.StoreState<CellType>>({
     ...INITIAL_STATE,
     data: props.data,
+    pasted: null,
     selected: null,
     copied: PointMap.from([]),
     bindings: PointMap.from([]),
@@ -177,8 +187,8 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const copy = React.useCallback(() => dispatch(Actions.copy()), [dispatch]);
   const cut = React.useCallback(() => dispatch(Actions.cut()), [dispatch]);
   const paste = React.useCallback(
-    (data) => dispatch(Actions.paste(data)),
-    [dispatch]
+    (data) => dispatch(Actions.paste(data, autoPadRowsOnPaste)),
+    [dispatch, autoPadRowsOnPaste]
   );
   const onKeyDownAction = React.useCallback(
     (event) => dispatch(Actions.keyDown(event)),
@@ -228,6 +238,13 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       onSelect(points);
     }
 
+    if (state.pasted !== prevState.pasted) {
+      const points = state.pasted
+        ? Array.from(PointRange.iterate(state.pasted))
+        : [];
+      onPaste(points);
+    }
+
     if (state.active !== prevState.active) {
       if (state.active) {
         onActivate(state.active);
@@ -250,6 +267,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onChange,
     onModeChange,
     onSelect,
+    onPaste,
     rowLabels,
     columnLabels,
   ]);
