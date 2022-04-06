@@ -24,4 +24,13 @@ describe("<RowIndicator />", () => {
     expect(document.querySelectorAll("th.Spreadsheet__header").length).toBe(1);
     expect(screen.queryByText("Example Label")).not.toBeNull();
   });
+  test("calls on select", () => {
+    render(<RowIndicator {...EXAMPLE_PROPS} />);
+    expect(document.querySelectorAll("th.Spreadsheet__header").length).toBe(1);
+    const indicator = document.querySelector(
+      "th.Spreadsheet__header"
+    ) as HTMLTableCellElement;
+    indicator.click();
+    expect(EXAMPLE_PROPS.onSelect).toBeCalledTimes(1);
+  });
 });

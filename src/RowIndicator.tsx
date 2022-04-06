@@ -1,7 +1,5 @@
 import * as React from "react";
 import classNames from "classnames";
-import { useContextSelector } from "use-context-selector";
-import context from "./context";
 import * as Actions from "./actions";
 import * as Types from "./types";
 import * as Selection from "./selection";
