@@ -13,9 +13,12 @@ const ColumnIndicator: Types.ColumnIndicatorComponent = ({
   selected,
   onSelect,
 }) => {
-  const handleClick = React.useCallback(() => {
-    onSelect(column);
-  }, [onSelect, column]);
+  const handleClick = React.useCallback(
+    (event: React.MouseEvent) => {
+      onSelect(column, event.shiftKey);
+    },
+    [onSelect, column]
+  );
   return (
     <th
       className={classNames("Spreadsheet__header", {
@@ -36,7 +39,8 @@ export const enhance = (
   return function ColumnIndicatorWrapper(props) {
     const dispatch = useDispatch();
     const selectEntireColumn = React.useCallback(
-      (column: number) => dispatch(Actions.selectEntireColumn(column)),
+      (column: number, extend: boolean) =>
+        dispatch(Actions.selectEntireColumn(column, extend)),
       [dispatch]
     );
     const selected = useSelector(

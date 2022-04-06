@@ -63,10 +63,16 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     };
   });
   builder.addCase(Actions.selectEntireColumn, (state, action) => {
-    const { column } = action.payload;
+    const { column, extend } = action.payload;
+
     return {
       ...state,
-      selected: Selection.createEntireColumns(column, column),
+      selected:
+        extend && Selection.isEntireColumns(state.selected)
+          ? column < state.selected.start
+            ? Selection.createEntireColumns(state.selected.start, column)
+            : Selection.createEntireColumns(state.selected.end, column)
+          : Selection.createEntireColumns(column, column),
       active:
         state.active?.column === column
           ? state.active
@@ -75,10 +81,16 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     };
   });
   builder.addCase(Actions.selectEntireRow, (state, action) => {
-    const { row } = action.payload;
+    const { row, extend } = action.payload;
+
     return {
       ...state,
-      selected: Selection.createEntireRows(row, row),
+      selected:
+        extend && Selection.isEntireRows(state.selected)
+          ? row < state.selected.start
+            ? Selection.createEntireRows(state.selected.start, row)
+            : Selection.createEntireRows(state.selected.end, row)
+          : Selection.createEntireRows(row, row),
       active:
         state.active?.row === row ? state.active : { ...Point.ORIGIN, row },
       mode: "view",

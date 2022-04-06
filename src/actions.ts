@@ -10,13 +10,21 @@ export const setData = createAction<
   "SET_DATA"
 >("SET_DATA", (data) => ({ payload: { data } }));
 export const selectEntireRow = createAction<
-  (row: number) => { payload: { row: number } },
+  (
+    row: number,
+    extend: boolean
+  ) => { payload: { row: number; extend: boolean } },
   "SELECT_ENTIRE_ROW"
->("SELECT_ENTIRE_ROW", (row) => ({ payload: { row } }));
+>("SELECT_ENTIRE_ROW", (row, extend) => ({ payload: { row, extend } }));
 export const selectEntireColumn = createAction<
-  (column: number) => { payload: { column: number } },
+  (
+    column: number,
+    extend: boolean
+  ) => { payload: { column: number; extend: boolean } },
   "SELECT_ENTIRE_COLUMN"
->("SELECT_ENTIRE_COLUMN", (column) => ({ payload: { column } }));
+>("SELECT_ENTIRE_COLUMN", (column, extend) => ({
+  payload: { column, extend },
+}));
 export const selectEntireTable = createAction("SELECT_ENTIRE_TABLE");
 export const select = createAction<
   (point: Point.Point) => { payload: { point: Point.Point } },

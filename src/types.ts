@@ -171,8 +171,8 @@ export type RowIndicatorProps = {
   label?: React.ReactNode | null;
   /** Whether the entire row is selected */
   selected: boolean;
-  /** Callback to select the entire row */
-  onSelect: (row: number) => void;
+  /** Callback to be called when the row is selected */
+  onSelect: (row: number, extend: boolean) => void;
 };
 
 /** Type of the RowIndicator component */
@@ -186,8 +186,8 @@ export type ColumnIndicatorProps = {
   label?: React.ReactNode | null;
   /** Whether the entire column in selected */
   selected: boolean;
-  /** Callback to select the entire the column */
-  onSelect: (column: number) => void;
+  /** Callback to be called when the column is selected */
+  onSelect: (column: number, extend: boolean) => void;
 };
 
 /** Type of the ColumnIndicator component */

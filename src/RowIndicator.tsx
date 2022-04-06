@@ -12,9 +12,12 @@ const RowIndicator: Types.RowIndicatorComponent = ({
   selected,
   onSelect,
 }) => {
-  const handleClick = React.useCallback(() => {
-    onSelect(row);
-  }, [onSelect, row]);
+  const handleClick = React.useCallback(
+    (event: React.MouseEvent) => {
+      onSelect(row, event.shiftKey);
+    },
+    [onSelect, row]
+  );
 
   return (
     <th
@@ -41,7 +44,8 @@ export const enhance = (
         Selection.isEntireTable(state.selected)
     );
     const selectEntireRow = React.useCallback(
-      (row: number) => dispatch(Actions.selectEntireRow(row)),
+      (row: number, extend: boolean) =>
+        dispatch(Actions.selectEntireRow(row, extend)),
       [dispatch]
     );
     return (
