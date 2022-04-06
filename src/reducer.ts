@@ -54,6 +54,36 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
       };
     }
   });
+  builder.addCase(Actions.selectEntireTable, (state, action) => {
+    return {
+      ...state,
+      selected: Selection.createEntireTable(),
+      active: state.active || Point.ORIGIN,
+      mode: "view",
+    };
+  });
+  builder.addCase(Actions.selectEntireColumn, (state, action) => {
+    const { column } = action.payload;
+    return {
+      ...state,
+      selected: Selection.createEntireColumns(column, column),
+      active:
+        state.active?.column === column
+          ? state.active
+          : { ...Point.ORIGIN, column },
+      mode: "view",
+    };
+  });
+  builder.addCase(Actions.selectEntireRow, (state, action) => {
+    const { row } = action.payload;
+    return {
+      ...state,
+      selected: Selection.createEntireRows(row, row),
+      active:
+        state.active?.row === row ? state.active : { ...Point.ORIGIN, row },
+      mode: "view",
+    };
+  });
   builder.addCase(Actions.activate, (state, action) => {
     const { point } = action.payload;
     return {

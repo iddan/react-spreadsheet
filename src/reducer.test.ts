@@ -13,10 +13,13 @@ import * as Matrix from "./matrix";
 import * as PointRange from "./point-range";
 import * as PointMap from "./point-map";
 import * as PointSet from "./point-set";
+import * as Selection from "./selection";
 
 const EDIT_STATE: Types.StoreState = { ...INITIAL_STATE, mode: "edit" };
 const EXAMPLE_DATA = createEmptyMatrix<Types.CellBase>(4, 4);
-const EXAMPLE_POINT: Point.Point = { row: 2, column: 2 };
+const EXAMPLE_ROW = 2;
+const EXAMPLE_COLUMN = 2;
+const EXAMPLE_POINT: Point.Point = { row: EXAMPLE_ROW, column: EXAMPLE_COLUMN };
 const EXAMPLE_CELL: Types.CellBase = { value: 42 };
 const MOCK_GET_BINDINGS_FOR_CELL = jest.fn(() => []);
 const EXAMPLE_DIMENSIONS: Types.Dimensions = {
@@ -49,6 +52,36 @@ describe("reducer", () => {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
         selected: PointRange.create(Point.ORIGIN, EXAMPLE_POINT),
+      },
+    ],
+    [
+      "select an entire table",
+      INITIAL_STATE,
+      Actions.selectEntireTable(),
+      {
+        ...INITIAL_STATE,
+        active: Point.ORIGIN,
+        selected: Selection.createEntireTable(),
+      },
+    ],
+    [
+      "select an entire row",
+      { ...INITIAL_STATE, active: Point.ORIGIN },
+      Actions.selectEntireRow(EXAMPLE_ROW),
+      {
+        ...INITIAL_STATE,
+        active: { ...Point.ORIGIN, row: EXAMPLE_ROW },
+        selected: Selection.createEntireRows(EXAMPLE_ROW, EXAMPLE_ROW),
+      },
+    ],
+    [
+      "select an entire column",
+      { ...INITIAL_STATE, active: Point.ORIGIN },
+      Actions.selectEntireColumn(EXAMPLE_COLUMN),
+      {
+        ...INITIAL_STATE,
+        active: { ...Point.ORIGIN, column: EXAMPLE_COLUMN },
+        selected: Selection.createEntireColumns(EXAMPLE_COLUMN, EXAMPLE_COLUMN),
       },
     ],
     [
