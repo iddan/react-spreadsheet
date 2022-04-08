@@ -2,11 +2,11 @@ import * as React from "react";
 import classnames from "classnames";
 import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
-import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
 import * as Actions from "./actions";
+import * as Selection from "./selection";
 import { isActive, getOffsetRect } from "./util";
 import useDispatch from "./use-dispatch";
 import useSelector from "./use-selector";
@@ -95,7 +95,7 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
 };
 
 export const enhance = (
-  CellComponent: React.FC<Types.CellComponentProps>
+  CellComponent: React.ComponentType<Types.CellComponentProps>
 ): React.FC<
   Omit<
     Types.CellComponentProps,
@@ -137,7 +137,7 @@ export const enhance = (
       Matrix.get({ row, column }, state.data)
     );
     const selected = useSelector((state) =>
-      state.selected ? PointRange.has(state.selected, { row, column }) : false
+      Selection.hasPoint(state.selected, state.data, { row, column })
     );
     const dragging = useSelector((state) => state.dragging);
     const copied = useSelector((state) =>

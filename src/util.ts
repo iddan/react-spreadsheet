@@ -3,6 +3,7 @@ import * as Types from "./types";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import * as PointRange from "./point-range";
+import * as Selection from "./selection";
 import * as PointMap from "./point-map";
 import * as PointSet from "./point-set";
 import * as Formula from "./formula";
@@ -124,6 +125,19 @@ export function getRangeDimensions(
   );
 }
 
+/** Get the dimensions of selected */
+export function getSelectedDimensions(
+  rowDimensions: Types.StoreState["rowDimensions"],
+  columnDimensions: Types.StoreState["columnDimensions"],
+  data: Matrix.Matrix<unknown>,
+  selected: Selection.Selection
+): Types.Dimensions | undefined {
+  const range = Selection.toRange(selected, data);
+  return range
+    ? getRangeDimensions(rowDimensions, columnDimensions, range)
+    : undefined;
+}
+
 /** Get the computed value of a cell. */
 export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
   cell,
@@ -161,46 +175,10 @@ export function isFormulaCell(
   return Formula.isFormulaValue(cell.value);
 }
 
-/** Normalize given selected range to given data matrix */
-export function normalizeSelected(
-  selected: PointRange.PointRange | null,
-  data: Matrix.Matrix<unknown>
-): PointRange.PointRange | null {
-  const dataRange = getMatrixRange(data);
-  return selected && PointRange.mask(selected, dataRange);
-}
-
-/** Get the point range of given matrix */
-export function getMatrixRange(
-  data: Matrix.Matrix<unknown>
-): PointRange.PointRange {
-  const maxPoint = Matrix.maxPoint(data);
-  return PointRange.create(Point.ORIGIN, maxPoint);
-}
-
-/** Get given selected range from given data as CSV */
-export function getSelectedCSV(
-  selected: PointRange.PointRange | null,
-  data: Matrix.Matrix<Types.CellBase>
-): string {
-  if (!selected) {
-    return "";
-  }
-  const selectedData = getRangeFromMatrix(selected, data);
-  return getCSV(selectedData);
-}
-
 /** Get given data as CSV */
 export function getCSV(data: Matrix.Matrix<Types.CellBase>): string {
   const valueMatrix = Matrix.map((cell) => cell?.value || "", data);
   return Matrix.join(valueMatrix);
-}
-
-export function getRangeFromMatrix<T>(
-  range: PointRange.PointRange,
-  matrix: Matrix.Matrix<T>
-): Matrix.Matrix<T> {
-  return Matrix.slice(range.start, range.end, matrix);
 }
 
 /**

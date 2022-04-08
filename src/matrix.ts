@@ -164,7 +164,7 @@ export function split<T>(
 }
 
 /** Returns whether the point exists in the matrix or not. */
-export function has(point: Point.Point, matrix: Matrix<any>): boolean {
+export function has(point: Point.Point, matrix: Matrix<unknown>): boolean {
   const firstRow = matrix[0];
   return (
     firstRow &&
@@ -179,7 +179,7 @@ export function has(point: Point.Point, matrix: Matrix<any>): boolean {
   );
 }
 
-/** Matrix size */
+/** Counts of the rows and column in a matrix */
 export type Size = {
   /** Count of the rows in the matrix */
   rows: number;
@@ -187,13 +187,23 @@ export type Size = {
   columns: number;
 };
 
-/** Gets the size of matrix by returning its number of rows and columns */
-export function getSize(matrix: Matrix<any>): Size {
-  const firstRow = matrix[0];
+/** Gets the count of rows and columns of given matrix */
+export function getSize(matrix: Matrix<unknown>): Size {
   return {
-    columns: firstRow ? firstRow.length : 0,
-    rows: matrix.length,
+    columns: getColumnsCount(matrix),
+    rows: getRowsCount(matrix),
   };
+}
+
+/** Gets the count of rows of given matrix */
+export function getRowsCount(matrix: Matrix<unknown>): number {
+  return matrix.length;
+}
+
+/** Gets the count of columns of given matrix */
+export function getColumnsCount(matrix: Matrix<unknown>): number {
+  const firstRow = matrix[0];
+  return firstRow ? firstRow.length : 0;
 }
 
 /**

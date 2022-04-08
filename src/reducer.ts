@@ -4,16 +4,10 @@ import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
-import { isActive, normalizeSelected } from "./util";
+import * as Selection from "./selection";
+import { isActive } from "./util";
 import { createReducer } from "@reduxjs/toolkit";
 import * as Actions from "./actions";
-
-enum Direction {
-  Left = "Left",
-  Right = "Right",
-  Top = "Top",
-  Down = "Down",
-}
 
 export const INITIAL_STATE: Types.StoreState = {
   active: null,
@@ -36,7 +30,7 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     const { data } = action.payload;
     const nextActive =
       state.active && Matrix.has(state.active, data) ? state.active : null;
-    const nextSelected = normalizeSelected(state.selected, data);
+    const nextSelected = Selection.normalize(state.selected, data);
     const nextBindings = PointMap.map(
       (bindings) =>
         PointSet.filter((point) => Matrix.has(point, data), bindings),
@@ -59,6 +53,42 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
         mode: "view",
       };
     }
+  });
+  builder.addCase(Actions.selectEntireTable, (state) => {
+    return {
+      ...state,
+      selected: Selection.createEntireTable(),
+      active: Point.ORIGIN,
+      mode: "view",
+    };
+  });
+  builder.addCase(Actions.selectEntireColumn, (state, action) => {
+    const { column, extend } = action.payload;
+    const { active } = state;
+
+    return {
+      ...state,
+      selected:
+        extend && active
+          ? Selection.createEntireColumns(active.column, column)
+          : Selection.createEntireColumns(column, column),
+      active: extend && active ? active : { ...Point.ORIGIN, column },
+      mode: "view",
+    };
+  });
+  builder.addCase(Actions.selectEntireRow, (state, action) => {
+    const { row, extend } = action.payload;
+    const { active } = state;
+
+    return {
+      ...state,
+      selected:
+        extend && active
+          ? Selection.createEntireRows(active.row, row)
+          : Selection.createEntireRows(row, row),
+      active: extend && active ? active : { ...Point.ORIGIN, row },
+      mode: "view",
+    };
   });
   builder.addCase(Actions.activate, (state, action) => {
     const { point } = action.payload;
@@ -214,9 +244,7 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     (action) =>
       action.type === Actions.copy.type || action.type === Actions.cut.type,
     (state, action) => {
-      const selectedPoints = state.selected
-        ? Array.from(PointRange.iterate(state.selected))
-        : [];
+      const selectedPoints = Selection.getPoints(state.selected, state.data);
       return {
         ...state,
         copied: selectedPoints.reduce((acc, point) => {
@@ -245,9 +273,7 @@ function clear(state: Types.StoreState): Types.StoreState | void {
   if (!state.active) {
     return;
   }
-  const selectedPoints = state.selected
-    ? Array.from(PointRange.iterate(state.selected))
-    : [];
+  const selectedPoints = Selection.getPoints(state.selected, state.data);
   const changes = selectedPoints.map((point) => {
     const cell = Matrix.get(point, state.data);
     return {
@@ -333,48 +359,43 @@ const editShiftKeyDownHandlers: KeyDownHandlers = {
   Tab: go(0, -1),
 };
 
-export const modifyEdge =
-  (edge: Direction) =>
-  (state: Types.StoreState): Types.StoreState | void => {
-    const { active, selected } = state;
-
-    if (!active || !selected) {
-      return;
-    }
-
-    const field =
-      edge === Direction.Left || edge === Direction.Right ? "column" : "row";
-
-    const key =
-      edge === Direction.Left || edge === Direction.Top ? "start" : "end";
-    const delta = key === "start" ? -1 : 1;
-
-    const edgeOffsets = PointRange.has(selected, {
-      ...active,
-      [field]: active[field] + delta * -1,
-    });
-
-    const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
-
-    const nextSelected: PointRange.PointRange = {
-      ...selected,
-      [keyToModify]: {
-        ...selected[keyToModify],
-        [field]: selected[keyToModify][field] + delta,
-      },
-    };
-
-    return {
-      ...state,
-      selected: normalizeSelected(nextSelected, state.data),
-    };
-  };
-
 const shiftKeyDownHandlers: KeyDownHandlers = {
-  ArrowUp: modifyEdge(Direction.Top),
-  ArrowDown: modifyEdge(Direction.Down),
-  ArrowLeft: modifyEdge(Direction.Left),
-  ArrowRight: modifyEdge(Direction.Right),
+  ArrowUp: (state) => ({
+    ...state,
+    selected: Selection.modifyEdge(
+      state.selected,
+      state.active,
+      state.data,
+      Selection.Direction.Top
+    ),
+  }),
+  ArrowDown: (state) => ({
+    ...state,
+    selected: Selection.modifyEdge(
+      state.selected,
+      state.active,
+      state.data,
+      Selection.Direction.Bottom
+    ),
+  }),
+  ArrowLeft: (state) => ({
+    ...state,
+    selected: Selection.modifyEdge(
+      state.selected,
+      state.active,
+      state.data,
+      Selection.Direction.Left
+    ),
+  }),
+  ArrowRight: (state) => ({
+    ...state,
+    selected: Selection.modifyEdge(
+      state.selected,
+      state.active,
+      state.data,
+      Selection.Direction.Right
+    ),
+  }),
   Tab: go(0, -1),
 };
 

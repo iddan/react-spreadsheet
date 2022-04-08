@@ -74,6 +74,11 @@
   font: inherit;
 }
 
+.Spreadsheet__header--selected {
+  background: #5f6268;
+  color: #fff;
+}
+
 .Spreadsheet__header,
 .Spreadsheet__data-viewer,
 .Spreadsheet__data-editor input {

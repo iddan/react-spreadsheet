@@ -4,7 +4,7 @@ import { Point } from "./point";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";
 import { Matrix } from "./matrix";
-import { PointRange } from "./point-range";
+import { Selection } from "./selection";
 
 /** The base type of cell data in Spreadsheet */
 export type CellBase<Value = any> = {
@@ -46,7 +46,7 @@ export type Dimensions = {
 
 export type StoreState<Cell extends CellBase = CellBase> = {
   data: Matrix<Cell>;
-  selected: PointRange | null;
+  selected: Selection;
   copied: PointMap<Cell>;
   hasPasted: boolean;
   cut: boolean;
@@ -169,6 +169,10 @@ export type RowIndicatorProps = {
   row: number;
   /** A custom label for the indicator as provided in rowLabels */
   label?: React.ReactNode | null;
+  /** Whether the entire row is selected */
+  selected: boolean;
+  /** Callback to be called when the row is selected */
+  onSelect: (row: number, extend: boolean) => void;
 };
 
 /** Type of the RowIndicator component */
@@ -180,6 +184,10 @@ export type ColumnIndicatorProps = {
   column: number;
   /** A custom label for the indicator as provided in columnLabels */
   label?: React.ReactNode | null;
+  /** Whether the entire column in selected */
+  selected: boolean;
+  /** Callback to be called when the column is selected */
+  onSelect: (column: number, extend: boolean) => void;
 };
 
 /** Type of the ColumnIndicator component */
@@ -187,7 +195,12 @@ export type ColumnIndicatorComponent =
   React.ComponentType<ColumnIndicatorProps>;
 
 /** Type of the Spreadsheet CornerIndicator component props */
-export type CornerIndicatorProps = {};
+export type CornerIndicatorProps = {
+  /** Whether the entire table is selected */
+  selected: boolean;
+  /** Callback to select the entire table */
+  onSelect: () => void;
+};
 
 /** Type of the CornerIndicator component */
 export type CornerIndicatorComponent =

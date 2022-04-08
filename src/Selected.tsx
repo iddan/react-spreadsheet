@@ -1,7 +1,7 @@
 import * as React from "react";
+import * as Selection from "./selection";
+import { getSelectedDimensions } from "./util";
 import FloatingRect from "./FloatingRect";
-import * as PointRange from "./point-range";
-import { getRangeDimensions } from "./util";
 import useSelector from "./use-selector";
 
 const Selected: React.FC = () => {
@@ -9,10 +9,17 @@ const Selected: React.FC = () => {
   const dimensions = useSelector(
     (state) =>
       selected &&
-      getRangeDimensions(state.rowDimensions, state.columnDimensions, selected)
+      getSelectedDimensions(
+        state.rowDimensions,
+        state.columnDimensions,
+        state.data,
+        state.selected
+      )
   );
   const dragging = useSelector((state) => state.dragging);
-  const hidden = React.useMemo(() => isHidden(selected), [selected]);
+  const hidden = useSelector(
+    (state) => Selection.size(state.selected, state.data) < 2
+  );
   return (
     <FloatingRect
       variant="selected"
@@ -24,7 +31,3 @@ const Selected: React.FC = () => {
 };
 
 export default Selected;
-
-export function isHidden(selected: PointRange.PointRange | null): boolean {
-  return !selected || Boolean(selected && PointRange.size(selected) === 1);
-}

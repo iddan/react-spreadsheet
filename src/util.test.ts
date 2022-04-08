@@ -238,6 +238,31 @@ describe("getRangeDimensions()", () => {
   });
 });
 
+describe("getSelectedDimensions()", () => {
+  const cases = [
+    [
+      "point range",
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      util.getRangeDimensions(
+        EXAMPLE_STATE.rowDimensions,
+        EXAMPLE_STATE.columnDimensions,
+        PointRange.create(Point.ORIGIN, Point.ORIGIN)
+      ),
+    ],
+    ["no selection", null, undefined],
+  ] as const;
+  test.each(cases)("%s", (name, selection, expected) => {
+    expect(
+      util.getSelectedDimensions(
+        EXAMPLE_STATE.rowDimensions,
+        EXAMPLE_STATE.columnDimensions,
+        EXAMPLE_STATE.data,
+        selection
+      )
+    ).toEqual(expected);
+  });
+});
+
 describe("isActive()", () => {
   const cases = [
     ["returns false if active is null", null, EXAMPLE_EXISTING_POINT, false],
@@ -344,17 +369,6 @@ describe("isFormulaCell()", () => {
   });
 });
 
-describe("getMatrixRange()", () => {
-  test("Returns the point range of given matrix", () => {
-    expect(util.getMatrixRange(EXAMPLE_DATA)).toEqual(
-      PointRange.create(Point.ORIGIN, {
-        row: EXAMPLE_DATA_COLUMNS_COUNT - 1,
-        column: EXAMPLE_DATA_ROWS_COUNT - 1,
-      })
-    );
-  });
-});
-
 describe("getCSV()", () => {
   test("Returns given data as CSV", () => {
     expect(util.getCSV(EXAMPLE_DATA)).toBe(
@@ -362,20 +376,6 @@ describe("getCSV()", () => {
         Matrix.createEmpty(EXAMPLE_DATA_ROWS_COUNT, EXAMPLE_DATA_COLUMNS_COUNT)
       )
     );
-  });
-});
-
-describe("getSelectedCSV()", () => {
-  test("Returns empty for no selected range", () => {
-    expect(util.getSelectedCSV(null, EXAMPLE_DATA)).toBe("");
-  });
-  test("Returns CSV for selected range", () => {
-    expect(
-      util.getSelectedCSV(
-        { start: Point.ORIGIN, end: { row: 1, column: 1 } },
-        EXAMPLE_DATA
-      )
-    ).toEqual(Matrix.join(Matrix.createEmpty(2, 2)));
   });
 });
 
@@ -432,18 +432,6 @@ describe("readTextFromClipboard()", () => {
     // Undefine as it is not a native JS-DOM property
     // @ts-ignore
     delete window.clipoardData;
-  });
-});
-
-describe("normalizeSelected()", () => {
-  test("Normalizes given selected range to given data", () => {
-    const EXAMPLE_RANGE = PointRange.create(Point.ORIGIN, {
-      row: EXAMPLE_DATA_ROWS_COUNT,
-      column: EXAMPLE_DATA_COLUMNS_COUNT,
-    });
-    expect(util.normalizeSelected(EXAMPLE_RANGE, EXAMPLE_DATA)).toEqual(
-      PointRange.create(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA))
-    );
   });
 });
 

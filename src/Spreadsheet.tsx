@@ -1,7 +1,6 @@
 import * as React from "react";
 import classNames from "classnames";
 import * as Types from "./types";
-import * as PointRange from "./point-range";
 import * as Actions from "./actions";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
@@ -11,9 +10,15 @@ import { Parser as FormulaParser } from "hot-formula-parser";
 import DefaultTable from "./Table";
 import DefaultRow from "./Row";
 import DefaultHeaderRow from "./HeaderRow";
-import DefaultCornerIndicator from "./CornerIndicator";
-import DefaultColumnIndicator from "./ColumnIndicator";
-import DefaultRowIndicator from "./RowIndicator";
+import DefaultCornerIndicator, {
+  enhance as enhanceCornerIndicator,
+} from "./CornerIndicator";
+import DefaultColumnIndicator, {
+  enhance as enhanceColumnIndicator,
+} from "./ColumnIndicator";
+import DefaultRowIndicator, {
+  enhance as enhanceRowIndicator,
+} from "./RowIndicator";
 import { Cell as DefaultCell, enhance as enhanceCell } from "./Cell";
 import DefaultDataViewer from "./DataViewer";
 import DefaultDataEditor from "./DataEditor";
@@ -21,12 +26,13 @@ import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
 import { getBindingsForCell as defaultGetBindingsForCell } from "./bindings";
+import * as Selection from "./selection";
 import {
   range,
   readTextFromClipboard,
   writeTextToClipboard,
-  getSelectedCSV,
   calculateSpreadsheetSize,
+  getCSV,
   transformCoordToPoint,
   getCellRangeValue,
   getCellValue,
@@ -131,12 +137,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     Table = DefaultTable,
     Row = DefaultRow,
     HeaderRow = DefaultHeaderRow,
-    CornerIndicator = DefaultCornerIndicator,
     DataEditor = DefaultDataEditor,
     DataViewer = DefaultDataViewer,
     getBindingsForCell = defaultGetBindingsForCell,
-    RowIndicator = DefaultRowIndicator,
-    ColumnIndicator = DefaultColumnIndicator,
     onChange = () => {},
     onModeChange = () => {},
     onSelect = () => {},
@@ -217,15 +220,13 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       }
     }
 
-    if (state.mode !== prevState.mode) {
-      onModeChange(state.mode);
+    if (state.selected !== prevState.selected) {
+      const points = Selection.getPoints(state.selected, state.data);
+      onSelect(points);
     }
 
-    if (state.selected !== prevState.selected) {
-      const points = state.selected
-        ? Array.from(PointRange.iterate(state.selected))
-        : [];
-      onSelect(points);
+    if (state.mode !== prevState.mode) {
+      onModeChange(state.mode);
     }
 
     if (state.active !== prevState.active) {
@@ -264,7 +265,8 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const clip = React.useCallback(
     (event: ClipboardEvent): void => {
       const { data, selected } = state;
-      const csv = getSelectedCSV(selected, data);
+      const selectedData = Selection.getSelectionFromMatrix(selected, data);
+      const csv = getCSV(selectedData);
       writeTextToClipboard(event, csv);
     },
     [state]
@@ -310,6 +312,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent) => {
+      event.persist();
       if (onKeyDown) {
         onKeyDown(event);
       }
@@ -342,12 +345,13 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
   const handleBlur = React.useCallback(
     (event) => {
-      const { currentTarget } = event;
-      setTimeout(() => {
-        if (!isFocusedWithin(currentTarget)) {
-          blur();
-        }
-      }, 0);
+      /**
+       * Focus left self, Not triggered when swapping focus between children
+       * @see https://reactjs.org/docs/events.html#detecting-focus-entering-and-leaving
+       */
+      if (!event.currentTarget.contains(event.relatedTarget)) {
+        blur();
+      }
     },
     [blur]
   );
@@ -360,6 +364,23 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     // @ts-ignore
     return enhanceCell(props.Cell || DefaultCell);
   }, [props.Cell]);
+
+  const CornerIndicator = React.useMemo(
+    () =>
+      enhanceCornerIndicator(props.CornerIndicator || DefaultCornerIndicator),
+    [props.CornerIndicator]
+  );
+
+  const RowIndicator = React.useMemo(
+    () => enhanceRowIndicator(props.RowIndicator || DefaultRowIndicator),
+    [props.RowIndicator]
+  );
+
+  const ColumnIndicator = React.useMemo(
+    () =>
+      enhanceColumnIndicator(props.ColumnIndicator || DefaultColumnIndicator),
+    [props.ColumnIndicator]
+  );
 
   React.useEffect(() => {
     document.addEventListener("cut", handleCut);
