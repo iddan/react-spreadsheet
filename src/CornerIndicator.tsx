@@ -19,6 +19,7 @@ const CornerIndicator: Types.CornerIndicatorComponent = ({
         "Spreadsheet__header--selected": selected,
       })}
       onClick={handleClick}
+      tabIndex={0}
     />
   );
 };

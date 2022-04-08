@@ -344,12 +344,13 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
   const handleBlur = React.useCallback(
     (event) => {
-      const { currentTarget } = event;
-      setTimeout(() => {
-        if (!isFocusedWithin(currentTarget)) {
-          blur();
-        }
-      }, 0);
+      /**
+       * Focus left self, Not triggered when swapping focus between children
+       * @see https://reactjs.org/docs/events.html#detecting-focus-entering-and-leaving
+       */
+      if (!event.currentTarget.contains(event.relatedTarget)) {
+        blur();
+      }
     },
     [blur]
   );

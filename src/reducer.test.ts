@@ -75,7 +75,7 @@ describe("reducer", () => {
       },
     ],
     [
-      "select multiple entire rows",
+      "select multiple entire rows forwards",
       {
         ...INITIAL_STATE,
         selected: Selection.createEntireRows(
@@ -88,6 +88,20 @@ describe("reducer", () => {
         ...INITIAL_STATE,
         active: { ...Point.ORIGIN, row: EXAMPLE_ROW },
         selected: Selection.createEntireRows(Point.ORIGIN.row, EXAMPLE_ROW),
+      },
+    ],
+    [
+      "select multiple entire rows backwards",
+      {
+        ...INITIAL_STATE,
+        selected: Selection.createEntireRows(EXAMPLE_ROW, EXAMPLE_ROW),
+        active: EXAMPLE_POINT,
+      },
+      Actions.selectEntireRow(Point.ORIGIN.row, true),
+      {
+        ...INITIAL_STATE,
+        selected: Selection.createEntireRows(Point.ORIGIN.row, EXAMPLE_ROW),
+        active: EXAMPLE_POINT,
       },
     ],
     [

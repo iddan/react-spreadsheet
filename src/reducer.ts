@@ -54,45 +54,39 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
       };
     }
   });
-  builder.addCase(Actions.selectEntireTable, (state, action) => {
+  builder.addCase(Actions.selectEntireTable, (state) => {
     return {
       ...state,
       selected: Selection.createEntireTable(),
-      active: state.active || Point.ORIGIN,
+      active: Point.ORIGIN,
       mode: "view",
     };
   });
   builder.addCase(Actions.selectEntireColumn, (state, action) => {
     const { column, extend } = action.payload;
+    const { active } = state;
 
     return {
       ...state,
       selected:
-        extend && Selection.isEntireColumns(state.selected)
-          ? column < state.selected.start
-            ? Selection.createEntireColumns(state.selected.start, column)
-            : Selection.createEntireColumns(state.selected.end, column)
+        extend && active
+          ? Selection.createEntireColumns(active.column, column)
           : Selection.createEntireColumns(column, column),
-      active:
-        state.active?.column === column
-          ? state.active
-          : { ...Point.ORIGIN, column },
+      active: extend && active ? active : { ...Point.ORIGIN, column },
       mode: "view",
     };
   });
   builder.addCase(Actions.selectEntireRow, (state, action) => {
     const { row, extend } = action.payload;
+    const { active } = state;
 
     return {
       ...state,
       selected:
-        extend && Selection.isEntireRows(state.selected)
-          ? row < state.selected.start
-            ? Selection.createEntireRows(state.selected.start, row)
-            : Selection.createEntireRows(state.selected.end, row)
+        extend && active
+          ? Selection.createEntireRows(active.row, row)
           : Selection.createEntireRows(row, row),
-      active:
-        state.active?.row === row ? state.active : { ...Point.ORIGIN, row },
+      active: extend && active ? active : { ...Point.ORIGIN, row },
       mode: "view",
     };
   });

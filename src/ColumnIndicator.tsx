@@ -25,6 +25,7 @@ const ColumnIndicator: Types.ColumnIndicatorComponent = ({
         "Spreadsheet__header--selected": selected,
       })}
       onClick={handleClick}
+      tabIndex={0}
     >
       {label !== undefined ? label : columnIndexToLabel(String(column))}
     </th>
