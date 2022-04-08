@@ -312,6 +312,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent) => {
+      event.persist();
       if (onKeyDown) {
         onKeyDown(event);
       }
