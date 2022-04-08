@@ -158,3 +158,12 @@ export function filter<T>(
 export function isEmpty(map: PointMap<unknown>): boolean {
   return Object.keys(map).length === 0;
 }
+
+/** Get the point keys of the given map */
+// export function getKeys(map: PointMap<unknown>): Point.Point[] {
+//   return reduce(
+//     (acc, value, point) => [...acc, point],
+//     map,
+//     [] as Point.Point[]
+//   );
+// }

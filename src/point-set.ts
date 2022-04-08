@@ -34,6 +34,29 @@ export function min(set: PointSet): Point.Point {
   return { row, column: minKey(set[row]) };
 }
 
+/** Add given point to the given set */
+export const add = (set: PointSet, point: Point.Point): PointSet =>
+  PointMap.set<boolean>(point, true, set);
+
+export const remove = (set: PointSet, point: Point.Point): PointSet =>
+  PointMap.unset<boolean>(point, set);
+
+/** Applies a function against an accumulator and each point in the set (from left to right) to reduce it to a single value */
+export const reduce = <T>(
+  set: PointSet,
+  reducer: (acc: T, point: Point.Point) => T,
+  initialValue: T
+): T =>
+  PointMap.reduce(
+    (acc, value, point) => reducer(acc, point),
+    set,
+    initialValue
+  );
+
+/** Creates set from given set without the points in target */
+export const difference = (set: PointSet, target: PointSet): PointSet =>
+  reduce(target, (newSet, point) => remove(newSet, point), set);
+
 const maxKey = (object: Record<number, any>): number =>
   // @ts-ignore
   Math.max(...Object.keys(object));

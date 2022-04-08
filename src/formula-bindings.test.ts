@@ -1,4 +1,4 @@
-import { getBindingsForCell } from "./bindings";
+import { getBindingsForCell } from "./formula-bindings";
 import { Matrix } from "./matrix";
 import * as Point from "./point";
 import * as Types from "./types";

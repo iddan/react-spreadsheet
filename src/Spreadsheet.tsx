@@ -25,7 +25,7 @@ import DefaultDataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import { getBindingsForCell as defaultGetBindingsForCell } from "./bindings";
+import * as FormulaBindings from "./formula-bindings";
 import * as Selection from "./selection";
 import {
   range,
@@ -139,7 +139,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     HeaderRow = DefaultHeaderRow,
     DataEditor = DefaultDataEditor,
     DataViewer = DefaultDataViewer,
-    getBindingsForCell = defaultGetBindingsForCell,
+    getBindingsForCell = FormulaBindings.getBindingsForCell,
     onChange = () => {},
     onModeChange = () => {},
     onSelect = () => {},
