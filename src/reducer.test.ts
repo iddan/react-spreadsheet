@@ -78,6 +78,7 @@ describe("reducer", () => {
       "select multiple entire rows forwards",
       {
         ...INITIAL_STATE,
+        active: Point.ORIGIN,
         selected: Selection.createEntireRows(
           Point.ORIGIN.row,
           Point.ORIGIN.row
@@ -86,7 +87,7 @@ describe("reducer", () => {
       Actions.selectEntireRow(EXAMPLE_ROW, true),
       {
         ...INITIAL_STATE,
-        active: { ...Point.ORIGIN, row: EXAMPLE_ROW },
+        active: Point.ORIGIN,
         selected: Selection.createEntireRows(Point.ORIGIN.row, EXAMPLE_ROW),
       },
     ],
@@ -118,6 +119,7 @@ describe("reducer", () => {
       "select multiple entire columns",
       {
         ...INITIAL_STATE,
+        active: Point.ORIGIN,
         selected: Selection.createEntireColumns(
           Point.ORIGIN.column,
           Point.ORIGIN.column
@@ -126,7 +128,7 @@ describe("reducer", () => {
       Actions.selectEntireColumn(EXAMPLE_COLUMN, true),
       {
         ...INITIAL_STATE,
-        active: { ...Point.ORIGIN, column: EXAMPLE_COLUMN },
+        active: Point.ORIGIN,
         selected: Selection.createEntireColumns(
           Point.ORIGIN.column,
           EXAMPLE_COLUMN
