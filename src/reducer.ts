@@ -346,6 +346,7 @@ const keyDownHandlers: KeyDownHandlers = {
   Tab: go(0, +1),
   Enter: edit,
   Backspace: clear,
+  Delete: clear,
   Escape: blur,
 };
 
