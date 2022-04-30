@@ -67,7 +67,7 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
     if (root && active && mode === "view") {
       root.focus();
     }
-  }, [setCellDimensions, selected, active, mode, point]);
+  }, [setCellDimensions, selected, active, mode, point, data]);
 
   if (data && data.DataViewer) {
     // @ts-ignore
