@@ -222,6 +222,13 @@ describe("hasKeyDownHandler", () => {
       "Backspace",
       true,
     ],
+    ["returns false for unhandled key in edit", EDIT_STATE, "Delete", false],
+    [
+      "returns true for handled key in view unhandled in edit",
+      INITIAL_STATE,
+      "Delete",
+      true,
+    ],
   ] as const;
   test.each(cases)("%s", (name, state, key, expected) => {
     expect(hasKeyDownHandler(state, { key } as React.KeyboardEvent)).toBe(
