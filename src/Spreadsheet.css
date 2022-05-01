@@ -88,8 +88,8 @@
 
 .Spreadsheet__data-editor,
 .Spreadsheet__data-editor input {
-  width: 98%;
-  height: 98%;
+  width: 100%;
+  height: 100%;
 }
 
 .Spreadsheet__data-editor input {
