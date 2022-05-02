@@ -9,11 +9,11 @@ slug: /
 ### Installation
 
 ```bash
-npm install react-spreadsheet
+npm install scheduler react-spreadsheet
 ```
 
 _or_
 
 ```bash
-yarn add react-spreadsheet
+yarn add scheduler react-spreadsheet
 ```
