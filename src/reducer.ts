@@ -274,29 +274,30 @@ function clear(state: Types.StoreState): Types.StoreState | void {
     return;
   }
 
-  const canClearCell = (cell: Types.CellBase | undefined) => cell && !cell.readOnly
+  const canClearCell = (cell: Types.CellBase | undefined) =>
+    cell && !cell.readOnly;
   const clearCell = (cell: Types.CellBase | undefined) => {
     if (!canClearCell(cell)) {
-      return cell
+      return cell;
     }
-    return Object.assign({}, cell, { value: undefined })
-  }
+    return Object.assign({}, cell, { value: undefined });
+  };
 
   const selectedPoints = Selection.getPoints(state.selected, state.data);
 
   const changes = selectedPoints.map((point) => {
-    const cell = Matrix.get(point, state.data)
+    const cell = Matrix.get(point, state.data);
     return {
       ...state,
       prevCell: cell || null,
-      nextCell: clearCell(cell) || null
+      nextCell: clearCell(cell) || null,
     };
   });
 
   const newData = selectedPoints.reduce((acc, point) => {
-    const cell = Matrix.get(point, acc)
-    return Matrix.set(point, clearCell(cell), acc)
-  }, state.data)
+    const cell = Matrix.get(point, acc);
+    return Matrix.set(point, clearCell(cell), acc);
+  }, state.data);
 
   return {
     ...state,
