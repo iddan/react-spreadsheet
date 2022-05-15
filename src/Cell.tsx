@@ -24,6 +24,7 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
   select,
   activate,
   setCellDimensions,
+  width,
 }): React.ReactElement => {
   const rootRef = React.useRef<HTMLTableCellElement | null>(null);
   const point = React.useMemo(
@@ -75,7 +76,8 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
   }
 
   return (
-    <td
+    <div
+      role="cell"
       ref={rootRef}
       className={classnames("Spreadsheet__cell", data?.className, {
         "Spreadsheet__cell--readonly": data?.readOnly,
@@ -83,6 +85,9 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
       onMouseOver={handleMouseOver}
       onMouseDown={handleMouseDown}
       tabIndex={0}
+      style={{
+        width,
+      }}
     >
       <DataViewer
         row={row}
@@ -90,7 +95,7 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
         cell={data}
         formulaParser={formulaParser}
       />
-    </td>
+    </div>
   );
 };
 

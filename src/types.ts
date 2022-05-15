@@ -80,6 +80,8 @@ export type CellComponentProps<Cell extends CellBase = CellBase> = {
   row: number;
   /** The column of the cell */
   column: number;
+  /** Column width (in px) */
+  width: number;
   /** The DataViewer component to be used by the cell */
   DataViewer: DataViewerComponent<Cell>;
   /** The FormulaParser instance to be used by the cell */
@@ -171,6 +173,8 @@ export type RowIndicatorProps = {
   label?: React.ReactNode | null;
   /** Whether the entire row is selected */
   selected: boolean;
+  /** width in px */
+  width: number;
   /** Callback to be called when the row is selected */
   onSelect: (row: number, extend: boolean) => void;
 };
@@ -186,6 +190,8 @@ export type ColumnIndicatorProps = {
   label?: React.ReactNode | null;
   /** Whether the entire column in selected */
   selected: boolean;
+  /** Column width (in px) */
+  width: number;
   /** Callback to be called when the column is selected */
   onSelect: (column: number, extend: boolean) => void;
 };
@@ -200,6 +206,8 @@ export type CornerIndicatorProps = {
   selected: boolean;
   /** Callback to select the entire table */
   onSelect: () => void;
+  /** Width in px */
+  width: number;
 };
 
 /** Type of the CornerIndicator component */

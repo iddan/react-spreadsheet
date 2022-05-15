@@ -11,7 +11,7 @@ import { CustomCornerIndicator } from "./CustomCornerIndicator";
 type StringCell = CellBase<string | undefined>;
 type NumberCell = CellBase<number | undefined>;
 
-const INITIAL_ROWS = 6;
+const INITIAL_ROWS = 100;
 const INITIAL_COLUMNS = 4;
 const EMPTY_DATA = createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS);
 

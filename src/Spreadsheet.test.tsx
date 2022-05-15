@@ -41,7 +41,7 @@ describe("<Spreadsheet />", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
     // Get elements
     const element = getSpreadsheetElement();
-    const table = safeQuerySelector(element, "table.Spreadsheet__table");
+    const table = safeQuerySelector(element, "[role=table].Spreadsheet__table");
     const selected = safeQuerySelector(
       element,
       ".Spreadsheet__floating-rect--selected"
@@ -51,11 +51,15 @@ describe("<Spreadsheet />", () => {
       ".Spreadsheet__floating-rect--copied"
     );
     // Check all sub elements are rendered correctly
-    const trs = table.querySelectorAll("tr");
+    const trs = table.querySelectorAll("[role=row]");
     expect(trs).toHaveLength(ROWS + 1);
-    const tds = table.querySelectorAll("tr td.Spreadsheet__cell");
+    const tds = table.querySelectorAll(
+      "[role=row] [role=cell].Spreadsheet__cell"
+    );
     expect(tds).toHaveLength(ROWS * COLUMNS);
-    const ths = table.querySelectorAll("tr th.Spreadsheet__header");
+    const ths = table.querySelectorAll(
+      "[role=row] [role=columnheader].Spreadsheet__header"
+    );
     expect(ths).toHaveLength(ROWS + COLUMNS + 1);
     // Check active cell is not rendered
     expect(element.querySelector(".Spreadsheet__active-cell")).toBeNull();
@@ -76,7 +80,7 @@ describe("<Spreadsheet />", () => {
     );
     // Get elements
     const element = getSpreadsheetElement();
-    const cell = safeQuerySelector(element, "td");
+    const cell = safeQuerySelector(element, "[role=cell]");
     const selected = safeQuerySelector(
       element,
       ".Spreadsheet__floating-rect--selected"
@@ -103,7 +107,7 @@ describe("<Spreadsheet />", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} onModeChange={onModeChange} />);
     // Get elements
     const element = getSpreadsheetElement();
-    const cell = safeQuerySelector(element, "td");
+    const cell = safeQuerySelector(element, "[role=cell]");
     // Select cell
     fireEvent.mouseDown(cell);
     // Get active cell
@@ -125,7 +129,7 @@ describe("<Spreadsheet />", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
     // Get elements
     const element = getSpreadsheetElement();
-    const cell = safeQuerySelector(element, "td");
+    const cell = safeQuerySelector(element, "[role=cell]");
     // Select cell
     fireEvent.mouseDown(cell);
     // Get active cell
@@ -175,12 +179,12 @@ describe("<Spreadsheet />", () => {
   });
   test("setting hideColumnIndicators hides column indicators", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} hideColumnIndicators />);
-    const ths = document.querySelectorAll(".Spreadsheet th");
+    const ths = document.querySelectorAll(".Spreadsheet [role=columnheader]");
     expect(ths).toHaveLength(ROWS);
   });
   test("setting hideRowIndicatos hides row indicators", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} hideRowIndicators />);
-    const ths = document.querySelectorAll(".Spreadsheet th");
+    const ths = document.querySelectorAll(".Spreadsheet [role=columnheader]");
     expect(ths).toHaveLength(COLUMNS);
   });
   test("calls onKeyDown on key down", () => {
@@ -195,14 +199,17 @@ describe("<Spreadsheet />", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} onSelect={onSelect} />);
     // Get elements
     const element = getSpreadsheetElement();
-    const firstCell = safeQuerySelector(
-      element,
-      "tr:nth-of-type(2) td:nth-of-type(1)"
-    );
-    const thirdCell = safeQuerySelector(
-      element,
-      "tr:nth-of-type(3) td:nth-of-type(2)"
-    );
+
+    const firstCell = safeQuerySelectorAll(element, [
+      ["[role=row]", 1],
+      ["[role=cell]", 0],
+    ]);
+
+    const thirdCell = safeQuerySelectorAll(element, [
+      ["[role=row]", 2],
+      ["[role=cell]", 1],
+    ]);
+
     // Activate a cell
     fireEvent.mouseDown(firstCell);
     // Clear onSelect previous calls
@@ -211,6 +218,7 @@ describe("<Spreadsheet />", () => {
     fireEvent.mouseDown(thirdCell, {
       shiftKey: true,
     });
+
     // Check onSelect is called with the range of cells on selection
     expect(onSelect).toBeCalledTimes(1);
     expect(onSelect).toBeCalledWith([
@@ -227,7 +235,7 @@ describe("<Spreadsheet />", () => {
     // Get row label elements.
     // Do not select from first row because it only contains corner and column indicators
     const rowLabelElements = element.querySelectorAll(
-      "tr:not(:first-child) th"
+      "[role=row] [role=columnheader]:not(:first-child)"
     );
     const rowLabels = Array.from(
       rowLabelElements,
@@ -235,7 +243,7 @@ describe("<Spreadsheet />", () => {
     );
     expect(rowLabels).toEqual(EXAMPLE_ROW_LABELS);
   });
-  test("setting column labels changes colum indicators labels", () => {
+  test("setting column labels changes column indicators labels", () => {
     const EXAMPLE_COLUMN_LABELS = ["First", "Second", "Third", "Fourth"];
     render(
       <Spreadsheet {...EXAMPLE_PROPS} columnLabels={EXAMPLE_COLUMN_LABELS} />
@@ -245,7 +253,7 @@ describe("<Spreadsheet />", () => {
     // Select from first row as it holds all the column indicators
     // Do not select first child as it is corner indicator
     const columnLabelElements = element.querySelectorAll(
-      "tr:first-child th:not(:first-child)"
+      "[role=row] [role=columnheader]:not(:first-child)"
     );
     const columnLabels = Array.from(
       columnLabelElements,
@@ -265,6 +273,27 @@ function safeQuerySelector<T extends Element = Element>(
     throw new Error(`Selector ${selector} has no matching elements`);
   }
   return element;
+}
+
+/** Like .querySelectorAll() but throws for no match
+ *
+ * Selector should be a list of [selector,index] tuples.
+ */
+function safeQuerySelectorAll<T extends Element = Element>(
+  node: ParentNode,
+  selectorAndIndexes: [string, number][]
+): T {
+  const out = selectorAndIndexes.reduce<T>((element, selectorAndIndex) => {
+    const [selector, index] = selectorAndIndex;
+    const elementInner = element.querySelectorAll<T>(selector);
+    try {
+      const el = elementInner[index];
+      return elementInner[index];
+    } catch (e) {
+      throw new Error(`Selector ${selector} has no matching elements`);
+    }
+  }, node as T);
+  return out;
 }
 
 /** Wrapper for expect(actual).not.toBeNull() with type assertion */

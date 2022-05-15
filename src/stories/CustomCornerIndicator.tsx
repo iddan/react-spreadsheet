@@ -2,7 +2,8 @@ import * as React from "react";
 
 export const CustomCornerIndicator: React.FC = () => {
   return (
-    <th
+    <div
+      role="cell"
       className="Spreadsheet__header"
       style={{ position: "relative" }}
       onClick={() => alert("You clicked the corner indicator!")}
@@ -20,6 +21,6 @@ export const CustomCornerIndicator: React.FC = () => {
           transform: "rotate(45deg)",
         }}
       />
-    </th>
+    </div>
   );
 };

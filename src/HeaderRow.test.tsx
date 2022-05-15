@@ -9,16 +9,16 @@ import HeaderRow from "./HeaderRow";
 describe("<HeaderRow />", () => {
   test("renders", () => {
     render(<HeaderRow />);
-    const row = document.querySelector("tr");
+    const row = document.querySelector("[role=row]");
     expect(row).not.toBeNull();
   });
   test("renders with children", () => {
     render(
       <HeaderRow>
-        <th></th>
+        <div role="columnheader"></div>
       </HeaderRow>
     );
-    const cell = document.querySelector("tr th");
+    const cell = document.querySelector("[role=columnheader]");
     expect(cell).not.toBeNull();
   });
 });

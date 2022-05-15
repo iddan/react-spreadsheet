@@ -11,6 +11,7 @@ const RowIndicator: Types.RowIndicatorComponent = ({
   label,
   selected,
   onSelect,
+  width,
 }) => {
   const handleClick = React.useCallback(
     (event: React.MouseEvent) => {
@@ -20,15 +21,17 @@ const RowIndicator: Types.RowIndicatorComponent = ({
   );
 
   return (
-    <th
+    <div
+      role="columnheader"
       className={classNames("Spreadsheet__header", {
         "Spreadsheet__header--selected": selected,
       })}
       onClick={handleClick}
       tabIndex={0}
+      style={{ width }}
     >
       {label !== undefined ? label : row + 1}
-    </th>
+    </div>
   );
 };
 

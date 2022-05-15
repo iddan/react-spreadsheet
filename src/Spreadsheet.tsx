@@ -6,6 +6,7 @@ import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import { Parser as FormulaParser } from "hot-formula-parser";
+import { ColumnWidthManager } from "@react_db_client/components.column-manager";
 
 import DefaultTable from "./Table";
 import DefaultRow from "./Row";
@@ -120,6 +121,8 @@ export type Props<CellType extends Types.CellBase> = {
   ) => void;
 };
 
+const DEFAULT_COLUMN_WIDTH = 100;
+
 /**
  * The Spreadsheet component
  */
@@ -164,6 +167,14 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const size = React.useMemo(() => {
     return calculateSpreadsheetSize(state.data, rowLabels, columnLabels);
   }, [state.data, rowLabels, columnLabels]);
+
+  /* Column width manager */
+  const columnCountOffset = hideColumnIndicators ? 0 : 1;
+  const [columnWidths, setColumnWidths] = React.useState(
+    // TODO: Get initial columns widths from props
+    range(size.columns + columnCountOffset).map((i) => DEFAULT_COLUMN_WIDTH)
+  );
+  const columnManagerRef = React.useRef(null);
 
   const mode = state.mode;
 
@@ -426,13 +437,16 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     () => (
       <Table columns={size.columns} hideColumnIndicators={hideColumnIndicators}>
         <HeaderRow>
-          {!hideRowIndicators && !hideColumnIndicators && <CornerIndicator />}
+          {!hideRowIndicators && !hideColumnIndicators && (
+            <CornerIndicator width={columnWidths[0]} />
+          )}
           {!hideColumnIndicators &&
             range(size.columns).map((columnNumber) =>
               columnLabels ? (
                 <ColumnIndicator
                   key={columnNumber}
                   column={columnNumber}
+                  width={columnWidths[columnNumber + columnCountOffset]}
                   label={
                     columnNumber in columnLabels
                       ? columnLabels[columnNumber]
@@ -440,7 +454,11 @@ const Spreadsheet = <CellType extends Types.CellBase>(
                   }
                 />
               ) : (
-                <ColumnIndicator key={columnNumber} column={columnNumber} />
+                <ColumnIndicator
+                  key={columnNumber}
+                  column={columnNumber}
+                  width={columnWidths[columnNumber + columnCountOffset]}
+                />
               )
             )}
         </HeaderRow>
@@ -451,10 +469,15 @@ const Spreadsheet = <CellType extends Types.CellBase>(
                 <RowIndicator
                   key={rowNumber}
                   row={rowNumber}
+                  width={columnWidths[0]}
                   label={rowNumber in rowLabels ? rowLabels[rowNumber] : null}
                 />
               ) : (
-                <RowIndicator key={rowNumber} row={rowNumber} />
+                <RowIndicator
+                  key={rowNumber}
+                  row={rowNumber}
+                  width={columnWidths[0]}
+                />
               ))}
             {range(size.columns).map((columnNumber) => (
               <Cell
@@ -464,10 +487,21 @@ const Spreadsheet = <CellType extends Types.CellBase>(
                 // @ts-ignore
                 DataViewer={DataViewer}
                 formulaParser={formulaParser}
+                width={columnWidths[columnNumber + columnCountOffset]}
               />
             ))}
           </Row>
         ))}
+        <ColumnWidthManager
+          setColumnWidths={setColumnWidths}
+          columnWidths={columnWidths}
+          innerRef={columnManagerRef}
+          widthPadding={400}
+          // showEdges
+          // liveDragging
+          // minWidth={minWidth}
+          // maxWidth={maxWidth}
+        />
       </Table>
     ),
     [
@@ -486,6 +520,8 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       Cell,
       DataViewer,
       formulaParser,
+      columnWidths,
+      columnCountOffset,
     ]
   );
 

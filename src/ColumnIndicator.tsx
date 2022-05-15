@@ -11,6 +11,7 @@ const ColumnIndicator: Types.ColumnIndicatorComponent = ({
   column,
   label,
   selected,
+  width,
   onSelect,
 }) => {
   const handleClick = React.useCallback(
@@ -19,16 +20,21 @@ const ColumnIndicator: Types.ColumnIndicatorComponent = ({
     },
     [onSelect, column]
   );
+
   return (
-    <th
+    <div
+      role="columnheader"
       className={classNames("Spreadsheet__header", {
         "Spreadsheet__header--selected": selected,
       })}
       onClick={handleClick}
       tabIndex={0}
+      style={{
+        width,
+      }}
     >
       {label !== undefined ? label : columnIndexToLabel(String(column))}
-    </th>
+    </div>
   );
 };
 
