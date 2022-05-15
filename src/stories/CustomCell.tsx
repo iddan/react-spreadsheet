@@ -7,7 +7,7 @@ import classnames from "classnames";
 import { CellComponent } from "..";
 
 const HEIGHT = 30;
-const WIDTH = 96;
+// const WIDTH = 96;
 
 const CustomCell: CellComponent = ({
   column,
@@ -21,6 +21,7 @@ const CustomCell: CellComponent = ({
   formulaParser,
   data,
   DataViewer,
+  width,
 }) => {
   const rootRef = React.createRef<HTMLTableCellElement>();
 
@@ -29,12 +30,12 @@ const CustomCell: CellComponent = ({
       { row, column },
       {
         height: HEIGHT,
-        width: WIDTH,
-        left: WIDTH * (column + 1),
+        width,
+        left: width * (column + 1),
         top: HEIGHT * (row + 1),
       }
     );
-  }, [setCellDimensions, column, row]);
+  }, [setCellDimensions, column, row, width]);
 
   React.useEffect(() => {
     if (rootRef.current && active && mode === "view") {
@@ -67,7 +68,8 @@ const CustomCell: CellComponent = ({
   }
 
   return (
-    <td
+    <div
+      role="cell"
       ref={rootRef}
       className={classnames(
         "Spreadsheet__cell",
@@ -87,7 +89,7 @@ const CustomCell: CellComponent = ({
         cell={data}
         formulaParser={formulaParser}
       />
-    </td>
+    </div>
   );
 };
 

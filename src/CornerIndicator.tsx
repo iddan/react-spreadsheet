@@ -9,17 +9,20 @@ import useSelector from "./use-selector";
 const CornerIndicator: Types.CornerIndicatorComponent = ({
   selected,
   onSelect,
+  width,
 }) => {
   const handleClick = React.useCallback(() => {
     onSelect();
   }, [onSelect]);
   return (
-    <th
+    <div
+      role="columnheader"
       className={classNames("Spreadsheet__header", {
         "Spreadsheet__header--selected": selected,
       })}
       onClick={handleClick}
       tabIndex={0}
+      style={{ width }}
     />
   );
 };

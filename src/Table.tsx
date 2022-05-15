@@ -10,10 +10,12 @@ const Table: Types.TableComponent = ({
   const columnCount = columns + (hideColumnIndicators ? 0 : 1);
   const columnNodes = range(columnCount).map((i) => <col key={i} />);
   return (
-    <table className="Spreadsheet__table">
-      <colgroup>{columnNodes}</colgroup>
-      <tbody>{children}</tbody>
-    </table>
+    <div role="table" className="Spreadsheet__table">
+      <div role="rowgroup">{columnNodes}</div>
+      <div role="rowgroup" className="Spreadsheet_body">
+        {children}
+      </div>
+    </div>
   );
 };
 

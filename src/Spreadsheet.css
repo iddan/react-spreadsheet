@@ -15,6 +15,21 @@
   display: inline-block;
 }
 
+.Spreadsheet_body {
+  display: flex;
+  flex-direction: column;
+}
+
+.Spreadsheet__header-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.Spreadsheet__body-row {
+  display: flex;
+  flex-direction: row;
+}
+
 .Spreadsheet--dark-mode {
   --background-color: black;
   --text-color: white;
@@ -37,6 +52,7 @@
 .Spreadsheet__table {
   border-collapse: collapse;
   table-layout: fixed;
+  display: "flex";
 }
 
 .Spreadsheet__cell,
@@ -54,7 +70,7 @@
 
 .Spreadsheet__cell,
 .Spreadsheet__header {
-  min-width: 6em;
+  /* min-width: 6em; */
   min-height: 1.9em;
   height: 1.9em;
   max-height: 1.9em;
