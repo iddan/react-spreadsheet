@@ -1996,19 +1996,19 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.0.tgz#6734f8ebc106a0860dff7f92bf90df193f0935d7"
   integrity sha512-zrsUxjLOKAzdewIDRWy9nsV1GQsKBCWaGwsZQlCgr6/q+vjyZhFgqedLfFBuI9anTPEUT4APq9Mu0SZBTzIcGQ==
 
-"@react_db_client/components.column-manager@^0.1.5":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@react_db_client/components.column-manager/-/components.column-manager-0.1.5.tgz#3d8c3f31910d3d299a1488cafcf0bfa5719b9137"
-  integrity sha512-p+CsBaQRNWBc0RjKoc02+iqE5TJ4c9++/cTdKrbKP4cFisycPz6KAM+PSk4Kyj3A5i3xqkMGCR4nxKx3Hg2gbA==
+"@react_db_client/components.column-manager@^0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@react_db_client/components.column-manager/-/components.column-manager-0.1.7.tgz#bf84d8861d03728ab25dadb15e665b64466d2665"
+  integrity sha512-sVse+Cq0Wq9qyne+WSQgXTJhaHYzlMKR97vHbJKFNWxOOfLvpf5bu1xnYVjCNCEanJwymmyCFI8L6BAZu/d/oA==
   dependencies:
-    "@react_db_client/constants.client-types" "0.1.3"
+    "@react_db_client/constants.client-types" "0.1.5"
     core-js "^3.0.0"
     styled-components "5.3.5"
 
-"@react_db_client/constants.client-types@0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@react_db_client/constants.client-types/-/constants.client-types-0.1.3.tgz#e9f47240deeb694e8f00c5c7b83908ead0a51c96"
-  integrity sha512-tKUA+ST1o9vLjN/PWcs6O/by6Giof3cEkqRnJsj8s9OLtoIe9f2d1J8AOb35mQmOBwISeGO/DxmRksFkWW9BLw==
+"@react_db_client/constants.client-types@0.1.5":
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/@react_db_client/constants.client-types/-/constants.client-types-0.1.5.tgz#b0d1edf22cb3b4a4579083e70f2366b1a7190ad3"
+  integrity sha512-tX0qu8QIYl2O7AUnwHAGOQLq+ZB7+/N7KOEEI0aGrP+Xyjc3U6jp0aqTz/mmJgYxmiHGmQl7i9gb/serWAvz0w==
   dependencies:
     core-js "^3.0.0"
 

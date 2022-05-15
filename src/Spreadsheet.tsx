@@ -496,6 +496,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
           setColumnWidths={setColumnWidths}
           columnWidths={columnWidths}
           innerRef={columnManagerRef}
+          widthPadding={400}
           // showEdges
           // liveDragging
           // minWidth={minWidth}
