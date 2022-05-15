@@ -6,7 +6,7 @@ import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import { Parser as FormulaParser } from "hot-formula-parser";
-import { ColumnWidthManager } from "./column-width-manager";
+import { ColumnWidthManager } from "@samnbuk/react_db_client.components.column-manager";
 
 import DefaultTable from "./Table";
 import DefaultRow from "./Row";
