@@ -32,6 +32,7 @@ const EXAMPLE_PROPS: Types.CellComponentProps = {
   select: MOCK_SELECT,
   activate: MOCK_ACTIVATE,
   setCellDimensions: MOCK_SET_CELL_DIMENSIONS,
+  width: 100,
 };
 const EXAMPLE_DATA_VIEWER_PROPS: Types.DataViewerProps = {
   row: EXAMPLE_ROW,

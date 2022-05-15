@@ -8,10 +8,14 @@ const Table: Types.TableComponent = ({
   hideColumnIndicators,
 }) => {
   const columnCount = columns + (hideColumnIndicators ? 0 : 1);
-  const columnNodes = range(columnCount).map((i) => <col key={i} />);
+  const columnNodes = range(columnCount).map((i) => (
+    <div className="Spreadsheet__columnNode" key={i} />
+  ));
   return (
     <div role="table" className="Spreadsheet__table">
-      <div role="rowgroup">{columnNodes}</div>
+      <div role="rowgroup" className="colgroup">
+        {columnNodes}
+      </div>
       <div role="rowgroup" className="Spreadsheet_body">
         {children}
       </div>

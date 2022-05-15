@@ -436,15 +436,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const tableNode = React.useMemo(
     () => (
       <Table columns={size.columns} hideColumnIndicators={hideColumnIndicators}>
-        <ColumnWidthManager
-          setColumnWidths={setColumnWidths}
-          columnWidths={columnWidths}
-          innerRef={columnManagerRef}
-          // showEdges
-          // liveDragging
-          // minWidth={minWidth}
-          // maxWidth={maxWidth}
-        />
         <HeaderRow>
           {!hideRowIndicators && !hideColumnIndicators && (
             <CornerIndicator width={columnWidths[0]} />
@@ -501,6 +492,15 @@ const Spreadsheet = <CellType extends Types.CellBase>(
             ))}
           </Row>
         ))}
+        <ColumnWidthManager
+          setColumnWidths={setColumnWidths}
+          columnWidths={columnWidths}
+          innerRef={columnManagerRef}
+          // showEdges
+          // liveDragging
+          // minWidth={minWidth}
+          // maxWidth={maxWidth}
+        />
       </Table>
     ),
     [
