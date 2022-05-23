@@ -24,6 +24,7 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
   select,
   activate,
   setCellDimensions,
+  setCellData,
 }): React.ReactElement => {
   const rootRef = React.useRef<HTMLTableCellElement | null>(null);
   const point = React.useMemo(
@@ -89,6 +90,7 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
         column={column}
         cell={data}
         formulaParser={formulaParser}
+        setCellData={setCellData}
       />
     </td>
   );
@@ -113,6 +115,13 @@ export const enhance = (
   return function CellWrapper(props) {
     const { row, column } = props;
     const dispatch = useDispatch();
+    const setCellData = React.useCallback(
+      (data: Types.CellBase) =>
+        dispatch(
+          Actions.setCellData({ column, row }, data, props.getBindingsForCell)
+        ),
+      [dispatch, props.getBindingsForCell, column, row]
+    );
     const select = React.useCallback(
       (point: Point.Point) => dispatch(Actions.select(point)),
       [dispatch]
@@ -167,6 +176,7 @@ export const enhance = (
         select={select}
         activate={activate}
         setCellDimensions={setCellDimensions}
+        setCellData={setCellData}
       />
     );
   };

@@ -464,6 +464,8 @@ const Spreadsheet = <CellType extends Types.CellBase>(
                 // @ts-ignore
                 DataViewer={DataViewer}
                 formulaParser={formulaParser}
+                // @ts-ignore
+                getBindingsForCell={getBindingsForCell}
               />
             ))}
           </Row>
@@ -486,6 +488,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       Cell,
       DataViewer,
       formulaParser,
+      getBindingsForCell,
     ]
   );
 
