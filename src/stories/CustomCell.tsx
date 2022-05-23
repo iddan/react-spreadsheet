@@ -21,6 +21,7 @@ const CustomCell: CellComponent = ({
   formulaParser,
   data,
   DataViewer,
+  setCellData,
 }) => {
   const rootRef = React.createRef<HTMLTableCellElement>();
 
@@ -86,6 +87,7 @@ const CustomCell: CellComponent = ({
         column={column}
         cell={data}
         formulaParser={formulaParser}
+        setCellData={setCellData}
       />
     </td>
   );
