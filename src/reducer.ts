@@ -156,8 +156,11 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     };
 
     const copiedSize = Matrix.getSize(copiedMatrix);
-    const requiredRows = active.row + copiedSize.rows;
-    const paddedData = Matrix.padRows(state.data, requiredRows);
+    const requiredSize: Matrix.Size = {
+      rows: active.row + copiedSize.rows,
+      columns: active.column + copiedSize.columns,
+    };
+    const paddedData = Matrix.pad(state.data, requiredSize);
 
     const { data, commit } = PointMap.reduce<Accumulator, Types.CellBase>(
       (acc, value, point) => {

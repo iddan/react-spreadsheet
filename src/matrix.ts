@@ -225,6 +225,43 @@ export function padRows<T>(matrix: Matrix<T>, totalRows: number): Matrix<T> {
   return [...matrix, ...emptyRows];
 }
 
+/**
+ * Pads matrix with empty columns to match given total columns
+ * @param matrix - matrix to pad
+ * @param size - minimum size of the matrix after padding.
+ * @returns the updated matrix
+ */
+export function pad<T>(matrix: Matrix<T>, size: Size): Matrix<T> {
+  const { rows, columns } = getSize(matrix);
+
+  if (rows >= size.rows && columns >= size.columns) {
+    // Optimization, no padding required.
+    return matrix;
+  }
+
+  const resultSize: Size = {
+    rows: size.rows > rows ? size.rows : rows,
+    columns: size.columns > columns ? size.columns : columns,
+  };
+
+  let padded = [...matrix];
+  if (resultSize.columns > columns) {
+    const padColumns = resultSize.columns - columns;
+    padded = padded.map((row) => [
+      ...row,
+      ...Array(padColumns).fill(undefined),
+    ]);
+  }
+
+  if (resultSize.rows > rows) {
+    const padRows = resultSize.rows - rows;
+    const emptyRow = Array(resultSize.columns).fill(undefined);
+    padded = [...padded, ...Array(padRows).fill(emptyRow)];
+  }
+
+  return padded;
+}
+
 export function toArray<T>(matrix: Matrix<T>): T[];
 export function toArray<T1, T2>(
   matrix: Matrix<T1>,
