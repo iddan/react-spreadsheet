@@ -171,6 +171,39 @@ describe("Matrix.padRows()", () => {
   });
 });
 
+describe("Matrix.pad()", () => {
+  test("Pads matrix with empty columns and columns to match given size", () => {
+    expect(Matrix.pad(EXAMPLE_MATRIX, { rows: 5, columns: 4 })).toEqual([
+      [1, 2, 3, undefined],
+      [4, 5, 6, undefined],
+      [7, 8, 9, undefined],
+      [undefined, undefined, undefined, undefined],
+      [undefined, undefined, undefined, undefined],
+    ]);
+  });
+  test("Pads rows only.", () => {
+    expect(Matrix.pad(EXAMPLE_MATRIX, { rows: 5, columns: 3 })).toEqual([
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9],
+      [undefined, undefined, undefined],
+      [undefined, undefined, undefined],
+    ]);
+  });
+  test("Pads columns only.", () => {
+    expect(Matrix.pad(EXAMPLE_MATRIX, { rows: 2, columns: 5 })).toEqual([
+      [1, 2, 3, undefined, undefined],
+      [4, 5, 6, undefined, undefined],
+      [7, 8, 9, undefined, undefined],
+    ]);
+  });
+  test("Does nothing if matrix is large enough.", () => {
+    expect(Matrix.pad(EXAMPLE_MATRIX, { rows: 3, columns: 2 })).toBe(
+      EXAMPLE_MATRIX
+    );
+  });
+});
+
 describe("Matrix.toArray()", () => {
   const flattedMatrix = [
     ...EXAMPLE_MATRIX[0],
