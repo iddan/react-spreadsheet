@@ -4,7 +4,6 @@
 
 import React from "react";
 import { render } from "@testing-library/react";
-import { Parser as FormulaParser } from "hot-formula-parser";
 import DataViewer, {
   convertBooleanToText,
   FALSE_TEXT,
@@ -12,14 +11,13 @@ import DataViewer, {
 } from "./DataViewer";
 import * as Types from "./types";
 
-const MOCK_FORMULA_PARSER = {} as FormulaParser;
 const MOCK_SET_CELL_DATA = jest.fn();
 const EXAMPLE_VALUE = "EXAMPLE_VALUE";
 const EXAMPLE_PROPS: Types.DataViewerProps = {
   row: 0,
   column: 0,
   cell: { value: EXAMPLE_VALUE },
-  formulaParser: MOCK_FORMULA_PARSER,
+  evaluatedCell: undefined,
   setCellData: MOCK_SET_CELL_DATA,
 };
 

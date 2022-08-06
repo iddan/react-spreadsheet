@@ -5,26 +5,22 @@
 import React from "react";
 import { fireEvent, render } from "@testing-library/react";
 import { Cell } from "./Cell";
-import { Parser as FormulaParser } from "hot-formula-parser";
 import * as Types from "./types";
 import * as Point from "./point";
 import { getOffsetRect } from "./util";
 
 const MOCK_DATA_VIEWER = jest.fn(() => null);
 const MOCK_CUSTOM_DATA_VIEWER = jest.fn(() => null);
-const MOCK_FORMULA_PARSER = {} as FormulaParser;
 const MOCK_SELECT = jest.fn();
 const MOCK_ACTIVATE = jest.fn();
 const MOCK_SET_CELL_DIMENSIONS = jest.fn();
 const MOCK_SET_CELL_DATA = jest.fn();
-const MOCK_GET_BINDINGS_FOR_CELL = jest.fn();
 const EXAMPLE_ROW = 0;
 const EXAMPLE_COLUMN = 0;
 const EXAMPLE_PROPS: Types.CellComponentProps = {
   row: EXAMPLE_ROW,
   column: EXAMPLE_COLUMN,
   DataViewer: MOCK_DATA_VIEWER,
-  formulaParser: MOCK_FORMULA_PARSER,
   selected: false,
   active: false,
   copied: false,
@@ -35,13 +31,13 @@ const EXAMPLE_PROPS: Types.CellComponentProps = {
   activate: MOCK_ACTIVATE,
   setCellDimensions: MOCK_SET_CELL_DIMENSIONS,
   setCellData: MOCK_SET_CELL_DATA,
-  getBindingsForCell: MOCK_GET_BINDINGS_FOR_CELL,
+  evaluatedData: { value: null },
 };
 const EXAMPLE_DATA_VIEWER_PROPS: Types.DataViewerProps = {
   row: EXAMPLE_ROW,
   column: EXAMPLE_COLUMN,
   cell: EXAMPLE_PROPS.data,
-  formulaParser: MOCK_FORMULA_PARSER,
+  evaluatedCell: EXAMPLE_PROPS.evaluatedData,
   setCellData: MOCK_SET_CELL_DATA,
 };
 const EXAMPLE_READ_ONLY_DATA: Types.CellBase = { value: null, readOnly: true };
@@ -57,7 +53,7 @@ const EXAMPLE_CUSTOM_DATA_VIEWER_PROPS: Types.DataViewerProps = {
   row: EXAMPLE_ROW,
   column: EXAMPLE_COLUMN,
   cell: EXAMPLE_DATA_WITH_CUSTOM_DATA_VIEWER,
-  formulaParser: MOCK_FORMULA_PARSER,
+  evaluatedCell: EXAMPLE_PROPS.evaluatedData,
   setCellData: MOCK_SET_CELL_DATA,
 };
 const EXAMPLE_POINT: Point.Point = { row: EXAMPLE_ROW, column: EXAMPLE_COLUMN };

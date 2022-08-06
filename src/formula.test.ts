@@ -1,9 +1,12 @@
 import * as Point from "./point";
+import * as pointSet from "./point-set";
 import {
   isFormulaValue,
   getReferences,
   extractFormula,
   FORMULA_VALUE_PREFIX,
+  evaluate,
+  createBoundFormulaParser,
 } from "./formula";
 
 const A1 = "A1";
@@ -14,9 +17,10 @@ const SUM_A1_A2_FORMULA = `SUM(${A1}, ${A2})`;
 const EXAMPLE_FORMULA = "TRUE()";
 const EXAMPLE_FORMULA_VALUE = `${FORMULA_VALUE_PREFIX}${EXAMPLE_FORMULA}`;
 
-describe("isFormulaValue", () => {
+describe("isFormulaValue()", () => {
   const cases = [
     ["formula value", EXAMPLE_FORMULA_VALUE, true],
+    ["just equals", "=", false],
     ["non-formula value", "", false],
   ];
   test.each(cases)("%s", (name, formula, expected) => {
@@ -30,8 +34,35 @@ describe("extractFormula()", () => {
   });
 });
 
-describe("getReferences", () => {
-  test("gets references", () => {
-    expect(getReferences(SUM_A1_A2_FORMULA)).toEqual([A1_POINT, A2_POINT]);
+describe("getReferences()", () => {
+  test("gets simple references", () => {
+    expect(
+      getReferences(SUM_A1_A2_FORMULA, Point.ORIGIN, [
+        [{ value: 1 }],
+        [{ value: 2 }],
+      ])
+    ).toEqual(pointSet.from([A1_POINT, A2_POINT]));
+  });
+  test("gets range references", () => {
+    const references = getReferences("SUM(A:A)", Point.ORIGIN, [
+      [{ value: 1 }],
+      [{ value: 2 }],
+    ]);
+
+    expect(references).toEqual(pointSet.from([A1_POINT, A2_POINT]));
+  });
+});
+
+describe("evaluate()", () => {
+  test("evaluates formula", () => {
+    const formulaParser = createBoundFormulaParser(() => []);
+    expect(evaluate(EXAMPLE_FORMULA, Point.ORIGIN, formulaParser)).toBe(true);
+  });
+  test("evaluates sum formula", () => {
+    const data = [[{ value: 1 }], [{ value: 2 }]];
+    const formulaParser = createBoundFormulaParser(() => data);
+    expect(
+      evaluate(SUM_A1_A2_FORMULA, { row: 1, column: 1 }, formulaParser)
+    ).toBe(3);
   });
 });

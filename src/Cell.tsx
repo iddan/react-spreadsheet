@@ -1,6 +1,5 @@
 import * as React from "react";
 import classnames from "classnames";
-import * as PointSet from "./point-set";
 import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
@@ -15,12 +14,12 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
   row,
   column,
   DataViewer,
-  formulaParser,
   selected,
   active,
   dragging,
   mode,
   data,
+  evaluatedData,
   select,
   activate,
   setCellDimensions,
@@ -89,7 +88,7 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
         row={row}
         column={column}
         cell={data}
-        formulaParser={formulaParser}
+        evaluatedCell={evaluatedData}
         setCellData={setCellData}
       />
     </td>
@@ -117,10 +116,8 @@ export const enhance = (
     const dispatch = useDispatch();
     const setCellData = React.useCallback(
       (data: Types.CellBase) =>
-        dispatch(
-          Actions.setCellData({ column, row }, data, props.getBindingsForCell)
-        ),
-      [dispatch, props.getBindingsForCell, column, row]
+        dispatch(Actions.setCellData({ column, row }, data)),
+      [dispatch, column, row]
     );
     const select = React.useCallback(
       (point: Point.Point) => dispatch(Actions.select(point)),
@@ -145,6 +142,10 @@ export const enhance = (
     const data = useSelector((state) =>
       Matrix.get({ row, column }, state.data)
     );
+    const evaluatedData = useSelector((state) =>
+      Matrix.get({ row, column }, state.model.evaluatedData)
+    );
+
     const selected = useSelector((state) =>
       Selection.hasPoint(state.selected, state.data, { row, column })
     );
@@ -152,17 +153,6 @@ export const enhance = (
     const copied = useSelector((state) =>
       PointMap.has({ row, column }, state.copied)
     );
-
-    // Use only to trigger re-render when cell bindings change
-    useSelector((state) => {
-      const point = { row, column };
-      const cellBindings = PointMap.get(point, state.bindings);
-      return cellBindings &&
-        state.lastChanged &&
-        PointSet.has(cellBindings, state.lastChanged)
-        ? {}
-        : null;
-    });
 
     return (
       <CellComponent
@@ -172,6 +162,7 @@ export const enhance = (
         copied={copied}
         dragging={dragging}
         mode={mode}
+        evaluatedData={evaluatedData}
         data={data}
         select={select}
         activate={activate}

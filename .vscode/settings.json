@@ -1,5 +1,6 @@
 {
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "cSpell.words": ["incrementation"]
+  "cSpell.words": ["incrementation"],
+  "dbt.queryLimit": 500
 }

@@ -28,10 +28,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - run: yarn
-      - run: yarn check-format
-      - run: yarn check-typing
-      - run: yarn lint
-      - run: yarn test --coverage
+      - run: yarn ci
       - run: yarn build
         env:
           NODE_ENV: production

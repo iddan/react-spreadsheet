@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as Types from "./types";
-import { getComputedValue } from "./util";
 
 export const TRUE_TEXT = "TRUE";
 export const FALSE_TEXT = "FALSE";
@@ -8,9 +7,10 @@ export const FALSE_TEXT = "FALSE";
 /** The default Spreadsheet DataViewer component */
 const DataViewer = <Cell extends Types.CellBase<Value>, Value>({
   cell,
-  formulaParser,
+  evaluatedCell,
 }: Types.DataViewerProps<Cell>): React.ReactElement => {
-  const value = getComputedValue<Cell, Value>({ cell, formulaParser });
+  const value = evaluatedCell?.value ?? cell?.value;
+
   return typeof value === "boolean" ? (
     <span className="Spreadsheet__data-viewer Spreadsheet__data-viewer--boolean">
       {convertBooleanToText(value)}

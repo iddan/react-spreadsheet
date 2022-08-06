@@ -2,10 +2,8 @@ import * as React from "react";
 import classNames from "classnames";
 import * as Types from "./types";
 import * as Actions from "./actions";
-import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
-import { Parser as FormulaParser } from "hot-formula-parser";
 
 import DefaultTable from "./Table";
 import DefaultRow from "./Row";
@@ -25,7 +23,6 @@ import DefaultDataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import { getBindingsForCell as defaultGetBindingsForCell } from "./bindings";
 import * as Selection from "./selection";
 import {
   range,
@@ -33,15 +30,13 @@ import {
   writeTextToClipboard,
   calculateSpreadsheetSize,
   getCSV,
-  transformCoordToPoint,
-  getCellRangeValue,
-  getCellValue,
   shouldHandleClipboardEvent,
   isFocusedWithin,
 } from "./util";
 import reducer, { INITIAL_STATE, hasKeyDownHandler } from "./reducer";
 import context from "./context";
 import "./Spreadsheet.css";
+import { Model } from "./engine";
 
 /** The Spreadsheet component props */
 export type Props<CellType extends Types.CellBase> = {
@@ -51,11 +46,6 @@ export type Props<CellType extends Types.CellBase> = {
   className?: string;
   /** Use dark colors that complenent dark mode */
   darkMode?: boolean;
-  /**
-   * Instance of `FormulaParser` to be used by the Spreadsheet.
-   * Defaults to: internal instance created by the component.
-   */
-  formulaParser?: FormulaParser;
   /**
    * Labels to use in column indicators.
    * Defaults to: alphabetical labels.
@@ -98,11 +88,6 @@ export type Props<CellType extends Types.CellBase> = {
   // Handlers
   /** Callback called on key down inside the spreadsheet. */
   onKeyDown?: (event: React.KeyboardEvent) => void;
-  /**
-   * Calculate which cells should be updated when given cell updates.
-   * Defaults to: internal implementation which infers dependencies according to formulas.
-   */
-  getBindingsForCell?: Types.GetBindingsForCell<CellType>;
   /** Callback called when the Spreadsheet's data changes. */
   onChange?: (data: Matrix.Matrix<CellType>) => void;
   /** Callback called when the Spreadsheet's edit mode changes. */
@@ -139,7 +124,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     HeaderRow = DefaultHeaderRow,
     DataEditor = DefaultDataEditor,
     DataViewer = DefaultDataViewer,
-    getBindingsForCell = defaultGetBindingsForCell,
     onChange = () => {},
     onModeChange = () => {},
     onSelect = () => {},
@@ -147,14 +131,15 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onBlur = () => {},
     onCellCommit = () => {},
   } = props;
-  const initialState = React.useMemo(
-    () =>
-      ({
-        ...INITIAL_STATE,
-        data: props.data,
-      } as Types.StoreState<CellType>),
-    [props.data]
-  );
+  const initialState = React.useMemo(() => {
+    const model = new Model(props.data);
+    return {
+      ...INITIAL_STATE,
+      data: props.data,
+      model: model,
+    } as Types.StoreState<CellType>;
+  }, [props.data]);
+
   const reducerElements = React.useReducer(
     reducer as unknown as React.Reducer<Types.StoreState<CellType>, any>,
     initialState
@@ -168,14 +153,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const mode = state.mode;
 
   const rootRef = React.useRef<HTMLDivElement>(null);
-  const prevStateRef = React.useRef<Types.StoreState<CellType>>({
-    ...INITIAL_STATE,
-    data: props.data,
-    selected: null,
-    copied: PointMap.from([]),
-    bindings: PointMap.from([]),
-    lastCommit: null,
-  });
+  const prevStateRef = React.useRef<Types.StoreState<CellType>>(initialState);
 
   const copy = React.useCallback(() => dispatch(Actions.copy()), [dispatch]);
   const cut = React.useCallback(() => dispatch(Actions.cut()), [dispatch]);
@@ -356,10 +334,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     [blur]
   );
 
-  const formulaParser = React.useMemo(() => {
-    return props.formulaParser || new FormulaParser();
-  }, [props.formulaParser]);
-
   const Cell = React.useMemo(() => {
     // @ts-ignore
     return enhanceCell(props.Cell || DefaultCell);
@@ -393,34 +367,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       document.removeEventListener("paste", handlePaste);
     };
   }, [handleCut, handleCopy, handlePaste]);
-
-  React.useEffect(() => {
-    formulaParser.on("callCellValue", (cellCoord, done) => {
-      let value;
-      try {
-        const point = transformCoordToPoint(cellCoord);
-        const data = state.data;
-        value = getCellValue(formulaParser, data, point);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        done(value);
-      }
-    });
-    formulaParser.on("callRangeValue", (startCellCoord, endCellCoord, done) => {
-      const startPoint = transformCoordToPoint(startCellCoord);
-      const endPoint = transformCoordToPoint(endCellCoord);
-      const data = state.data;
-      let values;
-      try {
-        values = getCellRangeValue(formulaParser, data, startPoint, endPoint);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        done(values);
-      }
-    });
-  }, [formulaParser, state, handleCut, handleCopy, handlePaste]);
 
   const tableNode = React.useMemo(
     () => (
@@ -463,9 +409,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
                 column={columnNumber}
                 // @ts-ignore
                 DataViewer={DataViewer}
-                formulaParser={formulaParser}
-                // @ts-ignore
-                getBindingsForCell={getBindingsForCell}
               />
             ))}
           </Row>
@@ -487,8 +430,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       RowIndicator,
       Cell,
       DataViewer,
-      formulaParser,
-      getBindingsForCell,
     ]
   );
 
@@ -497,11 +438,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       <ActiveCell
         // @ts-ignore
         DataEditor={DataEditor}
-        // @ts-ignore
-        getBindingsForCell={getBindingsForCell}
       />
     ),
-    [DataEditor, getBindingsForCell]
+    [DataEditor]
   );
 
   const rootNode = React.useMemo(

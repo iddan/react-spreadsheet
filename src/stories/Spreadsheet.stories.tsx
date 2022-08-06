@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Story, Meta } from "@storybook/react/types-6-0";
+import type { Story, Meta } from "@storybook/react";
 import { createEmptyMatrix, Spreadsheet, Props, CellBase } from "..";
 import * as Matrix from "../matrix";
 import { AsyncCellDataEditor, AsyncCellDataViewer } from "./AsyncCellData";

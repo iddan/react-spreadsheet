@@ -5,7 +5,6 @@ import DataViewer from "./DataViewer";
 export default Spreadsheet;
 export { Spreadsheet, DataEditor, DataViewer };
 export type { Props } from "./Spreadsheet";
-export { getComputedValue } from "./util";
 export { Matrix, createEmpty as createEmptyMatrix } from "./matrix";
 export type { Point } from "./point";
 export type {
@@ -13,7 +12,6 @@ export type {
   CellDescriptor,
   Mode,
   Dimensions,
-  GetBindingsForCell,
   CellChange,
   CellComponentProps,
   CellComponent,

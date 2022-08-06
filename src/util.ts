@@ -1,4 +1,3 @@
-import * as hotFormulaParser from "hot-formula-parser";
 import * as Types from "./types";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
@@ -6,12 +5,8 @@ import * as PointRange from "./point-range";
 import * as Selection from "./selection";
 import * as PointMap from "./point-map";
 import * as PointSet from "./point-set";
-import * as Formula from "./formula";
 
 export { createEmpty as createEmptyMatrix } from "./matrix";
-
-export type FormulaParseResult = string | boolean | number;
-export type FormulaParseError = string;
 
 export const PLAIN_TEXT_MIME = "text/plain";
 export const FOCUS_WITHIN_SELECTOR = ":focus-within";
@@ -138,43 +133,6 @@ export function getSelectedDimensions(
     : undefined;
 }
 
-/** Get the computed value of a cell. */
-export function getComputedValue<Cell extends Types.CellBase<Value>, Value>({
-  cell,
-  formulaParser,
-}: {
-  cell: Cell | undefined;
-  formulaParser: hotFormulaParser.Parser;
-}): Value | FormulaParseResult | FormulaParseError | null {
-  if (cell === undefined) {
-    return null;
-  }
-  if (isFormulaCell(cell)) {
-    return getFormulaComputedValue({ cell, formulaParser });
-  }
-  return cell.value;
-}
-
-/** Get the computed value of a formula cell */
-export function getFormulaComputedValue({
-  cell,
-  formulaParser,
-}: {
-  cell: Types.CellBase<string>;
-  formulaParser: hotFormulaParser.Parser;
-}): FormulaParseResult | FormulaParseError | null {
-  const formula = Formula.extractFormula(cell.value);
-  const { result, error } = formulaParser.parse(formula);
-  return error || result;
-}
-
-/** Returns whether given cell contains a formula value */
-export function isFormulaCell(
-  cell: Types.CellBase
-): cell is Types.CellBase<string> {
-  return Formula.isFormulaValue(cell.value);
-}
-
 /** Get given data as CSV */
 export function getCSV(data: Matrix.Matrix<Types.CellBase>): string {
   const valueMatrix = Matrix.map((cell) => cell?.value || "", data);
@@ -217,47 +175,6 @@ export function getCopiedRange(
   }
   const set = convertPointMapToPointSet(copied);
   return PointSet.toRange(set);
-}
-
-/** Tranform given hot-formula-parser coord to Point.Point */
-export function transformCoordToPoint(coord: {
-  row: { index: number };
-  column: { index: number };
-}): Point.Point {
-  return { row: coord.row.index, column: coord.column.index };
-}
-
-/**
- * Get cell value for given point from given spreadsheet data with evaluated
- * cells using given formulaParser
- */
-export function getCellValue<CellType extends Types.CellBase>(
-  formulaParser: hotFormulaParser.Parser,
-  data: Matrix.Matrix<CellType>,
-  point: Point.Point
-): FormulaParseResult | CellType["value"] | null {
-  return getComputedValue({
-    cell: Matrix.get(point, data),
-    formulaParser,
-  });
-}
-
-/**
- * Get cell range value for given start and end points from given spreadsheet
- * data with evaluated cells using given formulaParser
- */
-export function getCellRangeValue<CellType extends Types.CellBase>(
-  formulaParser: hotFormulaParser.Parser,
-  data: Matrix.Matrix<CellType>,
-  start: Point.Point,
-  end: Point.Point
-): Array<FormulaParseResult | CellType["value"] | null> {
-  return Matrix.toArray(Matrix.slice(start, end, data), (cell) =>
-    getComputedValue({
-      cell,
-      formulaParser,
-    })
-  );
 }
 
 /** Should spreadsheet handle clipboard event */

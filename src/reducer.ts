@@ -8,6 +8,7 @@ import * as Selection from "./selection";
 import { isActive } from "./util";
 import { createReducer } from "@reduxjs/toolkit";
 import * as Actions from "./actions";
+import { Model, updateCellValue } from "./engine";
 
 export const INITIAL_STATE: Types.StoreState = {
   active: null,
@@ -19,9 +20,9 @@ export const INITIAL_STATE: Types.StoreState = {
   cut: false,
   dragging: false,
   data: [],
+  model: new Model([]),
   selected: null,
   copied: PointMap.from([]),
-  bindings: PointMap.from([]),
   lastCommit: null,
 };
 
@@ -31,17 +32,11 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     const nextActive =
       state.active && Matrix.has(state.active, data) ? state.active : null;
     const nextSelected = Selection.normalize(state.selected, data);
-    const nextBindings = PointMap.map(
-      (bindings) =>
-        PointSet.filter((point) => Matrix.has(point, data), bindings),
-      PointMap.filter((_, point) => Matrix.has(point, data), state.bindings)
-    );
     return {
       ...state,
       data,
       active: nextActive,
       selected: nextSelected,
-      bindings: nextBindings,
     };
   });
   builder.addCase(Actions.select, (state, action) => {
@@ -100,16 +95,16 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     };
   });
   builder.addCase(Actions.setCellData, (state, action) => {
-    const { active, data: cellData, getBindingsForCell } = action.payload;
-    const bindings = getBindingsForCell(cellData, state.data);
+    const { active, data: cellData } = action.payload;
     if (isActiveReadOnly(state)) {
       return;
     }
     return {
       ...state,
+      // TODO: move data to model
       data: Matrix.set(active, cellData, state.data),
+      model: updateCellValue(state.model, active, cellData),
       lastChanged: active,
-      bindings: PointMap.set(active, PointSet.from(bindings), state.bindings),
     };
   });
   builder.addCase(Actions.setCellDimensions, (state, action) => {

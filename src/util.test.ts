@@ -2,8 +2,7 @@
  * @jest-environment jsdom
  */
 
-import type { Parser as FormulaParser } from "hot-formula-parser";
-import * as Formula from "./formula";
+import { Model } from "./engine";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import * as PointMap from "./point-map";
@@ -59,24 +58,16 @@ const EXAMPLE_STATE: Types.StoreState = {
   cut: false,
   dragging: false,
   data: EXAMPLE_DATA,
+  model: new Model(EXAMPLE_DATA),
   selected: null,
   copied: PointMap.from([]),
-  bindings: PointMap.from([]),
   lastCommit: null,
 };
 const EXAMPLE_STRING = "EXAMPLE_STRING";
 const EXAMPLE_CELL: Types.CellBase = {
   value: "EXAMPLE_CELL_VALUE",
 };
-const EXAMPLE_FORMULA_CELL: Types.CellBase = {
-  value: "=TRUE()",
-};
-const MOCK_PARSE = jest.fn();
-const MOCK_FORMULA_PARSER = {
-  parse: MOCK_PARSE,
-} as unknown as FormulaParser;
-const EXAMPLE_FORMULA_RESULT = true;
-const EXAMPLE_FORMULA_ERROR = "EXAMPLE_ERROR";
+
 const EXAMPLE_EMPTY_COPIED = PointMap.from<Types.CellBase>([]);
 const EXAMPLE_COPIED = PointMap.from([[Point.ORIGIN, EXAMPLE_CELL]]);
 
@@ -298,77 +289,6 @@ describe("writeTextToClipboard()", () => {
   );
 });
 
-describe("getComputedValue()", () => {
-  test("Returns null if cell is not defined", () => {
-    expect(
-      util.getComputedValue({
-        cell: undefined,
-        formulaParser: MOCK_FORMULA_PARSER,
-      })
-    ).toBe(null);
-    expect(MOCK_FORMULA_PARSER.parse).toBeCalledTimes(0);
-  });
-  test("Returns value if not formula", () => {
-    expect(
-      util.getComputedValue({
-        cell: EXAMPLE_CELL,
-        formulaParser: MOCK_FORMULA_PARSER,
-      })
-    ).toBe(EXAMPLE_CELL.value);
-    expect(MOCK_FORMULA_PARSER.parse).toBeCalledTimes(0);
-  });
-  test("Returns evaluated formula value", () => {
-    MOCK_PARSE.mockImplementationOnce(() => ({
-      result: EXAMPLE_FORMULA_RESULT,
-      error: null,
-    }));
-    expect(
-      util.getComputedValue({
-        cell: EXAMPLE_FORMULA_CELL,
-        formulaParser: MOCK_FORMULA_PARSER,
-      })
-    ).toBe(EXAMPLE_FORMULA_RESULT);
-  });
-});
-
-describe("getFormulaComputedValue()", () => {
-  const cases = [
-    [
-      "Returns parsed formula result",
-      EXAMPLE_FORMULA_RESULT,
-      { result: EXAMPLE_FORMULA_RESULT, error: null },
-    ],
-    [
-      "Returns parsed formula error",
-      EXAMPLE_FORMULA_ERROR,
-      { result: null, error: EXAMPLE_FORMULA_ERROR },
-    ],
-  ] as const;
-  test.each(cases)("%s", (name, expected, mockParseReturn) => {
-    MOCK_PARSE.mockImplementationOnce(() => mockParseReturn);
-    expect(
-      util.getFormulaComputedValue({
-        cell: EXAMPLE_FORMULA_CELL,
-        formulaParser: MOCK_FORMULA_PARSER,
-      })
-    ).toBe(expected);
-    expect(MOCK_FORMULA_PARSER.parse).toBeCalledTimes(1);
-    expect(MOCK_FORMULA_PARSER.parse).toBeCalledWith(
-      Formula.extractFormula(EXAMPLE_FORMULA_CELL.value)
-    );
-  });
-});
-
-describe("isFormulaCell()", () => {
-  const cases = [
-    ["Returns true for formula cell", EXAMPLE_FORMULA_CELL, true],
-    ["Returns true for formula cell", EXAMPLE_CELL, false],
-  ] as const;
-  test.each(cases)("%s", (name, cell, expected) => {
-    expect(util.isFormulaCell(cell)).toBe(expected);
-  });
-});
-
 describe("getCSV()", () => {
   test("Returns given data as CSV", () => {
     expect(util.getCSV(EXAMPLE_DATA)).toBe(
@@ -449,34 +369,6 @@ describe("getCopiedRange()", () => {
   test.each(cases)("%s", (name, copied, hasPasted, expected) => {
     expect(util.getCopiedRange(copied, hasPasted)).toEqual(expected);
   });
-});
-
-describe("transformCoordToPoint()", () => {
-  test("transforms coord to point", () => {
-    expect(
-      util.transformCoordToPoint({
-        row: { index: Point.ORIGIN.row },
-        column: { index: Point.ORIGIN.column },
-      })
-    ).toEqual(Point.ORIGIN);
-  });
-});
-
-describe("getCellValue()", () => {
-  expect(
-    util.getCellValue(MOCK_FORMULA_PARSER, EXAMPLE_DATA, Point.ORIGIN)
-  ).toEqual(null);
-});
-
-describe("getCellRangeValue()", () => {
-  expect(
-    util.getCellRangeValue(
-      MOCK_FORMULA_PARSER,
-      EXAMPLE_DATA,
-      Point.ORIGIN,
-      Point.ORIGIN
-    )
-  ).toEqual([null]);
 });
 
 describe("shouldHandleClipboardEvent()", () => {

@@ -18,8 +18,8 @@ const CustomCell: CellComponent = ({
   mode,
   dragging,
   active,
-  formulaParser,
   data,
+  evaluatedData,
   DataViewer,
   setCellData,
 }) => {
@@ -86,7 +86,7 @@ const CustomCell: CellComponent = ({
         row={row}
         column={column}
         cell={data}
-        formulaParser={formulaParser}
+        evaluatedCell={evaluatedData}
         setCellData={setCellData}
       />
     </td>

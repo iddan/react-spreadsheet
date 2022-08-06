@@ -1,6 +1,5 @@
 import * as React from "react";
 import classNames from "classnames";
-import { columnIndexToLabel } from "hot-formula-parser";
 import * as Types from "./types";
 import * as Actions from "./actions";
 import * as Selection from "./selection";
@@ -27,7 +26,7 @@ const ColumnIndicator: Types.ColumnIndicatorComponent = ({
       onClick={handleClick}
       tabIndex={0}
     >
-      {label !== undefined ? label : columnIndexToLabel(String(column))}
+      {label !== undefined ? label : columnIndexToLabel(column)}
     </th>
   );
 };
@@ -58,3 +57,13 @@ export const enhance = (
     );
   };
 };
+
+function columnIndexToLabel(column: number): string {
+  let label = "";
+  let index = column;
+  while (index >= 0) {
+    label = String.fromCharCode(65 + (index % 26)) + label;
+    index = Math.floor(index / 26) - 1;
+  }
+  return label;
+}

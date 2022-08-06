@@ -58,3 +58,36 @@ export function toRange(set: PointSet): PointRange.PointRange {
   const end = max(set);
   return PointRange.create(start, end);
 }
+
+/** Add the given point to given set */
+export function add(point: Point.Point, set: PointSet): PointSet {
+  return PointMap.set<boolean>(point, true, set);
+}
+
+/** Remove the given point to given set */
+export function remove(point: Point.Point, set: PointSet): PointSet {
+  return PointMap.unset(point, set);
+}
+
+/** Create an array from given set */
+export function toArray(set: PointSet): Point.Point[] {
+  return PointMap.reduce(
+    (acc, value, point) => [...acc, point],
+    set,
+    [] as Point.Point[]
+  );
+}
+
+export function subtract(toSubtract: PointSet, set: PointSet): PointSet {
+  let newSet = set;
+  for (const point of toArray(toSubtract)) {
+    newSet = remove(point, newSet);
+  }
+  return newSet;
+}
+
+export function* entries(set: PointSet): Generator<Point.Point> {
+  for (const [point] of PointMap.entries(set)) {
+    yield point;
+  }
+}
