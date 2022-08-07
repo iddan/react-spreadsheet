@@ -112,13 +112,22 @@ export function map<T, T2>(
   matrix: Matrix<T>
 ): Matrix<T2> {
   const newMatrix: Matrix<T2> = [];
+  for (const [point, value] of entries(matrix)) {
+    mutableSet(point, func(value, point), newMatrix);
+  }
+  return newMatrix;
+}
+
+/** Create an iterator over the cells in the matrix */
+export function* entries<T>(
+  matrix: Matrix<T>
+): IterableIterator<[Point.Point, T | undefined]> {
   for (const [row, values] of matrix.entries()) {
     for (const [column, value] of values.entries()) {
       const point = { row, column };
-      mutableSet(point, func(value, point), newMatrix);
+      yield [point, value];
     }
   }
-  return newMatrix;
 }
 
 /**
