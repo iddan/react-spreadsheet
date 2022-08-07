@@ -23,6 +23,18 @@ export function filter(
   return PointMap.filter((_, point) => func(point), set);
 }
 
+export function reduce<A>(
+  func: (acc: A, point: Point.Point) => A,
+  set: PointSet,
+  initialValue: A
+): A {
+  return PointMap.reduce(
+    (acc, _, point) => func(acc, point),
+    set,
+    initialValue
+  );
+}
+
 const minKey = (object: Record<number, any>): number => {
   /* @ts-ignore*/
   return Math.min(...Object.keys(object));
@@ -57,4 +69,31 @@ export function toRange(set: PointSet): PointRange.PointRange {
   const start = min(set);
   const end = max(set);
   return PointRange.create(start, end);
+}
+
+/** Add the given point to given set */
+export function add(point: Point.Point, set: PointSet): PointSet {
+  return PointMap.set<boolean>(point, true, set);
+}
+
+/** Remove the given point to given set */
+export function remove(point: Point.Point, set: PointSet): PointSet {
+  return PointMap.unset(point, set);
+}
+
+/** Create an array from given set */
+export function toArray(set: PointSet): Point.Point[] {
+  return PointMap.reduce(
+    (acc, value, point) => [...acc, point],
+    set,
+    [] as Point.Point[]
+  );
+}
+
+export function subtract(toSubtract: PointSet, set: PointSet): PointSet {
+  let newSet = set;
+  for (const point of toArray(toSubtract)) {
+    newSet = remove(point, set);
+  }
+  return newSet;
 }
