@@ -11,6 +11,8 @@ import * as Types from "./types";
 export type CellBase<Value = any> = {
   /** Whether the cell should not be editable */
   readOnly?: boolean;
+  /** Whether the cell should have the readonly style when readonly */
+  useReadOnlyStyle?: boolean;
   /** Class to be given for the cell element */
   className?: string;
   /** The value of the cell */
@@ -93,6 +95,8 @@ export type CellComponentProps<Cell extends CellBase = CellBase> = {
   copied: boolean;
   /** Whether the user is dragging */
   dragging: boolean;
+  /** Whether to use the readonly styling on cell */
+  useReadOnlyStyle?: boolean;
   /** The mode of the cell */
   mode: Mode;
   /** The data of the cell */

@@ -1,8 +1,8 @@
 {
   "name": "react-spreadsheet",
-  "version": "0.7.7",
+  "version": "0.7.8",
   "description": "Simple, customizable yet performant spreadsheet for React",
-  "author": "Iddan Aaronsohn <mail@aniddan.com> (https://aniddan.com)",
+  "author": "Iddan Aaronsohn <mail@aniddan.com> (https://aniddan.com); Modified by Or Shomron",
   "keywords": [
     "spreadsheet",
     "excel",

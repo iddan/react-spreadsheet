@@ -64,6 +64,45 @@ describe("<Spreadsheet />", () => {
     // Make sure copied is hidden
     expect(copied).toHaveClass("Spreadsheet__floating-rect--hidden");
   });
+  test("renders readonly cell", () => {
+    const newData = createEmptyMatrix<CellType>(ROWS, COLUMNS);
+    newData[1][1] = {
+      value: "1",
+      readOnly: true,
+    };
+
+    const CUT = newData?.at(1)?.at(1);
+    expect(CUT).toBeTruthy();
+
+    render(<Spreadsheet {...EXAMPLE_PROPS} data={newData} />);
+    // Get elements
+    const element = getSpreadsheetElement();
+    const table = safeQuerySelector(element, "table.Spreadsheet__table");
+    const selected = safeQuerySelector(
+      element,
+      ".Spreadsheet__floating-rect--selected"
+    );
+    const copied = safeQuerySelector(
+      element,
+      ".Spreadsheet__floating-rect--copied"
+    );
+    // Check all sub elements are rendered correctly
+    const trs = table.querySelectorAll("tr");
+    expect(trs).toHaveLength(ROWS + 1);
+    const tds = table.querySelectorAll("tr td.Spreadsheet__cell");
+    expect(tds).toHaveLength(ROWS * COLUMNS);
+    const ths = table.querySelectorAll("tr th.Spreadsheet__header");
+    expect(ths).toHaveLength(ROWS + COLUMNS + 1);
+    // Check readonly cell
+    const readonlyCell = table.querySelectorAll(".Spreadsheet__cell--readonly");
+    expect(readonlyCell).toBeTruthy();
+    // Check active cell is not rendered
+    expect(element.querySelector(".Spreadsheet__active-cell")).toBeNull();
+    // Make sure selected is hidden
+    expect(selected).toHaveClass("Spreadsheet__floating-rect--hidden");
+    // Make sure copied is hidden
+    expect(copied).toHaveClass("Spreadsheet__floating-rect--hidden");
+  });
   test("click activates cell", () => {
     const onActivate = jest.fn();
     const onSelect = jest.fn();

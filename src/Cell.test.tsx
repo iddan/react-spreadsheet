@@ -29,6 +29,7 @@ const EXAMPLE_PROPS: Types.CellComponentProps = {
   active: false,
   copied: false,
   dragging: false,
+  useReadOnlyStyle: true,
   mode: "view",
   data: { value: null },
   select: MOCK_SELECT,
@@ -81,6 +82,25 @@ describe("<Cell />", () => {
       ".Spreadsheet__cell.Spreadsheet__cell--readonly"
     );
     expect(element).not.toBeNull();
+    expect(MOCK_DATA_VIEWER).toBeCalledTimes(1);
+    expect(MOCK_DATA_VIEWER).toBeCalledWith(
+      { ...EXAMPLE_DATA_VIEWER_PROPS, cell: EXAMPLE_READ_ONLY_DATA },
+      {}
+    );
+    expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
+  });
+  test("renders without read only", () => {
+    render(
+      <Cell
+        {...EXAMPLE_PROPS}
+        useReadOnlyStyle={false}
+        data={EXAMPLE_READ_ONLY_DATA}
+      />
+    );
+    const element = document.querySelector(
+      ".Spreadsheet__cell.Spreadsheet__cell--readonly"
+    );
+    expect(element).toBeNull();
     expect(MOCK_DATA_VIEWER).toBeCalledTimes(1);
     expect(MOCK_DATA_VIEWER).toBeCalledWith(
       { ...EXAMPLE_DATA_VIEWER_PROPS, cell: EXAMPLE_READ_ONLY_DATA },
