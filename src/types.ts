@@ -1,11 +1,11 @@
 import * as React from "react";
-import { Parser as FormulaParser } from "hot-formula-parser";
 import { Point } from "./point";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";
 import { Matrix } from "./matrix";
 import { Selection } from "./selection";
 import * as Types from "./types";
+import { Model } from "./engine";
 
 /** The base type of cell data in Spreadsheet */
 export type CellBase<Value = any> = {
@@ -47,6 +47,7 @@ export type Dimensions = {
 
 export type StoreState<Cell extends CellBase = CellBase> = {
   data: Matrix<Cell>;
+  model: Model<Cell>;
   selected: Selection;
   copied: PointMap<Cell>;
   hasPasted: boolean;
@@ -83,8 +84,6 @@ export type CellComponentProps<Cell extends CellBase = CellBase> = {
   column: number;
   /** The DataViewer component to be used by the cell */
   DataViewer: DataViewerComponent<Cell>;
-  /** The FormulaParser instance to be used by the cell */
-  formulaParser: FormulaParser;
   /** Whether the cell is selected */
   selected: boolean;
   /** Whether the cell is active */
@@ -97,6 +96,8 @@ export type CellComponentProps<Cell extends CellBase = CellBase> = {
   mode: Mode;
   /** The data of the cell */
   data: Cell | undefined;
+  /** The evaluated data of the cell */
+  evaluatedData: Cell | undefined;
   /** Select the cell at the given point */
   select: (point: Point) => void;
   /** Activate the cell at the given point */
@@ -124,10 +125,9 @@ type DataComponentProps<Cell extends CellBase> = {
 /** Type of the Spreadsheet DataViewer component props */
 export type DataViewerProps<Cell extends CellBase = CellBase> =
   DataComponentProps<Cell> & {
-    /** Instance of `FormulaParser` */
-    formulaParser: FormulaParser;
     /** Set data of the cell */
     setCellData: (cell: Cell) => void;
+    evaluatedCell: Cell | undefined;
   };
 
 /** Type of the Spreadsheet DataViewer component */

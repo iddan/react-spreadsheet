@@ -8,6 +8,7 @@ import * as Selection from "./selection";
 import { isActive } from "./util";
 import { createReducer } from "@reduxjs/toolkit";
 import * as Actions from "./actions";
+import { Model, updateCellValue } from "./engine";
 
 export const INITIAL_STATE: Types.StoreState = {
   active: null,
@@ -19,6 +20,7 @@ export const INITIAL_STATE: Types.StoreState = {
   cut: false,
   dragging: false,
   data: [],
+  model: new Model([]),
   selected: null,
   copied: PointMap.from([]),
   bindings: PointMap.from([]),
@@ -107,7 +109,9 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     }
     return {
       ...state,
+      /** @todo move data to model */
       data: Matrix.set(active, cellData, state.data),
+      model: updateCellValue(state.model, active, cellData),
       lastChanged: active,
       bindings: PointMap.set(active, PointSet.from(bindings), state.bindings),
     };

@@ -158,3 +158,11 @@ export function filter<T>(
 export function isEmpty(map: PointMap<unknown>): boolean {
   return Object.keys(map).length === 0;
 }
+
+export function* entries<T>(map: PointMap<T>): Generator<[Point.Point, T]> {
+  for (const row in map) {
+    for (const column in map[row]) {
+      yield [{ row: Number(row), column: Number(column) }, map[row][column]];
+    }
+  }
+}

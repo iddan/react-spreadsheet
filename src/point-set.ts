@@ -97,3 +97,9 @@ export function subtract(toSubtract: PointSet, set: PointSet): PointSet {
   }
   return newSet;
 }
+
+export function* entries(set: PointSet): Generator<Point.Point> {
+  for (const [point] of PointMap.entries(set)) {
+    yield point;
+  }
+}
