@@ -15,12 +15,12 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
   row,
   column,
   DataViewer,
-  formulaParser,
   selected,
   active,
   dragging,
   mode,
   data,
+  evaluatedData,
   select,
   activate,
   setCellDimensions,
@@ -89,7 +89,7 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
         row={row}
         column={column}
         cell={data}
-        formulaParser={formulaParser}
+        evaluatedCell={evaluatedData}
         setCellData={setCellData}
       />
     </td>
@@ -145,6 +145,10 @@ export const enhance = (
     const data = useSelector((state) =>
       Matrix.get({ row, column }, state.data)
     );
+    const evaluatedData = useSelector((state) =>
+      Matrix.get({ row, column }, state.model.evaluatedData)
+    );
+
     const selected = useSelector((state) =>
       Selection.hasPoint(state.selected, state.data, { row, column })
     );
@@ -172,6 +176,7 @@ export const enhance = (
         copied={copied}
         dragging={dragging}
         mode={mode}
+        evaluatedData={evaluatedData}
         data={data}
         select={select}
         activate={activate}

@@ -64,3 +64,44 @@ export function getBackwards(
 ): pointSet.PointSet {
   return pointMap.get(point, graph.backward) || pointSet.from([]);
 }
+
+export function* traverseBFS(graph: PointGraph): Generator<Point> {
+  // Create a Set to store the points that have been visited
+  const visited = new Set<Point>();
+
+  // Create a queue to store the points that still need to be visited
+  const queue: Point[] = [];
+
+  // Iterate over all the points in the forward map and add the ones with no dependencies to the queue
+  for (const [point, dependencies] of pointMap.entries(graph.forward)) {
+    if (pointSet.size(dependencies) === 0 && !visited.has(point)) {
+      queue.push(point);
+      visited.add(point);
+    }
+  }
+
+  // While there are points in the queue, remove the first one and yield it
+  while (queue.length > 0) {
+    const point = queue.shift();
+    if (!point) {
+      continue;
+    }
+    yield point;
+
+    // Get the set of points that depend on the current point
+    const dependents = pointMap.get(point, graph.forward);
+
+    // If there are no dependents, skip to the next iteration
+    if (!dependents) {
+      continue;
+    }
+
+    // Otherwise, add the dependents to the queue if they have not yet been visited
+    for (const dependent of pointSet.entries(dependents)) {
+      if (!visited.has(dependent)) {
+        queue.push(dependent);
+        visited.add(dependent);
+      }
+    }
+  }
+}
