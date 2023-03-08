@@ -21,7 +21,11 @@ export const SelectView: DataViewerComponent<Cell> = ({ cell }) => {
   return <Select value={option} options={OPTIONS} isDisabled />;
 };
 
-export const SelectEdit: DataEditorComponent<Cell> = ({ cell, onChange }) => {
+export const SelectEdit: DataEditorComponent<Cell> = ({
+  cell,
+  onChange,
+  exitEditMode,
+}) => {
   const handleChange = React.useCallback(
     (selection) => {
       onChange({ ...cell, value: selection ? selection.value : null });
@@ -39,6 +43,7 @@ export const SelectEdit: DataEditorComponent<Cell> = ({ cell, onChange }) => {
       options={OPTIONS}
       autoFocus
       defaultMenuIsOpen
+      onMenuClose={() => exitEditMode()}
     />
   );
 };

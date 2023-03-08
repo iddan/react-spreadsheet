@@ -157,7 +157,6 @@ describe("reducer", () => {
         ...INITIAL_STATE,
         data: Matrix.set(Point.ORIGIN, EXAMPLE_CELL, INITIAL_STATE.data),
         bindings: PointMap.from([[Point.ORIGIN, PointSet.from([])]]),
-        mode: "edit",
         lastChanged: Point.ORIGIN,
       },
     ],

@@ -107,7 +107,6 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     }
     return {
       ...state,
-      mode: "edit",
       data: Matrix.set(active, cellData, state.data),
       lastChanged: active,
       bindings: PointMap.set(active, PointSet.from(bindings), state.bindings),
