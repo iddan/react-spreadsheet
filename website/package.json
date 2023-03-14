@@ -37,7 +37,7 @@
     "typedoc-plugin-rename-defaults": "^0.4.0",
     "typescript": "^4.3.5",
     "url-loader": "^4.1.1",
-    "webpack": "^5.68.0"
+    "webpack": "^5.76.0"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
