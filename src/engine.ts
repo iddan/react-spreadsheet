@@ -128,7 +128,8 @@ function evaluateCell<Cell extends CellBase>(
         cell,
         formulaParser,
       })
-    : cell.value;
+    : // @ts-expect-error
+      cell.value;
 
   console.log("isFormulaCell", isFormulaCell(cell));
 
