@@ -41,7 +41,7 @@ export function updateCellValue<Cell extends CellBase>(
     : model.referenceGraph;
 
   const nextEvaluatedData = evaluateCell(
-    model,
+    model.evaluatedData,
     nextData,
     nextReferenceGraph,
     point,
@@ -61,7 +61,7 @@ function updateReferenceGraph(
 }
 
 function evaluateCell<Cell extends CellBase>(
-  prevModel: Model<Cell>,
+  prevEvaluatedData: matrix.Matrix<Cell>,
   data: matrix.Matrix<Cell>,
   referenceGraph: pointGraph.PointGraph,
   point: Point,
@@ -69,10 +69,14 @@ function evaluateCell<Cell extends CellBase>(
   evaluatedCells = pointSet.from([]),
   formulaParser: hotFormulaParser.Parser | null = null
 ): matrix.Matrix<Cell> {
+  if (pointSet.size(evaluatedCells) === 0) {
+    console.log("evaluation started");
+  }
+  console.info("evaluateCell", point);
   // Check if the cell is already being evaluated
   if (pointSet.has(evaluatedCells, point)) {
     // If it is, return the previously evaluated data
-    return prevModel.evaluatedData;
+    return prevEvaluatedData;
   }
 
   // Mark the cell as being evaluated
@@ -81,7 +85,7 @@ function evaluateCell<Cell extends CellBase>(
   // for every formula cell that references the cell re-evaluate (recursive)
   // if the cell is a formula evaluate the formula
 
-  let nextEvaluatedData = prevModel.evaluatedData;
+  let nextEvaluatedData = prevEvaluatedData;
 
   if (!formulaParser) {
     formulaParser = new hotFormulaParser.Parser();
@@ -112,17 +116,6 @@ function evaluateCell<Cell extends CellBase>(
     });
   }
 
-  const referrers = pointGraph.getBackwards(point, referenceGraph);
-  for (const referrer of pointSet.toArray(referrers)) {
-    nextEvaluatedData = evaluateCell(
-      prevModel,
-      data,
-      referenceGraph,
-      referrer,
-      cell,
-      evaluatedCells
-    );
-  }
   const evaluatedValue = isFormulaCell(cell)
     ? getFormulaComputedValue({
         cell,
@@ -133,6 +126,22 @@ function evaluateCell<Cell extends CellBase>(
   const evaluatedCell: Cell = { ...cell, value: evaluatedValue };
 
   nextEvaluatedData = matrix.set<Cell>(point, evaluatedCell, nextEvaluatedData);
+
+  // for every formula cell that references the cell re-evaluate (recursive)
+  const referrers = pointGraph.getBackwards(point, referenceGraph);
+
+  for (const referrer of pointSet.toArray(referrers)) {
+    const referrerCell = matrix.get(referrer, data);
+    if (referrerCell)
+      nextEvaluatedData = evaluateCell(
+        nextEvaluatedData,
+        data,
+        referenceGraph,
+        referrer,
+        referrerCell,
+        evaluatedCells
+      );
+  }
 
   return nextEvaluatedData;
 }
