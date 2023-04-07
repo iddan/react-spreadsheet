@@ -199,5 +199,5 @@ export function getFormulaComputedValue({
 }): FormulaComputedValue {
   const formula = Formula.extractFormula(cell.value);
   const { result, error } = formulaParser.parse(formula);
-  return error || result;
+  return error || result.value;
 }
