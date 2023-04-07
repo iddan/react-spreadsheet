@@ -224,3 +224,45 @@ describe("PointGraph.traverseBFS", () => {
     ]);
   });
 });
+
+test("no circular dependency", () => {
+  const graph = pointGraph.from([
+    [{ row: 0, column: 1 }, pointSet.from([{ row: 0, column: 0 }])],
+    [{ row: 0, column: 2 }, pointSet.from([{ row: 0, column: 1 }])],
+    [{ row: 0, column: 3 }, pointSet.from([{ row: 0, column: 2 }])],
+    [{ row: 0, column: 4 }, pointSet.from([{ row: 0, column: 3 }])],
+  ]);
+  expect(pointGraph.hasCircularDependency(graph, { row: 0, column: 1 })).toBe(
+    false
+  );
+});
+
+test("simple circular dependency", () => {
+  const graph = pointGraph.from([
+    [{ row: 0, column: 1 }, pointSet.from([{ row: 0, column: 0 }])],
+    [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 1 }])],
+  ]);
+  expect(pointGraph.hasCircularDependency(graph, { row: 0, column: 0 })).toBe(
+    true
+  );
+});
+
+test("multiple circular dependencies", () => {
+  const graph = pointGraph.from([
+    [{ row: 0, column: 1 }, pointSet.from([{ row: 0, column: 0 }])],
+    [{ row: 0, column: 2 }, pointSet.from([{ row: 0, column: 1 }])],
+    [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 2 }])],
+  ]);
+  expect(pointGraph.hasCircularDependency(graph, { row: 0, column: 0 })).toBe(
+    true
+  );
+});
+
+test("self-referential circular dependency", () => {
+  const graph = pointGraph.from([
+    [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 0 }])],
+  ]);
+  expect(pointGraph.hasCircularDependency(graph, { row: 0, column: 0 })).toBe(
+    true
+  );
+});
