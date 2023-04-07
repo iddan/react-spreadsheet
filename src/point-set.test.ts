@@ -64,3 +64,17 @@ describe("PointSet.toRange", () => {
     );
   });
 });
+
+describe("PointSet.subtract", () => {
+  test("Subtracts given set from the set", () => {
+    expect(
+      PointSet.subtract(
+        PointSet.from([
+          { row: 0, column: 1 },
+          { row: 1, column: 1 },
+        ]),
+        EXAMPLE_SET
+      )
+    ).toEqual(PointSet.from([MIN_POINT, MAX_POINT]));
+  });
+});

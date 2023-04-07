@@ -93,7 +93,7 @@ export function toArray(set: PointSet): Point.Point[] {
 export function subtract(toSubtract: PointSet, set: PointSet): PointSet {
   let newSet = set;
   for (const point of toArray(toSubtract)) {
-    newSet = remove(point, set);
+    newSet = remove(point, newSet);
   }
   return newSet;
 }
