@@ -15,7 +15,6 @@ const MOCK_SELECT = jest.fn();
 const MOCK_ACTIVATE = jest.fn();
 const MOCK_SET_CELL_DIMENSIONS = jest.fn();
 const MOCK_SET_CELL_DATA = jest.fn();
-const MOCK_GET_BINDINGS_FOR_CELL = jest.fn();
 const EXAMPLE_ROW = 0;
 const EXAMPLE_COLUMN = 0;
 const EXAMPLE_PROPS: Types.CellComponentProps = {
@@ -32,7 +31,6 @@ const EXAMPLE_PROPS: Types.CellComponentProps = {
   activate: MOCK_ACTIVATE,
   setCellDimensions: MOCK_SET_CELL_DIMENSIONS,
   setCellData: MOCK_SET_CELL_DATA,
-  getBindingsForCell: MOCK_GET_BINDINGS_FOR_CELL,
   evaluatedData: { value: null },
 };
 const EXAMPLE_DATA_VIEWER_PROPS: Types.DataViewerProps = {

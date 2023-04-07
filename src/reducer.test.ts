@@ -11,9 +11,9 @@ import { createEmptyMatrix } from "./util";
 import * as Point from "./point";
 import * as Matrix from "./matrix";
 import * as PointRange from "./point-range";
-import * as PointMap from "./point-map";
-import * as PointSet from "./point-set";
 import * as Selection from "./selection";
+import "./areModelsEqual";
+import { Model } from "./engine";
 
 const EDIT_STATE: Types.StoreState = { ...INITIAL_STATE, mode: "edit" };
 const EXAMPLE_DATA = createEmptyMatrix<Types.CellBase>(4, 4);
@@ -21,7 +21,6 @@ const EXAMPLE_ROW = 2;
 const EXAMPLE_COLUMN = 2;
 const EXAMPLE_POINT: Point.Point = { row: EXAMPLE_ROW, column: EXAMPLE_COLUMN };
 const EXAMPLE_CELL: Types.CellBase = { value: 42 };
-const MOCK_GET_BINDINGS_FOR_CELL = jest.fn(() => []);
 const EXAMPLE_DIMENSIONS: Types.Dimensions = {
   left: 0,
   top: 0,
@@ -148,15 +147,13 @@ describe("reducer", () => {
     [
       "setCellData",
       INITIAL_STATE,
-      Actions.setCellData(
-        Point.ORIGIN,
-        EXAMPLE_CELL,
-        MOCK_GET_BINDINGS_FOR_CELL
-      ),
+      Actions.setCellData(Point.ORIGIN, EXAMPLE_CELL),
       {
         ...INITIAL_STATE,
         data: Matrix.set(Point.ORIGIN, EXAMPLE_CELL, INITIAL_STATE.data),
-        bindings: PointMap.from([[Point.ORIGIN, PointSet.from([])]]),
+        model: new Model(
+          Matrix.set(Point.ORIGIN, EXAMPLE_CELL, INITIAL_STATE.data)
+        ),
         lastChanged: Point.ORIGIN,
       },
     ],

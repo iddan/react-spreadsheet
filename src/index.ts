@@ -12,7 +12,6 @@ export type {
   CellDescriptor,
   Mode,
   Dimensions,
-  GetBindingsForCell,
   CellChange,
   CellComponentProps,
   CellComponent,

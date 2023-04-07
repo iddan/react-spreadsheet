@@ -23,7 +23,6 @@ import DefaultDataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import { getBindingsForCell as defaultGetBindingsForCell } from "./bindings";
 import * as Selection from "./selection";
 import {
   range,
@@ -89,11 +88,6 @@ export type Props<CellType extends Types.CellBase> = {
   // Handlers
   /** Callback called on key down inside the spreadsheet. */
   onKeyDown?: (event: React.KeyboardEvent) => void;
-  /**
-   * Calculate which cells should be updated when given cell updates.
-   * Defaults to: internal implementation which infers dependencies according to formulas.
-   */
-  getBindingsForCell?: Types.GetBindingsForCell<CellType>;
   /** Callback called when the Spreadsheet's data changes. */
   onChange?: (data: Matrix.Matrix<CellType>) => void;
   /** Callback called when the Spreadsheet's edit mode changes. */
@@ -130,7 +124,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     HeaderRow = DefaultHeaderRow,
     DataEditor = DefaultDataEditor,
     DataViewer = DefaultDataViewer,
-    getBindingsForCell = defaultGetBindingsForCell,
     onChange = () => {},
     onModeChange = () => {},
     onSelect = () => {},
@@ -417,8 +410,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
                 column={columnNumber}
                 // @ts-ignore
                 DataViewer={DataViewer}
-                // @ts-ignore
-                getBindingsForCell={getBindingsForCell}
               />
             ))}
           </Row>
@@ -440,7 +431,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       RowIndicator,
       Cell,
       DataViewer,
-      getBindingsForCell,
     ]
   );
 
@@ -449,11 +439,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       <ActiveCell
         // @ts-ignore
         DataEditor={DataEditor}
-        // @ts-ignore
-        getBindingsForCell={getBindingsForCell}
       />
     ),
-    [DataEditor, getBindingsForCell]
+    [DataEditor]
   );
 
   const rootNode = React.useMemo(

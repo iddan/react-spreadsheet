@@ -10,18 +10,16 @@ import { getCellDimensions } from "./util";
 
 type Props = {
   DataEditor: Types.DataEditorComponent;
-  getBindingsForCell: Types.GetBindingsForCell<Types.CellBase>;
 };
 
 const ActiveCell: React.FC<Props> = (props) => {
   const rootRef = React.useRef<HTMLDivElement>(null);
-  const { getBindingsForCell } = props;
 
   const dispatch = useDispatch();
   const setCellData = React.useCallback(
     (active: Point.Point, data: Types.CellBase) =>
-      dispatch(Actions.setCellData(active, data, getBindingsForCell)),
-    [dispatch, getBindingsForCell]
+      dispatch(Actions.setCellData(active, data)),
+    [dispatch]
   );
   const edit = React.useCallback(() => dispatch(Actions.edit()), [dispatch]);
   const commit = React.useCallback(

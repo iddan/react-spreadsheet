@@ -10,12 +10,15 @@ import { isFormulaCell, transformCoordToPoint } from "./util";
 
 type FormulaParseResult = string | boolean | number;
 type FormulaParseError = string;
+type FormulaComputedValue = FormulaParseResult | FormulaParseError | null;
 
 export class Model<Cell extends CellBase> {
-  readonly formulaParser = new hotFormulaParser.Parser();
   readonly data!: matrix.Matrix<Cell>;
-  readonly referenceGraph!: pointGraph.PointGraph;
   readonly evaluatedData!: matrix.Matrix<Cell>;
+
+  // Should only be used within this module
+  readonly formulaParser = new hotFormulaParser.Parser();
+  readonly referenceGraph!: pointGraph.PointGraph;
 
   constructor(
     data: matrix.Matrix<Cell>,
@@ -25,7 +28,8 @@ export class Model<Cell extends CellBase> {
     this.data = data;
     this.referenceGraph = referenceGraph || createReferenceGraph(data);
     this.evaluatedData =
-      evaluatedData || createEvaluatedData(data, this.referenceGraph);
+      evaluatedData ||
+      createEvaluatedData(data, this.referenceGraph, this.formulaParser);
     this.formulaParser.on("callCellValue", (cellCoord, done) => {
       let value;
       try {
@@ -61,11 +65,10 @@ export function updateCellValue<Cell extends CellBase>(
   cell: Cell
 ): Model<Cell> {
   const nextData = matrix.set(point, cell, model.data);
-  const nextReferenceGraph = pointGraph.set(
-    point,
-    pointSet.from(getReferences(cell.value)),
-    model.referenceGraph
-  );
+  const nextReferenceGraph = isFormulaCell(cell)
+    ? updateReferenceGraph(model.referenceGraph, point, cell)
+    : model.referenceGraph;
+
   const nextEvaluatedData = evaluateCell(
     model,
     nextData,
@@ -74,6 +77,16 @@ export function updateCellValue<Cell extends CellBase>(
     cell
   );
   return new Model(nextData, nextReferenceGraph, nextEvaluatedData);
+}
+
+function updateReferenceGraph(
+  referenceGraph: pointGraph.PointGraph,
+  point: Point,
+  cell: CellBase<string>
+): pointGraph.PointGraph {
+  const references = getReferences(cell.value);
+  const nextReferenceGraph = pointGraph.set(point, references, referenceGraph);
+  return nextReferenceGraph;
 }
 
 function evaluateCell<Cell extends CellBase>(
@@ -108,11 +121,13 @@ function evaluateCell<Cell extends CellBase>(
       evaluatedCells
     );
   }
-  const evaluatedValue = getFormulaComputedValue({
-    cell,
-    formulaParser: prevModel.formulaParser,
-  });
-  const evaluatedCell = { value: evaluatedValue } as Cell;
+  const evaluatedValue = isFormulaCell(cell)
+    ? getFormulaComputedValue({
+        cell,
+        formulaParser: prevModel.formulaParser,
+      })
+    : cell.value;
+  const evaluatedCell: Cell = { ...cell, value: evaluatedValue };
 
   nextEvaluatedData = matrix.set<Cell>(point, evaluatedCell, nextEvaluatedData);
 
@@ -131,7 +146,7 @@ export function createReferenceGraph(
   for (const [point, cell] of matrix.entries(data)) {
     if (cell && isFormulaCell(cell)) {
       const references = getReferences(cell.value);
-      entries.push([point, pointSet.from(references)]);
+      entries.push([point, references]);
     }
   }
   return pointGraph.from(entries);
@@ -139,7 +154,8 @@ export function createReferenceGraph(
 
 export function createEvaluatedData<Cell extends CellBase>(
   data: matrix.Matrix<Cell>,
-  referenceGraph: pointGraph.PointGraph
+  referenceGraph: pointGraph.PointGraph,
+  formulaParser: hotFormulaParser.Parser
 ): matrix.Matrix<Cell> {
   // Create a map to store the evaluated values
   const evaluatedValues = new Map<Point, FormulaComputedValue>();
@@ -156,7 +172,7 @@ export function createEvaluatedData<Cell extends CellBase>(
     if (isFormulaCell(cell)) {
       const evaluatedValue = getFormulaComputedValue({
         cell,
-        formulaParser: new hotFormulaParser.Parser(),
+        formulaParser,
       });
       // Store the evaluated value in the map
       evaluatedValues.set(point, evaluatedValue);
@@ -172,8 +188,6 @@ export function createEvaluatedData<Cell extends CellBase>(
     return cell;
   }, data);
 }
-
-type FormulaComputedValue = FormulaParseResult | FormulaParseError | null;
 
 /** Get the computed value of a formula cell */
 export function getFormulaComputedValue({

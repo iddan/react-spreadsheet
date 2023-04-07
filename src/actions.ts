@@ -37,18 +37,16 @@ export const activate = createAction<
 export const setCellData = createAction<
   (
     active: Point.Point,
-    data: Types.CellBase,
-    getBindingsForCell: Types.GetBindingsForCell
+    data: Types.CellBase
   ) => {
     payload: {
       active: Point.Point;
       data: Types.CellBase;
-      getBindingsForCell: Types.GetBindingsForCell;
     };
   },
   "SET_CELL_DATA"
->("SET_CELL_DATA", (active, data, getBindingsForCell) => ({
-  payload: { active, data, getBindingsForCell },
+>("SET_CELL_DATA", (active, data) => ({
+  payload: { active, data },
 }));
 export const setCellDimensions = createAction<
   (
