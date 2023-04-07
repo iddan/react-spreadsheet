@@ -16,8 +16,6 @@ export class Model<Cell extends CellBase> {
   readonly data!: matrix.Matrix<Cell>;
   readonly evaluatedData!: matrix.Matrix<Cell>;
 
-  // Should only be used within this module
-  readonly formulaParser = new hotFormulaParser.Parser();
   readonly referenceGraph!: pointGraph.PointGraph;
 
   constructor(
@@ -28,34 +26,7 @@ export class Model<Cell extends CellBase> {
     this.data = data;
     this.referenceGraph = referenceGraph || createReferenceGraph(data);
     this.evaluatedData =
-      evaluatedData ||
-      createEvaluatedData(data, this.referenceGraph, this.formulaParser);
-    this.formulaParser.on("callCellValue", (cellCoord, done) => {
-      let value;
-      try {
-        const point = transformCoordToPoint(cellCoord);
-        value = matrix.get(point, this.evaluatedData);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        done(value);
-      }
-    });
-    this.formulaParser.on(
-      "callRangeValue",
-      (startCellCoord, endCellCoord, done) => {
-        let values;
-        try {
-          const start = transformCoordToPoint(startCellCoord);
-          const end = transformCoordToPoint(endCellCoord);
-          values = matrix.toArray(matrix.slice(start, end, this.evaluatedData));
-        } catch (error) {
-          console.error(error);
-        } finally {
-          done(values);
-        }
-      }
-    );
+      evaluatedData || createEvaluatedData(data, this.referenceGraph);
   }
 }
 
@@ -95,21 +66,51 @@ function evaluateCell<Cell extends CellBase>(
   referenceGraph: pointGraph.PointGraph,
   point: Point,
   cell: Cell,
-  evaluatedCells: Set<Point> = new Set<Point>()
+  evaluatedCells = pointSet.from([]),
+  formulaParser: hotFormulaParser.Parser | null = null
 ): matrix.Matrix<Cell> {
   // Check if the cell is already being evaluated
-  if (evaluatedCells.has(point)) {
+  if (pointSet.has(evaluatedCells, point)) {
     // If it is, return the previously evaluated data
     return prevModel.evaluatedData;
   }
 
   // Mark the cell as being evaluated
-  evaluatedCells.add(point);
+  evaluatedCells = pointSet.add(point, evaluatedCells);
 
   // for every formula cell that references the cell re-evaluate (recursive)
   // if the cell is a formula evaluate the formula
 
   let nextEvaluatedData = prevModel.evaluatedData;
+
+  if (!formulaParser) {
+    formulaParser = new hotFormulaParser.Parser();
+    formulaParser.on("callCellValue", (cellCoord, done) => {
+      let value;
+      try {
+        const point = transformCoordToPoint(cellCoord);
+        value = matrix.get(point, nextEvaluatedData);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        done(value);
+      }
+    });
+
+    formulaParser.on("callRangeValue", (startCellCoord, endCellCoord, done) => {
+      let values;
+      try {
+        const start = transformCoordToPoint(startCellCoord);
+        const end = transformCoordToPoint(endCellCoord);
+        values = matrix.toArray(matrix.slice(start, end, nextEvaluatedData));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        done(values);
+      }
+    });
+  }
+
   const referrers = pointGraph.getBackwards(point, referenceGraph);
   for (const referrer of pointSet.toArray(referrers)) {
     nextEvaluatedData = evaluateCell(
@@ -124,7 +125,7 @@ function evaluateCell<Cell extends CellBase>(
   const evaluatedValue = isFormulaCell(cell)
     ? getFormulaComputedValue({
         cell,
-        formulaParser: prevModel.formulaParser,
+        formulaParser: formulaParser,
       })
     : cell.value;
   const evaluatedCell: Cell = { ...cell, value: evaluatedValue };
@@ -154,11 +155,36 @@ export function createReferenceGraph(
 
 export function createEvaluatedData<Cell extends CellBase>(
   data: matrix.Matrix<Cell>,
-  referenceGraph: pointGraph.PointGraph,
-  formulaParser: hotFormulaParser.Parser
+  referenceGraph: pointGraph.PointGraph
 ): matrix.Matrix<Cell> {
-  // Create a map to store the evaluated values
-  const evaluatedValues = new Map<Point, FormulaComputedValue>();
+  let evaluatedData = data;
+
+  const formulaParser = new hotFormulaParser.Parser();
+
+  formulaParser.on("callCellValue", (cellCoord, done) => {
+    let value;
+    try {
+      const point = transformCoordToPoint(cellCoord);
+      value = matrix.get(point, evaluatedData);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      done(value);
+    }
+  });
+
+  formulaParser.on("callRangeValue", (startCellCoord, endCellCoord, done) => {
+    let values;
+    try {
+      const start = transformCoordToPoint(startCellCoord);
+      const end = transformCoordToPoint(endCellCoord);
+      values = matrix.toArray(matrix.slice(start, end, evaluatedData));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      done(values);
+    }
+  });
 
   // Iterate over the points in the reference graph, starting from the leaves
   for (const point of pointGraph.traverseBFS(referenceGraph)) {
@@ -174,19 +200,15 @@ export function createEvaluatedData<Cell extends CellBase>(
         cell,
         formulaParser,
       });
-      // Store the evaluated value in the map
-      evaluatedValues.set(point, evaluatedValue);
+      evaluatedData = matrix.set(
+        point,
+        { ...cell, value: evaluatedValue },
+        evaluatedData
+      );
     }
   }
 
-  // Return a new matrix with the evaluated values
-  return matrix.map(<T>(cell: T, point: Point) => {
-    const evaluatedValue = evaluatedValues.get(point);
-    if (evaluatedValue) {
-      return { ...cell, value: evaluatedValue };
-    }
-    return cell;
-  }, data);
+  return evaluatedData;
 }
 
 /** Get the computed value of a formula cell */
