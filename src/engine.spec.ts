@@ -6,8 +6,7 @@ const MOCK_PARSE = jest.fn();
 const MOCK_FORMULA_PARSER = {
   parse: MOCK_PARSE,
 } as unknown as hotFormulaParser.Parser;
-const EXAMPLE_FORMULA_VALUE = true;
-const EXAMPLE_FORMULA_RESULT = { value: EXAMPLE_FORMULA_VALUE };
+const EXAMPLE_FORMULA_RESULT = 42;
 const EXAMPLE_FORMULA_ERROR = "EXAMPLE_ERROR";
 const EXAMPLE_FORMULA_CELL = { value: "=A1" };
 
@@ -18,7 +17,7 @@ describe("getFormulaComputedValue()", () => {
   const cases = [
     [
       "Returns parsed formula result",
-      EXAMPLE_FORMULA_VALUE,
+      EXAMPLE_FORMULA_RESULT,
       { result: EXAMPLE_FORMULA_RESULT, error: null },
     ],
     [

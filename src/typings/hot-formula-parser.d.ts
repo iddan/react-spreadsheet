@@ -7,7 +7,7 @@ declare module "hot-formula-parser" {
      * @returns Returns an object with two properties `error` and `result`.
      */
     parse(value: string): {
-      result: { value: string | boolean | number | null };
+      result: string | boolean | number | null;
       error: string | null;
     };
     on(
