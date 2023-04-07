@@ -29,10 +29,7 @@ describe("getFormulaComputedValue()", () => {
   test.each(cases)("%s", (name, expected, mockParseReturn) => {
     MOCK_PARSE.mockImplementationOnce(() => mockParseReturn);
     expect(
-      getFormulaComputedValue({
-        formulaParser: MOCK_FORMULA_PARSER,
-        cell: EXAMPLE_FORMULA_CELL,
-      })
+      getFormulaComputedValue(EXAMPLE_FORMULA_CELL, MOCK_FORMULA_PARSER)
     ).toBe(expected);
     expect(MOCK_FORMULA_PARSER.parse).toBeCalledTimes(1);
     expect(MOCK_FORMULA_PARSER.parse).toBeCalledWith(
