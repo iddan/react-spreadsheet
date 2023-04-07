@@ -125,10 +125,7 @@ function evaluateCell<Cell extends CellBase>(
   });
 
   const evaluatedValue = isFormulaCell(cell)
-    ? getFormulaComputedValue({
-        cell,
-        formulaParser,
-      })
+    ? getFormulaComputedValue(cell, formulaParser)
     : cell.value;
 
   const evaluatedCell = { ...cell, value: evaluatedValue };
@@ -145,10 +142,7 @@ function evaluateCell<Cell extends CellBase>(
       continue;
     }
     const evaluatedValue = isFormulaCell(referrerCell)
-      ? getFormulaComputedValue({
-          cell: referrerCell,
-          formulaParser,
-        })
+      ? getFormulaComputedValue(referrerCell, formulaParser)
       : referrerCell.value;
     const evaluatedCell = { ...referrerCell, value: evaluatedValue };
     nextEvaluatedData = matrix.set(referrer, evaluatedCell, nextEvaluatedData);
@@ -219,10 +213,7 @@ export function createEvaluatedData<Cell extends CellBase>(
 
     // If the cell is a formula cell, evaluate it
     if (isFormulaCell(cell)) {
-      const evaluatedValue = getFormulaComputedValue({
-        cell,
-        formulaParser,
-      });
+      const evaluatedValue = getFormulaComputedValue(cell, formulaParser);
       evaluatedData = matrix.set(
         point,
         { ...cell, value: evaluatedValue },
@@ -235,13 +226,10 @@ export function createEvaluatedData<Cell extends CellBase>(
 }
 
 /** Get the computed value of a formula cell */
-export function getFormulaComputedValue({
-  cell,
-  formulaParser,
-}: {
-  cell: CellBase<string>;
-  formulaParser: hotFormulaParser.Parser;
-}): FormulaComputedValue {
+export function getFormulaComputedValue(
+  cell: CellBase<string>,
+  formulaParser: hotFormulaParser.Parser
+): FormulaComputedValue {
   const formula = Formula.extractFormula(cell.value);
   const { result, error } = formulaParser.parse(formula);
   return error || result;
