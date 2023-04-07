@@ -130,10 +130,6 @@ function evaluateCell<Cell extends CellBase>(
       })
     : cell.value;
 
-  console.log("isFormulaCell", isFormulaCell(cell));
-
-  console.log("evaluatedValue", evaluatedValue);
-
   const evaluatedCell: Cell = { ...cell, value: evaluatedValue };
 
   nextEvaluatedData = matrix.set<Cell>(point, evaluatedCell, nextEvaluatedData);
