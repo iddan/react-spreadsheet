@@ -89,7 +89,8 @@ function evaluateCell<Cell extends CellBase>(
       let value;
       try {
         const point = transformCoordToPoint(cellCoord);
-        value = matrix.get(point, nextEvaluatedData);
+        const cell = matrix.get(point, nextEvaluatedData);
+        value = cell?.value;
       } catch (error) {
         console.error(error);
       } finally {
@@ -125,9 +126,14 @@ function evaluateCell<Cell extends CellBase>(
   const evaluatedValue = isFormulaCell(cell)
     ? getFormulaComputedValue({
         cell,
-        formulaParser: formulaParser,
+        formulaParser,
       })
     : cell.value;
+
+  console.log("isFormulaCell", isFormulaCell(cell));
+
+  console.log("evaluatedValue", evaluatedValue);
+
   const evaluatedCell: Cell = { ...cell, value: evaluatedValue };
 
   nextEvaluatedData = matrix.set<Cell>(point, evaluatedCell, nextEvaluatedData);
@@ -146,6 +152,7 @@ export function createReferenceGraph(
   const entries: Array<[Point, pointSet.PointSet]> = [];
   for (const [point, cell] of matrix.entries(data)) {
     if (cell && isFormulaCell(cell)) {
+      /** @todo handle range references */
       const references = getReferences(cell.value);
       entries.push([point, references]);
     }
@@ -221,5 +228,5 @@ export function getFormulaComputedValue({
 }): FormulaComputedValue {
   const formula = Formula.extractFormula(cell.value);
   const { result, error } = formulaParser.parse(formula);
-  return error || result.value;
+  return error || result;
 }
