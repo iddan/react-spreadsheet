@@ -11,6 +11,9 @@ const EXAMPLE_FORMULA_ERROR = "EXAMPLE_ERROR";
 const EXAMPLE_FORMULA_CELL = { value: "=A1" };
 
 describe("getFormulaComputedValue()", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   const cases = [
     [
       "Returns parsed formula result",

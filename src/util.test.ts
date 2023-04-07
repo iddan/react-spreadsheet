@@ -61,7 +61,6 @@ const EXAMPLE_STATE: Types.StoreState = {
   model: new Model(EXAMPLE_DATA),
   selected: null,
   copied: PointMap.from([]),
-  bindings: PointMap.from([]),
   lastCommit: null,
 };
 const EXAMPLE_STRING = "EXAMPLE_STRING";

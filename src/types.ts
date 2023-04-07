@@ -1,10 +1,8 @@
 import * as React from "react";
 import { Point } from "./point";
 import { PointMap } from "./point-map";
-import { PointSet } from "./point-set";
 import { Matrix } from "./matrix";
 import { Selection } from "./selection";
-import * as Types from "./types";
 import { Model } from "./engine";
 
 /** The base type of cell data in Spreadsheet */
@@ -61,15 +59,8 @@ export type StoreState<Cell extends CellBase = CellBase> = {
   >;
   dragging: boolean;
   lastChanged: Point | null;
-  bindings: PointMap<PointSet>;
   lastCommit: null | CellChange<Cell>[];
 };
-
-/** Function for getting the cells the cell's value is bound to */
-export type GetBindingsForCell<Cell extends CellBase = CellBase> = (
-  cell: Cell,
-  data: Matrix<Cell>
-) => Point[];
 
 export type CellChange<Cell extends CellBase = CellBase> = {
   prevCell: Cell | null;
@@ -104,11 +95,6 @@ export type CellComponentProps<Cell extends CellBase = CellBase> = {
   activate: (point: Point) => void;
   /** Set the dimensions of the cell at the given point with the given dimensions */
   setCellDimensions: (point: Point, dimensions: Dimensions) => void;
-  /**
-   * Calculate which cells should be updated when given cell updates.
-   * Defaults to: internal implementation which infers dependencies according to formulas.
-   */
-  getBindingsForCell: Types.GetBindingsForCell<Cell>;
   /** Set data of the cell */
   setCellData: (cell: Cell) => void;
 };

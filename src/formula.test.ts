@@ -1,4 +1,5 @@
 import * as Point from "./point";
+import * as pointSet from "./point-set";
 import {
   isFormulaValue,
   getReferences,
@@ -32,6 +33,8 @@ describe("extractFormula()", () => {
 
 describe("getReferences", () => {
   test("gets references", () => {
-    expect(getReferences(SUM_A1_A2_FORMULA)).toEqual([A1_POINT, A2_POINT]);
+    expect(getReferences(SUM_A1_A2_FORMULA)).toEqual(
+      pointSet.from([A1_POINT, A2_POINT])
+    );
   });
 });

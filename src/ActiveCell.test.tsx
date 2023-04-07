@@ -12,7 +12,6 @@ import ActiveCell from "./ActiveCell";
 
 const MOCK_DATA_EDITOR = jest.fn(() => null);
 const DISPATCH_MOCK = jest.fn();
-const GET_BINDINGS_FOR_CELL_MOCK = jest.fn();
 const STATE_WITH_ACTIVE: Types.StoreState = {
   ...INITIAL_STATE,
   active: Point.ORIGIN,
@@ -34,10 +33,7 @@ describe("<ActiveCell />", () => {
   test("renders hidden when active is not defined", () => {
     render(
       <context.Provider value={[INITIAL_STATE, DISPATCH_MOCK]}>
-        <ActiveCell
-          DataEditor={MOCK_DATA_EDITOR}
-          getBindingsForCell={GET_BINDINGS_FOR_CELL_MOCK}
-        />
+        <ActiveCell DataEditor={MOCK_DATA_EDITOR} />
       </context.Provider>
     );
     expect(document.querySelector(".Spreadsheet__active-cell")).toBeNull();
@@ -46,10 +42,7 @@ describe("<ActiveCell />", () => {
   test("renders when active is defined", () => {
     render(
       <context.Provider value={[STATE_WITH_ACTIVE, DISPATCH_MOCK]}>
-        <ActiveCell
-          DataEditor={MOCK_DATA_EDITOR}
-          getBindingsForCell={GET_BINDINGS_FOR_CELL_MOCK}
-        />
+        <ActiveCell DataEditor={MOCK_DATA_EDITOR} />
       </context.Provider>
     );
     const activeCell = document.querySelector(".Spreadsheet__active-cell");
@@ -62,10 +55,7 @@ describe("<ActiveCell />", () => {
       <context.Provider
         value={[{ ...STATE_WITH_ACTIVE, mode: "edit" }, DISPATCH_MOCK]}
       >
-        <ActiveCell
-          DataEditor={MOCK_DATA_EDITOR}
-          getBindingsForCell={GET_BINDINGS_FOR_CELL_MOCK}
-        />
+        <ActiveCell DataEditor={MOCK_DATA_EDITOR} />
       </context.Provider>
     );
     const activeCell = document.querySelector(".Spreadsheet__active-cell");
