@@ -69,10 +69,6 @@ function evaluateCell<Cell extends CellBase>(
   evaluatedCells = pointSet.from([]),
   formulaParser: hotFormulaParser.Parser | null = null
 ): matrix.Matrix<Cell> {
-  if (pointSet.size(evaluatedCells) === 0) {
-    console.log("evaluation started");
-  }
-  console.info("evaluateCell", point);
   // Check if the cell is already being evaluated
   if (pointSet.has(evaluatedCells, point)) {
     // If it is, return the previously evaluated data
