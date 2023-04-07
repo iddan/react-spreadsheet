@@ -78,3 +78,14 @@ describe("PointSet.subtract", () => {
     ).toEqual(PointSet.from([MIN_POINT, MAX_POINT]));
   });
 });
+
+describe("PointSet.entries", () => {
+  test("Returns an iterator of points in the set", () => {
+    expect(Array.from(PointSet.entries(EXAMPLE_SET))).toEqual([
+      MIN_POINT,
+      { row: 0, column: 1 },
+      { row: 1, column: 1 },
+      MAX_POINT,
+    ]);
+  });
+});

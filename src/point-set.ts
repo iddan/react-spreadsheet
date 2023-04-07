@@ -23,18 +23,6 @@ export function filter(
   return PointMap.filter((_, point) => func(point), set);
 }
 
-export function reduce<A>(
-  func: (acc: A, point: Point.Point) => A,
-  set: PointSet,
-  initialValue: A
-): A {
-  return PointMap.reduce(
-    (acc, _, point) => func(acc, point),
-    set,
-    initialValue
-  );
-}
-
 const minKey = (object: Record<number, any>): number => {
   /* @ts-ignore*/
   return Math.min(...Object.keys(object));
