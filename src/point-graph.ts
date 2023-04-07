@@ -26,35 +26,37 @@ export function set(
   points: pointSet.PointSet,
   graph: PointGraph
 ): PointGraph {
+  const newForward =
+    pointSet.size(points) === 0
+      ? pointMap.unset(point, graph.forward)
+      : pointMap.set(point, points, graph.forward);
+
   const existing = pointMap.get(point, graph.forward);
   const toAdd = existing ? pointSet.subtract(existing, points) : points;
 
-  let backward = graph.backward;
+  let newBackward = graph.backward;
   for (const p of pointSet.toArray(toAdd)) {
-    const set = pointMap.get(p, backward) || pointSet.from([]);
-    backward = pointMap.set(p, pointSet.add(point, set), backward);
+    const set = pointMap.get(p, newBackward) || pointSet.from([]);
+    newBackward = pointMap.set(p, pointSet.add(point, set), newBackward);
   }
   if (existing) {
     const toRemove = pointSet.subtract(points, existing);
     for (const p of pointSet.toArray(toRemove)) {
-      const set = pointMap.get(p, backward);
+      const set = pointMap.get(p, newBackward);
       if (!set) {
         continue;
       }
       const newSet = pointSet.remove(point, set);
       if (pointSet.size(newSet) === 0) {
-        backward = pointMap.unset(p, backward);
+        newBackward = pointMap.unset(p, newBackward);
       } else {
-        backward = pointMap.set(p, newSet, backward);
+        newBackward = pointMap.set(p, newSet, newBackward);
       }
     }
   }
   return {
-    forward:
-      pointSet.size(points) === 0
-        ? pointMap.unset(point, graph.forward)
-        : pointMap.set(point, points, graph.forward),
-    backward,
+    forward: newForward,
+    backward: newBackward,
   };
 }
 
