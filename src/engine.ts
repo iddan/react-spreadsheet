@@ -52,7 +52,7 @@ function updateReferenceGraph(
   point: Point,
   cell: CellBase<string>
 ): pointGraph.PointGraph {
-  const references = getReferences(cell.value, point);
+  const references = getReferences(Formula.extractFormula(cell.value), point);
   const nextReferenceGraph = pointGraph.set(point, references, referenceGraph);
   return nextReferenceGraph;
 }
@@ -94,13 +94,13 @@ function evaluateCell<Cell extends CellBase>(
 
   let nextEvaluatedData = prevEvaluatedData;
 
-  const formulaParser = Formula.createBoundFormulaParser(nextEvaluatedData);
+  const formulaParser = Formula.createBoundFormulaParser(
+    () => nextEvaluatedData
+  );
 
   const evaluatedValue = isFormulaCell(cell)
     ? getFormulaComputedValue(cell, point, formulaParser)
     : cell.value;
-
-  console.log("evaluatedValue", evaluatedValue);
 
   const evaluatedCell = { ...cell, value: evaluatedValue };
 
@@ -136,7 +136,10 @@ export function createReferenceGraph(
   const entries: Array<[Point, pointSet.PointSet]> = [];
   for (const [point, cell] of matrix.entries(data)) {
     if (cell && isFormulaCell(cell)) {
-      const references = getReferences(cell.value, point);
+      const references = getReferences(
+        Formula.extractFormula(cell.value),
+        point
+      );
       entries.push([point, references]);
     }
   }
@@ -149,7 +152,7 @@ export function createEvaluatedData<Cell extends CellBase>(
 ): matrix.Matrix<Cell> {
   let evaluatedData = data;
 
-  const formulaParser = Formula.createBoundFormulaParser(evaluatedData);
+  const formulaParser = Formula.createBoundFormulaParser(() => evaluatedData);
 
   // Iterate over the points in the reference graph, starting from the leaves
   for (const point of pointGraph.traverseBFS(referenceGraph)) {
@@ -185,12 +188,10 @@ export function getFormulaComputedValue(
 ): Value {
   const formula = Formula.extractFormula(cell.value);
   try {
-    const returned = formulaParser.parse(formula, {
-      row: point.row + 1,
-      col: point.column + 1,
-      /** @todo fill once we support multiple sheets */
-      sheet: "Sheet1",
-    });
+    const returned = formulaParser.parse(
+      formula,
+      Formula.convertPointToCellRef(point)
+    );
     return returned instanceof FormulaError ? returned.toString() : returned;
   } catch (error) {
     if (error instanceof FormulaError) {

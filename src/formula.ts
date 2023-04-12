@@ -1,4 +1,8 @@
-import FormulaParser, { DepParser, FormulaError } from "fast-formula-parser";
+import FormulaParser, {
+  CellRef,
+  DepParser,
+  FormulaError,
+} from "fast-formula-parser";
 import * as pointSet from "./point-set";
 import { Point } from "./point";
 import * as matrix from "./matrix";
@@ -21,7 +25,7 @@ export function extractFormula(value: string): string {
 }
 
 export function createBoundFormulaParser(
-  data: matrix.Matrix<CellBase>
+  getData: () => matrix.Matrix<CellBase>
 ): FormulaParser {
   return new FormulaParser({
     onCell: (ref) => {
@@ -29,7 +33,7 @@ export function createBoundFormulaParser(
         row: ref.row - 1,
         column: ref.col - 1,
       };
-      const cell = matrix.get(point, data);
+      const cell = matrix.get(point, getData());
       return cell?.value;
     },
     onRange: (ref) => {
@@ -42,7 +46,7 @@ export function createBoundFormulaParser(
         column: ref.to.col - 1,
       };
       return matrix.toArray(
-        matrix.slice(start, end, data),
+        matrix.slice(start, end, getData()),
         (cell) => cell?.value
       );
     },
@@ -60,14 +64,9 @@ export function getReferences(
   point: Point
 ): pointSet.PointSet {
   try {
-    const references = depParser.parse(formula, {
-      row: point.row + 1,
-      col: point.column + 1,
-      /** @todo fill once we support multiple sheets */
-      sheet: "Sheet1",
-    });
-    const set = pointSet.from(
-      references.flatMap((reference) => {
+    const dependencies = depParser.parse(formula, convertPointToCellRef(point));
+    const references = pointSet.from(
+      dependencies.flatMap((reference) => {
         const isRange = "from" in reference;
         if (isRange) {
           const { from, to } = reference;
@@ -82,7 +81,7 @@ export function getReferences(
         return { row: reference.row - 1, column: reference.col - 1 };
       })
     );
-    return set;
+    return references;
   } catch (error) {
     if (error instanceof FormulaError) {
       return pointSet.from([]);
@@ -90,4 +89,13 @@ export function getReferences(
       throw error;
     }
   }
+}
+
+export function convertPointToCellRef(point: Point): CellRef {
+  return {
+    row: point.row + 1,
+    col: point.column + 1,
+    /** @todo fill once we support multiple sheets */
+    sheet: "Sheet1",
+  };
 }
