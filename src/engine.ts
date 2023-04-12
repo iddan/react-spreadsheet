@@ -1,4 +1,4 @@
-import FormulaParser, { FormulaError, Value } from "fast-formula-parser";
+import FormulaParser, { Value } from "fast-formula-parser";
 import { getReferences } from "./formula";
 import * as matrix from "./matrix";
 import * as Formula from "./formula";
@@ -7,7 +7,6 @@ import * as pointGraph from "./point-graph";
 import * as pointSet from "./point-set";
 import { CellBase } from "./types";
 import { isFormulaCell } from "./util";
-import { log } from "console";
 
 export class Model<Cell extends CellBase> {
   readonly data!: matrix.Matrix<Cell>;
@@ -187,16 +186,5 @@ export function getFormulaComputedValue(
   formulaParser: FormulaParser
 ): Value {
   const formula = Formula.extractFormula(cell.value);
-  try {
-    const returned = formulaParser.parse(
-      formula,
-      Formula.convertPointToCellRef(point)
-    );
-    return returned instanceof FormulaError ? returned.toString() : returned;
-  } catch (error) {
-    if (error instanceof FormulaError) {
-      return error.toString();
-    }
-    throw error;
-  }
+  return Formula.evaluate(formula, point, formulaParser);
 }

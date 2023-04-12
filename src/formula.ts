@@ -2,6 +2,7 @@ import FormulaParser, {
   CellRef,
   DepParser,
   FormulaError,
+  Value,
 } from "fast-formula-parser";
 import * as pointSet from "./point-set";
 import { Point } from "./point";
@@ -91,7 +92,23 @@ export function getReferences(
   }
 }
 
-export function convertPointToCellRef(point: Point): CellRef {
+export function evaluate(
+  formula: string,
+  point: Point,
+  formulaParser: FormulaParser
+): Value {
+  try {
+    const returned = formulaParser.parse(formula, convertPointToCellRef(point));
+    return returned instanceof FormulaError ? returned.toString() : returned;
+  } catch (error) {
+    if (error instanceof FormulaError) {
+      return error.toString();
+    }
+    throw error;
+  }
+}
+
+function convertPointToCellRef(point: Point): CellRef {
   return {
     row: point.row + 1,
     col: point.column + 1,
