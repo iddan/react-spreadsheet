@@ -35,6 +35,7 @@ export function createBoundFormulaParser(
         column: ref.col - 1,
       };
       const cell = matrix.get(point, getData());
+      if (!isNaN(cell?.value as number)) return Number(cell?.value);
       return cell?.value;
     },
     onRange: (ref) => {
@@ -46,10 +47,10 @@ export function createBoundFormulaParser(
         row: ref.to.row - 1,
         column: ref.to.col - 1,
       };
-      return matrix.toArray(
-        matrix.slice(start, end, getData()),
-        (cell) => cell?.value
-      );
+      return matrix.toArray(matrix.slice(start, end, getData()), (cell) => {
+        if (!isNaN(cell?.value as number)) return Number(cell?.value);
+        return cell?.value;
+      });
     },
   });
 }
