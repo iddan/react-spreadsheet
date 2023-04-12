@@ -33,7 +33,7 @@ describe("extractFormula()", () => {
 
 describe("getReferences", () => {
   test("gets references", () => {
-    expect(getReferences(SUM_A1_A2_FORMULA)).toEqual(
+    expect(getReferences(SUM_A1_A2_FORMULA, Point.ORIGIN)).toEqual(
       pointSet.from([A1_POINT, A2_POINT])
     );
   });

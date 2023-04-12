@@ -1,8 +1,10 @@
-import { extractLabel } from "hot-formula-parser";
+import FormulaParser, { DepParser } from "fast-formula-parser";
 import * as pointSet from "./point-set";
+import { Point } from "./point";
+import * as matrix from "./matrix";
+import { CellBase } from "./types";
 
 export const FORMULA_VALUE_PREFIX = "=";
-const FORMULA_REFERENCES = /\$?[A-Z]+\$?[0-9]+/g;
 
 /** Returns whether given value is a formula */
 export function isFormulaValue(value: unknown): value is string {
@@ -14,18 +16,66 @@ export function extractFormula(value: string): string {
   return value.slice(1);
 }
 
+export function createBoundFormulaParser(
+  data: matrix.Matrix<CellBase>
+): FormulaParser {
+  return new FormulaParser({
+    onCell: (ref) => {
+      const point: Point = {
+        row: ref.row - 1,
+        column: ref.col - 1,
+      };
+      const cell = matrix.get(point, data);
+      return cell?.value;
+    },
+    onRange: (ref) => {
+      const start: Point = {
+        row: ref.from.row - 1,
+        column: ref.from.col - 1,
+      };
+      const end: Point = {
+        row: ref.to.row - 1,
+        column: ref.to.col - 1,
+      };
+      return matrix.toArray(
+        matrix.slice(start, end, data),
+        (cell) => cell?.value
+      );
+    },
+  });
+}
+
+const depParser = new DepParser();
+
 /**
  * For given formula returns the cell references
  * @param formula - formula to get references for
  */
-export function getReferences(formula: string): pointSet.PointSet {
-  const match = formula.match(FORMULA_REFERENCES);
-  return match
-    ? pointSet.from(
-        match.map((substr) => {
-          const [row, column] = extractLabel(substr);
-          return { row: row.index, column: column.index };
-        })
-      )
-    : [];
+export function getReferences(
+  formula: string,
+  point: Point
+): pointSet.PointSet {
+  const references = depParser.parse(formula, {
+    row: point.row + 1,
+    col: point.column + 1,
+    /** @todo fill once we support multiple sheets */
+    sheet: "Sheet1",
+  });
+  const set = pointSet.from(
+    references.flatMap((reference) => {
+      const isRange = "from" in reference;
+      if (isRange) {
+        const { from, to } = reference;
+        const points: Point[] = [];
+        for (let row = from.row; row <= to.row; row++) {
+          for (let column = from.col; column <= to.col; column++) {
+            points.push({ row: row - 1, column: column - 1 });
+          }
+        }
+        return points;
+      }
+      return { row: reference.row - 1, column: reference.col - 1 };
+    })
+  );
+  return set;
 }
