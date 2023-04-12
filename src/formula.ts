@@ -1,4 +1,4 @@
-import FormulaParser, { DepParser } from "fast-formula-parser";
+import FormulaParser, { DepParser, FormulaError } from "fast-formula-parser";
 import * as pointSet from "./point-set";
 import { Point } from "./point";
 import * as matrix from "./matrix";
@@ -8,7 +8,11 @@ export const FORMULA_VALUE_PREFIX = "=";
 
 /** Returns whether given value is a formula */
 export function isFormulaValue(value: unknown): value is string {
-  return typeof value === "string" && value.startsWith(FORMULA_VALUE_PREFIX);
+  return (
+    typeof value === "string" &&
+    value.startsWith(FORMULA_VALUE_PREFIX) &&
+    value.length > 1
+  );
 }
 
 /** Extracts formula from value  */
@@ -55,27 +59,35 @@ export function getReferences(
   formula: string,
   point: Point
 ): pointSet.PointSet {
-  const references = depParser.parse(formula, {
-    row: point.row + 1,
-    col: point.column + 1,
-    /** @todo fill once we support multiple sheets */
-    sheet: "Sheet1",
-  });
-  const set = pointSet.from(
-    references.flatMap((reference) => {
-      const isRange = "from" in reference;
-      if (isRange) {
-        const { from, to } = reference;
-        const points: Point[] = [];
-        for (let row = from.row; row <= to.row; row++) {
-          for (let column = from.col; column <= to.col; column++) {
-            points.push({ row: row - 1, column: column - 1 });
+  try {
+    const references = depParser.parse(formula, {
+      row: point.row + 1,
+      col: point.column + 1,
+      /** @todo fill once we support multiple sheets */
+      sheet: "Sheet1",
+    });
+    const set = pointSet.from(
+      references.flatMap((reference) => {
+        const isRange = "from" in reference;
+        if (isRange) {
+          const { from, to } = reference;
+          const points: Point[] = [];
+          for (let row = from.row; row <= to.row; row++) {
+            for (let column = from.col; column <= to.col; column++) {
+              points.push({ row: row - 1, column: column - 1 });
+            }
           }
+          return points;
         }
-        return points;
-      }
-      return { row: reference.row - 1, column: reference.col - 1 };
-    })
-  );
-  return set;
+        return { row: reference.row - 1, column: reference.col - 1 };
+      })
+    );
+    return set;
+  } catch (error) {
+    if (error instanceof FormulaError) {
+      return pointSet.from([]);
+    } else {
+      throw error;
+    }
+  }
 }
