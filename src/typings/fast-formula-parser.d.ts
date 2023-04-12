@@ -44,13 +44,11 @@ declare module "fast-formula-parser" {
 
   export default class FormulaParser {
     constructor(config: FormulaParserConfig);
-
-    /** @throws {@link FormulaError} */
     parse(
       inputText: string,
       position: CellRef,
       allowReturnArray: boolean = false
-    ): Value;
+    ): Value | FormulaError;
   }
 
   export class DepParser {

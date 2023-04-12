@@ -18,6 +18,7 @@ const EXAMPLE_FORMULA_VALUE = `${FORMULA_VALUE_PREFIX}${EXAMPLE_FORMULA}`;
 describe("isFormulaValue", () => {
   const cases = [
     ["formula value", EXAMPLE_FORMULA_VALUE, true],
+    ["just equals", "=", false],
     ["non-formula value", "", false],
   ];
   test.each(cases)("%s", (name, formula, expected) => {

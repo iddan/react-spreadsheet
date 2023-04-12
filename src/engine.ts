@@ -7,6 +7,7 @@ import * as pointGraph from "./point-graph";
 import * as pointSet from "./point-set";
 import { CellBase } from "./types";
 import { isFormulaCell } from "./util";
+import { log } from "console";
 
 export class Model<Cell extends CellBase> {
   readonly data!: matrix.Matrix<Cell>;
@@ -99,6 +100,8 @@ function evaluateCell<Cell extends CellBase>(
     ? getFormulaComputedValue(cell, point, formulaParser)
     : cell.value;
 
+  console.log("evaluatedValue", evaluatedValue);
+
   const evaluatedCell = { ...cell, value: evaluatedValue };
 
   nextEvaluatedData = matrix.set(point, evaluatedCell, nextEvaluatedData);
@@ -179,20 +182,20 @@ export function getFormulaComputedValue(
   cell: CellBase<string>,
   point: Point,
   formulaParser: FormulaParser
-): Value | FormulaError {
+): Value {
   const formula = Formula.extractFormula(cell.value);
   try {
-    return formulaParser.parse(formula, {
+    const returned = formulaParser.parse(formula, {
       row: point.row + 1,
       col: point.column + 1,
       /** @todo fill once we support multiple sheets */
       sheet: "Sheet1",
     });
+    return returned instanceof FormulaError ? returned.toString() : returned;
   } catch (error) {
     if (error instanceof FormulaError) {
-      return error;
-    } else {
-      throw error;
+      return error.toString();
     }
+    throw error;
   }
 }

@@ -10,6 +10,8 @@ const DataViewer = <Cell extends Types.CellBase<Value>, Value>({
   evaluatedCell,
 }: Types.DataViewerProps<Cell>): React.ReactElement => {
   const value = evaluatedCell?.value ?? cell?.value;
+  console.log("DataViewer", value);
+
   return typeof value === "boolean" ? (
     <span className="Spreadsheet__data-viewer Spreadsheet__data-viewer--boolean">
       {convertBooleanToText(value)}
