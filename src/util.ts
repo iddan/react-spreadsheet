@@ -185,14 +185,6 @@ export function getCopiedRange(
   return PointSet.toRange(set);
 }
 
-/** Tranform given hot-formula-parser coord to Point.Point */
-export function transformCoordToPoint(coord: {
-  row: { index: number };
-  column: { index: number };
-}): Point.Point {
-  return { row: coord.row.index, column: coord.column.index };
-}
-
 /** Should spreadsheet handle clipboard event */
 export function shouldHandleClipboardEvent(
   root: Element | null,

@@ -383,17 +383,6 @@ describe("getCopiedRange()", () => {
   });
 });
 
-describe("transformCoordToPoint()", () => {
-  test("transforms coord to point", () => {
-    expect(
-      util.transformCoordToPoint({
-        row: { index: Point.ORIGIN.row },
-        column: { index: Point.ORIGIN.column },
-      })
-    ).toEqual(Point.ORIGIN);
-  });
-});
-
 describe("shouldHandleClipboardEvent()", () => {
   const matchesMock = jest.fn();
   const mockElement = {

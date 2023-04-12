@@ -1,4 +1,4 @@
-import * as hotFormulaParser from "hot-formula-parser";
+import FormulaParser, { FormulaError, Value } from "fast-formula-parser";
 import { getReferences } from "./formula";
 import * as matrix from "./matrix";
 import * as Formula from "./formula";
@@ -6,11 +6,7 @@ import { Point } from "./point";
 import * as pointGraph from "./point-graph";
 import * as pointSet from "./point-set";
 import { CellBase } from "./types";
-import { isFormulaCell, transformCoordToPoint } from "./util";
-
-type FormulaParseResult = string | boolean | number;
-type FormulaParseError = string;
-type FormulaComputedValue = FormulaParseResult | FormulaParseError | null;
+import { isFormulaCell } from "./util";
 
 export class Model<Cell extends CellBase> {
   readonly data!: matrix.Matrix<Cell>;
@@ -55,7 +51,7 @@ function updateReferenceGraph(
   point: Point,
   cell: CellBase<string>
 ): pointGraph.PointGraph {
-  const references = getReferences(cell.value);
+  const references = getReferences(cell.value, point);
   const nextReferenceGraph = pointGraph.set(point, references, referenceGraph);
   return nextReferenceGraph;
 }
@@ -97,35 +93,10 @@ function evaluateCell<Cell extends CellBase>(
 
   let nextEvaluatedData = prevEvaluatedData;
 
-  const formulaParser = new hotFormulaParser.Parser();
-  formulaParser.on("callCellValue", (cellCoord, done) => {
-    let value;
-    try {
-      const point = transformCoordToPoint(cellCoord);
-      const cell = matrix.get(point, nextEvaluatedData);
-      value = cell?.value;
-    } catch (error) {
-      console.error(error);
-    } finally {
-      done(value);
-    }
-  });
-
-  formulaParser.on("callRangeValue", (startCellCoord, endCellCoord, done) => {
-    let values;
-    try {
-      const start = transformCoordToPoint(startCellCoord);
-      const end = transformCoordToPoint(endCellCoord);
-      values = matrix.toArray(matrix.slice(start, end, nextEvaluatedData));
-    } catch (error) {
-      console.error(error);
-    } finally {
-      done(values);
-    }
-  });
+  const formulaParser = Formula.createBoundFormulaParser(nextEvaluatedData);
 
   const evaluatedValue = isFormulaCell(cell)
-    ? getFormulaComputedValue(cell, formulaParser)
+    ? getFormulaComputedValue(cell, point, formulaParser)
     : cell.value;
 
   const evaluatedCell = { ...cell, value: evaluatedValue };
@@ -142,7 +113,7 @@ function evaluateCell<Cell extends CellBase>(
       continue;
     }
     const evaluatedValue = isFormulaCell(referrerCell)
-      ? getFormulaComputedValue(referrerCell, formulaParser)
+      ? getFormulaComputedValue(referrerCell, point, formulaParser)
       : referrerCell.value;
     const evaluatedCell = { ...referrerCell, value: evaluatedValue };
     nextEvaluatedData = matrix.set(referrer, evaluatedCell, nextEvaluatedData);
@@ -162,8 +133,7 @@ export function createReferenceGraph(
   const entries: Array<[Point, pointSet.PointSet]> = [];
   for (const [point, cell] of matrix.entries(data)) {
     if (cell && isFormulaCell(cell)) {
-      /** @todo handle range references */
-      const references = getReferences(cell.value);
+      const references = getReferences(cell.value, point);
       entries.push([point, references]);
     }
   }
@@ -176,32 +146,7 @@ export function createEvaluatedData<Cell extends CellBase>(
 ): matrix.Matrix<Cell> {
   let evaluatedData = data;
 
-  const formulaParser = new hotFormulaParser.Parser();
-
-  formulaParser.on("callCellValue", (cellCoord, done) => {
-    let value;
-    try {
-      const point = transformCoordToPoint(cellCoord);
-      value = matrix.get(point, evaluatedData);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      done(value);
-    }
-  });
-
-  formulaParser.on("callRangeValue", (startCellCoord, endCellCoord, done) => {
-    let values;
-    try {
-      const start = transformCoordToPoint(startCellCoord);
-      const end = transformCoordToPoint(endCellCoord);
-      values = matrix.toArray(matrix.slice(start, end, evaluatedData));
-    } catch (error) {
-      console.error(error);
-    } finally {
-      done(values);
-    }
-  });
+  const formulaParser = Formula.createBoundFormulaParser(evaluatedData);
 
   // Iterate over the points in the reference graph, starting from the leaves
   for (const point of pointGraph.traverseBFS(referenceGraph)) {
@@ -213,7 +158,11 @@ export function createEvaluatedData<Cell extends CellBase>(
 
     // If the cell is a formula cell, evaluate it
     if (isFormulaCell(cell)) {
-      const evaluatedValue = getFormulaComputedValue(cell, formulaParser);
+      const evaluatedValue = getFormulaComputedValue(
+        cell,
+        point,
+        formulaParser
+      );
       evaluatedData = matrix.set(
         point,
         { ...cell, value: evaluatedValue },
@@ -228,9 +177,22 @@ export function createEvaluatedData<Cell extends CellBase>(
 /** Get the computed value of a formula cell */
 export function getFormulaComputedValue(
   cell: CellBase<string>,
-  formulaParser: hotFormulaParser.Parser
-): FormulaComputedValue {
+  point: Point,
+  formulaParser: FormulaParser
+): Value | FormulaError {
   const formula = Formula.extractFormula(cell.value);
-  const { result, error } = formulaParser.parse(formula);
-  return error || result;
+  try {
+    return formulaParser.parse(formula, {
+      row: point.row + 1,
+      col: point.column + 1,
+      /** @todo fill once we support multiple sheets */
+      sheet: "Sheet1",
+    });
+  } catch (error) {
+    if (error instanceof FormulaError) {
+      return error;
+    } else {
+      throw error;
+    }
+  }
 }
