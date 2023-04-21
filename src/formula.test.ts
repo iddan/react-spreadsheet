@@ -35,10 +35,21 @@ describe("extractFormula()", () => {
 });
 
 describe("getReferences()", () => {
-  test("gets references", () => {
-    expect(getReferences(SUM_A1_A2_FORMULA, Point.ORIGIN)).toEqual(
-      pointSet.from([A1_POINT, A2_POINT])
-    );
+  test("gets simple references", () => {
+    expect(
+      getReferences(SUM_A1_A2_FORMULA, Point.ORIGIN, [
+        [{ value: 1 }],
+        [{ value: 2 }],
+      ])
+    ).toEqual(pointSet.from([A1_POINT, A2_POINT]));
+  });
+  test("gets range references", () => {
+    const references = getReferences("SUM(A:A)", Point.ORIGIN, [
+      [{ value: 1 }],
+      [{ value: 2 }],
+    ]);
+
+    expect(references).toEqual(pointSet.from([A1_POINT, A2_POINT]));
   });
 });
 
