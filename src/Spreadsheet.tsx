@@ -132,7 +132,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onCellCommit = () => {},
   } = props;
   const initialState = React.useMemo(() => {
-    /** @todo consider providing more arguments to model */
     const model = new Model(props.data);
     return {
       ...INITIAL_STATE,
