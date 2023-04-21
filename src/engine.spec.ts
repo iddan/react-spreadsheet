@@ -1,7 +1,8 @@
 import * as Formula from "./formula";
-import { getFormulaComputedValue } from "./engine";
+import { getFormulaComputedValue, updateCellValue, Model } from "./engine";
+import { CellBase } from "./types";
 import FormulaParser from "fast-formula-parser";
-import { ORIGIN } from "./point";
+import { ORIGIN, Point } from "./point";
 
 const MOCK_PARSE = jest.fn();
 const MOCK_FORMULA_PARSER = {
@@ -39,5 +40,38 @@ describe("getFormulaComputedValue()", () => {
       Formula.extractFormula(EXAMPLE_FORMULA_CELL.value),
       { col: 1, row: 1, sheet: "Sheet1" }
     );
+  });
+});
+
+describe("updateCellValue", () => {
+  test("update simple cell", () => {
+    const model = new Model([]);
+    const cell: CellBase = { value: "1" };
+    const point: Point = { row: 0, column: 0 };
+    const nextModel = updateCellValue(model, point, cell);
+    expect(nextModel.data).toEqual([[cell]]);
+    expect(nextModel.evaluatedData).toEqual([[cell]]);
+  });
+  test("update simple formula cell", () => {
+    const model = new Model([[{ value: 1 }], [{ value: 2 }]]);
+    const cell: CellBase = { value: "=A1" };
+    const point: Point = { row: 0, column: 1 };
+    const nextModel = updateCellValue(model, point, cell);
+    expect(nextModel.data).toEqual([[{ value: 1 }, cell], [{ value: 2 }]]);
+    expect(nextModel.evaluatedData).toEqual([
+      [{ value: 1 }, { value: 1 }],
+      [{ value: 2 }],
+    ]);
+  });
+  test("update range formula cell", () => {
+    const model = new Model([[{ value: 1 }], [{ value: 2 }]]);
+    const cell: CellBase = { value: "=SUM(A:A)" };
+    const point: Point = { row: 0, column: 1 };
+    const nextModel = updateCellValue(model, point, cell);
+    expect(nextModel.data).toEqual([[{ value: 1 }, cell], [{ value: 2 }]]);
+    expect(nextModel.evaluatedData).toEqual([
+      [{ value: 1 }, { value: 3 }],
+      [{ value: 2 }],
+    ]);
   });
 });
