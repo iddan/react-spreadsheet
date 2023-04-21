@@ -5,6 +5,7 @@ import FormulaParser, {
   Value,
 } from "fast-formula-parser";
 import * as pointSet from "./point-set";
+import * as pointRange from "./point-range";
 import { Point } from "./point";
 import * as matrix from "./matrix";
 import { CellBase } from "./types";
@@ -63,28 +64,40 @@ const depParser = new DepParser();
  */
 export function getReferences(
   formula: string,
-  point: Point
+  point: Point,
+  data: matrix.Matrix<CellBase>
 ): pointSet.PointSet {
+  const { rows, columns } = matrix.getSize(data);
   try {
     const dependencies = depParser.parse(formula, convertPointToCellRef(point));
+
     const references = pointSet.from(
       dependencies.flatMap((reference) => {
         const isRange = "from" in reference;
         if (isRange) {
           const { from, to } = reference;
-          const points: Point[] = [];
-          for (let row = from.row; row <= to.row; row++) {
-            for (let column = from.col; column <= to.col; column++) {
-              points.push({ row: row - 1, column: column - 1 });
-            }
-          }
-          return points;
+
+          const normalizedFrom: Point = {
+            row: from.row - 1,
+            column: from.col - 1,
+          };
+
+          const normalizedTo: Point = {
+            row: Math.min(to.row - 1, rows - 1),
+            column: Math.min(to.col - 1, columns - 1),
+          };
+
+          const range = pointRange.create(normalizedFrom, normalizedTo);
+
+          return Array.from(pointRange.iterate(range));
         }
         return { row: reference.row - 1, column: reference.col - 1 };
       })
     );
+
     return references;
   } catch (error) {
+    console.error(error);
     if (error instanceof FormulaError) {
       return pointSet.from([]);
     } else {

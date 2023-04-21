@@ -33,7 +33,7 @@ export function updateCellValue<Cell extends CellBase>(
 ): Model<Cell> {
   const nextData = matrix.set(point, cell, model.data);
   const nextReferenceGraph = isFormulaCell(cell)
-    ? updateReferenceGraph(model.referenceGraph, point, cell)
+    ? updateReferenceGraph(model.referenceGraph, point, cell, nextData)
     : model.referenceGraph;
 
   const nextEvaluatedData = evaluateCell(
@@ -49,9 +49,14 @@ export function updateCellValue<Cell extends CellBase>(
 function updateReferenceGraph(
   referenceGraph: pointGraph.PointGraph,
   point: Point,
-  cell: CellBase<string>
+  cell: CellBase<string>,
+  data: matrix.Matrix<CellBase>
 ): pointGraph.PointGraph {
-  const references = getReferences(Formula.extractFormula(cell.value), point);
+  const references = getReferences(
+    Formula.extractFormula(cell.value),
+    point,
+    data
+  );
   const nextReferenceGraph = pointGraph.set(point, references, referenceGraph);
   return nextReferenceGraph;
 }
@@ -137,7 +142,8 @@ export function createReferenceGraph(
     if (cell && isFormulaCell(cell)) {
       const references = getReferences(
         Formula.extractFormula(cell.value),
-        point
+        point,
+        data
       );
       entries.push([point, references]);
     }
