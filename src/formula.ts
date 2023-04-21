@@ -40,15 +40,18 @@ export function createBoundFormulaParser(
       return cell?.value;
     },
     onRange: (ref) => {
+      const data = getData();
+      const size = matrix.getSize(data);
       const start: Point = {
         row: ref.from.row - 1,
         column: ref.from.col - 1,
       };
       const end: Point = {
-        row: ref.to.row - 1,
-        column: ref.to.col - 1,
+        row: Math.min(ref.to.row - 1, size.rows - 1),
+        column: Math.min(ref.to.col - 1, size.columns - 1),
       };
-      return matrix.toArray(matrix.slice(start, end, getData()), (cell) => {
+      const dataSlice = matrix.slice(start, end, data);
+      return matrix.toArray(dataSlice, (cell) => {
         if (!isNaN(cell?.value as number)) return Number(cell?.value);
         return cell?.value;
       });
@@ -112,7 +115,8 @@ export function evaluate(
   formulaParser: FormulaParser
 ): Value {
   try {
-    const returned = formulaParser.parse(formula, convertPointToCellRef(point));
+    const position = convertPointToCellRef(point);
+    const returned = formulaParser.parse(formula, position);
     return returned instanceof FormulaError ? returned.toString() : returned;
   } catch (error) {
     if (error instanceof FormulaError) {
