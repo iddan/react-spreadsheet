@@ -130,7 +130,7 @@ function convertPointToCellRef(point: Point): CellRef {
   return {
     row: point.row + 1,
     col: point.column + 1,
-    /** @todo fill once we support multiple sheets */
+    // TODO: fill once we support multiple sheets
     sheet: "Sheet1",
   };
 }

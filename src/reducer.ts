@@ -101,7 +101,7 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     }
     return {
       ...state,
-      /** @todo move data to model */
+      // TODO: move data to model
       data: Matrix.set(active, cellData, state.data),
       model: updateCellValue(state.model, active, cellData),
       lastChanged: active,
