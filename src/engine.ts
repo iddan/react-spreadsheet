@@ -6,7 +6,6 @@ import { Point } from "./point";
 import * as pointGraph from "./point-graph";
 import * as pointSet from "./point-set";
 import { CellBase } from "./types";
-import { isFormulaCell } from "./util";
 
 export class Model<Cell extends CellBase> {
   readonly data!: matrix.Matrix<Cell>;
@@ -32,7 +31,7 @@ export function updateCellValue<Cell extends CellBase>(
   cell: Cell
 ): Model<Cell> {
   const nextData = matrix.set(point, cell, model.data);
-  const nextReferenceGraph = isFormulaCell(cell)
+  const nextReferenceGraph = Formula.isFormulaValue(cell.value)
     ? updateReferenceGraph(model.referenceGraph, point, cell, nextData)
     : model.referenceGraph;
 
@@ -102,8 +101,8 @@ function evaluateCell<Cell extends CellBase>(
     () => nextEvaluatedData
   );
 
-  const evaluatedValue = isFormulaCell(cell)
-    ? getFormulaComputedValue(cell, point, formulaParser)
+  const evaluatedValue = Formula.isFormulaValue(cell.value)
+    ? getFormulaComputedValue(cell.value, point, formulaParser)
     : cell.value;
 
   const evaluatedCell = { ...cell, value: evaluatedValue };
@@ -119,8 +118,8 @@ function evaluateCell<Cell extends CellBase>(
     if (!referrerCell) {
       continue;
     }
-    const evaluatedValue = isFormulaCell(referrerCell)
-      ? getFormulaComputedValue(referrerCell, point, formulaParser)
+    const evaluatedValue = Formula.isFormulaValue(referrerCell.value)
+      ? getFormulaComputedValue(referrerCell.value, point, formulaParser)
       : referrerCell.value;
     const evaluatedCell = { ...referrerCell, value: evaluatedValue };
     nextEvaluatedData = matrix.set(referrer, evaluatedCell, nextEvaluatedData);
@@ -139,7 +138,7 @@ export function createReferenceGraph(
 ): pointGraph.PointGraph {
   const entries: Array<[Point, pointSet.PointSet]> = [];
   for (const [point, cell] of matrix.entries(data)) {
-    if (cell && isFormulaCell(cell)) {
+    if (cell && Formula.isFormulaValue(cell.value)) {
       const references = getReferences(
         Formula.extractFormula(cell.value),
         point,
@@ -168,9 +167,9 @@ export function createEvaluatedData<Cell extends CellBase>(
     }
 
     // If the cell is a formula cell, evaluate it
-    if (isFormulaCell(cell)) {
+    if (Formula.isFormulaValue(cell.value)) {
       const evaluatedValue = getFormulaComputedValue(
-        cell,
+        cell.value,
         point,
         formulaParser
       );
@@ -187,10 +186,10 @@ export function createEvaluatedData<Cell extends CellBase>(
 
 /** Get the computed value of a formula cell */
 export function getFormulaComputedValue(
-  cell: CellBase<string>,
+  value: string,
   point: Point,
   formulaParser: FormulaParser
 ): Value {
-  const formula = Formula.extractFormula(cell.value);
+  const formula = Formula.extractFormula(value);
   return Formula.evaluate(formula, point, formulaParser);
 }

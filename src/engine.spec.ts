@@ -10,7 +10,7 @@ const MOCK_FORMULA_PARSER = {
 } as unknown as FormulaParser;
 const EXAMPLE_FORMULA_RESULT = 42;
 const EXAMPLE_FORMULA_ERROR = "EXAMPLE_ERROR";
-const EXAMPLE_FORMULA_CELL = { value: "=A1" };
+const EXAMPLE_FORMULA = "=A1";
 
 describe("getFormulaComputedValue()", () => {
   beforeEach(() => {
@@ -33,11 +33,11 @@ describe("getFormulaComputedValue()", () => {
   test.each(cases)("%s", (name, expected, mockParseReturn) => {
     MOCK_PARSE.mockImplementationOnce(() => mockParseReturn);
     expect(
-      getFormulaComputedValue(EXAMPLE_FORMULA_CELL, ORIGIN, MOCK_FORMULA_PARSER)
+      getFormulaComputedValue(EXAMPLE_FORMULA, ORIGIN, MOCK_FORMULA_PARSER)
     ).toBe(expected);
     expect(MOCK_FORMULA_PARSER.parse).toBeCalledTimes(1);
     expect(MOCK_FORMULA_PARSER.parse).toBeCalledWith(
-      Formula.extractFormula(EXAMPLE_FORMULA_CELL.value),
+      Formula.extractFormula(EXAMPLE_FORMULA),
       { col: 1, row: 1, sheet: "Sheet1" }
     );
   });

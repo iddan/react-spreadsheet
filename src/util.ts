@@ -5,7 +5,6 @@ import * as PointRange from "./point-range";
 import * as Selection from "./selection";
 import * as PointMap from "./point-map";
 import * as PointSet from "./point-set";
-import * as Formula from "./formula";
 
 export { createEmpty as createEmptyMatrix } from "./matrix";
 
@@ -132,13 +131,6 @@ export function getSelectedDimensions(
   return range
     ? getRangeDimensions(rowDimensions, columnDimensions, range)
     : undefined;
-}
-
-/** Returns whether given cell contains a formula value */
-export function isFormulaCell(
-  cell: Types.CellBase
-): cell is Types.CellBase<string> {
-  return Formula.isFormulaValue(cell.value);
 }
 
 /** Get given data as CSV */
