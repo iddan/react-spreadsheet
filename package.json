@@ -25,7 +25,8 @@
     "check-typing": "tsc",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "build-typedoc": "typedoc"
+    "build-typedoc": "typedoc",
+    "ci": "yarn check-format && yarn check-typing && yarn lint && yarn test --coverage"
   },
   "peerDependencies": {
     "react": ">=16.8.0",

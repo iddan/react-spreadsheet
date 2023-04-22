@@ -67,9 +67,7 @@ const EXAMPLE_STRING = "EXAMPLE_STRING";
 const EXAMPLE_CELL: Types.CellBase = {
   value: "EXAMPLE_CELL_VALUE",
 };
-const EXAMPLE_FORMULA_CELL: Types.CellBase = {
-  value: "=TRUE()",
-};
+
 const EXAMPLE_EMPTY_COPIED = PointMap.from<Types.CellBase>([]);
 const EXAMPLE_COPIED = PointMap.from([[Point.ORIGIN, EXAMPLE_CELL]]);
 
@@ -289,16 +287,6 @@ describe("writeTextToClipboard()", () => {
     util.PLAIN_TEXT_MIME,
     EXAMPLE_STRING
   );
-});
-
-describe("isFormulaCell()", () => {
-  const cases = [
-    ["Returns true for formula cell", EXAMPLE_FORMULA_CELL, true],
-    ["Returns true for formula cell", EXAMPLE_CELL, false],
-  ] as const;
-  test.each(cases)("%s", (name, cell, expected) => {
-    expect(util.isFormulaCell(cell)).toBe(expected);
-  });
 });
 
 describe("getCSV()", () => {
