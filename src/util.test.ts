@@ -57,7 +57,6 @@ const EXAMPLE_STATE: Types.StoreState = {
   hasPasted: false,
   cut: false,
   dragging: false,
-  data: EXAMPLE_DATA,
   model: new Model(EXAMPLE_DATA),
   selected: null,
   copied: PointMap.from([]),
@@ -247,7 +246,7 @@ describe("getSelectedDimensions()", () => {
       util.getSelectedDimensions(
         EXAMPLE_STATE.rowDimensions,
         EXAMPLE_STATE.columnDimensions,
-        EXAMPLE_STATE.data,
+        EXAMPLE_STATE.model.data,
         selection
       )
     ).toEqual(expected);

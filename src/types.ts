@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Point } from "./point";
 import { PointMap } from "./point-map";
-import { Matrix } from "./matrix";
 import { Selection } from "./selection";
 import { Model } from "./engine";
 
@@ -44,7 +43,6 @@ export type Dimensions = {
 };
 
 export type StoreState<Cell extends CellBase = CellBase> = {
-  data: Matrix<Cell>;
   model: Model<Cell>;
   selected: Selection;
   copied: PointMap<Cell>;

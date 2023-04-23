@@ -12,13 +12,13 @@ const Selected: React.FC = () => {
       getSelectedDimensions(
         state.rowDimensions,
         state.columnDimensions,
-        state.data,
+        state.model.data,
         state.selected
       )
   );
   const dragging = useSelector((state) => state.dragging);
   const hidden = useSelector(
-    (state) => Selection.size(state.selected, state.data) < 2
+    (state) => Selection.size(state.selected, state.model.data) < 2
   );
   return (
     <FloatingRect

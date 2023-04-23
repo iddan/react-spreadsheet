@@ -135,8 +135,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     const model = new Model(props.data);
     return {
       ...INITIAL_STATE,
-      data: props.data,
-      model: model,
+      model,
     } as Types.StoreState<CellType>;
   }, [props.data]);
 
@@ -147,8 +146,8 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const [state, dispatch] = reducerElements;
 
   const size = React.useMemo(() => {
-    return calculateSpreadsheetSize(state.data, rowLabels, columnLabels);
-  }, [state.data, rowLabels, columnLabels]);
+    return calculateSpreadsheetSize(state.model.data, rowLabels, columnLabels);
+  }, [state.model.data, rowLabels, columnLabels]);
 
   const mode = state.mode;
 
@@ -191,15 +190,15 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       }
     }
 
-    if (state.data !== prevState.data) {
+    if (state.model.data !== prevState.model.data) {
       // Call on change only if the data change internal
-      if (state.data !== props.data) {
-        onChange(state.data);
+      if (state.model.data !== props.data) {
+        onChange(state.model.data);
       }
     }
 
     if (state.selected !== prevState.selected) {
-      const points = Selection.getPoints(state.selected, state.data);
+      const points = Selection.getPoints(state.selected, state.model.data);
       onSelect(points);
     }
 
@@ -235,14 +234,15 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
   React.useEffect(() => {
     const prevState = prevStateRef.current;
-    if (props.data !== prevState.data) {
+    if (props.data !== prevState.model.data) {
       setData(props.data);
     }
   }, [props.data, setData]);
 
   const clip = React.useCallback(
     (event: ClipboardEvent): void => {
-      const { data, selected } = state;
+      const { model, selected } = state;
+      const { data } = model;
       const selectedData = Selection.getSelectionFromMatrix(selected, data);
       const csv = getCSV(selectedData);
       writeTextToClipboard(event, csv);
