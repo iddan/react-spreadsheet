@@ -42,6 +42,7 @@ jobs:
           git config --global user.name "Iddan Aaronsohn";
           yarn install --frozen-lockfile;
           yarn build-storybook;
+          mkdir -p website/static/storybook;
           cp -r storybook-static/* website/static/storybook;
           cd website;
           yarn install --frozen-lockfile;
