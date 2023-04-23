@@ -37,9 +37,12 @@ jobs:
           USE_SSH: true
           GIT_USER: git
         run: |
+          set -e;
           git config --global user.email "mail@aniddan.com";
           git config --global user.name "Iddan Aaronsohn";
           yarn install --frozen-lockfile;
+          yarn build-storybook;
+          cp -r storybook-static/* website/static/storybook;
           cd website;
           yarn install --frozen-lockfile;
           yarn deploy;
