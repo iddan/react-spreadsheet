@@ -140,14 +140,14 @@ export const enhance = (
     );
     const mode = useSelector((state) => (active ? state.mode : "view"));
     const data = useSelector((state) =>
-      Matrix.get({ row, column }, state.data)
+      Matrix.get({ row, column }, state.model.data)
     );
     const evaluatedData = useSelector((state) =>
       Matrix.get({ row, column }, state.model.evaluatedData)
     );
 
     const selected = useSelector((state) =>
-      Selection.hasPoint(state.selected, state.data, { row, column })
+      Selection.hasPoint(state.selected, state.model.data, { row, column })
     );
     const dragging = useSelector((state) => state.dragging);
     const copied = useSelector((state) =>

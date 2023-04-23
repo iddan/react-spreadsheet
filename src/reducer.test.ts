@@ -41,7 +41,7 @@ describe("reducer", () => {
       "setData",
       INITIAL_STATE,
       Actions.setData(EXAMPLE_DATA),
-      { ...INITIAL_STATE, data: EXAMPLE_DATA },
+      { ...INITIAL_STATE, model: new Model(EXAMPLE_DATA) },
     ],
     [
       "select",
@@ -150,9 +150,8 @@ describe("reducer", () => {
       Actions.setCellData(Point.ORIGIN, EXAMPLE_CELL),
       {
         ...INITIAL_STATE,
-        data: Matrix.set(Point.ORIGIN, EXAMPLE_CELL, INITIAL_STATE.data),
         model: new Model(
-          Matrix.set(Point.ORIGIN, EXAMPLE_CELL, INITIAL_STATE.data)
+          Matrix.set(Point.ORIGIN, EXAMPLE_CELL, INITIAL_STATE.model.data)
         ),
         lastChanged: Point.ORIGIN,
       },
@@ -245,9 +244,7 @@ describe("isActiveReadOnly", () => {
       "returns true if active is read only",
       {
         ...INITIAL_STATE,
-        data: [
-          [{ readOnly: true, value: undefined }],
-        ] as Matrix.Matrix<Types.CellBase>,
+        model: new Model([[{ readOnly: true, value: undefined }]]),
         active: Point.ORIGIN,
       },
       true,

@@ -33,7 +33,7 @@ const ActiveCell: React.FC<Props> = (props) => {
   const active = useSelector((state) => state.active);
   const mode = useSelector((state) => state.mode);
   const cell = useSelector((state) =>
-    state.active ? Matrix.get(state.active, state.data) : undefined
+    state.active ? Matrix.get(state.active, state.model.data) : undefined
   );
   const dimensions = useSelector((state) =>
     active

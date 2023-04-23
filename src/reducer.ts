@@ -19,7 +19,6 @@ export const INITIAL_STATE: Types.StoreState = {
   hasPasted: false,
   cut: false,
   dragging: false,
-  data: [],
   model: new Model([]),
   selected: null,
   copied: PointMap.from([]),
@@ -34,7 +33,7 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     const nextSelected = Selection.normalize(state.selected, data);
     return {
       ...state,
-      data,
+      model: new Model(data),
       active: nextActive,
       selected: nextSelected,
     };
@@ -101,8 +100,6 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     }
     return {
       ...state,
-      // TODO: move data to model
-      data: Matrix.set(active, cellData, state.data),
       model: updateCellValue(state.model, active, cellData),
       lastChanged: active,
     };
@@ -145,7 +142,7 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     const minPoint = PointSet.min(copied);
 
     type Accumulator = {
-      data: Types.StoreState["data"];
+      data: Types.StoreState["model"]["data"];
       commit: Types.StoreState["lastCommit"];
     };
 
@@ -154,7 +151,7 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
       rows: active.row + copiedSize.rows,
       columns: active.column + copiedSize.columns,
     };
-    const paddedData = Matrix.pad(state.data, requiredSize);
+    const paddedData = Matrix.pad(state.model.data, requiredSize);
 
     const { data, commit } = PointMap.reduce<Accumulator, Types.CellBase>(
       (acc, value, point) => {
@@ -241,11 +238,14 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
     (action) =>
       action.type === Actions.copy.type || action.type === Actions.cut.type,
     (state, action) => {
-      const selectedPoints = Selection.getPoints(state.selected, state.data);
+      const selectedPoints = Selection.getPoints(
+        state.selected,
+        state.model.data
+      );
       return {
         ...state,
         copied: selectedPoints.reduce((acc, point) => {
-          const cell = Matrix.get(point, state.data);
+          const cell = Matrix.get(point, state.model.data);
           return cell === undefined ? acc : PointMap.set(point, cell, acc);
         }, PointMap.from<Types.CellBase>([])),
         cut: action.type === Actions.cut.type,
@@ -280,10 +280,10 @@ function clear(state: Types.StoreState): Types.StoreState | void {
     return Object.assign({}, cell, { value: undefined });
   };
 
-  const selectedPoints = Selection.getPoints(state.selected, state.data);
+  const selectedPoints = Selection.getPoints(state.selected, state.model.data);
 
   const changes = selectedPoints.map((point) => {
-    const cell = Matrix.get(point, state.data);
+    const cell = Matrix.get(point, state.model.data);
     return {
       ...state,
       prevCell: cell || null,
@@ -294,11 +294,11 @@ function clear(state: Types.StoreState): Types.StoreState | void {
   const newData = selectedPoints.reduce((acc, point) => {
     const cell = Matrix.get(point, acc);
     return Matrix.set(point, clearCell(cell), acc);
-  }, state.data);
+  }, state.model.data);
 
   return {
     ...state,
-    data: newData,
+    model: new Model(newData),
     ...commit(changes),
   };
 }
@@ -327,7 +327,7 @@ export const go =
       row: state.active.row + rowDelta,
       column: state.active.column + columnDelta,
     };
-    if (!Matrix.has(nextActive, state.data)) {
+    if (!Matrix.has(nextActive, state.model.data)) {
       return { ...state, mode: "view" };
     }
     return {
@@ -377,7 +377,7 @@ const shiftKeyDownHandlers: KeyDownHandlers = {
     selected: Selection.modifyEdge(
       state.selected,
       state.active,
-      state.data,
+      state.model.data,
       Selection.Direction.Top
     ),
   }),
@@ -386,7 +386,7 @@ const shiftKeyDownHandlers: KeyDownHandlers = {
     selected: Selection.modifyEdge(
       state.selected,
       state.active,
-      state.data,
+      state.model.data,
       Selection.Direction.Bottom
     ),
   }),
@@ -395,7 +395,7 @@ const shiftKeyDownHandlers: KeyDownHandlers = {
     selected: Selection.modifyEdge(
       state.selected,
       state.active,
-      state.data,
+      state.model.data,
       Selection.Direction.Left
     ),
   }),
@@ -404,7 +404,7 @@ const shiftKeyDownHandlers: KeyDownHandlers = {
     selected: Selection.modifyEdge(
       state.selected,
       state.active,
-      state.data,
+      state.model.data,
       Selection.Direction.Right
     ),
   }),
@@ -458,6 +458,6 @@ export function isActiveReadOnly(state: Types.StoreState): boolean {
 export function getActive<Cell extends Types.CellBase>(
   state: Types.StoreState<Cell>
 ): Cell | null {
-  const activeCell = state.active && Matrix.get(state.active, state.data);
+  const activeCell = state.active && Matrix.get(state.active, state.model.data);
   return activeCell || null;
 }
