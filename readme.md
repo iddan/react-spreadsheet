@@ -31,6 +31,8 @@ yarn add react react-dom scheduler react-spreadsheet
 
 ### [Docs](https://iddan.github.io/react-spreadsheet/docs)
 
+### [Storybook](https://iddan.github.io/react-spreadsheet/storybook)
+
 ## License
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fiddan%2Freact-spreadsheet.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fiddan%2Freact-spreadsheet?ref=badge_large)

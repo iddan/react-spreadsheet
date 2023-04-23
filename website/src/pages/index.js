@@ -85,6 +85,15 @@ export default function Home() {
             >
               Get Started
             </Link>
+            <a
+              className={clsx(
+                "button button--outline button--secondary button--lg",
+                styles.getStarted
+              )}
+              href={useBaseUrl("storybook/")}
+            >
+              Storybook
+            </a>
           </div>
           <div ref={spreadsheetRef} className={styles.spreadsheetContainer}>
             <Spreadsheet data={spreadsheetData} onChange={setSpreadsheetData} />
