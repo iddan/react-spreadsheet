@@ -20,13 +20,14 @@
     "check-format": "prettier --check .",
     "format": "prettier --write .",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "build": "rollup -c",
     "prepack": "cross-env NODE_ENV=production yarn build",
     "check-typing": "tsc",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "build-typedoc": "typedoc",
-    "ci": "yarn check-format && yarn check-typing && yarn lint && yarn test --coverage"
+    "ci": "run-s check-format check-typing lint test:coverage"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
