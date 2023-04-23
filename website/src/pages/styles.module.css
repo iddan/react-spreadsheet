@@ -30,6 +30,7 @@ html[data-theme="dark"] :global(.hero__title) {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 1rem;
   margin: 0 0 var(--ifm-paragraph-margin-bottom);
 }
 
