@@ -2,6 +2,7 @@ node_modules/
 dist/
 coverage/
 reference/
+storybook-static/
 
 # website
 website/node_modules
@@ -9,3 +10,4 @@ website/build
 website/.docusaurus
 website/docs/api/
 website/typedoc-sidebar.js
+website/static/storybook/
