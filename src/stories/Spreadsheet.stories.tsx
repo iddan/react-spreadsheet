@@ -15,13 +15,32 @@ const INITIAL_ROWS = 6;
 const INITIAL_COLUMNS = 4;
 const EMPTY_DATA = createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS);
 
-export default {
+const meta: Meta<Props<StringCell>> = {
   title: "Spreadsheet",
   component: Spreadsheet,
+  parameters: {
+    controls: {
+      expanded: true,
+      exclude:
+        /ColumnIndicator|CornerIndicator|RowIndicator|Cell|HeaderRow|DataViewer|DataEditor|Row|Table/,
+    },
+  },
   args: {
     data: EMPTY_DATA,
   },
-} as Meta<Props<StringCell>>;
+  argTypes: {
+    columnLabels: {
+      control: "array",
+      defaultValue: [],
+    },
+    rowLabels: {
+      control: "array",
+      defaultValue: [],
+    },
+  },
+};
+
+export default meta;
 
 export const Basic: StoryFn<Props<StringCell>> = (props) => (
   <Spreadsheet {...props} />
