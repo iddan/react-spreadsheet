@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { Story, Meta } from "@storybook/react";
+import type { StoryFn, Meta } from "@storybook/react";
 import { createEmptyMatrix, Spreadsheet, Props, CellBase } from "..";
 import * as Matrix from "../matrix";
 import { AsyncCellDataEditor, AsyncCellDataViewer } from "./AsyncCellData";
@@ -23,15 +23,15 @@ export default {
   },
 } as Meta<Props<StringCell>>;
 
-export const Basic: Story<Props<StringCell>> = (props) => (
+export const Basic: StoryFn<Props<StringCell>> = (props) => (
   <Spreadsheet {...props} />
 );
 
-export const DarkMode: Story<Props<StringCell>> = (props) => (
+export const DarkMode: StoryFn<Props<StringCell>> = (props) => (
   <Spreadsheet {...props} darkMode />
 );
 
-export const Controlled: Story<Props<StringCell>> = (props) => {
+export const Controlled: StoryFn<Props<StringCell>> = (props) => {
   const [data, setData] = React.useState(EMPTY_DATA);
 
   const addColumn = React.useCallback(
@@ -82,28 +82,28 @@ export const Controlled: Story<Props<StringCell>> = (props) => {
   );
 };
 
-export const CustomRowLabels: Story<Props<StringCell>> = (props) => (
+export const CustomRowLabels: StoryFn<Props<StringCell>> = (props) => (
   <Spreadsheet
     {...props}
     rowLabels={["Dan", "Alice", "Bob", "Steve", "Adam", "Ruth"]}
   />
 );
 
-export const CustomColumnLabels: Story<Props<StringCell>> = (props) => (
+export const CustomColumnLabels: StoryFn<Props<StringCell>> = (props) => (
   <Spreadsheet {...props} columnLabels={["Name", "Age", "Email", "Address"]} />
 );
 
-export const HideIndicators: Story<Props<StringCell>> = (props) => (
+export const HideIndicators: StoryFn<Props<StringCell>> = (props) => (
   <Spreadsheet {...props} hideColumnIndicators hideRowIndicators />
 );
 
-export const Readonly: Story<Props<StringCell>> = (props) => {
+export const Readonly: StoryFn<Props<StringCell>> = (props) => {
   const data = createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS);
   data[0][0] = { readOnly: true, value: "Read Only" };
   return <Spreadsheet {...props} data={data} />;
 };
 
-export const WithAsyncCellData: Story<Props<StringCell>> = (props) => {
+export const WithAsyncCellData: StoryFn<Props<StringCell>> = (props) => {
   const data = createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS);
 
   data[2][2] = {
@@ -114,11 +114,11 @@ export const WithAsyncCellData: Story<Props<StringCell>> = (props) => {
   return <Spreadsheet {...props} data={data} />;
 };
 
-export const WithCustomCell: Story<Props<CellBase>> = (props) => (
+export const WithCustomCell: StoryFn<Props<CellBase>> = (props) => (
   <Spreadsheet {...props} Cell={CustomCell} />
 );
 
-export const RangeCell: Story<Props<NumberCell>> = (props) => {
+export const RangeCell: StoryFn<Props<NumberCell>> = (props) => {
   const data = createEmptyMatrix<NumberCell>(INITIAL_ROWS, INITIAL_COLUMNS);
   data[2][2] = {
     value: 0,
@@ -128,7 +128,7 @@ export const RangeCell: Story<Props<NumberCell>> = (props) => {
   return <Spreadsheet {...props} data={data} />;
 };
 
-export const WithSelectCell: Story<Props<StringCell>> = (props) => {
+export const WithSelectCell: StoryFn<Props<StringCell>> = (props) => {
   const data = createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS);
 
   data[2][2] = {
@@ -141,11 +141,11 @@ export const WithSelectCell: Story<Props<StringCell>> = (props) => {
   return <Spreadsheet data={data} />;
 };
 
-export const WithCornerIndicator: Story<Props<StringCell>> = (props) => (
+export const WithCornerIndicator: StoryFn<Props<StringCell>> = (props) => (
   <Spreadsheet {...props} CornerIndicator={CustomCornerIndicator} />
 );
 
-export const Filter: Story<Props<StringCell>> = (props) => {
+export const Filter: StoryFn<Props<StringCell>> = (props) => {
   const [data, setData] = React.useState(
     EMPTY_DATA as Matrix.Matrix<StringCell>
   );
