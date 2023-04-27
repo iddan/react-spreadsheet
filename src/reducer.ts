@@ -6,7 +6,6 @@ import * as Types from "./types";
 import * as Point from "./point";
 import * as Selection from "./selection";
 import { isActive } from "./util";
-import { createReducer } from "@reduxjs/toolkit";
 import * as Actions from "./actions";
 import { Model, updateCellValue } from "./engine";
 
@@ -25,219 +24,118 @@ export const INITIAL_STATE: Types.StoreState = {
   lastCommit: null,
 };
 
-const reducer = createReducer(INITIAL_STATE, (builder) => {
-  builder.addCase(Actions.setData, (state, action) => {
-    const { data } = action.payload;
-    const nextActive =
-      state.active && Matrix.has(state.active, data) ? state.active : null;
-    const nextSelected = Selection.normalize(state.selected, data);
-    return {
-      ...state,
-      model: new Model(data),
-      active: nextActive,
-      selected: nextSelected,
-    };
-  });
-  builder.addCase(Actions.select, (state, action) => {
-    const { point } = action.payload;
-    if (state.active && !isActive(state.active, point)) {
+export default function reducer(
+  state: Types.StoreState,
+  action: Actions.Action
+): Types.StoreState {
+  switch (action.type) {
+    case Actions.SET_DATA: {
+      const { data } = action.payload;
+      const nextActive =
+        state.active && Matrix.has(state.active, data) ? state.active : null;
+      const nextSelected = Selection.normalize(state.selected, data);
       return {
         ...state,
-        selected: PointRange.create(point, state.active),
+        model: new Model(data),
+        active: nextActive,
+        selected: nextSelected,
+      };
+    }
+    case Actions.SELECT_ENTIRE_ROW: {
+      const { row, extend } = action.payload;
+      const { active } = state;
+
+      return {
+        ...state,
+        selected:
+          extend && active
+            ? Selection.createEntireRows(active.row, row)
+            : Selection.createEntireRows(row, row),
+        active: extend && active ? active : { ...Point.ORIGIN, row },
         mode: "view",
       };
     }
-  });
-  builder.addCase(Actions.selectEntireTable, (state) => {
-    return {
-      ...state,
-      selected: Selection.createEntireTable(),
-      active: Point.ORIGIN,
-      mode: "view",
-    };
-  });
-  builder.addCase(Actions.selectEntireColumn, (state, action) => {
-    const { column, extend } = action.payload;
-    const { active } = state;
+    case Actions.SELECT_ENTIRE_COLUMN: {
+      const { column, extend } = action.payload;
+      const { active } = state;
 
-    return {
-      ...state,
-      selected:
-        extend && active
-          ? Selection.createEntireColumns(active.column, column)
-          : Selection.createEntireColumns(column, column),
-      active: extend && active ? active : { ...Point.ORIGIN, column },
-      mode: "view",
-    };
-  });
-  builder.addCase(Actions.selectEntireRow, (state, action) => {
-    const { row, extend } = action.payload;
-    const { active } = state;
-
-    return {
-      ...state,
-      selected:
-        extend && active
-          ? Selection.createEntireRows(active.row, row)
-          : Selection.createEntireRows(row, row),
-      active: extend && active ? active : { ...Point.ORIGIN, row },
-      mode: "view",
-    };
-  });
-  builder.addCase(Actions.activate, (state, action) => {
-    const { point } = action.payload;
-    return {
-      ...state,
-      selected: PointRange.create(point, point),
-      active: point,
-      mode: isActive(state.active, point) ? "edit" : "view",
-    };
-  });
-  builder.addCase(Actions.setCellData, (state, action) => {
-    const { active, data: cellData } = action.payload;
-    if (isActiveReadOnly(state)) {
-      return;
+      return {
+        ...state,
+        selected:
+          extend && active
+            ? Selection.createEntireColumns(active.column, column)
+            : Selection.createEntireColumns(column, column),
+        active: extend && active ? active : { ...Point.ORIGIN, column },
+        mode: "view",
+      };
     }
-    return {
-      ...state,
-      model: updateCellValue(state.model, active, cellData),
-      lastChanged: active,
-    };
-  });
-  builder.addCase(Actions.setCellDimensions, (state, action) => {
-    const { point, dimensions } = action.payload;
-    const prevRowDimensions = state.rowDimensions[point.row];
-    const prevColumnDimensions = state.columnDimensions[point.column];
-    if (
-      prevRowDimensions &&
-      prevColumnDimensions &&
-      prevRowDimensions.top === dimensions.top &&
-      prevRowDimensions.height === dimensions.height &&
-      prevColumnDimensions.left === dimensions.left &&
-      prevColumnDimensions.width === dimensions.width
-    ) {
-      return;
+    case Actions.SELECT_ENTIRE_TABLE: {
+      return {
+        ...state,
+        selected: Selection.createEntireTable(),
+        active: Point.ORIGIN,
+        mode: "view",
+      };
     }
-    return {
-      ...state,
-      rowDimensions: {
-        ...state.rowDimensions,
-        [point.row]: { top: dimensions.top, height: dimensions.height },
-      },
-      columnDimensions: {
-        ...state.columnDimensions,
-        [point.column]: { left: dimensions.left, width: dimensions.width },
-      },
-    };
-  });
-  builder.addCase(Actions.paste, (state, action) => {
-    const { data: text } = action.payload;
-    const { active } = state;
-    if (!active) {
-      return;
-    }
-    const copiedMatrix = Matrix.split(text, (value) => ({ value }));
-    const copied = PointMap.fromMatrix<any>(copiedMatrix);
-
-    const minPoint = PointSet.min(copied);
-
-    type Accumulator = {
-      data: Types.StoreState["model"]["data"];
-      commit: Types.StoreState["lastCommit"];
-    };
-
-    const copiedSize = Matrix.getSize(copiedMatrix);
-    const requiredSize: Matrix.Size = {
-      rows: active.row + copiedSize.rows,
-      columns: active.column + copiedSize.columns,
-    };
-    const paddedData = Matrix.pad(state.model.data, requiredSize);
-
-    const { data, commit } = PointMap.reduce<Accumulator, Types.CellBase>(
-      (acc, value, point) => {
-        let commit = acc.commit || [];
-        const nextPoint: Point.Point = {
-          row: point.row - minPoint.row + active.row,
-          column: point.column - minPoint.column + active.column,
-        };
-
-        const nextData = state.cut ? Matrix.unset(point, acc.data) : acc.data;
-
-        if (state.cut) {
-          commit = [...commit, { prevCell: value, nextCell: null }];
-        }
-
-        if (!Matrix.has(nextPoint, paddedData)) {
-          return { data: nextData, commit };
-        }
-
-        const currentValue = Matrix.get(nextPoint, nextData) || null;
-
-        commit = [
-          ...commit,
-          {
-            prevCell: currentValue,
-            nextCell: value,
-          },
-        ];
-
+    case Actions.SELECT: {
+      const { point } = action.payload;
+      if (state.active && !isActive(state.active, point)) {
         return {
-          data: Matrix.set(nextPoint, { ...currentValue, ...value }, nextData),
-          commit,
+          ...state,
+          selected: PointRange.create(point, state.active),
+          mode: "view",
         };
-      },
-      copied,
-      { data: paddedData, commit: [] }
-    );
-    return {
-      ...state,
-      data,
-      selected: PointRange.create(active, {
-        row: active.row + copiedSize.rows - 1,
-        column: active.column + copiedSize.columns - 1,
-      }),
-      cut: false,
-      hasPasted: true,
-      mode: "view",
-      lastCommit: commit,
-    };
-  });
-  builder.addCase(Actions.edit, edit);
-  builder.addCase(Actions.view, view);
-  builder.addCase(Actions.clear, clear);
-  builder.addCase(Actions.blur, blur);
-  builder.addCase(Actions.keyPress, (state, action) => {
-    const { event } = action.payload;
-    if (isActiveReadOnly(state) || event.metaKey) {
-      return;
+      }
+      return state;
     }
-    if (state.mode === "view" && state.active) {
-      return edit(state);
+    case Actions.ACTIVATE: {
+      const { point } = action.payload;
+      return {
+        ...state,
+        selected: PointRange.create(point, point),
+        active: point,
+        mode: isActive(state.active, point) ? "edit" : "view",
+      };
     }
-    return;
-  });
-  builder.addCase(Actions.keyDown, (state, action) => {
-    const { event } = action.payload;
-    const handler = getKeyDownHandler(state, event);
-    if (handler) {
-      return { ...state, ...handler(state, event) };
+    case Actions.SET_CELL_DATA: {
+      const { active, data: cellData } = action.payload;
+      if (isActiveReadOnly(state)) {
+        return state;
+      }
+      return {
+        ...state,
+        model: updateCellValue(state.model, active, cellData),
+        lastChanged: active,
+      };
     }
-    return;
-  });
-  builder.addCase(Actions.dragStart, (state, action) => {
-    return { ...state, dragging: true };
-  });
-  builder.addCase(Actions.dragEnd, (state, action) => {
-    return { ...state, dragging: false };
-  });
-  builder.addCase(Actions.commit, (state, action) => {
-    const { changes } = action.payload;
-    return { ...state, ...commit(changes) };
-  });
-  builder.addMatcher(
-    (action) =>
-      action.type === Actions.copy.type || action.type === Actions.cut.type,
-    (state, action) => {
+    case Actions.SET_CELL_DIMENSIONS: {
+      const { point, dimensions } = action.payload;
+      const prevRowDimensions = state.rowDimensions[point.row];
+      const prevColumnDimensions = state.columnDimensions[point.column];
+      if (
+        prevRowDimensions &&
+        prevColumnDimensions &&
+        prevRowDimensions.top === dimensions.top &&
+        prevRowDimensions.height === dimensions.height &&
+        prevColumnDimensions.left === dimensions.left &&
+        prevColumnDimensions.width === dimensions.width
+      ) {
+        return state;
+      }
+      return {
+        ...state,
+        rowDimensions: {
+          ...state.rowDimensions,
+          [point.row]: { top: dimensions.top, height: dimensions.height },
+        },
+        columnDimensions: {
+          ...state.columnDimensions,
+          [point.column]: { left: dimensions.left, width: dimensions.width },
+        },
+      };
+    }
+    case Actions.COPY:
+    case Actions.CUT: {
       const selectedPoints = Selection.getPoints(
         state.selected,
         state.model.data
@@ -248,27 +146,161 @@ const reducer = createReducer(INITIAL_STATE, (builder) => {
           const cell = Matrix.get(point, state.model.data);
           return cell === undefined ? acc : PointMap.set(point, cell, acc);
         }, PointMap.from<Types.CellBase>([])),
-        cut: action.type === Actions.cut.type,
+        cut: action.type === Actions.CUT,
         hasPasted: false,
       };
     }
-  );
-});
 
-export default reducer;
+    case Actions.PASTE: {
+      const { data: text } = action.payload;
+      const { active } = state;
+      if (!active) {
+        return state;
+      }
+      const copiedMatrix = Matrix.split(text, (value) => ({ value }));
+      const copied = PointMap.fromMatrix<any>(copiedMatrix);
 
-// Shared reducers
+      const minPoint = PointSet.min(copied);
 
-function edit(state: Types.StoreState): Types.StoreState | void {
+      type Accumulator = {
+        data: Types.StoreState["model"]["data"];
+        commit: Types.StoreState["lastCommit"];
+      };
+
+      const copiedSize = Matrix.getSize(copiedMatrix);
+      const requiredSize: Matrix.Size = {
+        rows: active.row + copiedSize.rows,
+        columns: active.column + copiedSize.columns,
+      };
+      const paddedData = Matrix.pad(state.model.data, requiredSize);
+
+      const { data, commit } = PointMap.reduce<Accumulator, Types.CellBase>(
+        (acc, value, point) => {
+          let commit = acc.commit || [];
+          const nextPoint: Point.Point = {
+            row: point.row - minPoint.row + active.row,
+            column: point.column - minPoint.column + active.column,
+          };
+
+          const nextData = state.cut ? Matrix.unset(point, acc.data) : acc.data;
+
+          if (state.cut) {
+            commit = [...commit, { prevCell: value, nextCell: null }];
+          }
+
+          if (!Matrix.has(nextPoint, paddedData)) {
+            return { data: nextData, commit };
+          }
+
+          const currentValue = Matrix.get(nextPoint, nextData) || null;
+
+          commit = [
+            ...commit,
+            {
+              prevCell: currentValue,
+              nextCell: value,
+            },
+          ];
+
+          return {
+            data: Matrix.set(
+              nextPoint,
+              { ...currentValue, ...value },
+              nextData
+            ),
+            commit,
+          };
+        },
+        copied,
+        { data: paddedData, commit: [] }
+      );
+      return {
+        ...state,
+        model: new Model(data),
+        selected: PointRange.create(active, {
+          row: active.row + copiedSize.rows - 1,
+          column: active.column + copiedSize.columns - 1,
+        }),
+        cut: false,
+        hasPasted: true,
+        mode: "view",
+        lastCommit: commit,
+      };
+    }
+
+    case Actions.EDIT: {
+      return edit(state);
+    }
+
+    case Actions.VIEW: {
+      return view(state);
+    }
+
+    case Actions.CLEAR: {
+      return clear(state);
+    }
+
+    case Actions.BLUR: {
+      return blur(state);
+    }
+
+    case Actions.KEY_PRESS: {
+      const { event } = action.payload;
+      if (isActiveReadOnly(state) || event.metaKey) {
+        return state;
+      }
+      if (state.mode === "view" && state.active) {
+        return edit(state);
+      }
+      return state;
+    }
+
+    case Actions.KEY_DOWN: {
+      const { event } = action.payload;
+      const handler = getKeyDownHandler(state, event);
+      if (handler) {
+        return { ...state, ...handler(state, event) };
+      }
+      return state;
+    }
+
+    case Actions.DRAG_START: {
+      return { ...state, dragging: true };
+    }
+
+    case Actions.DRAG_END: {
+      return { ...state, dragging: false };
+    }
+
+    case Actions.COMMIT: {
+      const { changes } = action.payload;
+      return { ...state, ...commit(changes) };
+    }
+  }
+}
+
+// const reducer = createReducer(INITIAL_STATE, (builder) => {
+//   builder.addMatcher(
+//     (action) =>
+//       action.type === Actions.copy.type || action.type === Actions.cut.type,
+//     (state, action) => {
+
+//     }
+//   );
+// });
+
+// // Shared reducers
+
+function edit(state: Types.StoreState): Types.StoreState {
   if (isActiveReadOnly(state)) {
-    return;
+    return state;
   }
   return { ...state, mode: "edit" };
 }
 
-function clear(state: Types.StoreState): Types.StoreState | void {
+function clear(state: Types.StoreState): Types.StoreState {
   if (!state.active) {
-    return;
+    return state;
   }
 
   const canClearCell = (cell: Types.CellBase | undefined) =>
@@ -455,9 +487,7 @@ export function isActiveReadOnly(state: Types.StoreState): boolean {
 }
 
 /** Gets active cell from given state */
-export function getActive<Cell extends Types.CellBase>(
-  state: Types.StoreState<Cell>
-): Cell | null {
+export function getActive(state: Types.StoreState): Types.CellBase | null {
   const activeCell = state.active && Matrix.get(state.active, state.model.data);
   return activeCell || null;
 }

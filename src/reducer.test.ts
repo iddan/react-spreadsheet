@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Action } from "@reduxjs/toolkit";
 import * as Types from "./types";
 import * as Actions from "./actions";
 import reducer, {
@@ -33,7 +32,7 @@ describe("reducer", () => {
     [
       name: string,
       state: Types.StoreState,
-      action: Action<unknown>,
+      action: Actions.Action,
       expected: Types.StoreState
     ]
   > = [

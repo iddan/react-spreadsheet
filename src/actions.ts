@@ -1,87 +1,262 @@
-import { createAction } from "@reduxjs/toolkit";
-import * as Matrix from "./matrix";
-import * as Point from "./point";
-import * as Types from "./types";
+import { Matrix } from "./matrix";
+import { Point } from "./point";
+import { CellBase, Dimensions, CommitChanges } from "./types";
 
-export const setData = createAction<
-  (data: Matrix.Matrix<Types.CellBase>) => {
-    payload: { data: Matrix.Matrix<Types.CellBase> };
-  },
-  "SET_DATA"
->("SET_DATA", (data) => ({ payload: { data } }));
-export const selectEntireRow = createAction<
-  (
-    row: number,
-    extend: boolean
-  ) => { payload: { row: number; extend: boolean } },
-  "SELECT_ENTIRE_ROW"
->("SELECT_ENTIRE_ROW", (row, extend) => ({ payload: { row, extend } }));
-export const selectEntireColumn = createAction<
-  (
-    column: number,
-    extend: boolean
-  ) => { payload: { column: number; extend: boolean } },
-  "SELECT_ENTIRE_COLUMN"
->("SELECT_ENTIRE_COLUMN", (column, extend) => ({
-  payload: { column, extend },
-}));
-export const selectEntireTable = createAction("SELECT_ENTIRE_TABLE");
-export const select = createAction<
-  (point: Point.Point) => { payload: { point: Point.Point } },
-  "SELECT"
->("SELECT", (point) => ({ payload: { point } }));
-export const activate = createAction<
-  (point: Point.Point) => { payload: { point: Point.Point } },
-  "ACTIVATE"
->("ACTIVATE", (point) => ({ payload: { point } }));
-export const setCellData = createAction<
-  (
-    active: Point.Point,
-    data: Types.CellBase
-  ) => {
-    payload: {
-      active: Point.Point;
-      data: Types.CellBase;
-    };
-  },
-  "SET_CELL_DATA"
->("SET_CELL_DATA", (active, data) => ({
-  payload: { active, data },
-}));
-export const setCellDimensions = createAction<
-  (
-    point: Point.Point,
-    dimensions: Types.Dimensions
-  ) => {
-    payload: { point: Point.Point; dimensions: Types.Dimensions };
-  },
-  "SET_CELL_DIMENSIONS"
->("SET_CELL_DIMENSIONS", (point, dimensions) => ({
-  payload: { point, dimensions },
-}));
-export const copy = createAction("COPY");
-export const cut = createAction("CUT");
-export const paste = createAction<
-  (data: string) => { payload: { data: string } },
-  "PASTE"
->("PASTE", (data) => ({ payload: { data } }));
-export const edit = createAction("EDIT");
-export const view = createAction("VIEW");
-export const clear = createAction("CLEAR");
-export const blur = createAction("BLUR");
-export const keyPress = createAction<
-  (event: React.KeyboardEvent) => { payload: { event: React.KeyboardEvent } },
-  "KEY_PRESS"
->("KEY_PRESS", (event) => ({ payload: { event } }));
-export const keyDown = createAction<
-  (event: React.KeyboardEvent) => { payload: { event: React.KeyboardEvent } },
-  "KEY_DOWN"
->("KEY_DOWN", (event) => ({ payload: { event } }));
-export const dragStart = createAction("DRAG_START");
-export const dragEnd = createAction("DRAG_END");
-export const commit = createAction<
-  (changes: Types.CommitChanges) => {
-    payload: { changes: Types.CommitChanges };
-  },
-  "COMMIT"
->("COMMIT", (changes) => ({ payload: { changes } }));
+export const SET_DATA = "SET_DATA";
+export const SELECT_ENTIRE_ROW = "SELECT_ENTIRE_ROW";
+export const SELECT_ENTIRE_COLUMN = "SELECT_ENTIRE_COLUMN";
+export const SELECT_ENTIRE_TABLE = "SELECT_ENTIRE_TABLE";
+export const SELECT = "SELECT";
+export const ACTIVATE = "ACTIVATE";
+export const SET_CELL_DATA = "SET_CELL_DATA";
+export const SET_CELL_DIMENSIONS = "SET_CELL_DIMENSIONS";
+export const COPY = "COPY";
+export const CUT = "CUT";
+export const PASTE = "PASTE";
+export const EDIT = "EDIT";
+export const VIEW = "VIEW";
+export const CLEAR = "CLEAR";
+export const BLUR = "BLUR";
+export const KEY_PRESS = "KEY_PRESS";
+export const KEY_DOWN = "KEY_DOWN";
+export const DRAG_START = "DRAG_START";
+export const DRAG_END = "DRAG_END";
+export const COMMIT = "COMMIT";
+
+export type BaseAction<T extends string> = {
+  type: T;
+};
+
+export type SetDataAction = BaseAction<typeof SET_DATA> & {
+  payload: {
+    data: Matrix<CellBase>;
+  };
+};
+
+export function setData(data: Matrix<CellBase>): SetDataAction {
+  return {
+    type: SET_DATA,
+    payload: { data },
+  };
+}
+
+export type SelectEntireRowAction = BaseAction<typeof SELECT_ENTIRE_ROW> & {
+  payload: {
+    row: number;
+    extend: boolean;
+  };
+};
+
+export function selectEntireRow(
+  row: number,
+  extend: boolean
+): SelectEntireRowAction {
+  return {
+    type: SELECT_ENTIRE_ROW,
+    payload: { row, extend },
+  };
+}
+
+export type SelectEntireColumnAction = BaseAction<
+  typeof SELECT_ENTIRE_COLUMN
+> & {
+  payload: {
+    column: number;
+    extend: boolean;
+  };
+};
+
+export function selectEntireColumn(
+  column: number,
+  extend: boolean
+): SelectEntireColumnAction {
+  return {
+    type: SELECT_ENTIRE_COLUMN,
+    payload: { column, extend },
+  };
+}
+
+export type SelectEntireTableAction = BaseAction<typeof SELECT_ENTIRE_TABLE>;
+
+export function selectEntireTable(): SelectEntireTableAction {
+  return { type: SELECT_ENTIRE_TABLE };
+}
+
+export type SelectAction = BaseAction<typeof SELECT> & {
+  payload: {
+    point: Point;
+  };
+};
+
+export function select(point: Point): SelectAction {
+  return {
+    type: SELECT,
+    payload: { point },
+  };
+}
+
+export type ActivateAction = BaseAction<typeof ACTIVATE> & {
+  payload: {
+    point: Point;
+  };
+};
+
+export function activate(point: Point): ActivateAction {
+  return {
+    type: ACTIVATE,
+    payload: { point },
+  };
+}
+
+export type SetCellDataAction = BaseAction<typeof SET_CELL_DATA> & {
+  payload: {
+    active: Point;
+    data: CellBase;
+  };
+};
+
+export function setCellData(active: Point, data: CellBase): SetCellDataAction {
+  return {
+    type: SET_CELL_DATA,
+    payload: { active, data },
+  };
+}
+
+export type SetCellDimensionsAction = BaseAction<typeof SET_CELL_DIMENSIONS> & {
+  payload: {
+    point: Point;
+    dimensions: Dimensions;
+  };
+};
+
+export function setCellDimensions(
+  point: Point,
+  dimensions: Dimensions
+): SetCellDimensionsAction {
+  return {
+    type: SET_CELL_DIMENSIONS,
+    payload: { point, dimensions },
+  };
+}
+
+export type PasteAction = BaseAction<typeof PASTE> & {
+  payload: {
+    data: string;
+  };
+};
+
+export function paste(data: string): PasteAction {
+  return {
+    type: PASTE,
+    payload: { data },
+  };
+}
+
+export type KeyPressAction = BaseAction<typeof KEY_PRESS> & {
+  payload: {
+    event: React.KeyboardEvent;
+  };
+};
+
+export function keyPress(event: React.KeyboardEvent): KeyPressAction {
+  return {
+    type: KEY_PRESS,
+    payload: { event },
+  };
+}
+
+export type KeyDownAction = BaseAction<typeof KEY_DOWN> & {
+  payload: {
+    event: React.KeyboardEvent;
+  };
+};
+
+export function keyDown(event: React.KeyboardEvent): KeyDownAction {
+  return {
+    type: KEY_DOWN,
+    payload: { event },
+  };
+}
+
+export type DragStartAction = BaseAction<typeof DRAG_START>;
+
+export function dragStart(): DragStartAction {
+  return { type: DRAG_START };
+}
+
+export type DragEndAction = BaseAction<typeof DRAG_END>;
+
+export function dragEnd(): DragEndAction {
+  return { type: DRAG_END };
+}
+
+export type CommitAction = BaseAction<typeof COMMIT> & {
+  payload: {
+    changes: CommitChanges;
+  };
+};
+
+export function commit(changes: CommitChanges): CommitAction {
+  return {
+    type: COMMIT,
+    payload: { changes },
+  };
+}
+
+export type CopyAction = BaseAction<typeof COPY>;
+
+export function copy(): CopyAction {
+  return { type: COPY };
+}
+
+export type CutAction = BaseAction<typeof CUT>;
+
+export function cut(): CutAction {
+  return { type: CUT };
+}
+
+export type EditAction = BaseAction<typeof EDIT>;
+
+export function edit(): EditAction {
+  return { type: EDIT };
+}
+
+export type ViewAction = BaseAction<typeof VIEW>;
+
+export function view(): ViewAction {
+  return { type: VIEW };
+}
+
+export type ClearAction = BaseAction<typeof CLEAR>;
+
+export function clear(): ClearAction {
+  return { type: CLEAR };
+}
+
+export type BlurAction = BaseAction<typeof BLUR>;
+
+export function blur(): BlurAction {
+  return { type: BLUR };
+}
+
+export type Action =
+  | SetDataAction
+  | SelectEntireRowAction
+  | SelectEntireColumnAction
+  | SelectEntireTableAction
+  | SelectAction
+  | ActivateAction
+  | SetCellDataAction
+  | SetCellDimensionsAction
+  | PasteAction
+  | KeyPressAction
+  | KeyDownAction
+  | DragStartAction
+  | DragEndAction
+  | CommitAction
+  | CopyAction
+  | CutAction
+  | EditAction
+  | ViewAction
+  | ClearAction
+  | BlurAction;
