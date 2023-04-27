@@ -38,6 +38,23 @@ const meta: Meta<Props<StringCell>> = {
       defaultValue: [],
     },
   },
+  decorators: [
+    (Story): React.ReactElement => (
+      <div
+        onKeyDown={(e) => {
+          if (
+            (e.target instanceof HTMLElement &&
+              e.target.classList.contains("Spreadsheet__active-cell")) ||
+            e.target instanceof HTMLInputElement
+          ) {
+            e.stopPropagation();
+          }
+        }}
+      >
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
