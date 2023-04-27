@@ -13,6 +13,7 @@ import {
 import { isActive } from "./util";
 import * as Actions from "./actions";
 import { Model, updateCellValue, createFormulaParser } from "./engine";
+import { autoFillRange } from "./auto-fill";
 
 export const INITIAL_STATE: Types.StoreState = {
   active: null,
@@ -27,6 +28,7 @@ export const INITIAL_STATE: Types.StoreState = {
   selected: new EmptySelection(),
   copied: null,
   lastCommit: null,
+  autoFilling: false,
 };
 
 export default function reducer(
@@ -332,20 +334,32 @@ export default function reducer(
       return { ...state, ...commit(changes) };
     }
 
+    case Actions.AUTO_FILL_START: {
+      return { ...state, autoFilling: true };
+    }
+
+    case Actions.AUTO_FILL_END: {
+      const { active, selected } = state;
+
+      const nextState = { ...state, autoFilling: false };
+
+      if (!active || !selected) {
+        return nextState;
+      }
+
+      const nextData = autoFill(nextState.model.data, selected, active);
+      return nextData === nextState.model.data
+        ? nextState
+        : {
+            ...nextState,
+            model: new Model(state.model.createFormulaParser, nextData),
+          };
+    }
+
     default:
       throw new Error("Unknown action");
   }
 }
-
-// const reducer = createReducer(INITIAL_STATE, (builder) => {
-//   builder.addMatcher(
-//     (action) =>
-//       action.type === Actions.copy.type || action.type === Actions.cut.type,
-//     (state, action) => {
-
-//     }
-//   );
-// });
 
 // // Shared reducers
 
@@ -678,4 +692,19 @@ export function modifyEntireColumnsSelection(
     Math.max(newSelectionData.end, 0)
   );
   return nextSelection.normalizeTo(data);
+}
+
+/** Autofill the given selected range in given data according to active */
+export function autoFill<T extends Types.CellBase>(
+  data: Matrix.Matrix<T>,
+  selected: Selection,
+  active: Point.Point
+): Matrix.Matrix<T> {
+  const activeCell = Matrix.get(active, data);
+  if (!activeCell) {
+    return data;
+  }
+  const range = selected?.toRange(data);
+  if (!range) return data;
+  return autoFillRange(data, range) as Matrix.Matrix<T>;
 }

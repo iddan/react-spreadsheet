@@ -124,10 +124,31 @@
   border: 2px var(--outline-color) solid;
 }
 
-.Spreadsheet__floating-rect--dragging {
+.Spreadsheet__floating-rect--selected.Spreadsheet__selected-single {
+  background: none;
   border: none;
+}
+
+.Spreadsheet__floating-rect--selected.Spreadsheet__floating-rect--auto-filling {
+  background: none;
+  border: 2px var(--readonly-text-color) dashed;
 }
 
 .Spreadsheet__floating-rect--copied {
   border: 2px var(--outline-color) dashed;
+}
+
+.Spreadsheet__auto-fill-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  transform: translate(50%, 50%);
+  width: 8px;
+  height: 8px;
+  background: var(--outline-color);
+  border-radius: 50%;
+  box-shadow: var(--elevation);
+  cursor: pointer;
+  z-index: 10;
+  pointer-events: auto;
 }
