@@ -191,5 +191,9 @@ export function getFormulaComputedValue(
   formulaParser: FormulaParser
 ): Value {
   const formula = Formula.extractFormula(value);
-  return Formula.evaluate(formula, point, formulaParser);
+  try {
+    return Formula.evaluate(formula, point, formulaParser);
+  } catch (e) {
+    return "#REF!";
+  }
 }
