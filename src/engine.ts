@@ -194,6 +194,6 @@ export function getFormulaComputedValue(
   try {
     return Formula.evaluate(formula, point, formulaParser);
   } catch (e) {
-    return '#REF!';
+    return "#REF!";
   }
 }
