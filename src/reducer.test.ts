@@ -3,6 +3,8 @@ import * as Types from "./types";
 import * as Actions from "./actions";
 import reducer, {
   INITIAL_STATE,
+  autoFill,
+  getNextPoint,
   hasKeyDownHandler,
   isActiveReadOnly,
 } from "./reducer";
@@ -251,5 +253,75 @@ describe("isActiveReadOnly", () => {
   ] as const;
   test.each(cases)("%s", (name, state, expected) => {
     expect(isActiveReadOnly(state)).toBe(expected);
+  });
+});
+
+describe("autoFill", () => {
+  const cases: Array<
+    [
+      name: string,
+      data: Matrix.Matrix<Types.CellBase>,
+      selected: PointRange.PointRange,
+      active: Point.Point,
+      expected: Matrix.Matrix<Types.CellBase>
+    ]
+  > = [
+    [
+      "increasing series",
+      [[{ value: 1 }], [{ value: 2 }]],
+      PointRange.create(Point.ORIGIN, { row: 2, column: 0 }),
+      Point.ORIGIN,
+      [[{ value: 1 }], [{ value: 2 }], [{ value: 3 }]],
+    ],
+    [
+      "decreasing series",
+      [[{ value: 2 }], [{ value: 1 }]],
+      PointRange.create(Point.ORIGIN, { row: 2, column: 0 }),
+      Point.ORIGIN,
+      [[{ value: 2 }], [{ value: 1 }], [{ value: 0 }]],
+    ],
+    [
+      "same value",
+      [[{ value: 1 }]],
+      PointRange.create(Point.ORIGIN, { row: 2, column: 0 }),
+      Point.ORIGIN,
+      [[{ value: 1 }], [{ value: 1 }], [{ value: 1 }]],
+    ],
+  ];
+  test.each(cases)("%s", (name, data, selected, active, expected) => {
+    expect(autoFill(data, selected, active)).toEqual(expected);
+  });
+});
+
+describe("getNextPoint", () => {
+  const cases: Array<
+    [
+      name: string,
+      active: Point.Point,
+      range: PointRange.PointRange,
+      expected: Point.Point | undefined
+    ]
+  > = [
+    [
+      "returns undefined for single range",
+      Point.ORIGIN,
+      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      undefined,
+    ],
+    [
+      "horizontal range",
+      Point.ORIGIN,
+      PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
+      { row: 0, column: 1 },
+    ],
+    [
+      "vertical range",
+      Point.ORIGIN,
+      PointRange.create(Point.ORIGIN, { row: 1, column: 0 }),
+      { row: 1, column: 0 },
+    ],
+  ];
+  test.each(cases)("%s", (name, active, range, expected) => {
+    expect(getNextPoint(active, range)).toEqual(expected);
   });
 });

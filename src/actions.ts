@@ -22,6 +22,8 @@ export const KEY_DOWN = "KEY_DOWN";
 export const DRAG_START = "DRAG_START";
 export const DRAG_END = "DRAG_END";
 export const COMMIT = "COMMIT";
+export const AUTO_FILL_START = "AUTO_FILL_START";
+export const AUTO_FILL_END = "AUTO_FILL_END";
 
 export type BaseAction<T extends string> = {
   type: T;
@@ -239,6 +241,18 @@ export function blur(): BlurAction {
   return { type: BLUR };
 }
 
+export type AutoFillStartAction = BaseAction<typeof AUTO_FILL_START>;
+
+export function autoFillStart(): AutoFillStartAction {
+  return { type: AUTO_FILL_START };
+}
+
+export type AutoFillEndAction = BaseAction<typeof AUTO_FILL_END>;
+
+export function autoFillEnd(): AutoFillEndAction {
+  return { type: AUTO_FILL_END };
+}
+
 export type Action =
   | SetDataAction
   | SelectEntireRowAction
@@ -259,4 +273,6 @@ export type Action =
   | EditAction
   | ViewAction
   | ClearAction
-  | BlurAction;
+  | BlurAction
+  | AutoFillStartAction
+  | AutoFillEndAction;

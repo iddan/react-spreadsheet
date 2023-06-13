@@ -61,6 +61,7 @@ const EXAMPLE_STATE: Types.StoreState = {
   selected: null,
   copied: PointMap.from([]),
   lastCommit: null,
+  autoFilling: false,
 };
 const EXAMPLE_STRING = "EXAMPLE_STRING";
 const EXAMPLE_CELL: Types.CellBase = {

@@ -22,6 +22,7 @@ export const INITIAL_STATE: Types.StoreState = {
   selected: null,
   copied: PointMap.from([]),
   lastCommit: null,
+  autoFilling: false,
 };
 
 export default function reducer(
@@ -276,18 +277,25 @@ export default function reducer(
       const { changes } = action.payload;
       return { ...state, ...commit(changes) };
     }
+    case Actions.AUTO_FILL_START: {
+      return { ...state, autoFilling: true };
+    }
+    case Actions.AUTO_FILL_END: {
+      const { active, selected } = state;
+
+      const nextState = { ...state, autoFilling: false };
+
+      if (!active || !PointRange.is(selected)) {
+        return nextState;
+      }
+
+      const nextData = autoFill(nextState.model.data, selected, active);
+      return nextData === nextState.model.data
+        ? nextState
+        : { ...nextState, model: new Model(nextData) };
+    }
   }
 }
-
-// const reducer = createReducer(INITIAL_STATE, (builder) => {
-//   builder.addMatcher(
-//     (action) =>
-//       action.type === Actions.copy.type || action.type === Actions.cut.type,
-//     (state, action) => {
-
-//     }
-//   );
-// });
 
 // // Shared reducers
 
@@ -490,4 +498,74 @@ export function isActiveReadOnly(state: Types.StoreState): boolean {
 export function getActive(state: Types.StoreState): Types.CellBase | null {
   const activeCell = state.active && Matrix.get(state.active, state.model.data);
   return activeCell || null;
+}
+
+/** Autofill the given selected range in given data according to active */
+export function autoFill<T extends Types.CellBase>(
+  data: Matrix.Matrix<T>,
+  selected: PointRange.PointRange,
+  active: Point.Point
+): Matrix.Matrix<T> {
+  const activeCell = Matrix.get(active, data);
+  if (!activeCell) {
+    return data;
+  }
+  const nextPoint = getNextPoint(active, selected);
+  if (!nextPoint) {
+    return data;
+  }
+  const nextCell = Matrix.get(nextPoint, data);
+
+  let nextData = data;
+  let value = Number(activeCell.value);
+  for (const point of PointRange.iterate(selected)) {
+    const currentCell = Matrix.get(point, nextData);
+    let updatedCell;
+    // Increasing series
+    if (Number(activeCell.value) + 1 === Number(nextCell?.value)) {
+      updatedCell = { ...currentCell, value } as T;
+
+      value++;
+    }
+    // Decreasing series
+    else if (Number(activeCell.value) - 1 === Number(nextCell?.value)) {
+      updatedCell = { ...currentCell, value } as T;
+      value--;
+    }
+    // Same value
+    else {
+      updatedCell = { ...currentCell, value } as T;
+    }
+    nextData = Matrix.set(point, updatedCell, nextData);
+  }
+  return nextData;
+}
+
+/** Get the next point after active in range */
+export function getNextPoint(
+  active: Point.Point,
+  range: PointRange.PointRange
+): Point.Point | undefined {
+  const { start, end } = range;
+  const isHorizontal = start.row === end.row;
+  const isVertical = start.column === end.column;
+  if ((isHorizontal && isVertical) || (!isHorizontal && !isVertical)) {
+    return undefined;
+  }
+  if (isHorizontal) {
+    const isForward = active.column < end.column;
+    const nextColumn = isForward ? active.column + 1 : active.column - 1;
+    const nextPoint = { row: active.row, column: nextColumn };
+    if (PointRange.has(range, nextPoint)) {
+      return nextPoint;
+    }
+  }
+  if (isVertical) {
+    const isForward = active.row < end.row;
+    const nextRow = isForward ? active.row + 1 : active.row - 1;
+    const nextPoint = { row: nextRow, column: active.column };
+    if (PointRange.has(range, nextPoint)) {
+      return nextPoint;
+    }
+  }
 }

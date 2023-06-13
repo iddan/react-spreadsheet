@@ -16,20 +16,25 @@ const ActiveCell: React.FC<Props> = (props) => {
   const rootRef = React.useRef<HTMLDivElement>(null);
 
   const dispatch = useDispatch();
+
   const setCellData = React.useCallback(
     (active: Point.Point, data: Types.CellBase) =>
       dispatch(Actions.setCellData(active, data)),
     [dispatch]
   );
+
   const edit = React.useCallback(() => dispatch(Actions.edit()), [dispatch]);
+
   const commit = React.useCallback(
     (changes: Types.CommitChanges<Types.CellBase>) =>
       dispatch(Actions.commit(changes)),
     [dispatch]
   );
+
   const view = React.useCallback(() => {
     dispatch(Actions.view());
   }, [dispatch]);
+
   const active = useSelector((state) => state.active);
   const mode = useSelector((state) => state.mode);
   const cell = useSelector((state) =>
