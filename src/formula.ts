@@ -4,7 +4,7 @@ import FormulaParser, {
   FormulaError,
   Value,
 } from "fast-formula-parser";
-import * as pointSet from "./point-set";
+import { PointSet } from "./point-set";
 import * as pointRange from "./point-range";
 import { Point } from "./point";
 import * as matrix from "./matrix";
@@ -69,12 +69,12 @@ export function getReferences(
   formula: string,
   point: Point,
   data: matrix.Matrix<CellBase>
-): pointSet.PointSet {
+): PointSet {
   const { rows, columns } = matrix.getSize(data);
   try {
     const dependencies = depParser.parse(formula, convertPointToCellRef(point));
 
-    const references = pointSet.from(
+    const references = PointSet.from(
       dependencies.flatMap((reference) => {
         const isRange = "from" in reference;
         if (isRange) {
@@ -102,7 +102,7 @@ export function getReferences(
   } catch (error) {
     console.error(error);
     if (error instanceof FormulaError) {
-      return pointSet.from([]);
+      return PointSet.from([]);
     } else {
       throw error;
     }

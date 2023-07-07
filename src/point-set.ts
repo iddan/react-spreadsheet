@@ -3,91 +3,70 @@
  */
 
 import * as Point from "./point";
-import * as PointMap from "./point-map";
+import { PointMap } from "./point-map";
 import * as PointRange from "./point-range";
 
-export type PointSet = PointMap.PointMap<boolean>;
+export class PointSet {
+  private constructor(
+    private pointMap: PointMap<boolean> = PointMap.from([])
+  ) {}
 
-/** Returns a boolean asserting whether an point is present with the given value in the Set object or not */
-export const has = (set: PointSet, point: Point.Point): boolean =>
-  PointMap.has(point, set);
-
-/** Returns the number of points in a PointSet object */
-export const size = (set: PointSet): number => PointMap.size(set);
-
-/** Creates a new set with all points that pass the test implemented by the provided function */
-export function filter(
-  func: (point: Point.Point) => boolean,
-  set: PointSet
-): PointSet {
-  return PointMap.filter((_, point) => func(point), set);
-}
-
-const minKey = (object: Record<number, any>): number => {
-  /* @ts-ignore*/
-  return Math.min(...Object.keys(object));
-};
-
-/** Returns the point on the minimal row in the minimal column in the set */
-export function min(set: PointSet): Point.Point {
-  const row = minKey(set);
-  return { row, column: minKey(set[row]) };
-}
-
-const maxKey = (object: Record<number, any>): number =>
-  // @ts-ignore
-  Math.max(...Object.keys(object));
-
-/** Returns the point on the maximal row in the maximal column in the set */
-export function max(set: PointSet): Point.Point {
-  const row = maxKey(set);
-  return { row, column: maxKey(set[row]) };
-}
-
-/** Creates a new PointSet instance from an array-like or iterable object */
-export function from(points: Point.Point[]): PointSet {
-  return points.reduce(
-    (acc, point) => PointMap.set<boolean>(point, true, acc),
-    PointMap.from<boolean>([])
-  );
-}
-
-/** Transform a point set to a range */
-export function toRange(set: PointSet): PointRange.PointRange {
-  const start = min(set);
-  const end = max(set);
-  return PointRange.create(start, end);
-}
-
-/** Add the given point to given set */
-export function add(point: Point.Point, set: PointSet): PointSet {
-  return PointMap.set<boolean>(point, true, set);
-}
-
-/** Remove the given point to given set */
-export function remove(point: Point.Point, set: PointSet): PointSet {
-  return PointMap.unset(point, set);
-}
-
-/** Create an array from given set */
-export function toArray(set: PointSet): Point.Point[] {
-  return PointMap.reduce(
-    (acc, value, point) => [...acc, point],
-    set,
-    [] as Point.Point[]
-  );
-}
-
-export function subtract(toSubtract: PointSet, set: PointSet): PointSet {
-  let newSet = set;
-  for (const point of toArray(toSubtract)) {
-    newSet = remove(point, newSet);
+  /** Creates a new PointSet instance from an array-like or iterable object */
+  static from(points: Point.Point[]): PointSet {
+    return new PointSet(PointMap.from(points.map((point) => [point, true])));
   }
-  return newSet;
-}
 
-export function* entries(set: PointSet): Generator<Point.Point> {
-  for (const [point] of PointMap.entries(set)) {
-    yield point;
+  /** Returns a boolean asserting whether an point is present with the given value in the Set object or not */
+  has(point: Point.Point): boolean {
+    return this.pointMap.has(point);
+  }
+
+  /** Returns the number of points in a PointSet object */
+  size(): number {
+    return this.pointMap.size();
+  }
+
+  /** Returns the point on the minimal row in the minimal column in the set */
+  min(): Point.Point {
+    return this.pointMap.min();
+  }
+
+  /** Returns the point on the maximal row in the maximal column in the set */
+  max(): Point.Point {
+    return this.pointMap.max();
+  }
+
+  /** Transform a point set to a range */
+  toRange(): PointRange.PointRange {
+    const start = this.min();
+    const end = this.max();
+    return PointRange.create(start, end);
+  }
+
+  /** Add the given point to given set */
+  add(point: Point.Point): PointSet {
+    return new PointSet(this.pointMap.set(point, true));
+  }
+
+  /** Remove the given point to given set */
+  remove(point: Point.Point): PointSet {
+    return new PointSet(this.pointMap.unset(point));
+  }
+
+  subtract(toSubtract: PointSet): PointSet {
+    let newSet = this as PointSet;
+    for (const point of toSubtract.toArray()) {
+      newSet = newSet.remove(point);
+    }
+    return newSet;
+  }
+
+  /** Create an array from given set */
+  toArray(): Point.Point[] {
+    return Array.from(this.values());
+  }
+
+  *values(): Generator<Point.Point> {
+    yield* this.pointMap.keys();
   }
 }

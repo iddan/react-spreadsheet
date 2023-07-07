@@ -3,8 +3,8 @@ import * as Matrix from "./matrix";
 import * as Point from "./point";
 import * as PointRange from "./point-range";
 import * as Selection from "./selection";
-import * as PointMap from "./point-map";
-import * as PointSet from "./point-set";
+import { PointMap } from "./point-map";
+import { PointSet } from "./point-set";
 
 export { createEmpty as createEmptyMatrix } from "./matrix";
 
@@ -159,10 +159,8 @@ export function calculateSpreadsheetSize(
 }
 
 /** Transform given point map to a point set */
-export function convertPointMapToPointSet(
-  map: PointMap.PointMap<unknown>
-): PointSet.PointSet {
-  return PointMap.map(() => true, map);
+export function convertPointMapToPointSet(map: PointMap<unknown>): PointSet {
+  return PointSet.from(Array.from(map.keys()));
 }
 
 /** Get the range of copied cells. If none are copied return null */
@@ -170,11 +168,11 @@ export function getCopiedRange(
   copied: Types.StoreState["copied"],
   hasPasted: boolean
 ): PointRange.PointRange | null {
-  if (hasPasted || PointMap.isEmpty(copied)) {
+  if (hasPasted || copied.isEmpty()) {
     return null;
   }
   const set = convertPointMapToPointSet(copied);
-  return PointSet.toRange(set);
+  return set.toRange();
 }
 
 /** Should spreadsheet handle clipboard event */

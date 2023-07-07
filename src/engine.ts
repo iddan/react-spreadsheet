@@ -4,7 +4,7 @@ import * as matrix from "./matrix";
 import * as Formula from "./formula";
 import { Point } from "./point";
 import { PointGraph } from "./point-graph";
-import * as pointSet from "./point-set";
+import { PointSet } from "./point-set";
 import { CellBase } from "./types";
 
 export class Model<Cell extends CellBase> {
@@ -68,17 +68,17 @@ function evaluateCell<Cell extends CellBase>(
   cell: Cell
 ): matrix.Matrix<Cell> {
   if (referenceGraph.hasCircularDependency(point)) {
-    let visited = pointSet.from([point]);
+    let visited = PointSet.from([point]);
     let nextEvaluatedData = matrix.set(
       point,
       { ...cell, value: "#REF!" },
       prevEvaluatedData
     );
     for (const referrer of referenceGraph.getBackwardsRecursive(point)) {
-      if (pointSet.has(visited, referrer)) {
+      if (visited.has(referrer)) {
         break;
       }
-      visited = pointSet.add(referrer, visited);
+      visited = visited.add(referrer);
       const referrerCell = matrix.get(referrer, data);
       if (!referrerCell) {
         continue;
@@ -130,7 +130,7 @@ function evaluateCell<Cell extends CellBase>(
 export function createReferenceGraph(
   data: matrix.Matrix<CellBase>
 ): PointGraph {
-  const entries: Array<[Point, pointSet.PointSet]> = [];
+  const entries: Array<[Point, PointSet]> = [];
   for (const [point, cell] of matrix.entries(data)) {
     if (cell && Formula.isFormulaValue(cell.value)) {
       const references = getReferences(

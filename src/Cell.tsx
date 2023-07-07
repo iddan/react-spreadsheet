@@ -1,6 +1,5 @@
 import * as React from "react";
 import classnames from "classnames";
-import * as PointMap from "./point-map";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
@@ -150,9 +149,7 @@ export const enhance = (
       Selection.hasPoint(state.selected, state.model.data, { row, column })
     );
     const dragging = useSelector((state) => state.dragging);
-    const copied = useSelector((state) =>
-      PointMap.has({ row, column }, state.copied)
-    );
+    const copied = useSelector((state) => state.copied.has({ row, column }));
 
     return (
       <CellComponent

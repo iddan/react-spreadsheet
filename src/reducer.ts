@@ -1,5 +1,4 @@
-import * as PointSet from "./point-set";
-import * as PointMap from "./point-map";
+import { PointMap } from "./point-map";
 import * as PointRange from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
@@ -144,7 +143,7 @@ export default function reducer(
         ...state,
         copied: selectedPoints.reduce((acc, point) => {
           const cell = Matrix.get(point, state.model.data);
-          return cell === undefined ? acc : PointMap.set(point, cell, acc);
+          return cell === undefined ? acc : acc.set(point, cell);
         }, PointMap.from<Types.CellBase>([])),
         cut: action.type === Actions.CUT,
         hasPasted: false,
@@ -160,12 +159,7 @@ export default function reducer(
       const copiedMatrix = Matrix.split(text, (value) => ({ value }));
       const copied = PointMap.fromMatrix<any>(copiedMatrix);
 
-      const minPoint = PointSet.min(copied);
-
-      type Accumulator = {
-        data: Types.StoreState["model"]["data"];
-        commit: Types.StoreState["lastCommit"];
-      };
+      const minPoint = copied.min();
 
       const copiedSize = Matrix.getSize(copiedMatrix);
       const requiredSize: Matrix.Size = {
@@ -174,49 +168,48 @@ export default function reducer(
       };
       const paddedData = Matrix.pad(state.model.data, requiredSize);
 
-      const { data, commit } = PointMap.reduce<Accumulator, Types.CellBase>(
-        (acc, value, point) => {
-          let commit = acc.commit || [];
-          const nextPoint: Point.Point = {
-            row: point.row - minPoint.row + active.row,
-            column: point.column - minPoint.column + active.column,
-          };
+      let acc: {
+        data: Types.StoreState["model"]["data"];
+        commit: Types.StoreState["lastCommit"];
+      } = { data: paddedData, commit: [] };
+      for (const [point, value] of copied.entries()) {
+        let commit = acc.commit || [];
+        const nextPoint: Point.Point = {
+          row: point.row - minPoint.row + active.row,
+          column: point.column - minPoint.column + active.column,
+        };
 
-          const nextData = state.cut ? Matrix.unset(point, acc.data) : acc.data;
+        const nextData = state.cut ? Matrix.unset(point, acc.data) : acc.data;
 
-          if (state.cut) {
-            commit = [...commit, { prevCell: value, nextCell: null }];
-          }
+        if (state.cut) {
+          commit = [...commit, { prevCell: value, nextCell: null }];
+        }
 
-          if (!Matrix.has(nextPoint, paddedData)) {
-            return { data: nextData, commit };
-          }
+        if (!Matrix.has(nextPoint, paddedData)) {
+          acc = { data: nextData, commit };
+        }
 
-          const currentValue = Matrix.get(nextPoint, nextData) || null;
+        const currentValue = Matrix.get(nextPoint, nextData) || null;
 
-          commit = [
-            ...commit,
-            {
-              prevCell: currentValue,
-              nextCell: value,
-            },
-          ];
+        commit = [
+          ...commit,
+          {
+            prevCell: currentValue,
+            nextCell: value,
+          },
+        ];
 
-          return {
-            data: Matrix.set(
-              nextPoint,
-              { ...currentValue, ...value },
-              nextData
-            ),
-            commit,
-          };
-        },
-        copied,
-        { data: paddedData, commit: [] }
-      );
+        acc.data = Matrix.set(
+          nextPoint,
+          { ...currentValue, ...value },
+          nextData
+        );
+        acc.commit = commit;
+      }
+
       return {
         ...state,
-        model: new Model(data),
+        model: new Model(acc.data),
         selected: PointRange.create(active, {
           row: active.row + copiedSize.rows - 1,
           column: active.column + copiedSize.columns - 1,
@@ -224,7 +217,7 @@ export default function reducer(
         cut: false,
         hasPasted: true,
         mode: "view",
-        lastCommit: commit,
+        lastCommit: acc.commit,
       };
     }
 

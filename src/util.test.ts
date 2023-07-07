@@ -5,7 +5,7 @@
 import { Model } from "./engine";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
-import * as PointMap from "./point-map";
+import { PointMap } from "./point-map";
 import * as PointRange from "./point-range";
 import * as Types from "./types";
 import * as util from "./util";

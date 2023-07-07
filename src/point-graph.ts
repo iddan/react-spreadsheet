@@ -1,58 +1,58 @@
 import { Point } from "./point";
-import * as pointMap from "./point-map";
-import * as pointSet from "./point-set";
+import { PointMap } from "./point-map";
+import { PointSet } from "./point-set";
 
 export class PointGraph {
   private constructor(
-    private forward: pointMap.PointMap<pointSet.PointSet>,
-    private backward: pointMap.PointMap<pointSet.PointSet>
+    private forward: PointMap<PointSet>,
+    private backward: PointMap<PointSet>
   ) {}
 
-  static from(pairs: Array<[Point, pointSet.PointSet]>): PointGraph {
-    let backward = pointMap.from<pointSet.PointSet>([]);
+  static from(pairs: Array<[Point, PointSet]>): PointGraph {
+    let backward = PointMap.from<PointSet>([]);
     for (const [point, points] of pairs) {
-      const set = pointMap.get(point, backward) || pointSet.from([]);
-      for (const p of pointSet.toArray(points)) {
-        backward = pointMap.set(p, pointSet.add(point, set), backward);
+      const set = backward.get(point) || PointSet.from([]);
+      for (const p of points.toArray()) {
+        backward = backward.set(p, set.add(point));
       }
     }
-    return new PointGraph(pointMap.from(pairs), backward);
+    return new PointGraph(PointMap.from(pairs), backward);
   }
 
-  set(point: Point, points: pointSet.PointSet): PointGraph {
+  set(point: Point, points: PointSet): PointGraph {
     const newForward =
-      pointSet.size(points) === 0
-        ? pointMap.unset(point, this.forward)
-        : pointMap.set(point, points, this.forward);
+      points.size() === 0
+        ? this.forward.unset(point)
+        : this.forward.set(point, points);
 
-    const existing = pointMap.get(point, this.forward);
-    const toAdd = existing ? pointSet.subtract(existing, points) : points;
+    const existing = this.forward.get(point);
+    const toAdd = existing ? points.subtract(existing) : points;
 
     let newBackward = this.backward;
-    for (const p of pointSet.toArray(toAdd)) {
-      const set = pointMap.get(p, newBackward) || pointSet.from([]);
-      newBackward = pointMap.set(p, pointSet.add(point, set), newBackward);
+    for (const p of toAdd.values()) {
+      const set = newBackward.get(p) || PointSet.from([]);
+      newBackward = newBackward.set(p, set.add(point));
     }
     if (existing) {
-      const toRemove = pointSet.subtract(points, existing);
-      for (const p of pointSet.toArray(toRemove)) {
-        const set = pointMap.get(p, newBackward);
+      const toRemove = existing.subtract(points);
+      for (const p of toRemove.values()) {
+        const set = newBackward.get(p);
         if (!set) {
           continue;
         }
-        const newSet = pointSet.remove(point, set);
-        if (pointSet.size(newSet) === 0) {
-          newBackward = pointMap.unset(p, newBackward);
+        const newSet = set.remove(point);
+        if (newSet.size() === 0) {
+          newBackward = newBackward.unset(p);
         } else {
-          newBackward = pointMap.set(p, newSet, newBackward);
+          newBackward = newBackward.set(p, newSet);
         }
       }
     }
     return new PointGraph(newForward, newBackward);
   }
 
-  getBackwards(point: Point): pointSet.PointSet {
-    return pointMap.get(point, this.backward) || pointSet.from([]);
+  getBackwards(point: Point): PointSet {
+    return this.backward.get(point) || PointSet.from([]);
   }
 
   *getBackwardsRecursive(point: Point): Generator<Point> {
@@ -67,7 +67,7 @@ export class PointGraph {
       }
 
       // Get the set of points that depend on the current point
-      const backwardDependencies = pointMap.get(current, this.backward);
+      const backwardDependencies = this.backward.get(current);
 
       // If there are no dependents, skip to the next point
       if (!backwardDependencies) {
@@ -75,7 +75,7 @@ export class PointGraph {
       }
 
       // Otherwise, add the dependents to the stack if they have not yet been visited
-      for (const dependent of pointSet.entries(backwardDependencies)) {
+      for (const dependent of backwardDependencies.values()) {
         yield dependent;
         stack.push(dependent);
       }
@@ -83,7 +83,7 @@ export class PointGraph {
   }
 
   hasCircularDependency(startPoint: Point): boolean {
-    let visited = pointSet.from([]);
+    let visited = PointSet.from([]);
     const stack: Point[] = [startPoint];
 
     while (stack.length > 0) {
@@ -92,19 +92,19 @@ export class PointGraph {
         continue;
       }
 
-      if (pointSet.has(visited, current)) {
+      if (visited.has(current)) {
         return true;
       }
 
-      visited = pointSet.add(current, visited);
+      visited = visited.add(current);
 
-      const dependents = pointMap.get(current, this.forward);
+      const dependents = this.forward.get(current);
 
       if (!dependents) {
         continue;
       }
 
-      for (const dependent of pointSet.entries(dependents)) {
+      for (const dependent of dependents.values()) {
         stack.push(dependent);
       }
     }
@@ -114,16 +114,16 @@ export class PointGraph {
 
   *traverseBFS(): Generator<Point> {
     // Create a Set to store the points that have been visited
-    let visited = pointSet.from([]);
+    let visited = PointSet.from([]);
 
     // Create a queue to store the points that still need to be visited
     const queue: Point[] = [];
 
     // Iterate over all the points in the forward map and add the ones with no dependencies to the queue
-    for (const [point, dependencies] of pointMap.entries(this.forward)) {
-      if (pointSet.size(dependencies) === 0 && !pointSet.has(visited, point)) {
+    for (const [point, dependencies] of this.forward.entries()) {
+      if (dependencies.size() === 0 && !visited.has(point)) {
         queue.push(point);
-        visited = pointSet.add(point, visited);
+        visited = visited.add(point);
       }
     }
 
@@ -136,7 +136,7 @@ export class PointGraph {
       yield point;
 
       // Get the set of points that depend on the current point
-      const dependents = pointMap.get(point, this.forward);
+      const dependents = this.forward.get(point);
 
       // If there are no dependents, skip to the next iteration
       if (!dependents) {
@@ -144,10 +144,10 @@ export class PointGraph {
       }
 
       // Otherwise, add the dependents to the queue if they have not yet been visited
-      for (const dependent of pointSet.entries(dependents)) {
-        if (!pointSet.has(visited, dependent)) {
+      for (const dependent of dependents.values()) {
+        if (!visited.has(dependent)) {
           queue.push(dependent);
-          visited = pointSet.add(dependent, visited);
+          visited = visited.add(dependent);
         }
       }
     }

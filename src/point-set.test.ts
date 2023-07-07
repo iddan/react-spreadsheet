@@ -1,65 +1,52 @@
-import * as PointSet from "./point-set";
+import { PointSet } from "./point-set";
 import * as PointRange from "./point-range";
 import * as Point from "./point";
 
 const MIN_POINT = Point.ORIGIN;
 const MAX_POINT: Point.Point = { row: 2, column: 2 };
 
-const EXAMPLE_SET = PointSet.from([
+const EXAMPLE_POINTS = [
   MIN_POINT,
   { row: 0, column: 1 },
   { row: 1, column: 1 },
   MAX_POINT,
-]);
+];
+
+const EXAMPLE_SET = PointSet.from(EXAMPLE_POINTS);
 
 describe("PointSet.from()", () => {
-  test("Creates a new PointSet instance from an array-like or iterable object", () => {
-    expect(EXAMPLE_SET).toEqual({
-      0: { 0: true, 1: true },
-      1: { 1: true },
-      2: { 2: true },
-    });
+  test("creates same set for same points", () => {
+    expect(EXAMPLE_SET).toEqual(PointSet.from(EXAMPLE_POINTS));
   });
 });
 
 describe("PointSet.has()", () => {
   test("Returns a boolean asserting whether an point is present with the given value in the Set object or not", () => {
-    expect(PointSet.has(EXAMPLE_SET, MAX_POINT)).toBe(true);
+    expect(EXAMPLE_SET.has(MAX_POINT)).toBe(true);
   });
 });
 
 describe("PointSet.size()", () => {
   test("Returns the number of points in a PointSet object", () => {
-    expect(PointSet.size(EXAMPLE_SET)).toBe(4);
-  });
-});
-
-describe("PointSet.filter()", () => {
-  test("Creates a new set with all points that pass the test implemented by the provided function", () => {
-    expect(
-      PointSet.filter(({ row, column }) => row > 0 && column > 0, EXAMPLE_SET)
-    ).toEqual({
-      1: { 1: true },
-      2: { 2: true },
-    });
+    expect(EXAMPLE_SET.size()).toBe(4);
   });
 });
 
 describe("PointSet.min()", () => {
   test("Returns the point on the minimal row in the minimal column in the set", () => {
-    expect(PointSet.min(EXAMPLE_SET)).toEqual(MIN_POINT);
+    expect(EXAMPLE_SET.min()).toEqual(MIN_POINT);
   });
 });
 
 describe("PointSet.max()", () => {
   test("Returns the point on the maximal row in the maximal column in the set", () => {
-    expect(PointSet.max(EXAMPLE_SET)).toEqual(MAX_POINT);
+    expect(EXAMPLE_SET.max()).toEqual(MAX_POINT);
   });
 });
 
 describe("PointSet.toRange", () => {
   test("Transforms given set to range", () => {
-    expect(PointSet.toRange(EXAMPLE_SET)).toEqual(
+    expect(EXAMPLE_SET.toRange()).toEqual(
       PointRange.create(MIN_POINT, MAX_POINT)
     );
   });
@@ -68,20 +55,19 @@ describe("PointSet.toRange", () => {
 describe("PointSet.subtract", () => {
   test("Subtracts given set from the set", () => {
     expect(
-      PointSet.subtract(
+      EXAMPLE_SET.subtract(
         PointSet.from([
           { row: 0, column: 1 },
           { row: 1, column: 1 },
-        ]),
-        EXAMPLE_SET
+        ])
       )
     ).toEqual(PointSet.from([MIN_POINT, MAX_POINT]));
   });
 });
 
-describe("PointSet.entries", () => {
+describe("PointSet.values", () => {
   test("Returns an iterator of points in the set", () => {
-    expect(Array.from(PointSet.entries(EXAMPLE_SET))).toEqual([
+    expect(Array.from(EXAMPLE_SET.values())).toEqual([
       MIN_POINT,
       { row: 0, column: 1 },
       { row: 1, column: 1 },
