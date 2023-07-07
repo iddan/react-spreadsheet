@@ -1,19 +1,19 @@
 import * as pointMap from "./point-map";
 import * as pointSet from "./point-set";
-import * as pointGraph from "./point-graph";
+import { PointGraph } from "./point-graph";
 
-const EMPTY = pointGraph.from([]);
+const EMPTY = PointGraph.from([]);
 
 describe("PointGraph.from", () => {
   test("empty", () => {
-    const graph = pointGraph.from([]);
+    const graph = PointGraph.from([]);
     expect(graph).toEqual({
       backward: pointMap.from([]),
       forward: pointMap.from([]),
     });
   });
   test("single edge", () => {
-    const graph = pointGraph.from([
+    const graph = PointGraph.from([
       [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 1 }])],
     ]);
     expect(graph).toEqual({
@@ -26,7 +26,7 @@ describe("PointGraph.from", () => {
     });
   });
   test("two edges", () => {
-    const graph = pointGraph.from([
+    const graph = PointGraph.from([
       [
         { row: 0, column: 0 },
         pointSet.from([
@@ -56,29 +56,24 @@ describe("PointGraph.from", () => {
 describe("PointGraph.set", () => {
   test("add single edge to empty", () => {
     expect(
-      pointGraph.set(
-        { row: 0, column: 0 },
-        pointSet.from([{ row: 0, column: 1 }]),
-        EMPTY
-      )
+      EMPTY.set({ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 1 }]))
     ).toEqual(
-      pointGraph.from([
+      PointGraph.from([
         [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 1 }])],
       ])
     );
   });
   test("add two edges to empty", () => {
     expect(
-      pointGraph.set(
+      EMPTY.set(
         { row: 0, column: 0 },
         pointSet.from([
           { row: 0, column: 1 },
           { row: 0, column: 2 },
-        ]),
-        EMPTY
+        ])
       )
     ).toEqual(
-      pointGraph.from([
+      PointGraph.from([
         [
           { row: 0, column: 0 },
           pointSet.from([
@@ -90,46 +85,40 @@ describe("PointGraph.set", () => {
     );
   });
   test("remove single edge", () => {
-    const graph = pointGraph.from([
+    const graph = PointGraph.from([
       [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 1 }])],
     ]);
-    expect(
-      pointGraph.set({ row: 0, column: 0 }, pointSet.from([]), graph)
-    ).toEqual(pointGraph.from([]));
+    expect(graph.set({ row: 0, column: 0 }, pointSet.from([]))).toEqual(
+      PointGraph.from([])
+    );
   });
   test("remove and add single edges", () => {
-    const graph = pointGraph.from([
+    const graph = PointGraph.from([
       [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 1 }])],
     ]);
     expect(
-      pointGraph.set(
-        { row: 0, column: 0 },
-        pointSet.from([{ row: 0, column: 2 }]),
-        graph
-      )
+      graph.set({ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 2 }]))
     ).toEqual(
-      pointGraph.from([
+      PointGraph.from([
         [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 2 }])],
       ])
     );
   });
   test("add and remove multiple edges", () => {
     let graph = EMPTY;
-    graph = pointGraph.set(
+    graph = graph.set(
       { row: 0, column: 0 },
       pointSet.from([
         { row: 0, column: 1 },
         { row: 0, column: 2 },
-      ]),
-      graph
+      ])
     );
-    graph = pointGraph.set(
+    graph = graph.set(
       { row: 0, column: 1 },
-      pointSet.from([{ row: 0, column: 2 }]),
-      graph
+      pointSet.from([{ row: 0, column: 2 }])
     );
     expect(graph).toEqual(
-      pointGraph.from([
+      PointGraph.from([
         [
           { row: 0, column: 0 },
           pointSet.from([
@@ -140,54 +129,50 @@ describe("PointGraph.set", () => {
         [{ row: 0, column: 1 }, pointSet.from([{ row: 0, column: 2 }])],
       ])
     );
-    graph = pointGraph.set({ row: 0, column: 0 }, pointSet.from([]), graph);
+    graph = graph.set({ row: 0, column: 0 }, pointSet.from([]));
     expect(graph).toEqual(
-      pointGraph.from([
+      PointGraph.from([
         [{ row: 0, column: 1 }, pointSet.from([{ row: 0, column: 2 }])],
       ])
     );
   });
   test("add existing edge", () => {
-    const graph = pointGraph.from([
+    const graph = PointGraph.from([
       [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 1 }])],
     ]);
     expect(
-      pointGraph.set(
-        { row: 0, column: 0 },
-        pointSet.from([{ row: 0, column: 1 }]),
-        graph
-      )
+      graph.set({ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 1 }]))
     ).toEqual(graph);
   });
 });
 
 describe("PointGraph.getBackwards", () => {
   test("backwards get single edge", () => {
-    const graph = pointGraph.from([
+    const graph = PointGraph.from([
       [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 1 }])],
     ]);
-    expect(pointGraph.getBackwards({ row: 0, column: 1 }, graph)).toEqual(
+    expect(graph.getBackwards({ row: 0, column: 1 })).toEqual(
       pointSet.from([{ row: 0, column: 0 }])
     );
   });
   test("get backwards from non-existent point", () => {
-    const graph = pointGraph.from([
+    const graph = PointGraph.from([
       [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 1 }])],
     ]);
-    expect(pointGraph.getBackwards({ row: 0, column: 2 }, graph)).toEqual(
+    expect(graph.getBackwards({ row: 0, column: 2 })).toEqual(
       pointSet.from([])
     );
   });
   test("get backwards from point with no incoming edges", () => {
-    const graph = pointGraph.from([
+    const graph = PointGraph.from([
       [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 1 }])],
     ]);
-    expect(pointGraph.getBackwards({ row: 0, column: 0 }, graph)).toEqual(
+    expect(graph.getBackwards({ row: 0, column: 0 })).toEqual(
       pointSet.from([])
     );
   });
   test("get backwards from point with multiple incoming edges", () => {
-    const graph = pointGraph.from([
+    const graph = PointGraph.from([
       [
         { row: 0, column: 0 },
         pointSet.from([
@@ -203,7 +188,7 @@ describe("PointGraph.getBackwards", () => {
         ]),
       ],
     ]);
-    expect(pointGraph.getBackwards({ row: 0, column: 1 }, graph)).toEqual(
+    expect(graph.getBackwards({ row: 0, column: 1 })).toEqual(
       pointSet.from([
         { row: 0, column: 0 },
         { row: 1, column: 0 },
@@ -214,55 +199,45 @@ describe("PointGraph.getBackwards", () => {
 
 describe("PointGraph.traverseBFS", () => {
   test("traverseBFS with empty graph", () => {
-    const graph = pointGraph.from([]);
-    expect(Array.from(pointGraph.traverseBFS(graph))).toEqual([]);
+    const graph = PointGraph.from([]);
+    expect(Array.from(graph.traverseBFS())).toEqual([]);
   });
   test("traverseBFS with single point", () => {
-    const graph = pointGraph.from([[{ row: 0, column: 0 }, pointSet.from([])]]);
-    expect(Array.from(pointGraph.traverseBFS(graph))).toEqual([
-      { row: 0, column: 0 },
-    ]);
+    const graph = PointGraph.from([[{ row: 0, column: 0 }, pointSet.from([])]]);
+    expect(Array.from(graph.traverseBFS())).toEqual([{ row: 0, column: 0 }]);
   });
 });
 
 test("no circular dependency", () => {
-  const graph = pointGraph.from([
+  const graph = PointGraph.from([
     [{ row: 0, column: 1 }, pointSet.from([{ row: 0, column: 0 }])],
     [{ row: 0, column: 2 }, pointSet.from([{ row: 0, column: 1 }])],
     [{ row: 0, column: 3 }, pointSet.from([{ row: 0, column: 2 }])],
     [{ row: 0, column: 4 }, pointSet.from([{ row: 0, column: 3 }])],
   ]);
-  expect(pointGraph.hasCircularDependency(graph, { row: 0, column: 1 })).toBe(
-    false
-  );
+  expect(graph.hasCircularDependency({ row: 0, column: 1 })).toBe(false);
 });
 
 test("simple circular dependency", () => {
-  const graph = pointGraph.from([
+  const graph = PointGraph.from([
     [{ row: 0, column: 1 }, pointSet.from([{ row: 0, column: 0 }])],
     [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 1 }])],
   ]);
-  expect(pointGraph.hasCircularDependency(graph, { row: 0, column: 0 })).toBe(
-    true
-  );
+  expect(graph.hasCircularDependency({ row: 0, column: 0 })).toBe(true);
 });
 
 test("multiple circular dependencies", () => {
-  const graph = pointGraph.from([
+  const graph = PointGraph.from([
     [{ row: 0, column: 1 }, pointSet.from([{ row: 0, column: 0 }])],
     [{ row: 0, column: 2 }, pointSet.from([{ row: 0, column: 1 }])],
     [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 2 }])],
   ]);
-  expect(pointGraph.hasCircularDependency(graph, { row: 0, column: 0 })).toBe(
-    true
-  );
+  expect(graph.hasCircularDependency({ row: 0, column: 0 })).toBe(true);
 });
 
 test("self-referential circular dependency", () => {
-  const graph = pointGraph.from([
+  const graph = PointGraph.from([
     [{ row: 0, column: 0 }, pointSet.from([{ row: 0, column: 0 }])],
   ]);
-  expect(pointGraph.hasCircularDependency(graph, { row: 0, column: 0 })).toBe(
-    true
-  );
+  expect(graph.hasCircularDependency({ row: 0, column: 0 })).toBe(true);
 });
