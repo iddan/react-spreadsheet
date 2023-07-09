@@ -1,4 +1,4 @@
-import FormulaParser, { Value } from "fast-formula-parser";
+import FormulaParser, { FormulaError, Value } from "fast-formula-parser";
 import { getReferences } from "./formula";
 import * as matrix from "./matrix";
 import * as Formula from "./formula";
@@ -71,7 +71,7 @@ function evaluateCell<Cell extends CellBase>(
     let visited = PointSet.from([point]);
     let nextEvaluatedData = matrix.set(
       point,
-      { ...cell, value: "#REF!" },
+      { ...cell, value: FormulaError.REF },
       prevEvaluatedData
     );
     for (const referrer of referenceGraph.getBackwardsRecursive(point)) {
@@ -85,7 +85,7 @@ function evaluateCell<Cell extends CellBase>(
       }
       nextEvaluatedData = matrix.set(
         referrer,
-        { ...referrerCell, value: "#REF!" },
+        { ...referrerCell, value: FormulaError.REF },
         nextEvaluatedData
       );
     }
@@ -188,6 +188,6 @@ export function getFormulaComputedValue(
   try {
     return Formula.evaluate(formula, point, formulaParser);
   } catch (e) {
-    return "#REF!";
+    return FormulaError.REF;
   }
 }

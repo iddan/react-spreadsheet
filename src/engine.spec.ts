@@ -1,8 +1,10 @@
 import * as Formula from "./formula";
 import { getFormulaComputedValue, updateCellValue, Model } from "./engine";
 import { CellBase } from "./types";
-import FormulaParser from "fast-formula-parser";
+import FormulaParser, { FormulaError } from "fast-formula-parser";
 import { ORIGIN, Point } from "./point";
+import { PointGraph } from "./point-graph";
+import { PointSet } from "./point-set";
 
 const MOCK_PARSE = jest.fn();
 const MOCK_FORMULA_PARSER = {
@@ -71,6 +73,17 @@ describe("updateCellValue", () => {
     expect(nextModel.data).toEqual([[{ value: 1 }, cell], [{ value: 2 }]]);
     expect(nextModel.evaluatedData).toEqual([
       [{ value: 1 }, { value: 3 }],
+      [{ value: 2 }],
+    ]);
+  });
+  test("errors correctly for circular reference", () => {
+    const model = new Model([[{ value: 1 }], [{ value: 2 }]]);
+    const cell: CellBase = { value: "=SUM(A:A)" };
+    const point: Point = { row: 0, column: 0 };
+    const nextModel = updateCellValue(model, point, cell);
+    expect(nextModel.data).toEqual([[cell], [{ value: 2 }]]);
+    expect(nextModel.evaluatedData).toEqual([
+      [{ value: FormulaError.REF }],
       [{ value: 2 }],
     ]);
   });
