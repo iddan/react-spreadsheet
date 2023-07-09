@@ -11,11 +11,7 @@ type Data<T> = {
 };
 
 export class PointMap<T> {
-  private data: Data<T> = {};
-
-  private constructor(data: Data<T>) {
-    this.data = data;
-  }
+  private constructor(private data: Data<T>) {}
 
   /** Creates a new PointMap instance from an array-like object. */
   static from<T>(pairs: [Point.Point, T][]): PointMap<T> {
@@ -112,7 +108,7 @@ export class PointMap<T> {
   }
 
   /** Returns the point on the maximal row in the maximal column in the set */
-  public max(): Point.Point {
+  max(): Point.Point {
     const row = maxKey(this.data);
     return { row, column: maxKey(this.data[row]) };
   }
