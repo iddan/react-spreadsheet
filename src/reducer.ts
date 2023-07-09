@@ -1,5 +1,5 @@
 import { PointMap } from "./point-map";
-import * as PointRange from "./point-range";
+import { PointRange } from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
@@ -81,7 +81,7 @@ export default function reducer(
       if (state.active && !isActive(state.active, point)) {
         return {
           ...state,
-          selected: PointRange.create(point, state.active),
+          selected: new PointRange(point, state.active),
           mode: "view",
         };
       }
@@ -91,7 +91,7 @@ export default function reducer(
       const { point } = action.payload;
       return {
         ...state,
-        selected: PointRange.create(point, point),
+        selected: new PointRange(point, point),
         active: point,
         mode: isActive(state.active, point) ? "edit" : "view",
       };
@@ -210,7 +210,7 @@ export default function reducer(
       return {
         ...state,
         model: new Model(acc.data),
-        selected: PointRange.create(active, {
+        selected: new PointRange(active, {
           row: active.row + copiedSize.rows - 1,
           column: active.column + copiedSize.columns - 1,
         }),
@@ -358,7 +358,7 @@ export const go =
     return {
       ...state,
       active: nextActive,
-      selected: PointRange.create(nextActive, nextActive),
+      selected: new PointRange(nextActive, nextActive),
       mode: "view",
     };
   };

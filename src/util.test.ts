@@ -6,7 +6,7 @@ import { Model } from "./engine";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import { PointMap } from "./point-map";
-import * as PointRange from "./point-range";
+import { PointRange } from "./point-range";
 import * as Types from "./types";
 import * as util from "./util";
 
@@ -170,30 +170,32 @@ describe("getCellDimensions()", () => {
 });
 
 describe("getRangeDimensions()", () => {
-  const cases = [
+  const cases: Array<
+    [name: string, range: PointRange, expected: Types.Dimensions | undefined]
+  > = [
     [
       "returns undefined for non existing start",
-      { start: EXAMPLE_NON_EXISTING_POINT, end: EXAMPLE_EXISTING_POINT },
+      new PointRange(EXAMPLE_NON_EXISTING_POINT, EXAMPLE_EXISTING_POINT),
       undefined,
     ],
     [
       "returns undefined for non existing end",
-      { start: EXAMPLE_EXISTING_POINT, end: EXAMPLE_NON_EXISTING_POINT },
+      new PointRange(EXAMPLE_EXISTING_POINT, EXAMPLE_NON_EXISTING_POINT),
       undefined,
     ],
     [
       "returns undefined for non existing start and end",
-      { start: EXAMPLE_NON_EXISTING_POINT, end: EXAMPLE_NON_EXISTING_POINT },
+      new PointRange(EXAMPLE_NON_EXISTING_POINT, EXAMPLE_NON_EXISTING_POINT),
       undefined,
     ],
     [
       "returns dimensions of range of one cell",
-      { start: EXAMPLE_EXISTING_POINT, end: EXAMPLE_EXISTING_POINT },
+      new PointRange(EXAMPLE_EXISTING_POINT, EXAMPLE_EXISTING_POINT),
       EXAMPLE_CELL_DIMENSIONS,
     ],
     [
       "returns dimensions of range of two horizontal cells",
-      { start: Point.ORIGIN, end: { row: 0, column: 1 } },
+      new PointRange(Point.ORIGIN, { row: 0, column: 1 }),
       {
         ...EXAMPLE_CELL_DIMENSIONS,
         width: EXAMPLE_CELL_DIMENSIONS.width * 2,
@@ -201,7 +203,7 @@ describe("getRangeDimensions()", () => {
     ],
     [
       "returns dimensions of range of two vertical cells",
-      { start: Point.ORIGIN, end: { row: 1, column: 0 } },
+      new PointRange(Point.ORIGIN, { row: 1, column: 0 }),
       {
         ...EXAMPLE_CELL_DIMENSIONS,
         height: EXAMPLE_CELL_DIMENSIONS.height * 2,
@@ -209,14 +211,14 @@ describe("getRangeDimensions()", () => {
     ],
     [
       "returns dimensions of range of a square of cells",
-      { start: Point.ORIGIN, end: { row: 1, column: 1 } },
+      new PointRange(Point.ORIGIN, { row: 1, column: 1 }),
       {
         ...EXAMPLE_CELL_DIMENSIONS,
         width: EXAMPLE_CELL_DIMENSIONS.width * 2,
         height: EXAMPLE_CELL_DIMENSIONS.height * 2,
       },
     ],
-  ] as const;
+  ];
   test.each(cases)("%s", (name, range, expected) => {
     expect(
       util.getRangeDimensions(
@@ -232,11 +234,11 @@ describe("getSelectedDimensions()", () => {
   const cases = [
     [
       "point range",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
       util.getRangeDimensions(
         EXAMPLE_STATE.rowDimensions,
         EXAMPLE_STATE.columnDimensions,
-        PointRange.create(Point.ORIGIN, Point.ORIGIN)
+        new PointRange(Point.ORIGIN, Point.ORIGIN)
       ),
     ],
     ["no selection", null, undefined],
@@ -360,7 +362,7 @@ describe("getCopiedRange()", () => {
       "Returns range of copied cells",
       EXAMPLE_COPIED,
       false,
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
     ],
     ["Returns null if none is copied", EXAMPLE_EMPTY_COPIED, false, null],
     ["Returns null if hasPasted is true", EXAMPLE_COPIED, true, null],

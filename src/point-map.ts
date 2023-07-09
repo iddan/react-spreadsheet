@@ -117,6 +117,7 @@ export class PointMap<T> {
     return { row, column: maxKey(this.data[row]) };
   }
 
+  /** Iterate over pairs of point and value in the map */
   *entries(): Generator<[Point.Point, T]> {
     for (const row in this.data) {
       for (const column in this.data[row]) {
@@ -128,6 +129,7 @@ export class PointMap<T> {
     }
   }
 
+  /** Iterate over the keys of the map */
   *keys(): Generator<Point.Point> {
     for (const row in this.data) {
       for (const column in this.data[row]) {

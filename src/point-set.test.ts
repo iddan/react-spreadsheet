@@ -1,5 +1,5 @@
 import { PointSet } from "./point-set";
-import * as PointRange from "./point-range";
+import { PointRange } from "./point-range";
 import * as Point from "./point";
 
 const MIN_POINT = Point.ORIGIN;
@@ -46,9 +46,7 @@ describe("PointSet.max()", () => {
 
 describe("PointSet.toRange", () => {
   test("Transforms given set to range", () => {
-    expect(EXAMPLE_SET.toRange()).toEqual(
-      PointRange.create(MIN_POINT, MAX_POINT)
-    );
+    expect(EXAMPLE_SET.toRange()).toEqual(new PointRange(MIN_POINT, MAX_POINT));
   });
 });
 

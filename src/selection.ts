@@ -1,4 +1,4 @@
-import * as PointRange from "./point-range";
+import { PointRange } from "./point-range";
 import * as Point from "./point";
 import * as Matrix from "./matrix";
 
@@ -45,7 +45,7 @@ export type EntireTable = Entire & {
 
 /** Selection from a spreadsheet */
 export type Selection =
-  | PointRange.PointRange
+  | PointRange
   | EntireRows
   | EntireColumns
   | EntireTable
@@ -127,24 +127,24 @@ export function createEntireTable(): EntireTable {
 export function toRange(
   selection: Selection,
   data: Matrix.Matrix<unknown>
-): PointRange.PointRange | null {
+): PointRange | null {
   if (selection === null) {
     return null;
   }
-  if (PointRange.is(selection)) {
+  if (selection instanceof PointRange) {
     return selection;
   }
   switch (selection.type) {
     case EntireType.Row: {
       const max = Matrix.maxPoint(data);
-      return PointRange.create(
+      return new PointRange(
         { row: selection.start, column: 0 },
         { row: selection.end, column: max.column }
       );
     }
     case EntireType.Column: {
       const max = Matrix.maxPoint(data);
-      return PointRange.create(
+      return new PointRange(
         { row: 0, column: selection.start },
         { row: max.row, column: selection.end }
       );
@@ -161,7 +161,7 @@ export function size(
   data: Matrix.Matrix<unknown>
 ): number {
   const range = toRange(selection, data);
-  return range ? PointRange.size(range) : 0;
+  return range ? range.size() : 0;
 }
 
 /** Return whether the given point is within given selection */
@@ -171,7 +171,7 @@ export function hasPoint(
   point: Point.Point
 ): boolean {
   const range = toRange(selection, data);
-  return range !== null && PointRange.has(range, point);
+  return range !== null && range.has(point);
 }
 
 /** Return whether the given row is entirely selected in given selection */
@@ -196,7 +196,7 @@ export function normalize(
   data: Matrix.Matrix<unknown>
 ): Selection {
   if (selection) {
-    if (PointRange.is(selection)) {
+    if (selection instanceof PointRange) {
       return normalizeRange(selection, data);
     }
     switch (selection.type) {
@@ -213,11 +213,11 @@ export function normalize(
 
 /** Normalize given range to given data matrix */
 export function normalizeRange(
-  range: PointRange.PointRange,
+  range: PointRange,
   data: Matrix.Matrix<unknown>
-): PointRange.PointRange {
+): PointRange {
   const dataRange = getMatrixRange(data);
-  return PointRange.mask(range, dataRange);
+  return range.mask(dataRange);
 }
 
 /** Normalize given entire rows selection to given data matrix */
@@ -250,7 +250,7 @@ export function getPoints(
   data: Matrix.Matrix<unknown>
 ): Point.Point[] {
   const range = toRange(selection, data);
-  return range ? Array.from(PointRange.iterate(range)) : [];
+  return range ? Array.from(range.iterate()) : [];
 }
 
 /** Get given selection from given data */
@@ -270,7 +270,7 @@ export function modifyEdge(
   edge: Direction
 ): Selection {
   if (active && selection) {
-    if (PointRange.is(selection)) {
+    if (selection instanceof PointRange) {
       return modifyRangeEdge(selection, active, data, edge);
     }
     switch (selection.type) {
@@ -351,11 +351,11 @@ export function modifyEntireColumnsEdge(
 
 /** Modify given edge of given range according to given active point and data matrix */
 export function modifyRangeEdge(
-  range: PointRange.PointRange,
+  range: PointRange,
   active: Point.Point,
   data: Matrix.Matrix<unknown>,
   edge: Direction
-): PointRange.PointRange {
+): PointRange {
   const field =
     edge === Direction.Left || edge === Direction.Right ? "column" : "row";
 
@@ -363,35 +363,29 @@ export function modifyRangeEdge(
     edge === Direction.Left || edge === Direction.Top ? "start" : "end";
   const delta = key === "start" ? -1 : 1;
 
-  const edgeOffsets = PointRange.has(range, {
+  const edgeOffsets = range.has({
     ...active,
     [field]: active[field] + delta * -1,
   });
 
   const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
 
-  const nextRange = {
-    ...range,
-    [keyToModify]: {
-      ...range[keyToModify],
-      [field]: range[keyToModify][field] + delta,
-    },
-  };
+  const nextRange = new PointRange(range.start, range.end);
+
+  nextRange[keyToModify][field] += delta;
 
   return normalizeRange(nextRange, data);
 }
 
 /** Get the point range of given matrix */
-export function getMatrixRange(
-  data: Matrix.Matrix<unknown>
-): PointRange.PointRange {
+export function getMatrixRange(data: Matrix.Matrix<unknown>): PointRange {
   const maxPoint = Matrix.maxPoint(data);
-  return PointRange.create(Point.ORIGIN, maxPoint);
+  return new PointRange(Point.ORIGIN, maxPoint);
 }
 
 /** Get a matrix of values in given range from given matrix */
 export function getRangeFromMatrix<T>(
-  range: PointRange.PointRange,
+  range: PointRange,
   matrix: Matrix.Matrix<T>
 ): Matrix.Matrix<T> {
   return Matrix.slice(range.start, range.end, matrix);

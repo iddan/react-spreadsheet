@@ -1,7 +1,7 @@
 import * as Types from "./types";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
-import * as PointRange from "./point-range";
+import { PointRange } from "./point-range";
 import * as Selection from "./selection";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";
@@ -97,7 +97,7 @@ export function getCellDimensions(
 export function getRangeDimensions(
   rowDimensions: Types.StoreState["rowDimensions"],
   columnDimensions: Types.StoreState["columnDimensions"],
-  range: PointRange.PointRange
+  range: PointRange
 ): Types.Dimensions | undefined {
   const startDimensions = getCellDimensions(
     range.start,
@@ -167,7 +167,7 @@ export function convertPointMapToPointSet(map: PointMap<unknown>): PointSet {
 export function getCopiedRange(
   copied: Types.StoreState["copied"],
   hasPasted: boolean
-): PointRange.PointRange | null {
+): PointRange | null {
   if (hasPasted || copied.isEmpty()) {
     return null;
   }

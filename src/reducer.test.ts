@@ -9,7 +9,7 @@ import reducer, {
 import { createEmptyMatrix } from "./util";
 import * as Point from "./point";
 import * as Matrix from "./matrix";
-import * as PointRange from "./point-range";
+import { PointRange } from "./point-range";
 import * as Selection from "./selection";
 import "./areModelsEqual";
 import { Model } from "./engine";
@@ -49,7 +49,7 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: PointRange.create(Point.ORIGIN, EXAMPLE_POINT),
+        selected: new PointRange(Point.ORIGIN, EXAMPLE_POINT),
       },
     ],
     [
@@ -140,7 +140,7 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: PointRange.create(Point.ORIGIN, Point.ORIGIN),
+        selected: new PointRange(Point.ORIGIN, Point.ORIGIN),
       },
     ],
     [
@@ -182,7 +182,7 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: PointRange.create(Point.ORIGIN, Point.ORIGIN),
+        selected: new PointRange(Point.ORIGIN, Point.ORIGIN),
       },
       Actions.blur(),
       INITIAL_STATE,

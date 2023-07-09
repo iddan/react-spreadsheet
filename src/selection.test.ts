@@ -1,5 +1,5 @@
 import * as Point from "./point";
-import * as PointRange from "./point-range";
+import { PointRange } from "./point-range";
 import * as Matrix from "./matrix";
 import * as Selection from "./selection";
 
@@ -99,15 +99,15 @@ describe("Selection.toRange()", () => {
     ["null", null, EXAMPLE_DATA, null],
     [
       "range",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
       EXAMPLE_DATA,
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
     ],
     [
       "entire rows",
       Selection.createEntireRows(1, 2),
       EXAMPLE_DATA,
-      PointRange.create(
+      new PointRange(
         { row: 1, column: 0 },
         { row: 2, column: EXAMPLE_DATA_MAX_POINT.column }
       ),
@@ -116,7 +116,7 @@ describe("Selection.toRange()", () => {
       "entire columns",
       { type: Selection.EntireType.Column, start: 1, end: 2 },
       EXAMPLE_DATA,
-      PointRange.create(
+      new PointRange(
         { row: 0, column: 1 },
         { row: EXAMPLE_DATA_MAX_POINT.row, column: 2 }
       ),
@@ -143,7 +143,7 @@ describe("Selection.getSelectionFromMatrix()", () => {
     ],
     [
       "Returns matrix for selection",
-      PointRange.create(Point.ORIGIN, { row: 1, column: 1 }),
+      new PointRange(Point.ORIGIN, { row: 1, column: 1 }),
       EXAMPLE_DATA,
       Matrix.createEmpty(2, 2),
     ],
@@ -157,11 +157,11 @@ describe("Selection.normalize()", () => {
   const cases = [
     [
       "Normalizes given selection range to given data",
-      PointRange.create(Point.ORIGIN, {
+      new PointRange(Point.ORIGIN, {
         row: EXAMPLE_DATA_ROWS_COUNT,
         column: EXAMPLE_DATA_COLUMNS_COUNT,
       }),
-      PointRange.create(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA)),
+      new PointRange(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA)),
     ],
     [
       "Normalizes entire rows selection to given data",
@@ -184,11 +184,11 @@ describe("Selection.normalizeRange()", () => {
   const cases = [
     [
       "Normalizes given selection range to given data",
-      PointRange.create(Point.ORIGIN, {
+      new PointRange(Point.ORIGIN, {
         row: EXAMPLE_DATA_ROWS_COUNT,
         column: EXAMPLE_DATA_COLUMNS_COUNT,
       }),
-      PointRange.create(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA)),
+      new PointRange(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA)),
     ],
   ] as const;
   test.each(cases)("%s", (name, selection, expected) => {
@@ -201,7 +201,7 @@ describe("Selection.getPoints()", () => {
     ["Returns empty for non-range", null, []],
     [
       "Returns points for range",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
       [Point.ORIGIN],
     ],
   ] as const;
@@ -215,13 +215,13 @@ describe("Selection.hasPoint()", () => {
     [
       "in range",
       Point.ORIGIN,
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
       true,
     ],
     [
       "not selected",
       EXAMPLE_NON_EXISTING_POINT,
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
       false,
     ],
   ] as const;
@@ -234,11 +234,11 @@ describe("Selection.modifyEdge()", () => {
   const cases = [
     [
       "modifies range",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
       Point.ORIGIN,
       EXAMPLE_DATA,
       Selection.Direction.Right,
-      PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
+      new PointRange(Point.ORIGIN, { row: 0, column: 1 }),
     ],
     [
       "modifies entire rows",
@@ -276,99 +276,99 @@ describe("Selection.modifyPointRangeEdge()", () => {
   const cases = [
     [
       "modify left",
-      PointRange.create({ row: 0, column: 1 }, { row: 0, column: 1 }),
+      new PointRange({ row: 0, column: 1 }, { row: 0, column: 1 }),
       { row: 0, column: 1 },
       EXAMPLE_DATA,
       Selection.Direction.Left,
-      PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
+      new PointRange(Point.ORIGIN, { row: 0, column: 1 }),
     ],
     [
       "modify left, blocked",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
       Point.ORIGIN,
       EXAMPLE_DATA,
       Selection.Direction.Left,
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
     ],
     [
       "modify left, backwards",
-      PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
+      new PointRange(Point.ORIGIN, { row: 0, column: 1 }),
       Point.ORIGIN,
       EXAMPLE_DATA,
       Selection.Direction.Left,
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
     ],
     [
       "modify right",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
       Point.ORIGIN,
       EXAMPLE_DATA,
       Selection.Direction.Right,
-      PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
+      new PointRange(Point.ORIGIN, { row: 0, column: 1 }),
     ],
     [
       "modify right, blocked",
-      PointRange.create(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
+      new PointRange(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
       EXAMPLE_DATA_MAX_POINT,
       EXAMPLE_DATA,
       Selection.Direction.Right,
-      PointRange.create(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
+      new PointRange(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
     ],
     [
       "modify right, backwards",
-      PointRange.create(Point.ORIGIN, { row: 0, column: 1 }),
+      new PointRange(Point.ORIGIN, { row: 0, column: 1 }),
       { row: 0, column: 1 },
       EXAMPLE_DATA,
       Selection.Direction.Right,
-      PointRange.create({ row: 0, column: 1 }, { row: 0, column: 1 }),
+      new PointRange({ row: 0, column: 1 }, { row: 0, column: 1 }),
     ],
     [
       "modify top",
-      PointRange.create({ row: 1, column: 0 }, { row: 1, column: 0 }),
+      new PointRange({ row: 1, column: 0 }, { row: 1, column: 0 }),
       { row: 1, column: 0 },
       EXAMPLE_DATA,
       Selection.Direction.Top,
-      PointRange.create(Point.ORIGIN, { row: 1, column: 0 }),
+      new PointRange(Point.ORIGIN, { row: 1, column: 0 }),
     ],
     [
       "modify top, blocked",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
       Point.ORIGIN,
       EXAMPLE_DATA,
       Selection.Direction.Top,
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
     ],
     [
       "modify top, backwards",
-      PointRange.create(Point.ORIGIN, { row: 1, column: 0 }),
+      new PointRange(Point.ORIGIN, { row: 1, column: 0 }),
       Point.ORIGIN,
       EXAMPLE_DATA,
       Selection.Direction.Top,
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
     ],
     [
       "modify bottom",
-      PointRange.create(Point.ORIGIN, Point.ORIGIN),
+      new PointRange(Point.ORIGIN, Point.ORIGIN),
       Point.ORIGIN,
       EXAMPLE_DATA,
       Selection.Direction.Bottom,
-      PointRange.create(Point.ORIGIN, { row: 1, column: 0 }),
+      new PointRange(Point.ORIGIN, { row: 1, column: 0 }),
     ],
     [
       "modify bottom, blocked",
-      PointRange.create(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
+      new PointRange(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
       EXAMPLE_DATA_MAX_POINT,
       EXAMPLE_DATA,
       Selection.Direction.Bottom,
-      PointRange.create(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
+      new PointRange(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
     ],
     [
       "modify bottom, backwards",
-      PointRange.create(Point.ORIGIN, { row: 1, column: 0 }),
+      new PointRange(Point.ORIGIN, { row: 1, column: 0 }),
       { row: 1, column: 0 },
       EXAMPLE_DATA,
       Selection.Direction.Bottom,
-      PointRange.create({ row: 1, column: 0 }, { row: 1, column: 0 }),
+      new PointRange({ row: 1, column: 0 }, { row: 1, column: 0 }),
     ],
   ] as const;
   test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
@@ -540,7 +540,7 @@ describe("Selection.modifyEntireColumnsEdge()", () => {
 
 describe("Selection.size()", () => {
   const cases = [
-    ["defined selection", PointRange.create(Point.ORIGIN, Point.ORIGIN), 1],
+    ["defined selection", new PointRange(Point.ORIGIN, Point.ORIGIN), 1],
     ["no selection", null, 0],
   ] as const;
   test.each(cases)("%s", (name, selection, expected) => {
@@ -551,7 +551,7 @@ describe("Selection.size()", () => {
 describe("Selection.getMatrixRange()", () => {
   test("Returns the point range of given matrix", () => {
     expect(Selection.getMatrixRange(EXAMPLE_DATA)).toEqual(
-      PointRange.create(Point.ORIGIN, {
+      new PointRange(Point.ORIGIN, {
         row: EXAMPLE_DATA_COLUMNS_COUNT - 1,
         column: EXAMPLE_DATA_ROWS_COUNT - 1,
       })

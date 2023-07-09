@@ -4,7 +4,7 @@
 
 import * as Point from "./point";
 import { PointMap } from "./point-map";
-import * as PointRange from "./point-range";
+import { PointRange } from "./point-range";
 
 export class PointSet {
   private constructor(
@@ -37,10 +37,10 @@ export class PointSet {
   }
 
   /** Transform a point set to a range */
-  toRange(): PointRange.PointRange {
+  toRange(): PointRange {
     const start = this.min();
     const end = this.max();
-    return PointRange.create(start, end);
+    return new PointRange(start, end);
   }
 
   /** Add the given point to given set */

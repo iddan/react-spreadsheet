@@ -5,7 +5,7 @@ import FormulaParser, {
   Value,
 } from "fast-formula-parser";
 import { PointSet } from "./point-set";
-import * as pointRange from "./point-range";
+import { PointRange } from "./point-range";
 import { Point } from "./point";
 import * as matrix from "./matrix";
 import { CellBase } from "./types";
@@ -90,9 +90,9 @@ export function getReferences(
             column: Math.min(to.col - 1, columns - 1),
           };
 
-          const range = pointRange.create(normalizedFrom, normalizedTo);
+          const range = new PointRange(normalizedFrom, normalizedTo);
 
-          return Array.from(pointRange.iterate(range));
+          return Array.from(range.iterate());
         }
         return { row: reference.row - 1, column: reference.col - 1 };
       })
