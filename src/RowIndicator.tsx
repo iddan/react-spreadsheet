@@ -39,10 +39,8 @@ export const enhance = (
 ): React.FC<Omit<Types.RowIndicatorProps, "selected" | "onSelect">> => {
   return function RowIndicatorWrapper(props) {
     const dispatch = useDispatch();
-    const selected = useSelector(
-      (state) =>
-        Selection.hasEntireRow(state.selected, props.row) ||
-        Selection.isEntireTable(state.selected)
+    const selected = useSelector((state) =>
+      state.selected.hasEntireRow(props.row)
     );
     const selectEntireRow = React.useCallback(
       (row: number, extend: boolean) =>

@@ -3,7 +3,14 @@ import { PointRange } from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
-import * as Selection from "./selection";
+import {
+  EmptySelection,
+  RangeSelection,
+  EntireColumnsSelection,
+  EntireRowsSelection,
+  EntireTableSelection,
+  Direction,
+} from "./selection";
 import { isActive } from "./util";
 import * as Actions from "./actions";
 import { Model, updateCellValue } from "./engine";
@@ -18,7 +25,7 @@ export const INITIAL_STATE: Types.StoreState = {
   cut: false,
   dragging: false,
   model: new Model([]),
-  selected: null,
+  selected: new EmptySelection(),
   copied: PointMap.from([]),
   lastCommit: null,
 };
@@ -32,7 +39,7 @@ export default function reducer(
       const { data } = action.payload;
       const nextActive =
         state.active && Matrix.has(state.active, data) ? state.active : null;
-      const nextSelected = Selection.normalize(state.selected, data);
+      const nextSelected = state.selected.normalizeTo(data);
       return {
         ...state,
         model: new Model(data),
@@ -48,8 +55,8 @@ export default function reducer(
         ...state,
         selected:
           extend && active
-            ? Selection.createEntireRows(active.row, row)
-            : Selection.createEntireRows(row, row),
+            ? new EntireRowsSelection(active.row, row)
+            : new EntireRowsSelection(row, row),
         active: extend && active ? active : { ...Point.ORIGIN, row },
         mode: "view",
       };
@@ -62,8 +69,8 @@ export default function reducer(
         ...state,
         selected:
           extend && active
-            ? Selection.createEntireColumns(active.column, column)
-            : Selection.createEntireColumns(column, column),
+            ? new EntireColumnsSelection(active.column, column)
+            : new EntireColumnsSelection(column, column),
         active: extend && active ? active : { ...Point.ORIGIN, column },
         mode: "view",
       };
@@ -71,7 +78,7 @@ export default function reducer(
     case Actions.SELECT_ENTIRE_TABLE: {
       return {
         ...state,
-        selected: Selection.createEntireTable(),
+        selected: new EntireTableSelection(),
         active: Point.ORIGIN,
         mode: "view",
       };
@@ -81,7 +88,7 @@ export default function reducer(
       if (state.active && !isActive(state.active, point)) {
         return {
           ...state,
-          selected: new PointRange(point, state.active),
+          selected: new RangeSelection(new PointRange(point, state.active)),
           mode: "view",
         };
       }
@@ -91,7 +98,7 @@ export default function reducer(
       const { point } = action.payload;
       return {
         ...state,
-        selected: new PointRange(point, point),
+        selected: new RangeSelection(new PointRange(point, point)),
         active: point,
         mode: isActive(state.active, point) ? "edit" : "view",
       };
@@ -135,10 +142,7 @@ export default function reducer(
     }
     case Actions.COPY:
     case Actions.CUT: {
-      const selectedPoints = Selection.getPoints(
-        state.selected,
-        state.model.data
-      );
+      const selectedPoints = state.selected.getPoints(state.model.data);
       return {
         ...state,
         copied: selectedPoints.reduce((acc, point) => {
@@ -210,10 +214,12 @@ export default function reducer(
       return {
         ...state,
         model: new Model(acc.data),
-        selected: new PointRange(active, {
-          row: active.row + copiedSize.rows - 1,
-          column: active.column + copiedSize.columns - 1,
-        }),
+        selected: new RangeSelection(
+          new PointRange(active, {
+            row: active.row + copiedSize.rows - 1,
+            column: active.column + copiedSize.columns - 1,
+          })
+        ),
         cut: false,
         hasPasted: true,
         mode: "view",
@@ -305,7 +311,7 @@ function clear(state: Types.StoreState): Types.StoreState {
     return Object.assign({}, cell, { value: undefined });
   };
 
-  const selectedPoints = Selection.getPoints(state.selected, state.model.data);
+  const selectedPoints = state.selected.getPoints(state.model.data);
 
   const changes = selectedPoints.map((point) => {
     const cell = Matrix.get(point, state.model.data);
@@ -329,7 +335,7 @@ function clear(state: Types.StoreState): Types.StoreState {
 }
 
 function blur(state: Types.StoreState): Types.StoreState {
-  return { ...state, active: null, selected: null };
+  return { ...state, active: null, selected: new EmptySelection() };
 }
 
 function view(state: Types.StoreState): Types.StoreState {
@@ -358,7 +364,7 @@ export const go =
     return {
       ...state,
       active: nextActive,
-      selected: new PointRange(nextActive, nextActive),
+      selected: new RangeSelection(new PointRange(nextActive, nextActive)),
       mode: "view",
     };
   };
@@ -399,39 +405,43 @@ const editShiftKeyDownHandlers: KeyDownHandlers = {
 const shiftKeyDownHandlers: KeyDownHandlers = {
   ArrowUp: (state) => ({
     ...state,
-    selected: Selection.modifyEdge(
-      state.selected,
-      state.active,
-      state.model.data,
-      Selection.Direction.Top
-    ),
+    selected: !state.active
+      ? state.selected
+      : state.selected.modifyEdge(
+          state.active,
+          state.model.data,
+          Direction.Top
+        ),
   }),
   ArrowDown: (state) => ({
     ...state,
-    selected: Selection.modifyEdge(
-      state.selected,
-      state.active,
-      state.model.data,
-      Selection.Direction.Bottom
-    ),
+    selected: !state.active
+      ? state.selected
+      : state.selected.modifyEdge(
+          state.active,
+          state.model.data,
+          Direction.Bottom
+        ),
   }),
   ArrowLeft: (state) => ({
     ...state,
-    selected: Selection.modifyEdge(
-      state.selected,
-      state.active,
-      state.model.data,
-      Selection.Direction.Left
-    ),
+    selected: !state.active
+      ? state.selected
+      : state.selected.modifyEdge(
+          state.active,
+          state.model.data,
+          Direction.Left
+        ),
   }),
   ArrowRight: (state) => ({
     ...state,
-    selected: Selection.modifyEdge(
-      state.selected,
-      state.active,
-      state.model.data,
-      Selection.Direction.Right
-    ),
+    selected: !state.active
+      ? state.selected
+      : state.selected.modifyEdge(
+          state.active,
+          state.model.data,
+          Direction.Right
+        ),
   }),
   Tab: go(0, -1),
 };

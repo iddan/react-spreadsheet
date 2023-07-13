@@ -2,6 +2,7 @@
  * Interface for ranges between two points
  */
 
+import * as Matrix from "./matrix";
 import * as Point from "./point";
 
 /** Range between two points. Creates a normalized range between two given points */
@@ -68,5 +69,10 @@ export class PointRange {
           mask.end.column < this.end.column ? mask.end.column : this.end.column,
       }
     );
+  }
+
+  /** Get the range from the given matrix */
+  getFromMatrix<T>(matrix: Matrix.Matrix<T>): Matrix.Matrix<T> {
+    return Matrix.slice(this.start, this.end, matrix);
   }
 }

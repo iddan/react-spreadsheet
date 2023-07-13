@@ -7,6 +7,7 @@ import * as Matrix from "./matrix";
 import * as Point from "./point";
 import { PointMap } from "./point-map";
 import { PointRange } from "./point-range";
+import { Selection, EmptySelection, RangeSelection } from "./selection";
 import * as Types from "./types";
 import * as util from "./util";
 
@@ -58,7 +59,7 @@ const EXAMPLE_STATE: Types.StoreState = {
   cut: false,
   dragging: false,
   model: new Model(EXAMPLE_DATA),
-  selected: null,
+  selected: new EmptySelection(),
   copied: PointMap.from([]),
   lastCommit: null,
 };
@@ -231,18 +232,20 @@ describe("getRangeDimensions()", () => {
 });
 
 describe("getSelectedDimensions()", () => {
-  const cases = [
+  const cases: Array<
+    [name: string, selection: Selection, expected: Types.Dimensions | undefined]
+  > = [
     [
       "point range",
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
       util.getRangeDimensions(
         EXAMPLE_STATE.rowDimensions,
         EXAMPLE_STATE.columnDimensions,
         new PointRange(Point.ORIGIN, Point.ORIGIN)
       ),
     ],
-    ["no selection", null, undefined],
-  ] as const;
+    ["no selection", new EmptySelection(), undefined],
+  ];
   test.each(cases)("%s", (name, selection, expected) => {
     expect(
       util.getSelectedDimensions(

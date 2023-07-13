@@ -10,7 +10,12 @@ import { createEmptyMatrix } from "./util";
 import * as Point from "./point";
 import * as Matrix from "./matrix";
 import { PointRange } from "./point-range";
-import * as Selection from "./selection";
+import {
+  RangeSelection,
+  EntireTableSelection,
+  EntireRowsSelection,
+  EntireColumnsSelection,
+} from "./selection";
 import "./areModelsEqual";
 import { Model } from "./engine";
 
@@ -49,7 +54,9 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: new PointRange(Point.ORIGIN, EXAMPLE_POINT),
+        selected: new RangeSelection(
+          new PointRange(Point.ORIGIN, EXAMPLE_POINT)
+        ),
       },
     ],
     [
@@ -59,7 +66,7 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: Selection.createEntireTable(),
+        selected: new EntireTableSelection(),
       },
     ],
     [
@@ -69,7 +76,7 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: { ...Point.ORIGIN, row: EXAMPLE_ROW },
-        selected: Selection.createEntireRows(EXAMPLE_ROW, EXAMPLE_ROW),
+        selected: new EntireRowsSelection(EXAMPLE_ROW, EXAMPLE_ROW),
       },
     ],
     [
@@ -77,29 +84,26 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: Selection.createEntireRows(
-          Point.ORIGIN.row,
-          Point.ORIGIN.row
-        ),
+        selected: new EntireRowsSelection(Point.ORIGIN.row, Point.ORIGIN.row),
       },
       Actions.selectEntireRow(EXAMPLE_ROW, true),
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: Selection.createEntireRows(Point.ORIGIN.row, EXAMPLE_ROW),
+        selected: new EntireRowsSelection(Point.ORIGIN.row, EXAMPLE_ROW),
       },
     ],
     [
       "select multiple entire rows backwards",
       {
         ...INITIAL_STATE,
-        selected: Selection.createEntireRows(EXAMPLE_ROW, EXAMPLE_ROW),
+        selected: new EntireRowsSelection(EXAMPLE_ROW, EXAMPLE_ROW),
         active: EXAMPLE_POINT,
       },
       Actions.selectEntireRow(Point.ORIGIN.row, true),
       {
         ...INITIAL_STATE,
-        selected: Selection.createEntireRows(Point.ORIGIN.row, EXAMPLE_ROW),
+        selected: new EntireRowsSelection(Point.ORIGIN.row, EXAMPLE_ROW),
         active: EXAMPLE_POINT,
       },
     ],
@@ -110,7 +114,7 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: { ...Point.ORIGIN, column: EXAMPLE_COLUMN },
-        selected: Selection.createEntireColumns(EXAMPLE_COLUMN, EXAMPLE_COLUMN),
+        selected: new EntireColumnsSelection(EXAMPLE_COLUMN, EXAMPLE_COLUMN),
       },
     ],
     [
@@ -118,7 +122,7 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: Selection.createEntireColumns(
+        selected: new EntireColumnsSelection(
           Point.ORIGIN.column,
           Point.ORIGIN.column
         ),
@@ -127,7 +131,7 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: Selection.createEntireColumns(
+        selected: new EntireColumnsSelection(
           Point.ORIGIN.column,
           EXAMPLE_COLUMN
         ),
@@ -140,7 +144,9 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: new PointRange(Point.ORIGIN, Point.ORIGIN),
+        selected: new RangeSelection(
+          new PointRange(Point.ORIGIN, Point.ORIGIN)
+        ),
       },
     ],
     [
@@ -182,7 +188,9 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: new PointRange(Point.ORIGIN, Point.ORIGIN),
+        selected: new RangeSelection(
+          new PointRange(Point.ORIGIN, Point.ORIGIN)
+        ),
       },
       Actions.blur(),
       INITIAL_STATE,

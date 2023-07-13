@@ -198,7 +198,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     }
 
     if (state.selected !== prevState.selected) {
-      const points = Selection.getPoints(state.selected, state.model.data);
+      const points = state.selected.getPoints(state.model.data);
       onSelect(points);
     }
 
@@ -243,7 +243,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     (event: ClipboardEvent): void => {
       const { model, selected } = state;
       const { data } = model;
-      const selectedData = Selection.getSelectionFromMatrix(selected, data);
+      const selectedData = selected.getFromMatrix(data);
       const csv = getCSV(selectedData);
       writeTextToClipboard(event, csv);
     },
