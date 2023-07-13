@@ -1,7 +1,18 @@
 import * as Point from "./point";
 import { PointRange } from "./point-range";
 import * as Matrix from "./matrix";
-import * as Selection from "./selection";
+import {
+  Selection,
+  EmptySelection,
+  RangeSelection,
+  EntireColumnsSelection,
+  EntireRowsSelection,
+  EntireTableSelection,
+  InvalidIndexError,
+  Direction,
+  isIndex,
+  getMatrixRange,
+} from "./selection";
 
 const EXAMPLE_DATA_ROWS_COUNT = 4;
 const EXAMPLE_DATA_COLUMNS_COUNT = 4;
@@ -15,97 +26,67 @@ const EXAMPLE_NON_EXISTING_POINT: Point.Point = {
   column: EXAMPLE_DATA_COLUMNS_COUNT,
 };
 
-describe("Selection.createEntireRows()", () => {
+describe("new EntireRowsSelection()", () => {
   test("creates entire rows selection", () => {
     const start = 0;
     const end = 0;
-    expect(Selection.createEntireRows(start, end)).toEqual({
-      type: Selection.EntireType.Row,
-      start,
-      end,
-    });
+    new EntireRowsSelection(start, end);
   });
   test("throws for invalid start", () => {
-    expect(() => Selection.createEntireRows(-1, 0)).toThrow(
-      new Selection.InvalidIndexError("start")
+    expect(() => new EntireRowsSelection(-1, 0)).toThrow(
+      new InvalidIndexError("start")
     );
   });
   test("throws for invalid end", () => {
-    expect(() => Selection.createEntireRows(0, -1)).toThrow(
-      new Selection.InvalidIndexError("end")
+    expect(() => new EntireRowsSelection(0, -1)).toThrow(
+      new InvalidIndexError("end")
     );
   });
 });
 
-describe("Selection.createEntireColumns()", () => {
+describe("new EntireColumnsSelection()", () => {
   test("creates entire columns selection", () => {
     const start = 0;
     const end = 0;
-    expect(Selection.createEntireColumns(start, end)).toEqual({
-      type: Selection.EntireType.Column,
-      start,
-      end,
-    });
+    new EntireColumnsSelection(start, end);
   });
   test("throws for invalid start", () => {
-    expect(() => Selection.createEntireColumns(-1, 0)).toThrow(
-      new Selection.InvalidIndexError("start")
+    expect(() => new EntireColumnsSelection(-1, 0)).toThrow(
+      new InvalidIndexError("start")
     );
   });
   test("throws for invalid end", () => {
-    expect(() => Selection.createEntireColumns(0, -1)).toThrow(
-      new Selection.InvalidIndexError("end")
+    expect(() => new EntireColumnsSelection(0, -1)).toThrow(
+      new InvalidIndexError("end")
     );
   });
 });
 
-describe("Selection.createEntireTable()", () => {
+describe("new EntireTableSelection()", () => {
   test("creates entire table selection", () => {
-    expect(Selection.createEntireTable()).toEqual({
-      type: Selection.EntireType.Table,
-    });
+    new EntireTableSelection();
   });
 });
 
-describe("isEntireRows()", () => {
-  test.each([
-    ["entire rows", Selection.createEntireRows(0, 0), true],
-    ["null", null, false],
-  ] as const)("%s", (name, value, expected) => {
-    expect(Selection.isEntireRows(value)).toBe(expected);
-  });
-});
-
-describe("isEntireColumns()", () => {
-  test.each([
-    ["entire columns", Selection.createEntireColumns(0, 0), true],
-    ["null", null, false],
-  ] as const)("%s", (name, value, expected) => {
-    expect(Selection.isEntireColumns(value)).toBe(expected);
-  });
-});
-
-describe("isEntireTable()", () => {
-  test.each([
-    ["entire table", Selection.createEntireTable(), true],
-    ["null", null, false],
-  ] as const)("%s", (name, value, expected) => {
-    expect(Selection.isEntireTable(value)).toBe(expected);
-  });
-});
-
-describe("Selection.toRange()", () => {
-  const cases = [
-    ["null", null, EXAMPLE_DATA, null],
+describe("Selection.prototype.toRange()", () => {
+  const cases: Array<
+    [
+      name: string,
+      selection: Selection,
+      data: Matrix.Matrix<unknown>,
+      expected: PointRange | null
+    ]
+  > = [
+    ["empty", new EmptySelection(), EXAMPLE_DATA, null],
     [
       "range",
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
       EXAMPLE_DATA,
       new PointRange(Point.ORIGIN, Point.ORIGIN),
     ],
     [
       "entire rows",
-      Selection.createEntireRows(1, 2),
+      new EntireRowsSelection(1, 2),
       EXAMPLE_DATA,
       new PointRange(
         { row: 1, column: 0 },
@@ -114,7 +95,7 @@ describe("Selection.toRange()", () => {
     ],
     [
       "entire columns",
-      { type: Selection.EntireType.Column, start: 1, end: 2 },
+      new EntireColumnsSelection(1, 2),
       EXAMPLE_DATA,
       new PointRange(
         { row: 0, column: 1 },
@@ -123,434 +104,482 @@ describe("Selection.toRange()", () => {
     ],
     [
       "entire table",
-      { type: Selection.EntireType.Table },
+      new EntireTableSelection(),
       EXAMPLE_DATA,
-      Selection.getMatrixRange(EXAMPLE_DATA),
+      getMatrixRange(EXAMPLE_DATA),
     ],
-  ] as const;
+  ];
   test.each(cases)("%s", (name, selection, data, expected) => {
-    expect(Selection.toRange(selection, data)).toEqual(expected);
+    expect(selection.toRange(data)).toEqual(expected);
   });
 });
 
-describe("Selection.getSelectionFromMatrix()", () => {
-  const cases = [
-    [
-      "Returns null for no selection",
-      null,
-      EXAMPLE_DATA,
-      Matrix.createEmpty(0, 0),
-    ],
-    [
-      "Returns matrix for selection",
-      new PointRange(Point.ORIGIN, { row: 1, column: 1 }),
-      EXAMPLE_DATA,
-      Matrix.createEmpty(2, 2),
-    ],
-  ] as const;
-  test.each(cases)("%s", (name, selection, data, expected) => {
-    expect(Selection.getSelectionFromMatrix(selection, data)).toEqual(expected);
-  });
-});
-
-describe("Selection.normalize()", () => {
-  const cases = [
+describe("Selection.prototype.normalize()", () => {
+  const cases: Array<
+    [name: string, selection: Selection, expected: Selection]
+  > = [
     [
       "Normalizes given selection range to given data",
-      new PointRange(Point.ORIGIN, {
-        row: EXAMPLE_DATA_ROWS_COUNT,
-        column: EXAMPLE_DATA_COLUMNS_COUNT,
-      }),
-      new PointRange(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA)),
+      new RangeSelection(
+        new PointRange(Point.ORIGIN, {
+          row: EXAMPLE_DATA_ROWS_COUNT,
+          column: EXAMPLE_DATA_COLUMNS_COUNT,
+        })
+      ),
+      new RangeSelection(
+        new PointRange(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA))
+      ),
     ],
     [
       "Normalizes entire rows selection to given data",
-      Selection.createEntireRows(0, EXAMPLE_DATA_ROWS_COUNT),
-      Selection.createEntireRows(0, EXAMPLE_DATA_ROWS_COUNT - 1),
+      new EntireRowsSelection(0, EXAMPLE_DATA_ROWS_COUNT),
+      new EntireRowsSelection(0, EXAMPLE_DATA_ROWS_COUNT - 1),
     ],
     [
       "Normalizes entire columns selection to given data",
-      Selection.createEntireColumns(0, EXAMPLE_DATA_COLUMNS_COUNT),
-      Selection.createEntireColumns(0, EXAMPLE_DATA_COLUMNS_COUNT - 1),
+      new EntireColumnsSelection(0, EXAMPLE_DATA_COLUMNS_COUNT),
+      new EntireColumnsSelection(0, EXAMPLE_DATA_COLUMNS_COUNT - 1),
     ],
-    ["Does nothing for non-range selection", null, null],
-  ] as const;
+    [
+      "Does nothing for non-range selection",
+      new EmptySelection(),
+      new EmptySelection(),
+    ],
+  ];
   test.each(cases)("%s", (name, selection, expected) => {
-    expect(Selection.normalize(selection, EXAMPLE_DATA)).toEqual(expected);
+    expect(selection.normalizeTo(EXAMPLE_DATA)).toEqual(expected);
   });
 });
 
-describe("Selection.normalizeRange()", () => {
-  const cases = [
+describe("RangeSelection.normalizeTo()", () => {
+  const cases: Array<
+    [name: string, selection: RangeSelection, expected: RangeSelection]
+  > = [
     [
       "Normalizes given selection range to given data",
-      new PointRange(Point.ORIGIN, {
-        row: EXAMPLE_DATA_ROWS_COUNT,
-        column: EXAMPLE_DATA_COLUMNS_COUNT,
-      }),
-      new PointRange(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA)),
+      new RangeSelection(
+        new PointRange(Point.ORIGIN, {
+          row: EXAMPLE_DATA_ROWS_COUNT,
+          column: EXAMPLE_DATA_COLUMNS_COUNT,
+        })
+      ),
+      new RangeSelection(
+        new PointRange(Point.ORIGIN, Matrix.maxPoint(EXAMPLE_DATA))
+      ),
     ],
-  ] as const;
+  ];
   test.each(cases)("%s", (name, selection, expected) => {
-    expect(Selection.normalizeRange(selection, EXAMPLE_DATA)).toEqual(expected);
+    expect(selection.normalizeTo(EXAMPLE_DATA)).toEqual(expected);
   });
 });
 
-describe("Selection.getPoints()", () => {
-  const cases = [
-    ["Returns empty for non-range", null, []],
+describe("Selection.prototype.getPoints()", () => {
+  const cases: Array<
+    [name: string, selection: Selection, expected: Point.Point[]]
+  > = [
+    ["Returns empty for non-range", new EmptySelection(), []],
     [
       "Returns points for range",
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
       [Point.ORIGIN],
     ],
-  ] as const;
+  ];
   test.each(cases)("%s", (name, selected, expected) => {
-    expect(Selection.getPoints(selected, EXAMPLE_DATA)).toEqual(expected);
+    expect(selected.getPoints(EXAMPLE_DATA)).toEqual(expected);
   });
 });
 
-describe("Selection.hasPoint()", () => {
-  const cases = [
+describe("Selection.prototype.has()", () => {
+  const cases: Array<
+    [name: string, selection: Selection, point: Point.Point, expected: boolean]
+  > = [
     [
       "in range",
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
       Point.ORIGIN,
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
       true,
     ],
     [
       "not selected",
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
       EXAMPLE_NON_EXISTING_POINT,
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
       false,
     ],
-  ] as const;
-  test.each(cases)("%s", (name, point, selected, expected) => {
-    expect(Selection.hasPoint(selected, EXAMPLE_DATA, point)).toBe(expected);
+  ];
+  test.each(cases)("%s", (name, selected, point, expected) => {
+    expect(selected.has(EXAMPLE_DATA, point)).toBe(expected);
   });
 });
 
-describe("Selection.modifyEdge()", () => {
-  const cases = [
+describe("Selection.prototype.modifyEdge()", () => {
+  const cases: Array<
+    [
+      name: string,
+      selection: Selection,
+      active: Point.Point,
+      data: Matrix.Matrix<unknown>,
+      direction: Direction,
+      expected: Selection
+    ]
+  > = [
     [
       "modifies range",
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
       Point.ORIGIN,
       EXAMPLE_DATA,
-      Selection.Direction.Right,
-      new PointRange(Point.ORIGIN, { row: 0, column: 1 }),
+      Direction.Right,
+      new RangeSelection(new PointRange(Point.ORIGIN, { row: 0, column: 1 })),
     ],
     [
       "modifies entire rows",
-      Selection.createEntireRows(0, 0),
+      new EntireRowsSelection(0, 0),
       Point.ORIGIN,
       EXAMPLE_DATA,
-      Selection.Direction.Bottom,
-      Selection.createEntireRows(0, 1),
+      Direction.Bottom,
+      new EntireRowsSelection(0, 1),
     ],
     [
       "modifies entire columns",
-      Selection.createEntireColumns(0, 0),
+      new EntireColumnsSelection(0, 0),
       Point.ORIGIN,
       EXAMPLE_DATA,
-      Selection.Direction.Right,
-      Selection.createEntireColumns(0, 1),
+      Direction.Right,
+      new EntireColumnsSelection(0, 1),
     ],
     [
       "does nothing if no active and selection",
-      null,
-      null,
+      new EmptySelection(),
+      Point.ORIGIN,
       EXAMPLE_DATA,
-      Selection.Direction.Left,
-      null,
+      Direction.Left,
+      new EmptySelection(),
     ],
-  ] as const;
+  ];
   test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
-    expect(Selection.modifyEdge(selection, active, data, edge)).toEqual(
-      expected
-    );
+    expect(selection.modifyEdge(active, data, edge)).toEqual(expected);
   });
 });
 
-describe("Selection.modifyPointRangeEdge()", () => {
-  const cases = [
+describe("RangeSelection.modifyEdge()", () => {
+  const cases: Array<
+    [
+      name: string,
+      selection: RangeSelection,
+      active: Point.Point,
+      data: Matrix.Matrix<unknown>,
+      direction: Direction,
+      expected: RangeSelection
+    ]
+  > = [
     [
       "modify left",
-      new PointRange({ row: 0, column: 1 }, { row: 0, column: 1 }),
+      new RangeSelection(
+        new PointRange({ row: 0, column: 1 }, { row: 0, column: 1 })
+      ),
       { row: 0, column: 1 },
       EXAMPLE_DATA,
-      Selection.Direction.Left,
-      new PointRange(Point.ORIGIN, { row: 0, column: 1 }),
+      Direction.Left,
+      new RangeSelection(new PointRange(Point.ORIGIN, { row: 0, column: 1 })),
     ],
     [
       "modify left, blocked",
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
       Point.ORIGIN,
       EXAMPLE_DATA,
-      Selection.Direction.Left,
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
+      Direction.Left,
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
     ],
     [
       "modify left, backwards",
-      new PointRange(Point.ORIGIN, { row: 0, column: 1 }),
+      new RangeSelection(new PointRange(Point.ORIGIN, { row: 0, column: 1 })),
       Point.ORIGIN,
       EXAMPLE_DATA,
-      Selection.Direction.Left,
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
+      Direction.Left,
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
     ],
     [
       "modify right",
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
       Point.ORIGIN,
       EXAMPLE_DATA,
-      Selection.Direction.Right,
-      new PointRange(Point.ORIGIN, { row: 0, column: 1 }),
+      Direction.Right,
+      new RangeSelection(new PointRange(Point.ORIGIN, { row: 0, column: 1 })),
     ],
     [
       "modify right, blocked",
-      new PointRange(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
-      EXAMPLE_DATA_MAX_POINT,
-      EXAMPLE_DATA,
-      Selection.Direction.Right,
-      new PointRange(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
-    ],
-    [
-      "modify right, backwards",
-      new PointRange(Point.ORIGIN, { row: 0, column: 1 }),
-      { row: 0, column: 1 },
-      EXAMPLE_DATA,
-      Selection.Direction.Right,
-      new PointRange({ row: 0, column: 1 }, { row: 0, column: 1 }),
-    ],
-    [
-      "modify top",
-      new PointRange({ row: 1, column: 0 }, { row: 1, column: 0 }),
-      { row: 1, column: 0 },
-      EXAMPLE_DATA,
-      Selection.Direction.Top,
-      new PointRange(Point.ORIGIN, { row: 1, column: 0 }),
-    ],
-    [
-      "modify top, blocked",
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Selection.Direction.Top,
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
-    ],
-    [
-      "modify top, backwards",
-      new PointRange(Point.ORIGIN, { row: 1, column: 0 }),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Selection.Direction.Top,
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
-    ],
-    [
-      "modify bottom",
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Selection.Direction.Bottom,
-      new PointRange(Point.ORIGIN, { row: 1, column: 0 }),
-    ],
-    [
-      "modify bottom, blocked",
-      new PointRange(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
-      EXAMPLE_DATA_MAX_POINT,
-      EXAMPLE_DATA,
-      Selection.Direction.Bottom,
-      new PointRange(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT),
-    ],
-    [
-      "modify bottom, backwards",
-      new PointRange(Point.ORIGIN, { row: 1, column: 0 }),
-      { row: 1, column: 0 },
-      EXAMPLE_DATA,
-      Selection.Direction.Bottom,
-      new PointRange({ row: 1, column: 0 }, { row: 1, column: 0 }),
-    ],
-  ] as const;
-  test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
-    expect(Selection.modifyRangeEdge(selection, active, data, edge)).toEqual(
-      expected
-    );
-  });
-});
-
-describe("Selection.modifyEntireRowsEdge()", () => {
-  const cases = [
-    [
-      "modify left",
-      Selection.createEntireRows(0, 0),
-      { row: 0, column: 1 },
-      EXAMPLE_DATA,
-      Selection.Direction.Left,
-      Selection.createEntireRows(0, 0),
-    ],
-    [
-      "modify right",
-      Selection.createEntireRows(0, 0),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Selection.Direction.Right,
-      Selection.createEntireRows(0, 0),
-    ],
-    [
-      "modify top",
-      Selection.createEntireRows(1, 1),
-      { row: 1, column: 0 },
-      EXAMPLE_DATA,
-      Selection.Direction.Top,
-      Selection.createEntireRows(0, 1),
-    ],
-    [
-      "modify top, blocked",
-      Selection.createEntireRows(0, 0),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Selection.Direction.Top,
-      Selection.createEntireRows(0, 0),
-    ],
-    [
-      "modify top, backwards",
-      Selection.createEntireRows(0, 1),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Selection.Direction.Top,
-      Selection.createEntireRows(0, 0),
-    ],
-    [
-      "modify bottom",
-      Selection.createEntireRows(0, 0),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Selection.Direction.Bottom,
-      Selection.createEntireRows(0, 1),
-    ],
-    [
-      "modify bottom, blocked",
-      Selection.createEntireRows(
-        EXAMPLE_DATA_MAX_POINT.row,
-        EXAMPLE_DATA_MAX_POINT.row
+      new RangeSelection(
+        new PointRange(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT)
       ),
       EXAMPLE_DATA_MAX_POINT,
       EXAMPLE_DATA,
-      Selection.Direction.Bottom,
-      Selection.createEntireRows(
-        EXAMPLE_DATA_MAX_POINT.row,
-        EXAMPLE_DATA_MAX_POINT.row
-      ),
-    ],
-    [
-      "modify bottom, backwards",
-      Selection.createEntireRows(0, 1),
-      { row: 1, column: 0 },
-      EXAMPLE_DATA,
-      Selection.Direction.Bottom,
-      Selection.createEntireRows(1, 1),
-    ],
-  ] as const;
-  test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
-    expect(
-      Selection.modifyEntireRowsEdge(selection, active, data, edge)
-    ).toEqual(expected);
-  });
-});
-
-describe("Selection.modifyEntireColumnsEdge()", () => {
-  const cases = [
-    [
-      "modify top",
-      Selection.createEntireColumns(0, 0),
-      { row: 1, column: 0 },
-      EXAMPLE_DATA,
-      Selection.Direction.Top,
-      Selection.createEntireColumns(0, 0),
-    ],
-    [
-      "modify bottom",
-      Selection.createEntireColumns(0, 0),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Selection.Direction.Bottom,
-      Selection.createEntireColumns(0, 0),
-    ],
-    [
-      "modify left",
-      Selection.createEntireColumns(1, 1),
-      { row: 0, column: 1 },
-      EXAMPLE_DATA,
-      Selection.Direction.Left,
-      Selection.createEntireColumns(0, 1),
-    ],
-    [
-      "modify left, blocked",
-      Selection.createEntireColumns(0, 0),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Selection.Direction.Left,
-      Selection.createEntireColumns(0, 0),
-    ],
-    [
-      "modify left, backwards",
-      Selection.createEntireColumns(0, 1),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Selection.Direction.Left,
-      Selection.createEntireColumns(0, 0),
-    ],
-    [
-      "modify right",
-      Selection.createEntireColumns(0, 0),
-      Point.ORIGIN,
-      EXAMPLE_DATA,
-      Selection.Direction.Right,
-      Selection.createEntireColumns(0, 1),
-    ],
-    [
-      "modify right, blocked",
-      Selection.createEntireColumns(
-        EXAMPLE_DATA_MAX_POINT.row,
-        EXAMPLE_DATA_MAX_POINT.row
-      ),
-      EXAMPLE_DATA_MAX_POINT,
-      EXAMPLE_DATA,
-      Selection.Direction.Right,
-      Selection.createEntireColumns(
-        EXAMPLE_DATA_MAX_POINT.row,
-        EXAMPLE_DATA_MAX_POINT.row
+      Direction.Right,
+      new RangeSelection(
+        new PointRange(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT)
       ),
     ],
     [
       "modify right, backwards",
-      Selection.createEntireColumns(0, 1),
+      new RangeSelection(new PointRange(Point.ORIGIN, { row: 0, column: 1 })),
       { row: 0, column: 1 },
       EXAMPLE_DATA,
-      Selection.Direction.Right,
-      Selection.createEntireColumns(1, 1),
+      Direction.Right,
+      new RangeSelection(
+        new PointRange({ row: 0, column: 1 }, { row: 0, column: 1 })
+      ),
     ],
-  ] as const;
+    [
+      "modify top",
+      new RangeSelection(
+        new PointRange({ row: 1, column: 0 }, { row: 1, column: 0 })
+      ),
+      { row: 1, column: 0 },
+      EXAMPLE_DATA,
+      Direction.Top,
+      new RangeSelection(new PointRange(Point.ORIGIN, { row: 1, column: 0 })),
+    ],
+    [
+      "modify top, blocked",
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Direction.Top,
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
+    ],
+    [
+      "modify top, backwards",
+      new RangeSelection(new PointRange(Point.ORIGIN, { row: 1, column: 0 })),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Direction.Top,
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
+    ],
+    [
+      "modify bottom",
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Direction.Bottom,
+      new RangeSelection(new PointRange(Point.ORIGIN, { row: 1, column: 0 })),
+    ],
+    [
+      "modify bottom, blocked",
+      new RangeSelection(
+        new PointRange(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT)
+      ),
+      EXAMPLE_DATA_MAX_POINT,
+      EXAMPLE_DATA,
+      Direction.Bottom,
+      new RangeSelection(
+        new PointRange(EXAMPLE_DATA_MAX_POINT, EXAMPLE_DATA_MAX_POINT)
+      ),
+    ],
+    [
+      "modify bottom, backwards",
+      new RangeSelection(new PointRange(Point.ORIGIN, { row: 1, column: 0 })),
+      { row: 1, column: 0 },
+      EXAMPLE_DATA,
+      Direction.Bottom,
+      new RangeSelection(
+        new PointRange({ row: 1, column: 0 }, { row: 1, column: 0 })
+      ),
+    ],
+  ];
   test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
-    expect(
-      Selection.modifyEntireColumnsEdge(selection, active, data, edge)
-    ).toEqual(expected);
+    expect(selection.modifyEdge(active, data, edge)).toEqual(expected);
   });
 });
 
-describe("Selection.size()", () => {
-  const cases = [
-    ["defined selection", new PointRange(Point.ORIGIN, Point.ORIGIN), 1],
-    ["no selection", null, 0],
-  ] as const;
+describe("EntireRowsSelection.modifyEdge()", () => {
+  const cases: Array<
+    [
+      name: string,
+      selection: EntireRowsSelection,
+      active: Point.Point,
+      data: Matrix.Matrix<unknown>,
+      direction: Direction,
+      expected: EntireRowsSelection
+    ]
+  > = [
+    [
+      "modify left",
+      new EntireRowsSelection(0, 0),
+      { row: 0, column: 1 },
+      EXAMPLE_DATA,
+      Direction.Left,
+      new EntireRowsSelection(0, 0),
+    ],
+    [
+      "modify right",
+      new EntireRowsSelection(0, 0),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Direction.Right,
+      new EntireRowsSelection(0, 0),
+    ],
+    [
+      "modify top",
+      new EntireRowsSelection(1, 1),
+      { row: 1, column: 0 },
+      EXAMPLE_DATA,
+      Direction.Top,
+      new EntireRowsSelection(0, 1),
+    ],
+    [
+      "modify top, blocked",
+      new EntireRowsSelection(0, 0),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Direction.Top,
+      new EntireRowsSelection(0, 0),
+    ],
+    [
+      "modify top, backwards",
+      new EntireRowsSelection(0, 1),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Direction.Top,
+      new EntireRowsSelection(0, 0),
+    ],
+    [
+      "modify bottom",
+      new EntireRowsSelection(0, 0),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Direction.Bottom,
+      new EntireRowsSelection(0, 1),
+    ],
+    [
+      "modify bottom, blocked",
+      new EntireRowsSelection(
+        EXAMPLE_DATA_MAX_POINT.row,
+        EXAMPLE_DATA_MAX_POINT.row
+      ),
+      EXAMPLE_DATA_MAX_POINT,
+      EXAMPLE_DATA,
+      Direction.Bottom,
+      new EntireRowsSelection(
+        EXAMPLE_DATA_MAX_POINT.row,
+        EXAMPLE_DATA_MAX_POINT.row
+      ),
+    ],
+    [
+      "modify bottom, backwards",
+      new EntireRowsSelection(0, 1),
+      { row: 1, column: 0 },
+      EXAMPLE_DATA,
+      Direction.Bottom,
+      new EntireRowsSelection(1, 1),
+    ],
+  ];
+  test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
+    expect(selection.modifyEdge(active, data, edge)).toEqual(expected);
+  });
+});
+
+describe("EntireColumnsSelection.modifyEdge()", () => {
+  const cases: Array<
+    [
+      name: string,
+      selection: EntireColumnsSelection,
+      active: Point.Point,
+      data: Matrix.Matrix<unknown>,
+      direction: Direction,
+      expected: EntireColumnsSelection
+    ]
+  > = [
+    [
+      "modify top",
+      new EntireColumnsSelection(0, 0),
+      { row: 1, column: 0 },
+      EXAMPLE_DATA,
+      Direction.Top,
+      new EntireColumnsSelection(0, 0),
+    ],
+    [
+      "modify bottom",
+      new EntireColumnsSelection(0, 0),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Direction.Bottom,
+      new EntireColumnsSelection(0, 0),
+    ],
+    [
+      "modify left",
+      new EntireColumnsSelection(1, 1),
+      { row: 0, column: 1 },
+      EXAMPLE_DATA,
+      Direction.Left,
+      new EntireColumnsSelection(0, 1),
+    ],
+    [
+      "modify left, blocked",
+      new EntireColumnsSelection(0, 0),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Direction.Left,
+      new EntireColumnsSelection(0, 0),
+    ],
+    [
+      "modify left, backwards",
+      new EntireColumnsSelection(0, 1),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Direction.Left,
+      new EntireColumnsSelection(0, 0),
+    ],
+    [
+      "modify right",
+      new EntireColumnsSelection(0, 0),
+      Point.ORIGIN,
+      EXAMPLE_DATA,
+      Direction.Right,
+      new EntireColumnsSelection(0, 1),
+    ],
+    [
+      "modify right, blocked",
+      new EntireColumnsSelection(
+        EXAMPLE_DATA_MAX_POINT.row,
+        EXAMPLE_DATA_MAX_POINT.row
+      ),
+      EXAMPLE_DATA_MAX_POINT,
+      EXAMPLE_DATA,
+      Direction.Right,
+      new EntireColumnsSelection(
+        EXAMPLE_DATA_MAX_POINT.row,
+        EXAMPLE_DATA_MAX_POINT.row
+      ),
+    ],
+    [
+      "modify right, backwards",
+      new EntireColumnsSelection(0, 1),
+      { row: 0, column: 1 },
+      EXAMPLE_DATA,
+      Direction.Right,
+      new EntireColumnsSelection(1, 1),
+    ],
+  ];
+  test.each(cases)("%s", (name, selection, active, data, edge, expected) => {
+    expect(selection.modifyEdge(active, data, edge)).toEqual(expected);
+  });
+});
+
+describe("Selection.prototype.size()", () => {
+  const cases: Array<[name: string, selection: Selection, expected: number]> = [
+    [
+      "defined selection",
+      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
+      1,
+    ],
+    ["no selection", new EmptySelection(), 0],
+  ];
   test.each(cases)("%s", (name, selection, expected) => {
-    expect(Selection.size(selection, EXAMPLE_DATA)).toBe(expected);
+    expect(selection.size(EXAMPLE_DATA)).toBe(expected);
   });
 });
 
-describe("Selection.getMatrixRange()", () => {
+describe("getMatrixRange()", () => {
   test("Returns the point range of given matrix", () => {
-    expect(Selection.getMatrixRange(EXAMPLE_DATA)).toEqual(
+    expect(getMatrixRange(EXAMPLE_DATA)).toEqual(
       new PointRange(Point.ORIGIN, {
         row: EXAMPLE_DATA_COLUMNS_COUNT - 1,
         column: EXAMPLE_DATA_ROWS_COUNT - 1,
@@ -559,45 +588,59 @@ describe("Selection.getMatrixRange()", () => {
   });
 });
 
-describe("Selection.hasEntireRow()", () => {
-  const cases = [
+describe("Selection.prototype.hasEntireRow()", () => {
+  const cases: Array<
+    [name: string, selection: Selection, row: number, expected: boolean]
+  > = [
     [
       "returns true for entire row in selection",
-      Selection.createEntireRows(0, 0),
+      new EntireRowsSelection(0, 0),
       0,
       true,
     ],
     [
       "returns false for row not in entire row selection",
-      Selection.createEntireRows(0, 0),
+      new EntireRowsSelection(0, 0),
       1,
       false,
     ],
-    ["returns false for non-entire-rows selection", null, 0, false],
-  ] as const;
+    [
+      "returns false for non-entire-rows selection",
+      new EmptySelection(),
+      0,
+      false,
+    ],
+  ];
   test.each(cases)("%s", (name, selection, row, expected) => {
-    expect(Selection.hasEntireRow(selection, row)).toBe(expected);
+    expect(selection.hasEntireRow(row)).toBe(expected);
   });
 });
 
-describe("Selection.hasEntireColumn()", () => {
-  const cases = [
+describe("Selection.prototype.hasEntireColumn()", () => {
+  const cases: Array<
+    [name: string, selection: Selection, column: number, expected: boolean]
+  > = [
     [
       "returns true for entire column in selection",
-      Selection.createEntireColumns(0, 0),
+      new EntireColumnsSelection(0, 0),
       0,
       true,
     ],
     [
       "returns false for column not in entire column selection",
-      Selection.createEntireColumns(0, 0),
+      new EntireColumnsSelection(0, 0),
       1,
       false,
     ],
-    ["returns false for non-entire-columns selection", null, 0, false],
-  ] as const;
+    [
+      "returns false for non-entire-columns selection",
+      new EmptySelection(),
+      0,
+      false,
+    ],
+  ];
   test.each(cases)("%s", (name, selection, column, expected) => {
-    expect(Selection.hasEntireColumn(selection, column)).toBe(expected);
+    expect(selection.hasEntireColumn(column)).toBe(expected);
   });
 });
 
@@ -608,6 +651,6 @@ describe("isIndex", () => {
     ["returns false for a negative integer", -1, false],
   ] as const;
   test.each(cases)("%s", (name, value, expected) => {
-    expect(Selection.isIndex(value)).toEqual(expected);
+    expect(isIndex(value)).toEqual(expected);
   });
 });

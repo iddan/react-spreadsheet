@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "classnames";
 import * as Actions from "./actions";
-import * as Selection from "./selection";
+import { EntireTableSelection } from "./selection";
 import * as Types from "./types";
 import useDispatch from "./use-dispatch";
 import useSelector from "./use-selector";
@@ -35,8 +35,8 @@ export const enhance = (
       () => dispatch(Actions.selectEntireTable()),
       [dispatch]
     );
-    const selected = useSelector((state) =>
-      Selection.isEntireTable(state.selected)
+    const selected = useSelector(
+      (state) => state.selected instanceof EntireTableSelection
     );
     return (
       <CornerIndicatorComponent

@@ -43,10 +43,8 @@ export const enhance = (
         dispatch(Actions.selectEntireColumn(column, extend)),
       [dispatch]
     );
-    const selected = useSelector(
-      (state) =>
-        Selection.hasEntireColumn(state.selected, props.column) ||
-        Selection.isEntireTable(state.selected)
+    const selected = useSelector((state) =>
+      state.selected.hasEntireColumn(props.column)
     );
     return (
       <ColumnIndicatorComponent

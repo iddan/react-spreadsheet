@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as Selection from "./selection";
 import { getSelectedDimensions } from "./util";
 import FloatingRect from "./FloatingRect";
 import useSelector from "./use-selector";
@@ -18,7 +17,7 @@ const Selected: React.FC = () => {
   );
   const dragging = useSelector((state) => state.dragging);
   const hidden = useSelector(
-    (state) => Selection.size(state.selected, state.model.data) < 2
+    (state) => state.selected.size(state.model.data) < 2
   );
   return (
     <FloatingRect

@@ -2,7 +2,7 @@ import * as Types from "./types";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import { PointRange } from "./point-range";
-import * as Selection from "./selection";
+import { Selection } from "./selection";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";
 
@@ -125,9 +125,9 @@ export function getSelectedDimensions(
   rowDimensions: Types.StoreState["rowDimensions"],
   columnDimensions: Types.StoreState["columnDimensions"],
   data: Matrix.Matrix<unknown>,
-  selected: Selection.Selection
+  selected: Selection
 ): Types.Dimensions | undefined {
-  const range = Selection.toRange(selected, data);
+  const range = selected.toRange(data);
   return range
     ? getRangeDimensions(rowDimensions, columnDimensions, range)
     : undefined;

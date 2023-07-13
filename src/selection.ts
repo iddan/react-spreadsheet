@@ -9,386 +9,290 @@ export enum Direction {
   Bottom = "Bottom",
 }
 
-/** Type entirely selected */
-export enum EntireType {
-  Row = "row",
-  Column = "column",
-  Table = "table",
-}
-
-export type Entire = {
-  type: EntireType;
-};
-
-/** Selection of entire rows */
-export type EntireRows = Entire & {
-  type: EntireType.Row;
-  /** Selection start index, integer */
-  start: number;
-  /** Selection end index, integer */
-  end: number;
-};
-
-/** Selection of entire columns */
-export type EntireColumns = Entire & {
-  type: EntireType.Column;
-  /** Selection start index, integer */
-  start: number;
-  /** Selection end index, integer */
-  end: number;
-};
-
-/** Selection of an entire table */
-export type EntireTable = Entire & {
-  type: EntireType.Table;
-};
-
 /** Selection from a spreadsheet */
-export type Selection =
-  | PointRange
-  | EntireRows
-  | EntireColumns
-  | EntireTable
-  | null;
+export abstract class Selection {
+  /** Get concrete range of the selection in the given data */
+  abstract toRange(data: Matrix.Matrix<unknown>): PointRange | null;
 
-/** Returns whether given selection is entire rows */
-export function isEntireRows(selection: Selection): selection is EntireRows {
-  return (
-    selection !== null &&
-    "type" in selection &&
-    selection.type === EntireType.Row
-  );
-}
+  /** Normalize the selection according to the given data */
+  abstract normalizeTo(data: Matrix.Matrix<unknown>): this;
 
-/** Returns whether given selection is entire columns */
-export function isEntireColumns(selection: Selection): selection is EntireRows {
-  return (
-    selection !== null &&
-    "type" in selection &&
-    selection.type === EntireType.Column
-  );
-}
+  /** Modify given edge according to given active point and data */
+  abstract modifyEdge(
+    active: Point.Point,
+    data: Matrix.Matrix<unknown>,
+    edge: Direction
+  ): this;
 
-/** Returns whether given selection is entire table */
-export function isEntireTable(selection: Selection): selection is EntireTable {
-  return (
-    selection !== null &&
-    "type" in selection &&
-    selection.type === EntireType.Table
-  );
-}
-
-/**
- * Creates entire rows selection
- * @param start - row index where the selection starts, integer
- * @param end - row index where the selection ends, integer
- * @throws {@link InvalidIndexError}
- */
-export function createEntireRows(start: number, end: number): EntireRows {
-  if (!isIndex(start)) {
-    throw new InvalidIndexError("start");
+  /** Get the number of selected points according to given data */
+  size(data: Matrix.Matrix<unknown>): number {
+    const range = this.toRange(data);
+    return range ? range.size() : 0;
   }
-  if (!isIndex(end)) {
-    throw new InvalidIndexError("end");
+
+  /** Return whether the given point is within the selection */
+  has(data: Matrix.Matrix<unknown>, point: Point.Point): boolean {
+    const range = this.toRange(data);
+    return range !== null && range.has(point);
   }
-  return {
-    type: EntireType.Row,
-    start: Math.min(start, end),
-    end: Math.max(start, end),
-  };
+
+  getPoints(data: Matrix.Matrix<unknown>): Point.Point[] {
+    const range = this.toRange(data);
+    return range ? Array.from(range.iterate()) : [];
+  }
+
+  /** Return whether the given row is entirely selected in given selection */
+  hasEntireRow(row: number): boolean {
+    return false;
+  }
+
+  /** Return whether the given column is entirely selected in given selection */
+  hasEntireColumn(column: number): boolean {
+    return false;
+  }
+
+  /** Get given selection from given data */
+  getFromMatrix<T>(data: Matrix.Matrix<T>): Matrix.Matrix<T> {
+    const range = this.toRange(data);
+    return range ? range.getFromMatrix(data) : [];
+  }
 }
 
-/**
- * Creates entire columns selection
- * @param start - column index where the selection starts, integer
- * @param end - column index where the selection starts, integer
- */
-export function createEntireColumns(start: number, end: number): EntireColumns {
-  if (!isIndex(start)) {
-    throw new InvalidIndexError("start");
-  }
-  if (!isIndex(end)) {
-    throw new InvalidIndexError("end");
-  }
-  return {
-    type: EntireType.Column,
-    start: Math.min(start, end),
-    end: Math.max(start, end),
-  };
-}
-
-/** Creates entire table selection */
-export function createEntireTable(): EntireTable {
-  // create an object as in the future this might hold the worksheet number
-  return { type: EntireType.Table };
-}
-
-/** Get concrete range in given data of given selection */
-export function toRange(
-  selection: Selection,
-  data: Matrix.Matrix<unknown>
-): PointRange | null {
-  if (selection === null) {
+export class EmptySelection extends Selection {
+  toRange(data: Matrix.Matrix<unknown>): PointRange | null {
     return null;
   }
-  if (selection instanceof PointRange) {
-    return selection;
+  normalizeTo(data: Matrix.Matrix<unknown>): this {
+    return this;
   }
-  switch (selection.type) {
-    case EntireType.Row: {
-      const max = Matrix.maxPoint(data);
-      return new PointRange(
-        { row: selection.start, column: 0 },
-        { row: selection.end, column: max.column }
-      );
-    }
-    case EntireType.Column: {
-      const max = Matrix.maxPoint(data);
-      return new PointRange(
-        { row: 0, column: selection.start },
-        { row: max.row, column: selection.end }
-      );
-    }
-    case EntireType.Table: {
-      return getMatrixRange(data);
-    }
+  modifyEdge(
+    active: Point.Point,
+    data: Matrix.Matrix<unknown>,
+    edge: Direction
+  ): this {
+    return this;
   }
 }
 
-/** Get the number of points selected */
-export function size(
-  selection: Selection,
-  data: Matrix.Matrix<unknown>
-): number {
-  const range = toRange(selection, data);
-  return range ? range.size() : 0;
-}
-
-/** Return whether the given point is within given selection */
-export function hasPoint(
-  selection: Selection,
-  data: Matrix.Matrix<unknown>,
-  point: Point.Point
-): boolean {
-  const range = toRange(selection, data);
-  return range !== null && range.has(point);
-}
-
-/** Return whether the given row is entirely selected in given selection */
-export function hasEntireRow(selection: Selection, row: number): boolean {
-  return (
-    isEntireRows(selection) && row >= selection.start && row <= selection.end
-  );
-}
-
-/** Return whether the given column is entirely selected in given selection */
-export function hasEntireColumn(selection: Selection, column: number): boolean {
-  return (
-    isEntireColumns(selection) &&
-    column >= selection.start &&
-    column <= selection.end
-  );
-}
-
-/** Normalize given selection to given data matrix */
-export function normalize(
-  selection: Selection,
-  data: Matrix.Matrix<unknown>
-): Selection {
-  if (selection) {
-    if (selection instanceof PointRange) {
-      return normalizeRange(selection, data);
-    }
-    switch (selection.type) {
-      case EntireType.Row: {
-        return normalizeEntireRows(selection, data);
-      }
-      case EntireType.Column: {
-        return normalizeEntireColumns(selection, data);
-      }
-    }
+export class RangeSelection extends Selection {
+  constructor(public range: PointRange) {
+    super();
   }
-  return selection;
-}
 
-/** Normalize given range to given data matrix */
-export function normalizeRange(
-  range: PointRange,
-  data: Matrix.Matrix<unknown>
-): PointRange {
-  const dataRange = getMatrixRange(data);
-  return range.mask(dataRange);
-}
-
-/** Normalize given entire rows selection to given data matrix */
-export function normalizeEntireRows(
-  selection: EntireRows,
-  data: Matrix.Matrix<unknown>
-): EntireRows {
-  const count = Matrix.getRowsCount(data);
-  return createEntireRows(
-    Math.max(selection.start, 0),
-    Math.min(selection.end, count - 1)
-  );
-}
-
-/** Normalize given entire columns selection to given data matrix */
-export function normalizeEntireColumns(
-  selection: EntireColumns,
-  data: Matrix.Matrix<unknown>
-): EntireColumns {
-  const count = Matrix.getColumnsCount(data);
-  return createEntireColumns(
-    Math.max(selection.start, 0),
-    Math.min(selection.end, count - 1)
-  );
-}
-
-/** Get selected points */
-export function getPoints(
-  selection: Selection,
-  data: Matrix.Matrix<unknown>
-): Point.Point[] {
-  const range = toRange(selection, data);
-  return range ? Array.from(range.iterate()) : [];
-}
-
-/** Get given selection from given data */
-export function getSelectionFromMatrix<T>(
-  selection: Selection,
-  data: Matrix.Matrix<T>
-): Matrix.Matrix<T> {
-  const range = toRange(selection, data);
-  return range ? getRangeFromMatrix(range, data) : [];
-}
-
-/** Modify given edge of given selection according to given active point and data matrix */
-export function modifyEdge(
-  selection: Selection,
-  active: Point.Point | null,
-  data: Matrix.Matrix<unknown>,
-  edge: Direction
-): Selection {
-  if (active && selection) {
-    if (selection instanceof PointRange) {
-      return modifyRangeEdge(selection, active, data, edge);
-    }
-    switch (selection.type) {
-      case EntireType.Row: {
-        return modifyEntireRowsEdge(selection, active, data, edge);
-      }
-      case EntireType.Column: {
-        return modifyEntireColumnsEdge(selection, active, data, edge);
-      }
-    }
+  toRange(data: Matrix.Matrix<unknown>): PointRange | null {
+    return this.range;
   }
-  return selection;
+
+  normalizeTo(data: Matrix.Matrix<unknown>): this {
+    const dataRange = getMatrixRange(data);
+    const nextSelection = new RangeSelection(this.range.mask(dataRange));
+    // @ts-expect-error
+    return nextSelection;
+  }
+
+  modifyEdge(
+    active: Point.Point,
+    data: Matrix.Matrix<unknown>,
+    edge: Direction
+  ): this {
+    const field =
+      edge === Direction.Left || edge === Direction.Right ? "column" : "row";
+
+    const key =
+      edge === Direction.Left || edge === Direction.Top ? "start" : "end";
+    const delta = key === "start" ? -1 : 1;
+
+    const edgeOffsets = this.range.has({
+      ...active,
+      [field]: active[field] + delta * -1,
+    });
+
+    const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
+
+    const nextRange = new PointRange(this.range.start, this.range.end);
+
+    nextRange[keyToModify][field] += delta;
+
+    const nextSelection = new RangeSelection(nextRange).normalizeTo(data);
+
+    // @ts-expect-error
+    return nextSelection;
+  }
 }
 
-/** Modify given edge of given entire rows selection according to given active point and active matrix */
-export function modifyEntireRowsEdge(
-  selection: EntireRows,
-  active: Point.Point,
-  data: Matrix.Matrix<unknown>,
-  edge: Direction
-): EntireRows {
-  if (edge === Direction.Left || edge === Direction.Right) {
-    return selection;
+abstract class EntireSelection extends Selection {}
+
+export class EntireTableSelection extends EntireSelection {
+  toRange(data: Matrix.Matrix<unknown>): PointRange {
+    return getMatrixRange(data);
   }
-  const delta = edge === Direction.Top ? -1 : 1;
-  const property = edge === Direction.Top ? "start" : "end";
-  const oppositeProperty = property === "start" ? "end" : "start";
-  let nextSelection;
-  if (
-    edge === Direction.Top
-      ? selection.end > active.row
-      : selection.start < active.row
+  modifyEdge(
+    active: Point.Point,
+    data: Matrix.Matrix<unknown>,
+    edge: Direction
+  ): this {
+    return this;
+  }
+  normalizeTo(data: Matrix.Matrix<unknown>): this {
+    return this;
+  }
+  hasEntireColumn(column: number): boolean {
+    return true;
+  }
+  hasEntireRow(row: number): boolean {
+    return true;
+  }
+}
+
+export class EntireRowsSelection extends EntireSelection {
+  /** Selection start index, integer */
+  start: number;
+  /** Selection end index, integer */
+  end: number;
+
+  /**
+   * @param start - row index where the selection starts, integer
+   * @param end - row index where the selection ends, integer
+   * @throws {@link InvalidIndexError}
+   */
+  constructor(start: number, end: number) {
+    if (!isIndex(start)) {
+      throw new InvalidIndexError("start");
+    }
+    if (!isIndex(end)) {
+      throw new InvalidIndexError("end");
+    }
+    super();
+    this.start = Math.min(start, end);
+    this.end = Math.max(start, end);
+  }
+
+  toRange(data: Matrix.Matrix<unknown>): PointRange {
+    const max = Matrix.maxPoint(data);
+    return new PointRange(
+      { row: this.start, column: 0 },
+      { row: this.end, column: max.column }
+    );
+  }
+
+  normalizeTo(data: Matrix.Matrix<unknown>): this {
+    const count = Matrix.getRowsCount(data);
+    const nextSelection = new EntireRowsSelection(
+      Math.max(this.start, 0),
+      Math.min(this.end, count - 1)
+    );
+    // @ts-expect-error
+    return nextSelection;
+  }
+
+  hasEntireRow(row: number): boolean {
+    return row >= this.start && row <= this.end;
+  }
+
+  modifyEdge(
+    active: Point.Point,
+    data: Matrix.Matrix<unknown>,
+    edge: Direction
+  ): this {
+    if (edge === Direction.Left || edge === Direction.Right) {
+      return this;
+    }
+    const delta = edge === Direction.Top ? -1 : 1;
+    const property = edge === Direction.Top ? "start" : "end";
+    const oppositeProperty = property === "start" ? "end" : "start";
+    const nextSelection = new EntireRowsSelection(this.start, this.end);
+    if (
+      edge === Direction.Top ? this.end > active.row : this.start < active.row
+    ) {
+      nextSelection[oppositeProperty] = this[oppositeProperty] + delta;
+    } else {
+      nextSelection[property] = this[property] + delta;
+    }
+    // @ts-expect-error
+    return nextSelection.normalizeTo(data);
+  }
+}
+
+export class EntireColumnsSelection extends EntireSelection {
+  /** Selection start index, integer */
+  public start: number;
+  /** Selection end index, integer */
+  public end: number;
+
+  /**
+   * Creates entire columns selection
+   * @param start - column index where the selection starts, integer
+   * @param end - column index where the selection starts, integer
+   */
+  constructor(
+    /** Selection start index, integer */
+    start: number,
+    /** Selection end index, integer */
+    end: number
   ) {
-    nextSelection = {
-      ...selection,
-      [oppositeProperty]: selection[oppositeProperty] + delta,
-    };
-  } else {
-    nextSelection = {
-      ...selection,
-      [property]: selection[property] + delta,
-    };
+    if (!isIndex(start)) {
+      throw new InvalidIndexError("start");
+    }
+    if (!isIndex(end)) {
+      throw new InvalidIndexError("end");
+    }
+    super();
+    this.start = Math.min(start, end);
+    this.end = Math.max(start, end);
   }
-  return normalizeEntireRows(nextSelection, data);
-}
 
-/** Modify given edge of given entire rows selection according to given active point and active matrix */
-export function modifyEntireColumnsEdge(
-  selection: EntireColumns,
-  active: Point.Point,
-  data: Matrix.Matrix<unknown>,
-  edge: Direction
-): EntireColumns {
-  if (edge === Direction.Top || edge === Direction.Bottom) {
-    return selection;
+  toRange(data: Matrix.Matrix<unknown>): PointRange {
+    const max = Matrix.maxPoint(data);
+    return new PointRange(
+      { row: 0, column: this.start },
+      { row: max.row, column: this.end }
+    );
   }
-  const delta = edge === Direction.Left ? -1 : 1;
-  const property = edge === Direction.Left ? "start" : "end";
-  const oppositeProperty = property === "start" ? "end" : "start";
-  let nextSelection;
-  if (
-    edge === Direction.Left
-      ? selection.end > active.column
-      : selection.start < active.column
-  ) {
-    nextSelection = {
-      ...selection,
-      [oppositeProperty]: selection[oppositeProperty] + delta,
-    };
-  } else {
-    nextSelection = {
-      ...selection,
-      [property]: selection[property] + delta,
-    };
+
+  normalizeTo(data: Matrix.Matrix<unknown>): this {
+    const count = Matrix.getColumnsCount(data);
+    const nextSelection = new EntireColumnsSelection(
+      Math.max(this.start, 0),
+      Math.min(this.end, count - 1)
+    );
+    // @ts-expect-error
+    return nextSelection;
   }
-  return normalizeEntireColumns(nextSelection, data);
-}
 
-/** Modify given edge of given range according to given active point and data matrix */
-export function modifyRangeEdge(
-  range: PointRange,
-  active: Point.Point,
-  data: Matrix.Matrix<unknown>,
-  edge: Direction
-): PointRange {
-  const field =
-    edge === Direction.Left || edge === Direction.Right ? "column" : "row";
+  hasEntireColumn(column: number): boolean {
+    return column >= this.start && column <= this.end;
+  }
 
-  const key =
-    edge === Direction.Left || edge === Direction.Top ? "start" : "end";
-  const delta = key === "start" ? -1 : 1;
-
-  const edgeOffsets = range.has({
-    ...active,
-    [field]: active[field] + delta * -1,
-  });
-
-  const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
-
-  const nextRange = new PointRange(range.start, range.end);
-
-  nextRange[keyToModify][field] += delta;
-
-  return normalizeRange(nextRange, data);
+  modifyEdge(
+    active: Point.Point,
+    data: Matrix.Matrix<unknown>,
+    edge: Direction
+  ): this {
+    if (edge === Direction.Top || edge === Direction.Bottom) {
+      return this;
+    }
+    const delta = edge === Direction.Left ? -1 : 1;
+    const property = edge === Direction.Left ? "start" : "end";
+    const oppositeProperty = property === "start" ? "end" : "start";
+    const nextSelection = new EntireColumnsSelection(this.start, this.end);
+    if (
+      edge === Direction.Left
+        ? this.end > active.column
+        : this.start < active.column
+    ) {
+      nextSelection[oppositeProperty] = this[oppositeProperty] + delta;
+    } else {
+      nextSelection[property] = this[property] + delta;
+    }
+    // @ts-expect-error
+    return nextSelection.normalizeTo(data);
+  }
 }
 
 /** Get the point range of given matrix */
 export function getMatrixRange(data: Matrix.Matrix<unknown>): PointRange {
   const maxPoint = Matrix.maxPoint(data);
   return new PointRange(Point.ORIGIN, maxPoint);
-}
-
-/** Get a matrix of values in given range from given matrix */
-export function getRangeFromMatrix<T>(
-  range: PointRange,
-  matrix: Matrix.Matrix<T>
-): Matrix.Matrix<T> {
-  return Matrix.slice(range.start, range.end, matrix);
 }
 
 /** Returns whether given value is a valid index */
