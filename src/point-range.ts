@@ -23,7 +23,7 @@ export class PointRange {
   }
 
   /** Iterates through all the existing points in given range */
-  *iterate(): Iterable<Point.Point> {
+  *[Symbol.iterator](): Iterator<Point.Point> {
     for (let row = this.start.row; row <= this.end.row; row++) {
       for (
         let column = this.start.column;

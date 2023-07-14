@@ -38,7 +38,7 @@ export abstract class Selection {
 
   getPoints(data: Matrix.Matrix<unknown>): Point.Point[] {
     const range = this.toRange(data);
-    return range ? Array.from(range.iterate()) : [];
+    return range ? Array.from(range) : [];
   }
 
   /** Return whether the given row is entirely selected in given selection */

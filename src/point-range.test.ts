@@ -5,7 +5,7 @@ const POINT_0_1: Point.Point = { row: 0, column: 1 };
 const POINT_0_2: Point.Point = { row: 0, column: 2 };
 const ORIGIN_RANGE = new PointRange(Point.ORIGIN, Point.ORIGIN);
 
-describe("PointRange.prototype.iterate()", () => {
+describe("PointRange iterator", () => {
   const cases: Array<[string, PointRange, Point.Point[]]> = [
     ["Range of size 1", ORIGIN_RANGE, [Point.ORIGIN]],
     [
@@ -20,7 +20,7 @@ describe("PointRange.prototype.iterate()", () => {
     ],
   ];
   test.each(cases)("%s", (name, range, expected) => {
-    expect(Array.from(range.iterate())).toEqual(expected);
+    expect(Array.from(range)).toEqual(expected);
   });
 });
 

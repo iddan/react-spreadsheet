@@ -92,7 +92,7 @@ export function getReferences(
 
           const range = new PointRange(normalizedFrom, normalizedTo);
 
-          return Array.from(range.iterate());
+          return Array.from(range);
         }
         return { row: reference.row - 1, column: reference.col - 1 };
       })
