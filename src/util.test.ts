@@ -60,7 +60,7 @@ const EXAMPLE_STATE: Types.StoreState = {
   dragging: false,
   model: new Model(EXAMPLE_DATA),
   selected: new EmptySelection(),
-  copied: PointMap.from([]),
+  copied: null,
   lastCommit: null,
 };
 const EXAMPLE_STRING = "EXAMPLE_STRING";
@@ -356,22 +356,6 @@ describe("readTextFromClipboard()", () => {
     // Undefine as it is not a native JS-DOM property
     // @ts-ignore
     delete window.clipoardData;
-  });
-});
-
-describe("getCopiedRange()", () => {
-  const cases = [
-    [
-      "Returns range of copied cells",
-      EXAMPLE_COPIED,
-      false,
-      new PointRange(Point.ORIGIN, Point.ORIGIN),
-    ],
-    ["Returns null if none is copied", EXAMPLE_EMPTY_COPIED, false, null],
-    ["Returns null if hasPasted is true", EXAMPLE_COPIED, true, null],
-  ] as const;
-  test.each(cases)("%s", (name, copied, hasPasted, expected) => {
-    expect(util.getCopiedRange(copied, hasPasted)).toEqual(expected);
   });
 });
 

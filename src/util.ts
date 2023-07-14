@@ -163,18 +163,6 @@ export function convertPointMapToPointSet(map: PointMap<unknown>): PointSet {
   return PointSet.from(Array.from(map.keys()));
 }
 
-/** Get the range of copied cells. If none are copied return null */
-export function getCopiedRange(
-  copied: Types.StoreState["copied"],
-  hasPasted: boolean
-): PointRange | null {
-  if (hasPasted || copied.isEmpty()) {
-    return null;
-  }
-  const set = convertPointMapToPointSet(copied);
-  return set.toRange();
-}
-
 /** Should spreadsheet handle clipboard event */
 export function shouldHandleClipboardEvent(
   root: Element | null,

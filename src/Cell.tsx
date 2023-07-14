@@ -112,10 +112,16 @@ export const enhance = (
   return function CellWrapper(props) {
     const { row, column } = props;
     const dispatch = useDispatch();
+    const point = React.useMemo(
+      (): Point.Point => ({
+        row,
+        column,
+      }),
+      [row, column]
+    );
     const setCellData = React.useCallback(
-      (data: Types.CellBase) =>
-        dispatch(Actions.setCellData({ column, row }, data)),
-      [dispatch, column, row]
+      (data: Types.CellBase) => dispatch(Actions.setCellData(point, data)),
+      [dispatch, point]
     );
     const select = React.useCallback(
       (point: Point.Point) => dispatch(Actions.select(point)),
@@ -130,25 +136,18 @@ export const enhance = (
         dispatch(Actions.setCellDimensions(point, dimensions)),
       [dispatch]
     );
-    const active = useSelector((state) =>
-      isActive(state.active, {
-        row,
-        column,
-      })
-    );
+    const active = useSelector((state) => isActive(state.active, point));
     const mode = useSelector((state) => (active ? state.mode : "view"));
-    const data = useSelector((state) =>
-      Matrix.get({ row, column }, state.model.data)
-    );
+    const data = useSelector((state) => Matrix.get(point, state.model.data));
     const evaluatedData = useSelector((state) =>
-      Matrix.get({ row, column }, state.model.evaluatedData)
+      Matrix.get(point, state.model.evaluatedData)
     );
 
     const selected = useSelector((state) =>
-      state.selected.has(state.model.data, { row, column })
+      state.selected.has(state.model.data, point)
     );
     const dragging = useSelector((state) => state.dragging);
-    const copied = useSelector((state) => state.copied.has({ row, column }));
+    const copied = useSelector((state) => state.copied?.has(point) || false);
 
     return (
       <CellComponent

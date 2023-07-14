@@ -1,12 +1,10 @@
 import * as React from "react";
 import FloatingRect from "./FloatingRect";
-import { getCopiedRange, getRangeDimensions } from "./util";
+import { getRangeDimensions } from "./util";
 import useSelector from "./use-selector";
 
 const Copied: React.FC = () => {
-  const range = useSelector((state) =>
-    getCopiedRange(state.copied, state.hasPasted)
-  );
+  const range = useSelector((state) => state.copied);
   const dimensions = useSelector(
     (state) =>
       range &&

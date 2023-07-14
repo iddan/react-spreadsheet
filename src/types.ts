@@ -1,8 +1,9 @@
 import * as React from "react";
 import { Point } from "./point";
-import { PointMap } from "./point-map";
 import { Selection } from "./selection";
 import { Model } from "./engine";
+import { PointRange } from "./point-range";
+import { Matrix } from "./matrix";
 
 /** The base type of cell data in Spreadsheet */
 export type CellBase<Value = any> = {
@@ -45,7 +46,7 @@ export type Dimensions = {
 export type StoreState<Cell extends CellBase = CellBase> = {
   model: Model<Cell>;
   selected: Selection;
-  copied: PointMap<Cell>;
+  copied: PointRange | null;
   hasPasted: boolean;
   cut: boolean;
   active: Point | null;

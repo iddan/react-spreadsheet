@@ -26,7 +26,7 @@ export const INITIAL_STATE: Types.StoreState = {
   dragging: false,
   model: new Model([]),
   selected: new EmptySelection(),
-  copied: PointMap.from([]),
+  copied: null,
   lastCommit: null,
 };
 
@@ -142,13 +142,10 @@ export default function reducer(
     }
     case Actions.COPY:
     case Actions.CUT: {
-      const selectedPoints = state.selected.getPoints(state.model.data);
+      const selectedRange = state.selected.toRange(state.model.data);
       return {
         ...state,
-        copied: selectedPoints.reduce((acc, point) => {
-          const cell = Matrix.get(point, state.model.data);
-          return cell === undefined ? acc : acc.set(point, cell);
-        }, PointMap.from<Types.CellBase>([])),
+        copied: selectedRange,
         cut: action.type === Actions.CUT,
         hasPasted: false,
       };
@@ -220,6 +217,7 @@ export default function reducer(
             column: active.column + copiedSize.columns - 1,
           })
         ),
+        copied: null,
         cut: false,
         hasPasted: true,
         mode: "view",
