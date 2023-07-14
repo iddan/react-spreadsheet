@@ -1,3 +1,5 @@
+const path = require("path");
+
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: "React Spreadsheet",
@@ -17,6 +19,11 @@ module.exports = {
           to: "docs/",
           activeBasePath: "docs",
           label: "Docs",
+          position: "left",
+        },
+        {
+          to: "api",
+          label: "API",
           position: "left",
         },
         // Please keep GitHub link to the right for consistency.
@@ -52,16 +59,15 @@ module.exports = {
   ],
   plugins: [
     [
-      "docusaurus-plugin-typedoc",
+      "docusaurus-plugin-typedoc-api",
       {
-        entryPoints: ["../src/index.ts"],
-        tsconfig: "../tsconfig.json",
-        out: "api",
-        readme: "none",
-        excludeNotDocumented: true,
-        plugin: ["typedoc-plugin-rename-defaults"],
+        projectRoot: path.resolve(__dirname, ".."),
+        packages: ["."],
         exclude: ["**/*.test.ts", "**/*.test.tsx", "**/*.stories.tsx"],
-        readmeTitle: "API",
+        typedocOptions: {
+          excludeNotDocumented: true,
+          plugin: ["typedoc-plugin-rename-defaults"],
+        },
       },
     ],
   ],
