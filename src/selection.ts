@@ -24,6 +24,12 @@ export abstract class Selection {
     edge: Direction
   ): this;
 
+  /** Return whether the given row is entirely selected in given selection */
+  abstract hasEntireRow(row: number): boolean;
+
+  /** Return whether the given column is entirely selected in given selection */
+  abstract hasEntireColumn(column: number): boolean;
+
   /** Get the number of selected points according to given data */
   size(data: Matrix.Matrix<unknown>): number {
     const range = this.toRange(data);
@@ -34,16 +40,6 @@ export abstract class Selection {
   has(data: Matrix.Matrix<unknown>, point: Point.Point): boolean {
     const range = this.toRange(data);
     return range !== null && range.has(point);
-  }
-
-  /** Return whether the given row is entirely selected in given selection */
-  hasEntireRow(row: number): boolean {
-    return false;
-  }
-
-  /** Return whether the given column is entirely selected in given selection */
-  hasEntireColumn(column: number): boolean {
-    return false;
   }
 }
 
@@ -60,6 +56,12 @@ export class EmptySelection extends Selection {
     edge: Direction
   ): this {
     return this;
+  }
+  hasEntireRow(row: number): boolean {
+    return false;
+  }
+  hasEntireColumn(column: number): boolean {
+    return false;
   }
 }
 
@@ -106,6 +108,14 @@ export class RangeSelection extends Selection {
 
     // @ts-expect-error
     return nextSelection;
+  }
+
+  hasEntireRow(row: number): boolean {
+    return false;
+  }
+
+  hasEntireColumn(column: number): boolean {
+    return false;
   }
 }
 
@@ -178,6 +188,10 @@ export class EntireRowsSelection extends EntireSelection {
     return row >= this.start && row <= this.end;
   }
 
+  hasEntireColumn(column: number): boolean {
+    return false;
+  }
+
   modifyEdge(
     active: Point.Point,
     data: Matrix.Matrix<unknown>,
@@ -246,6 +260,10 @@ export class EntireColumnsSelection extends EntireSelection {
     );
     // @ts-expect-error
     return nextSelection;
+  }
+
+  hasEntireRow(row: number): boolean {
+    return false;
   }
 
   hasEntireColumn(column: number): boolean {
