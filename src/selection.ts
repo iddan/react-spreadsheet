@@ -50,12 +50,6 @@ export abstract class Selection {
   hasEntireColumn(column: number): boolean {
     return false;
   }
-
-  /** Get given selection from given data */
-  getFromMatrix<T>(data: Matrix.Matrix<T>): Matrix.Matrix<T> {
-    const range = this.toRange(data);
-    return range ? range.getFromMatrix(data) : [];
-  }
 }
 
 export class EmptySelection extends Selection {

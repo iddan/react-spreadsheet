@@ -23,7 +23,6 @@ import DefaultDataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import * as Selection from "./selection";
 import {
   range,
   readTextFromClipboard,
@@ -239,13 +238,16 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     }
   }, [props.data, setData]);
 
-  const clip = React.useCallback(
+  const writeDataToClipboard = React.useCallback(
     (event: ClipboardEvent): void => {
       const { model, selected } = state;
       const { data } = model;
-      const selectedData = selected.getFromMatrix(data);
-      const csv = getCSV(selectedData);
-      writeTextToClipboard(event, csv);
+      const range = selected.toRange(data);
+      if (range) {
+        const selectedData = Matrix.slice(range.start, range.end, data);
+        const csv = getCSV(selectedData);
+        writeTextToClipboard(event, csv);
+      }
     },
     [state]
   );
@@ -255,11 +257,11 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       if (shouldHandleClipboardEvent(rootRef.current, mode)) {
         event.preventDefault();
         event.stopPropagation();
-        clip(event);
+        writeDataToClipboard(event);
         cut();
       }
     },
-    [mode, clip, cut]
+    [mode, writeDataToClipboard, cut]
   );
 
   const handleCopy = React.useCallback(
@@ -267,11 +269,11 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       if (shouldHandleClipboardEvent(rootRef.current, mode)) {
         event.preventDefault();
         event.stopPropagation();
-        clip(event);
+        writeDataToClipboard(event);
         copy();
       }
     },
-    [mode, clip, copy]
+    [mode, writeDataToClipboard, copy]
   );
 
   const handlePaste = React.useCallback(
