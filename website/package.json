@@ -34,7 +34,6 @@
     "react-spreadsheet": "^0.8.0",
     "scheduler": "^0.23.0",
     "typedoc": "^0.24.5",
-    "typedoc-plugin-markdown": "^3.15.2",
     "typedoc-plugin-rename-defaults": "^0.6.5",
     "typescript": "^5.0.4",
     "url-loader": "^4.1.1",
