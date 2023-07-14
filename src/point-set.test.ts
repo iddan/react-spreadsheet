@@ -4,7 +4,7 @@ import * as Point from "./point";
 const MIN_POINT = Point.ORIGIN;
 const MAX_POINT: Point.Point = { row: 2, column: 2 };
 
-const EXAMPLE_POINTS = [
+const EXAMPLE_POINTS: Point.Point[] = [
   MIN_POINT,
   { row: 0, column: 1 },
   { row: 1, column: 1 },
@@ -27,14 +27,14 @@ describe("PointSet.prototype.has()", () => {
 
 describe("PointSet.prototype.size()", () => {
   test("Returns the number of points in a PointSet object", () => {
-    expect(EXAMPLE_SET.size()).toBe(4);
+    expect(EXAMPLE_SET.size()).toBe(EXAMPLE_POINTS.length);
   });
 });
 
-describe("PointSet.prototype.subtract()", () => {
-  test("Subtracts given set from the set", () => {
+describe("PointSet.prototype.difference()", () => {
+  test("Subtracts given other set from the set", () => {
     expect(
-      EXAMPLE_SET.subtract(
+      EXAMPLE_SET.difference(
         PointSet.from([
           { row: 0, column: 1 },
           { row: 1, column: 1 },
@@ -46,11 +46,6 @@ describe("PointSet.prototype.subtract()", () => {
 
 describe("PointSet iterator", () => {
   test("Returns an iterator of points in the set", () => {
-    expect(Array.from(EXAMPLE_SET)).toEqual([
-      MIN_POINT,
-      { row: 0, column: 1 },
-      { row: 1, column: 1 },
-      MAX_POINT,
-    ]);
+    expect(Array.from(EXAMPLE_SET)).toEqual(EXAMPLE_POINTS);
   });
 });

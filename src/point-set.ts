@@ -35,9 +35,9 @@ export class PointSet {
     return new PointSet(this.pointMap.unset(point));
   }
 
-  subtract(toSubtract: PointSet): PointSet {
+  difference(other: PointSet): PointSet {
     let newSet = this as PointSet;
-    for (const point of toSubtract) {
+    for (const point of other) {
       newSet = newSet.remove(point);
     }
     return newSet;

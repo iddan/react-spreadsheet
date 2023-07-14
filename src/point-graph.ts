@@ -26,7 +26,7 @@ export class PointGraph {
         : this.forward.set(point, points);
 
     const existing = this.forward.get(point);
-    const toAdd = existing ? points.subtract(existing) : points;
+    const toAdd = existing ? points.difference(existing) : points;
 
     let newBackward = this.backward;
     for (const p of toAdd) {
@@ -34,7 +34,7 @@ export class PointGraph {
       newBackward = newBackward.set(p, set.add(point));
     }
     if (existing) {
-      const toRemove = existing.subtract(points);
+      const toRemove = existing.difference(points);
       for (const p of toRemove) {
         const set = newBackward.get(p);
         if (!set) {
