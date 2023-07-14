@@ -12,7 +12,7 @@ export class PointGraph {
     let backward = PointMap.from<PointSet>([]);
     for (const [point, points] of pairs) {
       const set = backward.get(point) || PointSet.from([]);
-      for (const p of points.toArray()) {
+      for (const p of points) {
         backward = backward.set(p, set.add(point));
       }
     }
@@ -29,13 +29,13 @@ export class PointGraph {
     const toAdd = existing ? points.subtract(existing) : points;
 
     let newBackward = this.backward;
-    for (const p of toAdd.values()) {
+    for (const p of toAdd) {
       const set = newBackward.get(p) || PointSet.from([]);
       newBackward = newBackward.set(p, set.add(point));
     }
     if (existing) {
       const toRemove = existing.subtract(points);
-      for (const p of toRemove.values()) {
+      for (const p of toRemove) {
         const set = newBackward.get(p);
         if (!set) {
           continue;
@@ -75,7 +75,7 @@ export class PointGraph {
       }
 
       // Otherwise, add the dependents to the stack if they have not yet been visited
-      for (const dependent of backwardDependencies.values()) {
+      for (const dependent of backwardDependencies) {
         yield dependent;
         stack.push(dependent);
       }
@@ -104,7 +104,7 @@ export class PointGraph {
         continue;
       }
 
-      for (const dependent of dependents.values()) {
+      for (const dependent of dependents) {
         stack.push(dependent);
       }
     }
@@ -144,7 +144,7 @@ export class PointGraph {
       }
 
       // Otherwise, add the dependents to the queue if they have not yet been visited
-      for (const dependent of dependents.values()) {
+      for (const dependent of dependents) {
         if (!visited.has(dependent)) {
           queue.push(dependent);
           visited = visited.add(dependent);

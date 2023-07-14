@@ -1,4 +1,3 @@
-import { PointMap } from "./point-map";
 import { PointRange } from "./point-range";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
@@ -157,12 +156,8 @@ export default function reducer(
       if (!active) {
         return state;
       }
-      const copiedMatrix = Matrix.split(text, (value) => ({ value }));
-      const copied = PointMap.fromMatrix<any>(copiedMatrix);
-
-      const minPoint = copied.min();
-
-      const copiedSize = Matrix.getSize(copiedMatrix);
+      const copied = Matrix.split(text, (value) => ({ value }));
+      const copiedSize = Matrix.getSize(copied);
       const requiredSize: Matrix.Size = {
         rows: active.row + copiedSize.rows,
         columns: active.column + copiedSize.columns,
@@ -173,36 +168,36 @@ export default function reducer(
         data: Types.StoreState["model"]["data"];
         commit: Types.StoreState["lastCommit"];
       } = { data: paddedData, commit: [] };
-      for (const [point, value] of copied.entries()) {
+      for (const [point, cell] of Matrix.entries(copied)) {
         let commit = acc.commit || [];
         const nextPoint: Point.Point = {
-          row: point.row - minPoint.row + active.row,
-          column: point.column - minPoint.column + active.column,
+          row: point.row + active.row,
+          column: point.column + active.column,
         };
 
         const nextData = state.cut ? Matrix.unset(point, acc.data) : acc.data;
 
         if (state.cut) {
-          commit = [...commit, { prevCell: value, nextCell: null }];
+          commit = [...commit, { prevCell: cell || null, nextCell: null }];
         }
 
         if (!Matrix.has(nextPoint, paddedData)) {
           acc = { data: nextData, commit };
         }
 
-        const currentValue = Matrix.get(nextPoint, nextData) || null;
+        const currentCell = Matrix.get(nextPoint, nextData) || null;
 
         commit = [
           ...commit,
           {
-            prevCell: currentValue,
-            nextCell: value,
+            prevCell: currentCell,
+            nextCell: cell || null,
           },
         ];
 
         acc.data = Matrix.set(
           nextPoint,
-          { ...currentValue, ...value },
+          { value: undefined, ...currentCell, ...cell },
           nextData
         );
         acc.commit = commit;

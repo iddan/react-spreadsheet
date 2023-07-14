@@ -1,5 +1,4 @@
 import { PointSet } from "./point-set";
-import { PointRange } from "./point-range";
 import * as Point from "./point";
 
 const MIN_POINT = Point.ORIGIN;
@@ -14,43 +13,25 @@ const EXAMPLE_POINTS = [
 
 const EXAMPLE_SET = PointSet.from(EXAMPLE_POINTS);
 
-describe("PointSet.from()", () => {
+describe("PointSet.prototype.from()", () => {
   test("creates same set for same points", () => {
     expect(EXAMPLE_SET).toEqual(PointSet.from(EXAMPLE_POINTS));
   });
 });
 
-describe("PointSet.has()", () => {
+describe("PointSet.prototype.has()", () => {
   test("Returns a boolean asserting whether an point is present with the given value in the Set object or not", () => {
     expect(EXAMPLE_SET.has(MAX_POINT)).toBe(true);
   });
 });
 
-describe("PointSet.size()", () => {
+describe("PointSet.prototype.size()", () => {
   test("Returns the number of points in a PointSet object", () => {
     expect(EXAMPLE_SET.size()).toBe(4);
   });
 });
 
-describe("PointSet.min()", () => {
-  test("Returns the point on the minimal row in the minimal column in the set", () => {
-    expect(EXAMPLE_SET.min()).toEqual(MIN_POINT);
-  });
-});
-
-describe("PointSet.max()", () => {
-  test("Returns the point on the maximal row in the maximal column in the set", () => {
-    expect(EXAMPLE_SET.max()).toEqual(MAX_POINT);
-  });
-});
-
-describe("PointSet.toRange", () => {
-  test("Transforms given set to range", () => {
-    expect(EXAMPLE_SET.toRange()).toEqual(new PointRange(MIN_POINT, MAX_POINT));
-  });
-});
-
-describe("PointSet.subtract", () => {
+describe("PointSet.prototype.subtract()", () => {
   test("Subtracts given set from the set", () => {
     expect(
       EXAMPLE_SET.subtract(
@@ -63,9 +44,9 @@ describe("PointSet.subtract", () => {
   });
 });
 
-describe("PointSet.values", () => {
+describe("PointSet iterator", () => {
   test("Returns an iterator of points in the set", () => {
-    expect(Array.from(EXAMPLE_SET.values())).toEqual([
+    expect(Array.from(EXAMPLE_SET)).toEqual([
       MIN_POINT,
       { row: 0, column: 1 },
       { row: 1, column: 1 },

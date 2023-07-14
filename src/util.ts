@@ -3,8 +3,6 @@ import * as Matrix from "./matrix";
 import * as Point from "./point";
 import { PointRange } from "./point-range";
 import { Selection } from "./selection";
-import { PointMap } from "./point-map";
-import { PointSet } from "./point-set";
 
 export { createEmpty as createEmptyMatrix } from "./matrix";
 
@@ -156,11 +154,6 @@ export function calculateSpreadsheetSize(
     rows: rowLabels ? Math.max(rows, rowLabels.length) : rows,
     columns: columnLabels ? Math.max(columns, columnLabels.length) : columns,
   };
-}
-
-/** Transform given point map to a point set */
-export function convertPointMapToPointSet(map: PointMap<unknown>): PointSet {
-  return PointSet.from(Array.from(map.keys()));
 }
 
 /** Should spreadsheet handle clipboard event */

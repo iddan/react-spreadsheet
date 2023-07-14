@@ -60,12 +60,6 @@ describe("PointMap.has()", () => {
   });
 });
 
-describe("PointMap.fromMatrix()", () => {
-  test("Creates point map from matrix", () => {
-    expect(PointMap.fromMatrix(MATRIX)).toEqual(MAP);
-  });
-});
-
 describe("PointMap.size()", () => {
   test("Returns correct size", () => {
     expect(MAP.size()).toBe(4);

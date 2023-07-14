@@ -2,7 +2,6 @@
  * Immutable unordered Map like interface of point to value pairs.
  */
 import * as Point from "./point";
-import * as matrix from "./matrix";
 
 type Data<T> = {
   [K in number]: {
@@ -19,18 +18,6 @@ export class PointMap<T> {
     for (const [point, value] of pairs) {
       data[point.row] = data[point.row] || {};
       data[point.row][point.column] = value;
-    }
-    return new PointMap(data);
-  }
-
-  /** Creates a new PointMap instance from a Matrix. */
-  static fromMatrix<T>(m: matrix.Matrix<T>): PointMap<T> {
-    const data: Data<T> = {};
-    for (const [point, value] of matrix.entries(m)) {
-      if (value !== undefined) {
-        data[point.row] = data[point.row] || {};
-        data[point.row][point.column] = value;
-      }
     }
     return new PointMap(data);
   }
@@ -85,34 +72,6 @@ export class PointMap<T> {
     return acc;
   }
 
-  /** Creates a new map with the results of calling a provided function on every value in the calling map */
-  map<T2>(func: (t1: T, point: Point.Point) => T2): PointMap<T2> {
-    const data: Data<T2> = {};
-    for (const [point, value] of this.entries()) {
-      const { row, column } = point;
-      data[row] = data[row] || {};
-      data[row][column] = func(value, point);
-    }
-    return new PointMap(data);
-  }
-
-  /** Returns whether map has any points set to value */
-  isEmpty(): boolean {
-    return Object.keys(this.data).length === 0;
-  }
-
-  /** Returns the point with the minimum row and column */
-  min(): Point.Point {
-    const row = minKey(this.data);
-    return { row, column: minKey(this.data[row]) };
-  }
-
-  /** Returns the point on the maximal row in the maximal column in the set */
-  max(): Point.Point {
-    const row = maxKey(this.data);
-    return { row, column: maxKey(this.data[row]) };
-  }
-
   /** Iterate over pairs of point and value in the map */
   *entries(): Generator<[Point.Point, T]> {
     for (const row in this.data) {
@@ -134,12 +93,3 @@ export class PointMap<T> {
     }
   }
 }
-
-const minKey = (object: Record<number, any>): number => {
-  /* @ts-ignore*/
-  return Math.min(...Object.keys(object));
-};
-
-const maxKey = (object: Record<number, any>): number =>
-  // @ts-ignore
-  Math.max(...Object.keys(object));

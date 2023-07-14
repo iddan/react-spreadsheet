@@ -5,7 +5,6 @@
 import { Model } from "./engine";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
-import { PointMap } from "./point-map";
 import { PointRange } from "./point-range";
 import { Selection, EmptySelection, RangeSelection } from "./selection";
 import * as Types from "./types";
@@ -64,12 +63,6 @@ const EXAMPLE_STATE: Types.StoreState = {
   lastCommit: null,
 };
 const EXAMPLE_STRING = "EXAMPLE_STRING";
-const EXAMPLE_CELL: Types.CellBase = {
-  value: "EXAMPLE_CELL_VALUE",
-};
-
-const EXAMPLE_EMPTY_COPIED = PointMap.from<Types.CellBase>([]);
-const EXAMPLE_COPIED = PointMap.from([[Point.ORIGIN, EXAMPLE_CELL]]);
 
 beforeEach(() => {
   jest.clearAllMocks();

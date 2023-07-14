@@ -4,7 +4,6 @@
 
 import * as Point from "./point";
 import { PointMap } from "./point-map";
-import { PointRange } from "./point-range";
 
 export class PointSet {
   private constructor(
@@ -26,23 +25,6 @@ export class PointSet {
     return this.pointMap.size();
   }
 
-  /** Returns the point on the minimal row in the minimal column in the set */
-  min(): Point.Point {
-    return this.pointMap.min();
-  }
-
-  /** Returns the point on the maximal row in the maximal column in the set */
-  max(): Point.Point {
-    return this.pointMap.max();
-  }
-
-  /** Transform a point set to a range */
-  toRange(): PointRange {
-    const start = this.min();
-    const end = this.max();
-    return new PointRange(start, end);
-  }
-
   /** Add the given point to given set */
   add(point: Point.Point): PointSet {
     return new PointSet(this.pointMap.set(point, true));
@@ -55,18 +37,13 @@ export class PointSet {
 
   subtract(toSubtract: PointSet): PointSet {
     let newSet = this as PointSet;
-    for (const point of toSubtract.toArray()) {
+    for (const point of toSubtract) {
       newSet = newSet.remove(point);
     }
     return newSet;
   }
 
-  /** Create an array from given set */
-  toArray(): Point.Point[] {
-    return Array.from(this.values());
-  }
-
-  *values(): Generator<Point.Point> {
-    yield* this.pointMap.keys();
+  [Symbol.iterator](): Iterator<Point.Point> {
+    return this.pointMap.keys();
   }
 }
