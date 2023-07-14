@@ -304,21 +304,20 @@ function clear(state: Types.StoreState): Types.StoreState {
     return Object.assign({}, cell, { value: undefined });
   };
 
-  const selectedPoints = state.selected.getPoints(state.model.data);
+  const selectedRange = state.selected.toRange(state.model.data);
 
-  const changes = selectedPoints.map((point) => {
+  const changes: Types.CommitChanges = [];
+  let newData = state.model.data;
+
+  for (const point of selectedRange || []) {
     const cell = Matrix.get(point, state.model.data);
-    return {
-      ...state,
+    const clearedCell = clearCell(cell);
+    changes.push({
       prevCell: cell || null,
-      nextCell: clearCell(cell) || null,
-    };
-  });
-
-  const newData = selectedPoints.reduce((acc, point) => {
-    const cell = Matrix.get(point, acc);
-    return Matrix.set(point, clearCell(cell), acc);
-  }, state.model.data);
+      nextCell: clearedCell || null,
+    });
+    newData = Matrix.set(point, clearedCell, newData);
+  }
 
   return {
     ...state,

@@ -173,22 +173,6 @@ describe("RangeSelection.normalizeTo()", () => {
   });
 });
 
-describe("Selection.prototype.getPoints()", () => {
-  const cases: Array<
-    [name: string, selection: Selection, expected: Point.Point[]]
-  > = [
-    ["Returns empty for non-range", new EmptySelection(), []],
-    [
-      "Returns points for range",
-      new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
-      [Point.ORIGIN],
-    ],
-  ];
-  test.each(cases)("%s", (name, selected, expected) => {
-    expect(selected.getPoints(EXAMPLE_DATA)).toEqual(expected);
-  });
-});
-
 describe("Selection.prototype.has()", () => {
   const cases: Array<
     [name: string, selection: Selection, point: Point.Point, expected: boolean]

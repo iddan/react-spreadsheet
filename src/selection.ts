@@ -36,11 +36,6 @@ export abstract class Selection {
     return range !== null && range.has(point);
   }
 
-  getPoints(data: Matrix.Matrix<unknown>): Point.Point[] {
-    const range = this.toRange(data);
-    return range ? Array.from(range) : [];
-  }
-
   /** Return whether the given row is entirely selected in given selection */
   hasEntireRow(row: number): boolean {
     return false;

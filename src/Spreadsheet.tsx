@@ -197,8 +197,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     }
 
     if (state.selected !== prevState.selected) {
-      const points = state.selected.getPoints(state.model.data);
-      onSelect(points);
+      const selectedRange = state.selected.toRange(state.model.data);
+      const selectedPoints = Array.from(selectedRange || []);
+      onSelect(selectedPoints);
     }
 
     if (state.mode !== prevState.mode) {
