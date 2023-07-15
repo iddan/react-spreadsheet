@@ -2,12 +2,14 @@ import { Point } from "./point";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";
 
+/** A graph of points */
 export class PointGraph {
   private constructor(
     private forward: PointMap<PointSet>,
     private backward: PointMap<PointSet>
   ) {}
 
+  /** Creates a new PointGraph instance from an array-like object. */
   static from(pairs: Array<[Point, PointSet]>): PointGraph {
     let backward = PointMap.from<PointSet>([]);
     for (const [point, points] of pairs) {
@@ -19,6 +21,7 @@ export class PointGraph {
     return new PointGraph(PointMap.from(pairs), backward);
   }
 
+  /** Set points for point */
   set(point: Point, points: PointSet): PointGraph {
     const newForward =
       points.size() === 0
@@ -51,10 +54,12 @@ export class PointGraph {
     return new PointGraph(newForward, newBackward);
   }
 
+  /** Get points for point backwards */
   getBackwards(point: Point): PointSet {
     return this.backward.get(point) || PointSet.from([]);
   }
 
+  /** Recursively get points for point backwards */
   *getBackwardsRecursive(point: Point): Generator<Point> {
     // Create a stack to store the points to visit
     const stack: Point[] = [point];
@@ -82,6 +87,7 @@ export class PointGraph {
     }
   }
 
+  /** Determine whether the graph has a circular dependency, starting from given start point */
   hasCircularDependency(startPoint: Point): boolean {
     let visited = PointSet.from([]);
     const stack: Point[] = [startPoint];
@@ -112,6 +118,7 @@ export class PointGraph {
     return false;
   }
 
+  /** Get the points in the graph in a breadth-first order */
   *traverseBFS(): Generator<Point> {
     // Create a Set to store the points that have been visited
     let visited = PointSet.from([]);
