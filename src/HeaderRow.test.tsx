@@ -6,9 +6,19 @@ import React from "react";
 import { render } from "@testing-library/react";
 import HeaderRow from "./HeaderRow";
 
+const wrapper = ({ children }: { children?: React.ReactNode }) => {
+  return (
+    <table>
+      <tbody>{children}</tbody>
+    </table>
+  );
+};
+
 describe("<HeaderRow />", () => {
   test("renders", () => {
-    render(<HeaderRow />);
+    render(<HeaderRow />, {
+      wrapper,
+    });
     const row = document.querySelector("tr");
     expect(row).not.toBeNull();
   });
@@ -16,7 +26,10 @@ describe("<HeaderRow />", () => {
     render(
       <HeaderRow>
         <th></th>
-      </HeaderRow>
+      </HeaderRow>,
+      {
+        wrapper,
+      }
     );
     const cell = document.querySelector("tr th");
     expect(cell).not.toBeNull();

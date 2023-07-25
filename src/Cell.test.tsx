@@ -58,13 +58,25 @@ const EXAMPLE_CUSTOM_DATA_VIEWER_PROPS: Types.DataViewerProps = {
 };
 const EXAMPLE_POINT: Point.Point = { row: EXAMPLE_ROW, column: EXAMPLE_COLUMN };
 
+const wrapper = ({ children }: { children?: React.ReactNode }) => {
+  return (
+    <table>
+      <tbody>
+        <tr>{children}</tr>
+      </tbody>
+    </table>
+  );
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
 describe("<Cell />", () => {
   test("renders", () => {
-    render(<Cell {...EXAMPLE_PROPS} />);
+    render(<Cell {...EXAMPLE_PROPS} />, {
+      wrapper,
+    });
     const element = document.querySelector(".Spreadsheet__cell");
     expect(element).not.toBeNull();
     expect(MOCK_DATA_VIEWER).toBeCalledTimes(1);
@@ -72,7 +84,9 @@ describe("<Cell />", () => {
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
   });
   test("renders read only", () => {
-    render(<Cell {...EXAMPLE_PROPS} data={EXAMPLE_READ_ONLY_DATA} />);
+    render(<Cell {...EXAMPLE_PROPS} data={EXAMPLE_READ_ONLY_DATA} />, {
+      wrapper,
+    });
     const element = document.querySelector(
       ".Spreadsheet__cell.Spreadsheet__cell--readonly"
     );
@@ -85,7 +99,9 @@ describe("<Cell />", () => {
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
   });
   test("renders with given class name", () => {
-    render(<Cell {...EXAMPLE_PROPS} data={EXAMPLE_DATA_WITH_CLASS_NAME} />);
+    render(<Cell {...EXAMPLE_PROPS} data={EXAMPLE_DATA_WITH_CLASS_NAME} />, {
+      wrapper,
+    });
     const element = document.querySelector(
       `.Spreadsheet__cell.${EXAMPLE_DATA_WITH_CLASS_NAME.className}`
     );
@@ -98,7 +114,9 @@ describe("<Cell />", () => {
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
   });
   test("renders selected", () => {
-    render(<Cell {...EXAMPLE_PROPS} selected />);
+    render(<Cell {...EXAMPLE_PROPS} selected />, {
+      wrapper,
+    });
     const element = document.querySelector<HTMLElement>(".Spreadsheet__cell");
     expect(element).not.toBeNull();
     if (!element) {
@@ -111,7 +129,9 @@ describe("<Cell />", () => {
     );
   });
   test("renders active", () => {
-    render(<Cell {...EXAMPLE_PROPS} active />);
+    render(<Cell {...EXAMPLE_PROPS} active />, {
+      wrapper,
+    });
     const element = document.querySelector<HTMLElement>(".Spreadsheet__cell");
     expect(element).not.toBeNull();
     if (!element) {
@@ -121,7 +141,9 @@ describe("<Cell />", () => {
     expect(MOCK_SET_CELL_DIMENSIONS).toBeCalledTimes(0);
   });
   test("handles mouse down", () => {
-    render(<Cell {...EXAMPLE_PROPS} />);
+    render(<Cell {...EXAMPLE_PROPS} />, {
+      wrapper,
+    });
     const element = document.querySelector<HTMLElement>(".Spreadsheet__cell");
     expect(element).not.toBeNull();
     if (!element) {
@@ -139,7 +161,9 @@ describe("<Cell />", () => {
     expect(MOCK_SELECT).toBeCalledTimes(0);
   });
   test("handles mouse down + shift", () => {
-    render(<Cell {...EXAMPLE_PROPS} />);
+    render(<Cell {...EXAMPLE_PROPS} />, {
+      wrapper,
+    });
     const element = document.querySelector<HTMLElement>(".Spreadsheet__cell");
     expect(element).not.toBeNull();
     if (!element) {
@@ -157,7 +181,9 @@ describe("<Cell />", () => {
     expect(MOCK_SELECT).toBeCalledWith(EXAMPLE_POINT);
   });
   test("handles mouse over with dragging", () => {
-    render(<Cell {...EXAMPLE_PROPS} dragging />);
+    render(<Cell {...EXAMPLE_PROPS} dragging />, {
+      wrapper,
+    });
     const element = document.querySelector<HTMLElement>(".Spreadsheet__cell");
     expect(element).not.toBeNull();
     if (!element) {
@@ -176,7 +202,10 @@ describe("<Cell />", () => {
   });
   test("custom cell DataViewer", () => {
     render(
-      <Cell {...EXAMPLE_PROPS} data={EXAMPLE_DATA_WITH_CUSTOM_DATA_VIEWER} />
+      <Cell {...EXAMPLE_PROPS} data={EXAMPLE_DATA_WITH_CUSTOM_DATA_VIEWER} />,
+      {
+        wrapper,
+      }
     );
     const element = document.querySelector(".Spreadsheet__cell");
     expect(element).not.toBeNull();
