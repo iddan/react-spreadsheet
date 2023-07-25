@@ -9,6 +9,7 @@ import reducer, {
   modifyRangeSelectionEdge,
   modifyEntireRowsSelection,
   modifyEntireColumnsSelection,
+  Direction,
 } from "./reducer";
 import { createEmptyMatrix } from "./util";
 import * as Point from "./point";
@@ -20,7 +21,6 @@ import {
   EntireTableSelection,
   EntireRowsSelection,
   EntireColumnsSelection,
-  Direction,
   EmptySelection,
 } from "./selection";
 import "./areModelsEqual";

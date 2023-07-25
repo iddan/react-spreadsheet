@@ -2,13 +2,6 @@ import { PointRange } from "./point-range";
 import * as Point from "./point";
 import * as Matrix from "./matrix";
 
-export enum Direction {
-  Left = "Left",
-  Right = "Right",
-  Top = "Top",
-  Bottom = "Bottom",
-}
-
 /** Selection from a spreadsheet */
 export abstract class Selection {
   /** Get concrete range of the selection in the given data */
@@ -17,25 +10,20 @@ export abstract class Selection {
   /** Normalize the selection according to the given data */
   abstract normalizeTo(data: Matrix.Matrix<unknown>): this;
 
-  /** Return whether the given row is entirely selected in given selection */
+  /** Determines whether the given row is entirely selected in given selection */
   abstract hasEntireRow(row: number): boolean;
 
-  /** Return whether the given column is entirely selected in given selection */
+  /** Determines whether the given column is entirely selected in given selection */
   abstract hasEntireColumn(column: number): boolean;
 
   /** Get the number of selected points according to given data */
-  size(data: Matrix.Matrix<unknown>): number {
-    const range = this.toRange(data);
-    return range ? range.size() : 0;
-  }
+  abstract size(data: Matrix.Matrix<unknown>): number;
 
-  /** Return whether the given point is within the selection */
-  has(data: Matrix.Matrix<unknown>, point: Point.Point): boolean {
-    const range = this.toRange(data);
-    return range !== null && range.has(point);
-  }
+  /** Determines whether the given point is within the selection */
+  abstract has(data: Matrix.Matrix<unknown>, point: Point.Point): boolean;
 }
 
+/** Selection of no cells */
 export class EmptySelection extends Selection {
   toRange(data: Matrix.Matrix<unknown>): PointRange | null {
     return null;
@@ -49,8 +37,15 @@ export class EmptySelection extends Selection {
   hasEntireColumn(column: number): boolean {
     return false;
   }
+  size(): number {
+    return 0;
+  }
+  has(): boolean {
+    return false;
+  }
 }
 
+/** Selection of a range of cells */
 export class RangeSelection extends Selection {
   constructor(public range: PointRange) {
     super();
@@ -74,10 +69,22 @@ export class RangeSelection extends Selection {
   hasEntireColumn(column: number): boolean {
     return false;
   }
+
+  size(data: Matrix.Matrix<unknown>): number {
+    const range = this.toRange(data);
+    return range ? range.size() : 0;
+  }
+
+  has(data: Matrix.Matrix<unknown>, point: Point.Point): boolean {
+    const range = this.toRange(data);
+    return range !== null && range.has(point);
+  }
 }
 
+/** Selection of an entire part of the spreadsheet */
 abstract class EntireSelection extends Selection {}
 
+/** Selection of the entire table */
 export class EntireTableSelection extends EntireSelection {
   toRange(data: Matrix.Matrix<unknown>): PointRange {
     return getMatrixRange(data);
@@ -86,14 +93,25 @@ export class EntireTableSelection extends EntireSelection {
   normalizeTo(data: Matrix.Matrix<unknown>): this {
     return this;
   }
+
   hasEntireColumn(column: number): boolean {
     return true;
   }
+
   hasEntireRow(row: number): boolean {
+    return true;
+  }
+
+  size(data: Matrix.Matrix<unknown>): number {
+    return Matrix.getColumnsCount(data) * Matrix.getRowsCount(data);
+  }
+
+  has(data: Matrix.Matrix<unknown>, point: Point.Point): boolean {
     return true;
   }
 }
 
+/** Selection of an entire axis in the spreadsheet */
 export abstract class EntireAxisSelection extends EntireSelection {
   /** Selection start index, integer */
   readonly start: number;
@@ -130,6 +148,7 @@ export abstract class EntireAxisSelection extends EntireSelection {
   }
 }
 
+/** Selection of entire rows in the spreadsheet */
 export class EntireRowsSelection extends EntireAxisSelection {
   toRange(data: Matrix.Matrix<unknown>): PointRange {
     const max = Matrix.maxPoint(data);
@@ -156,8 +175,18 @@ export class EntireRowsSelection extends EntireAxisSelection {
   hasEntireColumn(column: number): boolean {
     return false;
   }
+
+  size(data: Matrix.Matrix<unknown>): number {
+    const rows = this.end - this.start + 1;
+    return rows * Matrix.getColumnsCount(data);
+  }
+
+  has(data: Matrix.Matrix<unknown>, point: Point.Point): boolean {
+    return point.row >= this.start && point.row <= this.end;
+  }
 }
 
+/** Selection of entire columns in the spreadsheet */
 export class EntireColumnsSelection extends EntireAxisSelection {
   toRange(data: Matrix.Matrix<unknown>): PointRange {
     const max = Matrix.maxPoint(data);
@@ -184,6 +213,15 @@ export class EntireColumnsSelection extends EntireAxisSelection {
   hasEntireColumn(column: number): boolean {
     return column >= this.start && column <= this.end;
   }
+
+  size(data: Matrix.Matrix<unknown>): number {
+    const columns = this.end - this.start + 1;
+    return columns * Matrix.getRowsCount(data);
+  }
+
+  has(data: Matrix.Matrix<unknown>, point: Point.Point): boolean {
+    return point.column >= this.start && point.column <= this.end;
+  }
 }
 
 /** Get the point range of given matrix */
@@ -192,12 +230,12 @@ export function getMatrixRange(data: Matrix.Matrix<unknown>): PointRange {
   return new PointRange(Point.ORIGIN, maxPoint);
 }
 
-/** Returns whether given value is a valid index */
+/** Determines whether the given value is a valid index */
 export function isIndex(value: number): boolean {
   return Number.isInteger(value) && value >= 0;
 }
 
-/** Error thrown when passing a non-index value where index is expected */
+/** Error thrown when passing a non-index value where an index value is expected */
 export class InvalidIndexError extends Error {
   constructor(name: string) {
     super(`${name} is not a valid index. It must be 0 or a positive integer`);
