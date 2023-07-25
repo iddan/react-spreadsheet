@@ -82,7 +82,7 @@ export class RangeSelection extends Selection {
 }
 
 /** Selection of an entire part of the spreadsheet */
-abstract class EntireSelection extends Selection {}
+export abstract class EntireSelection extends Selection {}
 
 /** Selection of the entire table */
 export class EntireTableSelection extends EntireSelection {
