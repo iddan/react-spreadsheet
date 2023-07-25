@@ -3,6 +3,7 @@ import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
 import {
+  Selection,
   EmptySelection,
   RangeSelection,
   EntireColumnsSelection,
@@ -397,43 +398,39 @@ const editShiftKeyDownHandlers: KeyDownHandlers = {
 const shiftKeyDownHandlers: KeyDownHandlers = {
   ArrowUp: (state) => ({
     ...state,
-    selected: !state.active
-      ? state.selected
-      : state.selected.modifyEdge(
-          state.active,
-          state.model.data,
-          Direction.Top
-        ),
+    selected: modifyEdge(
+      state.selected,
+      state.active,
+      state.model.data,
+      Direction.Top
+    ),
   }),
   ArrowDown: (state) => ({
     ...state,
-    selected: !state.active
-      ? state.selected
-      : state.selected.modifyEdge(
-          state.active,
-          state.model.data,
-          Direction.Bottom
-        ),
+    selected: modifyEdge(
+      state.selected,
+      state.active,
+      state.model.data,
+      Direction.Bottom
+    ),
   }),
   ArrowLeft: (state) => ({
     ...state,
-    selected: !state.active
-      ? state.selected
-      : state.selected.modifyEdge(
-          state.active,
-          state.model.data,
-          Direction.Left
-        ),
+    selected: modifyEdge(
+      state.selected,
+      state.active,
+      state.model.data,
+      Direction.Left
+    ),
   }),
   ArrowRight: (state) => ({
     ...state,
-    selected: !state.active
-      ? state.selected
-      : state.selected.modifyEdge(
-          state.active,
-          state.model.data,
-          Direction.Right
-        ),
+    selected: modifyEdge(
+      state.selected,
+      state.active,
+      state.model.data,
+      Direction.Right
+    ),
   }),
   Tab: go(0, -1),
 };
@@ -485,4 +482,125 @@ export function isActiveReadOnly(state: Types.StoreState): boolean {
 export function getActive(state: Types.StoreState): Types.CellBase | null {
   const activeCell = state.active && Matrix.get(state.active, state.model.data);
   return activeCell || null;
+}
+
+/** Modify given edge according to given active point and data */
+export function modifyEdge<T extends Selection>(
+  selection: T,
+  active: Point.Point | null,
+  data: Matrix.Matrix<unknown>,
+  direction: Direction
+): T {
+  if (!active) {
+    return selection;
+  }
+  if (selection instanceof RangeSelection) {
+    const nextSelection = modifyRangeSelectionEdge(
+      selection,
+      active,
+      data,
+      direction
+    );
+    // @ts-expect-error
+    return nextSelection;
+  }
+  if (selection instanceof EntireColumnsSelection) {
+    // @ts-expect-error
+    return modifyEntireColumnsSelection(selection, active, data, direction);
+  }
+  if (selection instanceof EntireRowsSelection) {
+    // @ts-expect-error
+    return modifyEntireRowsSelection(selection, active, data, direction);
+  }
+  return selection;
+}
+
+export function modifyRangeSelectionEdge(
+  rangeSelection: RangeSelection,
+  active: Point.Point,
+  data: Matrix.Matrix<unknown>,
+  edge: Direction
+): RangeSelection {
+  const field =
+    edge === Direction.Left || edge === Direction.Right ? "column" : "row";
+
+  const key =
+    edge === Direction.Left || edge === Direction.Top ? "start" : "end";
+  const delta = key === "start" ? -1 : 1;
+
+  const edgeOffsets = rangeSelection.range.has({
+    ...active,
+    [field]: active[field] + delta * -1,
+  });
+
+  const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
+
+  const nextRange = new PointRange(
+    rangeSelection.range.start,
+    rangeSelection.range.end
+  );
+
+  nextRange[keyToModify][field] += delta;
+
+  const nextSelection = new RangeSelection(nextRange).normalizeTo(data);
+
+  return nextSelection;
+}
+
+export function modifyEntireRowsSelection(
+  selection: EntireRowsSelection,
+  active: Point.Point,
+  data: Matrix.Matrix<unknown>,
+  edge: Direction
+): EntireRowsSelection {
+  if (edge === Direction.Left || edge === Direction.Right) {
+    return selection;
+  }
+  const delta = edge === Direction.Top ? -1 : 1;
+  const property = edge === Direction.Top ? "start" : "end";
+  const oppositeProperty = property === "start" ? "end" : "start";
+  const newSelectionData = { ...selection };
+  if (
+    edge === Direction.Top
+      ? selection.end > active.row
+      : selection.start < active.row
+  ) {
+    newSelectionData[oppositeProperty] = selection[oppositeProperty] + delta;
+  } else {
+    newSelectionData[property] = selection[property] + delta;
+  }
+  const nextSelection = new EntireRowsSelection(
+    Math.max(newSelectionData.start, 0),
+    Math.max(newSelectionData.end, 0)
+  );
+  return nextSelection.normalizeTo(data);
+}
+
+export function modifyEntireColumnsSelection(
+  selection: EntireColumnsSelection,
+  active: Point.Point,
+  data: Matrix.Matrix<unknown>,
+  edge: Direction
+): EntireColumnsSelection {
+  if (edge === Direction.Top || edge === Direction.Bottom) {
+    return selection;
+  }
+  const delta = edge === Direction.Left ? -1 : 1;
+  const property = edge === Direction.Left ? "start" : "end";
+  const oppositeProperty = property === "start" ? "end" : "start";
+  const newSelectionData = { ...selection };
+  if (
+    edge === Direction.Left
+      ? selection.end > active.row
+      : selection.start < active.row
+  ) {
+    newSelectionData[oppositeProperty] = selection[oppositeProperty] + delta;
+  } else {
+    newSelectionData[property] = selection[property] + delta;
+  }
+  const nextSelection = new EntireColumnsSelection(
+    Math.max(newSelectionData.start, 0),
+    Math.max(newSelectionData.end, 0)
+  );
+  return nextSelection.normalizeTo(data);
 }

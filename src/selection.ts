@@ -17,13 +17,6 @@ export abstract class Selection {
   /** Normalize the selection according to the given data */
   abstract normalizeTo(data: Matrix.Matrix<unknown>): this;
 
-  /** Modify given edge according to given active point and data */
-  abstract modifyEdge(
-    active: Point.Point,
-    data: Matrix.Matrix<unknown>,
-    edge: Direction
-  ): this;
-
   /** Return whether the given row is entirely selected in given selection */
   abstract hasEntireRow(row: number): boolean;
 
@@ -50,13 +43,6 @@ export class EmptySelection extends Selection {
   normalizeTo(data: Matrix.Matrix<unknown>): this {
     return this;
   }
-  modifyEdge(
-    active: Point.Point,
-    data: Matrix.Matrix<unknown>,
-    edge: Direction
-  ): this {
-    return this;
-  }
   hasEntireRow(row: number): boolean {
     return false;
   }
@@ -81,35 +67,6 @@ export class RangeSelection extends Selection {
     return nextSelection;
   }
 
-  modifyEdge(
-    active: Point.Point,
-    data: Matrix.Matrix<unknown>,
-    edge: Direction
-  ): this {
-    const field =
-      edge === Direction.Left || edge === Direction.Right ? "column" : "row";
-
-    const key =
-      edge === Direction.Left || edge === Direction.Top ? "start" : "end";
-    const delta = key === "start" ? -1 : 1;
-
-    const edgeOffsets = this.range.has({
-      ...active,
-      [field]: active[field] + delta * -1,
-    });
-
-    const keyToModify = edgeOffsets ? (key === "start" ? "end" : "start") : key;
-
-    const nextRange = new PointRange(this.range.start, this.range.end);
-
-    nextRange[keyToModify][field] += delta;
-
-    const nextSelection = new RangeSelection(nextRange).normalizeTo(data);
-
-    // @ts-expect-error
-    return nextSelection;
-  }
-
   hasEntireRow(row: number): boolean {
     return false;
   }
@@ -125,13 +82,7 @@ export class EntireTableSelection extends EntireSelection {
   toRange(data: Matrix.Matrix<unknown>): PointRange {
     return getMatrixRange(data);
   }
-  modifyEdge(
-    active: Point.Point,
-    data: Matrix.Matrix<unknown>,
-    edge: Direction
-  ): this {
-    return this;
-  }
+
   normalizeTo(data: Matrix.Matrix<unknown>): this {
     return this;
   }
@@ -143,11 +94,11 @@ export class EntireTableSelection extends EntireSelection {
   }
 }
 
-export class EntireRowsSelection extends EntireSelection {
+export abstract class EntireAxisSelection extends EntireSelection {
   /** Selection start index, integer */
-  start: number;
+  readonly start: number;
   /** Selection end index, integer */
-  end: number;
+  readonly end: number;
 
   /**
    * @param start - row index where the selection starts, integer
@@ -166,6 +117,20 @@ export class EntireRowsSelection extends EntireSelection {
     this.end = Math.max(start, end);
   }
 
+  /** Immutably set given property with given value */
+  set(property: "start" | "end", value: number): this {
+    if (!isIndex(value)) {
+      throw new InvalidIndexError(property);
+    }
+    const { start, end } = this;
+    const data = { start, end };
+    data[property] = value;
+    // @ts-expect-error
+    return new this.constructor(data.start, data.end);
+  }
+}
+
+export class EntireRowsSelection extends EntireAxisSelection {
   toRange(data: Matrix.Matrix<unknown>): PointRange {
     const max = Matrix.maxPoint(data);
     return new PointRange(
@@ -191,59 +156,9 @@ export class EntireRowsSelection extends EntireSelection {
   hasEntireColumn(column: number): boolean {
     return false;
   }
-
-  modifyEdge(
-    active: Point.Point,
-    data: Matrix.Matrix<unknown>,
-    edge: Direction
-  ): this {
-    if (edge === Direction.Left || edge === Direction.Right) {
-      return this;
-    }
-    const delta = edge === Direction.Top ? -1 : 1;
-    const property = edge === Direction.Top ? "start" : "end";
-    const oppositeProperty = property === "start" ? "end" : "start";
-    const nextSelection = new EntireRowsSelection(this.start, this.end);
-    if (
-      edge === Direction.Top ? this.end > active.row : this.start < active.row
-    ) {
-      nextSelection[oppositeProperty] = this[oppositeProperty] + delta;
-    } else {
-      nextSelection[property] = this[property] + delta;
-    }
-    // @ts-expect-error
-    return nextSelection.normalizeTo(data);
-  }
 }
 
-export class EntireColumnsSelection extends EntireSelection {
-  /** Selection start index, integer */
-  public start: number;
-  /** Selection end index, integer */
-  public end: number;
-
-  /**
-   * Creates entire columns selection
-   * @param start - column index where the selection starts, integer
-   * @param end - column index where the selection starts, integer
-   */
-  constructor(
-    /** Selection start index, integer */
-    start: number,
-    /** Selection end index, integer */
-    end: number
-  ) {
-    if (!isIndex(start)) {
-      throw new InvalidIndexError("start");
-    }
-    if (!isIndex(end)) {
-      throw new InvalidIndexError("end");
-    }
-    super();
-    this.start = Math.min(start, end);
-    this.end = Math.max(start, end);
-  }
-
+export class EntireColumnsSelection extends EntireAxisSelection {
   toRange(data: Matrix.Matrix<unknown>): PointRange {
     const max = Matrix.maxPoint(data);
     return new PointRange(
@@ -268,31 +183,6 @@ export class EntireColumnsSelection extends EntireSelection {
 
   hasEntireColumn(column: number): boolean {
     return column >= this.start && column <= this.end;
-  }
-
-  modifyEdge(
-    active: Point.Point,
-    data: Matrix.Matrix<unknown>,
-    edge: Direction
-  ): this {
-    if (edge === Direction.Top || edge === Direction.Bottom) {
-      return this;
-    }
-    const delta = edge === Direction.Left ? -1 : 1;
-    const property = edge === Direction.Left ? "start" : "end";
-    const oppositeProperty = property === "start" ? "end" : "start";
-    const nextSelection = new EntireColumnsSelection(this.start, this.end);
-    if (
-      edge === Direction.Left
-        ? this.end > active.column
-        : this.start < active.column
-    ) {
-      nextSelection[oppositeProperty] = this[oppositeProperty] + delta;
-    } else {
-      nextSelection[property] = this[property] + delta;
-    }
-    // @ts-expect-error
-    return nextSelection.normalizeTo(data);
   }
 }
 
