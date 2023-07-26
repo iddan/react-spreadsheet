@@ -61,9 +61,40 @@ describe("new EntireColumnsSelection()", () => {
   });
 });
 
-describe("new EntireTableSelection()", () => {
+describe("EntireTableSelection", () => {
   test("creates entire table selection", () => {
     new EntireTableSelection();
+  });
+  test("toRange() returns the range of entire table", () => {
+    const selection = new EntireTableSelection();
+    expect(selection.toRange(EXAMPLE_DATA)).toEqual(
+      getMatrixRange(EXAMPLE_DATA)
+    );
+  });
+  test("normalizeTo() returns the same object", () => {
+    const selection = new EntireTableSelection();
+    expect(selection.normalizeTo(EXAMPLE_DATA)).toEqual(selection);
+  });
+  test("hasEntireRow() returns true for any row", () => {
+    const selection = new EntireTableSelection();
+    expect(selection.hasEntireRow(0)).toBe(true);
+    expect(selection.hasEntireRow(1)).toBe(true);
+  });
+  test("hasEntireColumn() returns true for any column", () => {
+    const selection = new EntireTableSelection();
+    expect(selection.hasEntireColumn(0)).toBe(true);
+    expect(selection.hasEntireColumn(1)).toBe(true);
+  });
+  test("size() returns the size of entire table", () => {
+    const selection = new EntireTableSelection();
+    expect(selection.size(EXAMPLE_DATA)).toBe(
+      EXAMPLE_DATA_ROWS_COUNT * EXAMPLE_DATA_COLUMNS_COUNT
+    );
+  });
+  test("has() returns true for any point", () => {
+    const selection = new EntireTableSelection();
+    expect(selection.has(EXAMPLE_DATA, Point.ORIGIN)).toBe(true);
+    expect(selection.has(EXAMPLE_DATA, EXAMPLE_DATA_MAX_POINT)).toBe(true);
   });
 });
 
@@ -263,12 +294,8 @@ describe("Selection.prototype.hasEntireColumn()", () => {
       1,
       false,
     ],
-    [
-      "returns false for non-entire-columns selection",
-      new EmptySelection(),
-      0,
-      false,
-    ],
+    ["returns false for empty selection", new EmptySelection(), 0, false],
+    ["returns false for empty selection", new EmptySelection(), 0, false],
   ];
   test.each(cases)("%s", (name, selection, column, expected) => {
     expect(selection.hasEntireColumn(column)).toBe(expected);

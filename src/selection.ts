@@ -134,18 +134,6 @@ export abstract class EntireAxisSelection extends EntireSelection {
     this.start = Math.min(start, end);
     this.end = Math.max(start, end);
   }
-
-  /** Immutably set given property with given value */
-  set(property: "start" | "end", value: number): this {
-    if (!isIndex(value)) {
-      throw new InvalidIndexError(property);
-    }
-    const { start, end } = this;
-    const data = { start, end };
-    data[property] = value;
-    // @ts-expect-error
-    return new this.constructor(data.start, data.end);
-  }
 }
 
 /** Selection of entire rows in the spreadsheet */
