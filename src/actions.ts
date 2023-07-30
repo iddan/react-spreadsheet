@@ -6,12 +6,14 @@ import {
   CommitChanges,
   CreateFormulaParser,
 } from "./types";
+import { Selection } from "./selection";
 
 export const SET_DATA = "SET_DATA";
 export const SET_CREATE_FORMULA_PARSER = "SET_CREATE_FORMULA_PARSER";
 export const SELECT_ENTIRE_ROW = "SELECT_ENTIRE_ROW";
 export const SELECT_ENTIRE_COLUMN = "SELECT_ENTIRE_COLUMN";
 export const SELECT_ENTIRE_WORKSHEET = "SELECT_ENTIRE_WORKSHEET";
+export const SET_SELECTION = "SET_SELECTION";
 export const SELECT = "SELECT";
 export const ACTIVATE = "ACTIVATE";
 export const SET_CELL_DATA = "SET_CELL_DATA";
@@ -105,6 +107,16 @@ export type SelectEntireWorksheetAction = BaseAction<
 
 export function selectEntireWorksheet(): SelectEntireWorksheetAction {
   return { type: SELECT_ENTIRE_WORKSHEET };
+}
+
+export type SetSelectionAction = BaseAction<typeof SET_SELECTION> & {
+  payload: {
+    selection: Selection;
+  };
+};
+
+export function setSelection(selection: Selection): SetSelectionAction {
+  return { type: SET_SELECTION, payload: { selection } };
 }
 
 export type SelectAction = BaseAction<typeof SELECT> & {
@@ -270,6 +282,7 @@ export type Action =
   | SelectEntireRowAction
   | SelectEntireColumnAction
   | SelectEntireWorksheetAction
+  | SetSelectionAction
   | SelectAction
   | ActivateAction
   | SetCellDataAction
