@@ -89,6 +89,20 @@ export default function reducer(
         mode: "view",
       };
     }
+    case Actions.SET_SELECTION: {
+      const { selection } = action.payload;
+      const range = selection.toRange(state.model.data);
+      const active =
+        state.active && selection.has(state.model.data, state.active)
+          ? state.active
+          : range?.start;
+      return {
+        ...state,
+        selected: selection,
+        active: active || null,
+        mode: "view",
+      };
+    }
     case Actions.SELECT: {
       const { point } = action.payload;
       if (state.active && !isActive(state.active, point)) {

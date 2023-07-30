@@ -80,6 +80,8 @@ export type Props<CellType extends Types.CellBase> = {
    * @defaultValue `false`.
    */
   hideColumnIndicators?: boolean;
+  /** The selected cells in the worksheet. */
+  selected?: Selection;
   // Custom Components
   /** Component rendered above each column. */
   ColumnIndicator?: Types.ColumnIndicatorComponent;
@@ -253,6 +255,12 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     rowLabels,
     columnLabels,
   ]);
+
+  React.useEffect(() => {
+    if (props.selected && props.selected !== state.selected) {
+      dispatch(Actions.setSelection(props.selected));
+    }
+  }, [dispatch, props.selected, state.selected]);
 
   React.useEffect(() => {
     const prevState = prevStateRef.current;
