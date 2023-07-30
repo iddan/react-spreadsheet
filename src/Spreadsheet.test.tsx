@@ -10,11 +10,86 @@ import * as Types from "./types";
 import * as Point from "./point";
 import { createEmptyMatrix } from "./util";
 import { createFormulaParser } from "./engine";
-import { RangeSelection } from "./selection";
+import {
+  EntireWorksheetSelection,
+  EntireRowsSelection,
+  EntireColumnsSelection,
+  RangeSelection,
+} from "./selection";
 import { PointRange } from "./point-range";
 
 type Value = string;
 type CellType = Types.CellBase<Value>;
+
+function areEntireColumnsSelectionsEqual(
+  a: unknown,
+  b: unknown
+): boolean | undefined {
+  const isAInstance = a instanceof EntireColumnsSelection;
+  const isBInstance = b instanceof EntireColumnsSelection;
+  if (isAInstance && isBInstance) {
+    return a.start === b.start && a.end === b.end;
+  }
+  if (isAInstance !== isBInstance) {
+    return false;
+  }
+  return undefined;
+}
+
+function areEntireRowsSelectionsEqual(
+  a: unknown,
+  b: unknown
+): boolean | undefined {
+  const isAInstance = a instanceof EntireRowsSelection;
+  const isBInstance = b instanceof EntireRowsSelection;
+  if (isAInstance && isBInstance) {
+    return a.start === b.start && a.end === b.end;
+  }
+  if (isAInstance !== isBInstance) {
+    return false;
+  }
+  return undefined;
+}
+
+function areEntireWorksheetSelectionsEqual(
+  a: unknown,
+  b: unknown
+): boolean | undefined {
+  const isAInstance = a instanceof EntireWorksheetSelection;
+  const isBInstance = b instanceof EntireWorksheetSelection;
+  if (isAInstance && isBInstance) {
+    return true;
+  }
+  if (isAInstance !== isBInstance) {
+    return false;
+  }
+  return undefined;
+}
+
+function areRangeSelectionsEqual(a: unknown, b: unknown): boolean | undefined {
+  const isAInstance = a instanceof RangeSelection;
+  const isBInstance = b instanceof RangeSelection;
+  if (isAInstance && isBInstance) {
+    return (
+      a.range.start.row === b.range.start.row &&
+      a.range.start.column === b.range.start.column &&
+      a.range.end.row === b.range.end.row &&
+      a.range.end.column === b.range.end.column
+    );
+  }
+  if (isAInstance !== isBInstance) {
+    return false;
+  }
+  return undefined;
+}
+
+// @ts-expect-error
+expect.addEqualityTesters([
+  areEntireColumnsSelectionsEqual,
+  areEntireRowsSelectionsEqual,
+  areEntireWorksheetSelectionsEqual,
+  areRangeSelectionsEqual,
+]);
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -292,6 +367,75 @@ describe("<Spreadsheet />", () => {
     expect(b1.textContent).toBe("2");
     expect(c1.textContent).toBe("3");
     expect(d1.textContent).toBe("3");
+  });
+  test("select entire worksheet", () => {
+    const handleSelect = jest.fn();
+    render(<Spreadsheet {...EXAMPLE_PROPS} onSelect={handleSelect} />);
+    const element = getSpreadsheetElement();
+    const cornerIndicator = safeQuerySelector(element, "th");
+    fireEvent.click(cornerIndicator);
+    expect(handleSelect).toBeCalledWith(new EntireWorksheetSelection());
+    expect(handleSelect).toBeCalledTimes(1);
+  });
+  test("select entire row", () => {
+    const handleSelect = jest.fn();
+    render(<Spreadsheet {...EXAMPLE_PROPS} onSelect={handleSelect} />);
+    const element = getSpreadsheetElement();
+    const rowIndicator = safeQuerySelector(
+      element,
+      "tr:nth-child(2) .Spreadsheet__header"
+    );
+    fireEvent.click(rowIndicator);
+    expect(handleSelect).toBeCalledWith(new EntireRowsSelection(0, 0));
+  });
+  test("select entire rows", () => {
+    const handleSelect = jest.fn();
+    render(<Spreadsheet {...EXAMPLE_PROPS} onSelect={handleSelect} />);
+    const element = getSpreadsheetElement();
+    const firstRowIndicator = safeQuerySelector(
+      element,
+      "tr:nth-child(2) .Spreadsheet__header"
+    );
+    const secondRowIndicator = safeQuerySelector(
+      element,
+      "tr:nth-child(3) .Spreadsheet__header"
+    );
+    fireEvent.click(firstRowIndicator);
+    handleSelect.mockClear();
+    fireEvent.click(secondRowIndicator, {
+      shiftKey: true,
+    });
+    expect(handleSelect).toBeCalledWith(new EntireRowsSelection(0, 1));
+  });
+  test("select entire column", () => {
+    const handleSelect = jest.fn();
+    render(<Spreadsheet {...EXAMPLE_PROPS} onSelect={handleSelect} />);
+    const element = getSpreadsheetElement();
+    const rowIndicator = safeQuerySelector(
+      element,
+      "tr:nth-child(1) .Spreadsheet__header:nth-child(2)"
+    );
+    fireEvent.click(rowIndicator);
+    expect(handleSelect).toBeCalledWith(new EntireColumnsSelection(0, 0));
+  });
+  test("select entire columns", () => {
+    const handleSelect = jest.fn();
+    render(<Spreadsheet {...EXAMPLE_PROPS} onSelect={handleSelect} />);
+    const element = getSpreadsheetElement();
+    const firstColumnIndicator = safeQuerySelector(
+      element,
+      "tr:nth-child(1) .Spreadsheet__header:nth-child(2)"
+    );
+    const secondColumnIndicator = safeQuerySelector(
+      element,
+      "tr:nth-child(1) .Spreadsheet__header:nth-child(3)"
+    );
+    fireEvent.click(firstColumnIndicator);
+    handleSelect.mockClear();
+    fireEvent.click(secondColumnIndicator, {
+      shiftKey: true,
+    });
+    expect(handleSelect).toBeCalledWith(new EntireColumnsSelection(0, 1));
   });
 });
 
