@@ -84,8 +84,8 @@ export class RangeSelection extends Selection {
 /** Selection of an entire part of the spreadsheet */
 export abstract class EntireSelection extends Selection {}
 
-/** Selection of the entire table */
-export class EntireTableSelection extends EntireSelection {
+/** Selection of the entire worksheet */
+export class EntireWorksheetSelection extends EntireSelection {
   toRange(data: Matrix.Matrix<unknown>): PointRange {
     return getMatrixRange(data);
   }

@@ -1,7 +1,7 @@
 import * as React from "react";
 import classNames from "classnames";
 import * as Actions from "./actions";
-import { EntireTableSelection } from "./selection";
+import { EntireWorksheetSelection } from "./selection";
 import * as Types from "./types";
 import useDispatch from "./use-dispatch";
 import useSelector from "./use-selector";
@@ -31,18 +31,18 @@ export const enhance = (
 ): React.FC<Omit<Types.CornerIndicatorProps, "selected" | "onSelect">> => {
   return function CornerIndicatorWrapper(props) {
     const dispatch = useDispatch();
-    const selectEntireTable = React.useCallback(
-      () => dispatch(Actions.selectEntireTable()),
+    const selectEntireWorksheet = React.useCallback(
+      () => dispatch(Actions.selectEntireWorksheet()),
       [dispatch]
     );
     const selected = useSelector(
-      (state) => state.selected instanceof EntireTableSelection
+      (state) => state.selected instanceof EntireWorksheetSelection
     );
     return (
       <CornerIndicatorComponent
         {...props}
         selected={selected}
-        onSelect={selectEntireTable}
+        onSelect={selectEntireWorksheet}
       />
     );
   };

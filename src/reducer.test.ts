@@ -18,7 +18,7 @@ import { PointRange } from "./point-range";
 import {
   Selection,
   RangeSelection,
-  EntireTableSelection,
+  EntireWorksheetSelection,
   EntireRowsSelection,
   EntireColumnsSelection,
   EmptySelection,
@@ -73,13 +73,13 @@ describe("reducer", () => {
       },
     ],
     [
-      "select an entire table",
+      "select an entire worksheet",
       INITIAL_STATE,
-      Actions.selectEntireTable(),
+      Actions.selectEntireWorksheet(),
       {
         ...INITIAL_STATE,
         active: Point.ORIGIN,
-        selected: new EntireTableSelection(),
+        selected: new EntireWorksheetSelection(),
       },
     ],
     [

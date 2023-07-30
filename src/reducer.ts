@@ -8,7 +8,7 @@ import {
   RangeSelection,
   EntireColumnsSelection,
   EntireRowsSelection,
-  EntireTableSelection,
+  EntireWorksheetSelection,
 } from "./selection";
 import { isActive } from "./util";
 import * as Actions from "./actions";
@@ -74,10 +74,10 @@ export default function reducer(
         mode: "view",
       };
     }
-    case Actions.SELECT_ENTIRE_TABLE: {
+    case Actions.SELECT_ENTIRE_WORKSHEET: {
       return {
         ...state,
-        selected: new EntireTableSelection(),
+        selected: new EntireWorksheetSelection(),
         active: Point.ORIGIN,
         mode: "view",
       };

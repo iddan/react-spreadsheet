@@ -7,7 +7,7 @@ import {
   RangeSelection,
   EntireColumnsSelection,
   EntireRowsSelection,
-  EntireTableSelection,
+  EntireWorksheetSelection,
   InvalidIndexError,
   isIndex,
   getMatrixRange,
@@ -61,38 +61,38 @@ describe("new EntireColumnsSelection()", () => {
   });
 });
 
-describe("EntireTableSelection", () => {
-  test("creates entire table selection", () => {
-    new EntireTableSelection();
+describe("EntireWorksheetSelection", () => {
+  test("creates entire worksheet selection", () => {
+    new EntireWorksheetSelection();
   });
-  test("toRange() returns the range of entire table", () => {
-    const selection = new EntireTableSelection();
+  test("toRange() returns the range of entire worksheet", () => {
+    const selection = new EntireWorksheetSelection();
     expect(selection.toRange(EXAMPLE_DATA)).toEqual(
       getMatrixRange(EXAMPLE_DATA)
     );
   });
   test("normalizeTo() returns the same object", () => {
-    const selection = new EntireTableSelection();
+    const selection = new EntireWorksheetSelection();
     expect(selection.normalizeTo(EXAMPLE_DATA)).toEqual(selection);
   });
   test("hasEntireRow() returns true for any row", () => {
-    const selection = new EntireTableSelection();
+    const selection = new EntireWorksheetSelection();
     expect(selection.hasEntireRow(0)).toBe(true);
     expect(selection.hasEntireRow(1)).toBe(true);
   });
   test("hasEntireColumn() returns true for any column", () => {
-    const selection = new EntireTableSelection();
+    const selection = new EntireWorksheetSelection();
     expect(selection.hasEntireColumn(0)).toBe(true);
     expect(selection.hasEntireColumn(1)).toBe(true);
   });
-  test("size() returns the size of entire table", () => {
-    const selection = new EntireTableSelection();
+  test("size() returns the size of entire worksheet", () => {
+    const selection = new EntireWorksheetSelection();
     expect(selection.size(EXAMPLE_DATA)).toBe(
       EXAMPLE_DATA_ROWS_COUNT * EXAMPLE_DATA_COLUMNS_COUNT
     );
   });
   test("has() returns true for any point", () => {
-    const selection = new EntireTableSelection();
+    const selection = new EntireWorksheetSelection();
     expect(selection.has(EXAMPLE_DATA, Point.ORIGIN)).toBe(true);
     expect(selection.has(EXAMPLE_DATA, EXAMPLE_DATA_MAX_POINT)).toBe(true);
   });
@@ -133,8 +133,8 @@ describe("Selection.prototype.toRange()", () => {
       ),
     ],
     [
-      "entire table",
-      new EntireTableSelection(),
+      "entire worksheet",
+      new EntireWorksheetSelection(),
       EXAMPLE_DATA,
       getMatrixRange(EXAMPLE_DATA),
     ],

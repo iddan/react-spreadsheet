@@ -5,7 +5,7 @@ import { CellBase, Dimensions, CommitChanges } from "./types";
 export const SET_DATA = "SET_DATA";
 export const SELECT_ENTIRE_ROW = "SELECT_ENTIRE_ROW";
 export const SELECT_ENTIRE_COLUMN = "SELECT_ENTIRE_COLUMN";
-export const SELECT_ENTIRE_TABLE = "SELECT_ENTIRE_TABLE";
+export const SELECT_ENTIRE_WORKSHEET = "SELECT_ENTIRE_WORKSHEET";
 export const SELECT = "SELECT";
 export const ACTIVATE = "ACTIVATE";
 export const SET_CELL_DATA = "SET_CELL_DATA";
@@ -76,10 +76,12 @@ export function selectEntireColumn(
   };
 }
 
-export type SelectEntireTableAction = BaseAction<typeof SELECT_ENTIRE_TABLE>;
+export type SelectEntireWorksheetAction = BaseAction<
+  typeof SELECT_ENTIRE_WORKSHEET
+>;
 
-export function selectEntireTable(): SelectEntireTableAction {
-  return { type: SELECT_ENTIRE_TABLE };
+export function selectEntireWorksheet(): SelectEntireWorksheetAction {
+  return { type: SELECT_ENTIRE_WORKSHEET };
 }
 
 export type SelectAction = BaseAction<typeof SELECT> & {
@@ -243,7 +245,7 @@ export type Action =
   | SetDataAction
   | SelectEntireRowAction
   | SelectEntireColumnAction
-  | SelectEntireTableAction
+  | SelectEntireWorksheetAction
   | SelectAction
   | ActivateAction
   | SetCellDataAction
