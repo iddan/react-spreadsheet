@@ -6,6 +6,18 @@ export default Spreadsheet;
 export { Spreadsheet, DataEditor, DataViewer };
 export type { Props } from "./Spreadsheet";
 export { Matrix, createEmpty as createEmptyMatrix } from "./matrix";
+export {
+  Selection,
+  EmptySelection,
+  EntireAxisSelection,
+  EntireColumnsSelection,
+  EntireRowsSelection,
+  EntireSelection,
+  EntireWorksheetSelection,
+  InvalidIndexError,
+  RangeSelection,
+} from "./selection";
+export { PointRange } from "./point-range";
 export type { Point } from "./point";
 export type {
   CellBase,

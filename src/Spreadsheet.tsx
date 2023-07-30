@@ -4,6 +4,19 @@ import * as Types from "./types";
 import * as Actions from "./actions";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
+import { Selection } from "./selection";
+import reducer, { INITIAL_STATE, hasKeyDownHandler } from "./reducer";
+import context from "./context";
+import { Model, createFormulaParser } from "./engine";
+import {
+  range,
+  readTextFromClipboard,
+  writeTextToClipboard,
+  calculateSpreadsheetSize,
+  getCSV,
+  shouldHandleClipboardEvent,
+  isFocusedWithin,
+} from "./util";
 
 import DefaultTable from "./Table";
 import DefaultRow from "./Row";
@@ -23,19 +36,8 @@ import DefaultDataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
-import {
-  range,
-  readTextFromClipboard,
-  writeTextToClipboard,
-  calculateSpreadsheetSize,
-  getCSV,
-  shouldHandleClipboardEvent,
-  isFocusedWithin,
-} from "./util";
-import reducer, { INITIAL_STATE, hasKeyDownHandler } from "./reducer";
-import context from "./context";
+
 import "./Spreadsheet.css";
-import { Model, createFormulaParser } from "./engine";
 
 /** The Spreadsheet component props */
 export type Props<CellType extends Types.CellBase> = {
@@ -105,7 +107,7 @@ export type Props<CellType extends Types.CellBase> = {
   /** Callback called when the Spreadsheet's edit mode changes. */
   onModeChange?: (mode: Types.Mode) => void;
   /** Callback called when the Spreadsheet's selection changes. */
-  onSelect?: (selected: Point.Point[]) => void;
+  onSelect?: (selected: Selection) => void;
   /** Callback called when Spreadsheet's active cell changes. */
   onActivate?: (active: Point.Point) => void;
   /** Callback called when the Spreadsheet loses focus */
@@ -219,9 +221,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     }
 
     if (state.selected !== prevState.selected) {
-      const selectedRange = state.selected.toRange(state.model.data);
-      const selectedPoints = Array.from(selectedRange || []);
-      onSelect(selectedPoints);
+      onSelect(state.selected);
     }
 
     if (state.mode !== prevState.mode) {
