@@ -27,7 +27,7 @@ const App = () => {
 
 ## Custom Columns and Rows
 
-The Spreadsheet component requires the `columnLabels` prop or the `rowLabels` prop which accepts array. If no `columnLabels` is passed, it defaults to alphabetical labels and if no `rowLabels` are passed it defaults to row index labels.
+The Spreadsheet component accepts the `columnLabels` or `rowLabels` props, both of which accept arrays. If no `columnLabels` are supplied, alphabetical labels are used, and row index labels are used if no `rowLabels` are passed.
 
 ```javascript
 import Spreadsheet from "react-spreadsheet";
@@ -73,7 +73,7 @@ const App = () => {
   ]);
   return <Spreadsheet data={data} 
   onChange={
-    const t = d
+    const t = d.map(row => [...row]);
     for (let i = 0; i < 3; i++) {
       const string = d[i][1]
       if(string.value === 'Chocolate'){
@@ -88,8 +88,8 @@ const App = () => {
       else {
         t[i][2] = {value:"❓"}
       }
-      setData(t)
     }
+    setData(t)
   } />;
 };
 ```
