@@ -25,6 +25,40 @@ const App = () => {
 };
 ```
 
+## Custom Columns and Rows
+
+The Spreadsheet component requires the `columnLabels` prop or the `rowLabels` prop which accepts array. If no `columnLabels` is passed, it defaults to alphabetical labels and if no `rowLabels` are passed it defaults to row index labels.
+
+```javascript
+import Spreadsheet from "react-spreadsheet";
+
+const App = () => {
+  let col = ["Flavour","Food",]
+  let row = ["Item 1","Item 2",]
+  const data = [
+    [{ value: "Vanilla" }, { value: "Chocolate" }],
+    [{ value: "Strawberry" }, { value: "Cookies" }],
+  ];
+  return <Spreadsheet data={data} columnLabels={col} rowLabels={row} />;
+};
+```
+
+## Readonly Cells
+
+Any particular Spreadsheet cell can be set to readonly by just specifying `readOnly:true` in the cell along with the value.
+
+```javascript
+import Spreadsheet from "react-spreadsheet";
+
+const App = () => {
+  const data = [
+    [{ value: "Vanilla" }, { value: "Chocolate", readOnly:true }],
+    [{ value: "Strawberry" }, { value: "Cookies", readOnly:true }],
+  ];
+  return <Spreadsheet data={data} />;
+};
+```
+
 ## Controlled
 
 The Spreadsheet component accepts `onChange` prop that is called every time one of the Spreadsheet's cell is changed by the user. You can use it to save the modified data and to react to changes (e.g. validating the modified data, further modify it, persist it).
@@ -34,9 +68,28 @@ import Spreadsheet from "react-spreadsheet";
 
 const App = () => {
   const [data, setData] = useState([
-    [{ value: "Vanilla" }, { value: "Chocolate" }],
-    [{ value: "Strawberry" }, { value: "Cookies" }],
+    [{ value: "Vanilla" }, { value: "Chocolate" }, { value: "" }],
+    [{ value: "Strawberry" }, { value: "Cookies" }, { value: "" }],
   ]);
-  return <Spreadsheet data={data} onChange={setData} />;
+  return <Spreadsheet data={data} 
+  onChange={
+    const t = d
+    for (let i = 0; i < 3; i++) {
+      const string = d[i][1]
+      if(string.value === 'Chocolate'){
+        t[i][2] = {value:"🍫"}
+      }
+      else if(string.value === "Cookies"){
+        t[i][2] = {value:"🍪"}
+      }
+      else if(string.value === "Pizza"){
+        t[i][2] = {value:"🍕"}
+      }
+      else {
+        t[i][2] = {value:"❓"}
+      }
+      setData(t)
+    }
+  } />;
 };
 ```
