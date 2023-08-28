@@ -1,6 +1,6 @@
 import FormulaParser, { FormulaError, Value } from "fast-formula-parser";
 import { getReferences } from "./formula";
-import * as matrix from "./matrix";
+import * as Matrix from "./matrix";
 import * as Formula from "./formula";
 import { Point } from "./point";
 import { PointGraph } from "./point-graph";
@@ -8,15 +8,15 @@ import { PointSet } from "./point-set";
 import { CellBase } from "./types";
 
 export class Model<Cell extends CellBase> {
-  readonly data!: matrix.Matrix<Cell>;
-  readonly evaluatedData!: matrix.Matrix<Cell>;
+  readonly data!: Matrix.Matrix<Cell>;
+  readonly evaluatedData!: Matrix.Matrix<Cell>;
 
   readonly referenceGraph!: PointGraph;
 
   constructor(
-    data: matrix.Matrix<Cell>,
+    data: Matrix.Matrix<Cell>,
     referenceGraph?: PointGraph,
-    evaluatedData?: matrix.Matrix<Cell>
+    evaluatedData?: Matrix.Matrix<Cell>
   ) {
     this.data = data;
     this.referenceGraph = referenceGraph || createReferenceGraph(data);
@@ -28,9 +28,10 @@ export class Model<Cell extends CellBase> {
 export function updateCellValue<Cell extends CellBase>(
   model: Model<Cell>,
   point: Point,
-  cell: Cell
+  cell: Cell,
+  parserConstructor?: (getData: () => Matrix.Matrix<CellBase>) => FormulaParser
 ): Model<Cell> {
-  const nextData = matrix.set(point, cell, model.data);
+  const nextData = Matrix.set(point, cell, model.data);
   const nextReferenceGraph = Formula.isFormulaValue(cell.value)
     ? updateReferenceGraph(model.referenceGraph, point, cell, nextData)
     : model.referenceGraph;
@@ -40,7 +41,8 @@ export function updateCellValue<Cell extends CellBase>(
     nextData,
     nextReferenceGraph,
     point,
-    cell
+    cell,
+    parserConstructor
   );
   return new Model(nextData, nextReferenceGraph, nextEvaluatedData);
 }
@@ -49,7 +51,7 @@ function updateReferenceGraph(
   referenceGraph: PointGraph,
   point: Point,
   cell: CellBase<string>,
-  data: matrix.Matrix<CellBase>
+  data: Matrix.Matrix<CellBase>
 ): PointGraph {
   const references = getReferences(
     Formula.extractFormula(cell.value),
@@ -61,15 +63,16 @@ function updateReferenceGraph(
 }
 
 function evaluateCell<Cell extends CellBase>(
-  prevEvaluatedData: matrix.Matrix<Cell>,
-  data: matrix.Matrix<Cell>,
+  prevEvaluatedData: Matrix.Matrix<Cell>,
+  data: Matrix.Matrix<Cell>,
   referenceGraph: PointGraph,
   point: Point,
-  cell: Cell
-): matrix.Matrix<Cell> {
+  cell: Cell,
+  parserConstructor?: (getData: () => Matrix.Matrix<CellBase>) => FormulaParser
+): Matrix.Matrix<Cell> {
   if (referenceGraph.hasCircularDependency(point)) {
     let visited = PointSet.from([point]);
-    let nextEvaluatedData = matrix.set(
+    let nextEvaluatedData = Matrix.set(
       point,
       { ...cell, value: FormulaError.REF },
       prevEvaluatedData
@@ -79,11 +82,11 @@ function evaluateCell<Cell extends CellBase>(
         break;
       }
       visited = visited.add(referrer);
-      const referrerCell = matrix.get(referrer, data);
+      const referrerCell = Matrix.get(referrer, data);
       if (!referrerCell) {
         continue;
       }
-      nextEvaluatedData = matrix.set(
+      nextEvaluatedData = Matrix.set(
         referrer,
         { ...referrerCell, value: FormulaError.REF },
         nextEvaluatedData
@@ -94,7 +97,7 @@ function evaluateCell<Cell extends CellBase>(
 
   let nextEvaluatedData = prevEvaluatedData;
 
-  const formulaParser = Formula.createBoundFormulaParser(
+  const formulaParser = (parserConstructor ?? Formula.createBoundFormulaParser)(
     () => nextEvaluatedData
   );
 
@@ -104,11 +107,11 @@ function evaluateCell<Cell extends CellBase>(
 
   const evaluatedCell = { ...cell, value: evaluatedValue };
 
-  nextEvaluatedData = matrix.set(point, evaluatedCell, nextEvaluatedData);
+  nextEvaluatedData = Matrix.set(point, evaluatedCell, nextEvaluatedData);
 
   // for every formula cell that references the cell re-evaluate (recursive)
   for (const referrer of referenceGraph.getBackwardsRecursive(point)) {
-    const referrerCell = matrix.get(referrer, data);
+    const referrerCell = Matrix.get(referrer, data);
     if (!referrerCell) {
       continue;
     }
@@ -116,7 +119,7 @@ function evaluateCell<Cell extends CellBase>(
       ? getFormulaComputedValue(referrerCell.value, point, formulaParser)
       : referrerCell.value;
     const evaluatedCell = { ...referrerCell, value: evaluatedValue };
-    nextEvaluatedData = matrix.set(referrer, evaluatedCell, nextEvaluatedData);
+    nextEvaluatedData = Matrix.set(referrer, evaluatedCell, nextEvaluatedData);
   }
 
   return nextEvaluatedData;
@@ -128,10 +131,10 @@ function evaluateCell<Cell extends CellBase>(
  * @returns the spreadsheet reference graph
  */
 export function createReferenceGraph(
-  data: matrix.Matrix<CellBase>
+  data: Matrix.Matrix<CellBase>
 ): PointGraph {
   const entries: Array<[Point, PointSet]> = [];
-  for (const [point, cell] of matrix.entries(data)) {
+  for (const [point, cell] of Matrix.entries(data)) {
     if (cell && Formula.isFormulaValue(cell.value)) {
       const references = getReferences(
         Formula.extractFormula(cell.value),
@@ -145,17 +148,20 @@ export function createReferenceGraph(
 }
 
 export function createEvaluatedData<Cell extends CellBase>(
-  data: matrix.Matrix<Cell>,
-  referenceGraph: PointGraph
-): matrix.Matrix<Cell> {
+  data: Matrix.Matrix<Cell>,
+  referenceGraph: PointGraph,
+  parserConstructor?: (getData: () => Matrix.Matrix<CellBase>) => FormulaParser
+): Matrix.Matrix<Cell> {
   let evaluatedData = data;
 
-  const formulaParser = Formula.createBoundFormulaParser(() => evaluatedData);
+  const formulaParser = (parserConstructor ?? Formula.createBoundFormulaParser)(
+    () => evaluatedData
+  );
 
   // Iterate over the points in the reference graph, starting from the leaves
   for (const point of referenceGraph.traverseBFS()) {
-    // Get the cell at the current point in the data matrix
-    const cell = matrix.get(point, data);
+    // Get the cell at the current point in the data Matrix
+    const cell = Matrix.get(point, data);
     if (!cell) {
       continue;
     }
@@ -167,7 +173,7 @@ export function createEvaluatedData<Cell extends CellBase>(
         point,
         formulaParser
       );
-      evaluatedData = matrix.set(
+      evaluatedData = Matrix.set(
         point,
         { ...cell, value: evaluatedValue },
         evaluatedData

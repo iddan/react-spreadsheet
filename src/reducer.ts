@@ -103,13 +103,13 @@ export default function reducer(
       };
     }
     case Actions.SET_CELL_DATA: {
-      const { active, data: cellData } = action.payload;
+      const { active, data: cellData, parserConstructor } = action.payload;
       if (isActiveReadOnly(state)) {
         return state;
       }
       return {
         ...state,
-        model: updateCellValue(state.model, active, cellData),
+        model: updateCellValue(state.model, active, cellData, parserConstructor),
         lastChanged: active,
       };
     }

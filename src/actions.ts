@@ -1,6 +1,7 @@
 import { Matrix } from "./matrix";
 import { Point } from "./point";
 import { CellBase, Dimensions, CommitChanges } from "./types";
+import FormulaParser from "fast-formula-parser";
 
 export const SET_DATA = "SET_DATA";
 export const SELECT_ENTIRE_ROW = "SELECT_ENTIRE_ROW";
@@ -114,13 +115,18 @@ export type SetCellDataAction = BaseAction<typeof SET_CELL_DATA> & {
   payload: {
     active: Point;
     data: CellBase;
+    parserConstructor?: (getData: () => Matrix<CellBase>) => FormulaParser
   };
 };
 
-export function setCellData(active: Point, data: CellBase): SetCellDataAction {
+export function setCellData(
+    active: Point,
+    data: CellBase,
+    parserConstructor?: (getData: () => Matrix<CellBase>) => FormulaParser
+): SetCellDataAction {
   return {
     type: SET_CELL_DATA,
-    payload: { active, data },
+    payload: { active, data, parserConstructor },
   };
 }
 
