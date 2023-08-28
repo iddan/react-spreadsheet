@@ -7,7 +7,7 @@ import FormulaParser, {
 import { PointSet } from "./point-set";
 import { PointRange } from "./point-range";
 import { Point } from "./point";
-import * as matrix from "./matrix";
+import * as Matrix from "./matrix";
 import { CellBase } from "./types";
 
 export const FORMULA_VALUE_PREFIX = "=";
@@ -27,21 +27,23 @@ export function extractFormula(value: string): string {
 }
 
 export function createBoundFormulaParser(
-  getData: () => matrix.Matrix<CellBase>
+  getData: () => Matrix.Matrix<CellBase>,
+  functions?: object,
 ): FormulaParser {
   return new FormulaParser({
+    functions: functions ?? {},
     onCell: (ref) => {
       const point: Point = {
         row: ref.row - 1,
         column: ref.col - 1,
       };
-      const cell = matrix.get(point, getData());
+      const cell = Matrix.get(point, getData());
       if (!isNaN(cell?.value as number)) return Number(cell?.value);
       return cell?.value;
     },
     onRange: (ref) => {
       const data = getData();
-      const size = matrix.getSize(data);
+      const size = Matrix.getSize(data);
       const start: Point = {
         row: ref.from.row - 1,
         column: ref.from.col - 1,
@@ -50,8 +52,8 @@ export function createBoundFormulaParser(
         row: Math.min(ref.to.row - 1, size.rows - 1),
         column: Math.min(ref.to.col - 1, size.columns - 1),
       };
-      const dataSlice = matrix.slice(start, end, data);
-      return matrix.toArray(dataSlice, (cell) => {
+      const dataSlice = Matrix.slice(start, end, data);
+      return Matrix.toArray(dataSlice, (cell) => {
         if (!isNaN(cell?.value as number)) return Number(cell?.value);
         return cell?.value;
       });
@@ -68,9 +70,9 @@ const depParser = new DepParser();
 export function getReferences(
   formula: string,
   point: Point,
-  data: matrix.Matrix<CellBase>
+  data: Matrix.Matrix<CellBase>
 ): PointSet {
-  const { rows, columns } = matrix.getSize(data);
+  const { rows, columns } = Matrix.getSize(data);
   try {
     const dependencies = depParser.parse(formula, convertPointToCellRef(point));
 
@@ -100,7 +102,6 @@ export function getReferences(
 
     return references;
   } catch (error) {
-    console.error(error);
     if (error instanceof FormulaError) {
       return PointSet.from([]);
     } else {

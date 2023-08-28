@@ -36,6 +36,8 @@ import reducer, { INITIAL_STATE, hasKeyDownHandler } from "./reducer";
 import context from "./context";
 import "./Spreadsheet.css";
 import { Model } from "./engine";
+import FormulaParser from "fast-formula-parser";
+import {CellBase} from "./types";
 
 /** The Spreadsheet component props */
 export type Props<CellType extends Types.CellBase> = {
@@ -43,8 +45,13 @@ export type Props<CellType extends Types.CellBase> = {
   data: Matrix.Matrix<CellType>;
   /** Class to be added to the spreadsheet element */
   className?: string;
-  /** Use dark colors that complenent dark mode */
+  /** Use dark colors that complement dark mode */
   darkMode?: boolean;
+  /**
+   * Constructor for the instance of `FormulaParser` to be used by the Spreadsheet.
+   * Defaults to: internal instance created by the component.
+   */
+  parserConstructor?: (getData: () => Matrix.Matrix<CellBase>) => FormulaParser
   /**
    * Labels to use in column indicators.
    * Defaults to: alphabetical labels.
@@ -113,6 +120,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const {
     className,
     darkMode,
+    parserConstructor,
     columnLabels,
     rowLabels,
     hideColumnIndicators,
@@ -412,6 +420,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
                 column={columnNumber}
                 // @ts-ignore
                 DataViewer={DataViewer}
+                parserConstructor={parserConstructor}
               />
             ))}
           </Row>
@@ -433,6 +442,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       RowIndicator,
       Cell,
       DataViewer,
+      parserConstructor
     ]
   );
 
@@ -441,6 +451,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       <ActiveCell
         // @ts-ignore
         DataEditor={DataEditor}
+        parserConstructor={parserConstructor}
       />
     ),
     [DataEditor]

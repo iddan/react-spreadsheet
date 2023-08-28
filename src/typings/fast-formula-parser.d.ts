@@ -14,6 +14,7 @@ declare module "fast-formula-parser" {
   export type BaseValue = number | string | boolean;
   export type Value = BaseValue | BaseValue[];
   export type FormulaParserConfig = {
+    functions?: object;
     onCell?: (ref: CellRef) => Value;
     onRange?: (range: RangeRef) => Value[];
     onVariable?: (name: string, sheetName: string) => CellRef | RangeRef;
