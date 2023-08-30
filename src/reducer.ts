@@ -204,9 +204,17 @@ export default function reducer(
           column: point.column + active.column,
         };
 
-        const nextData = state.cut ? Matrix.unset(point, acc.data) : acc.data;
+        let nextData = acc.data;
 
         if (state.cut) {
+          if (state.copied) {
+            const prevPoint: Point.Point = {
+              row: point.row + state.copied.start.row,
+              column: point.column + state.copied.start.column,
+            };
+            nextData = Matrix.unset(prevPoint, acc.data);
+          }
+
           commit = [...commit, { prevCell: cell || null, nextCell: null }];
         }
 
