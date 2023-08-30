@@ -33,8 +33,8 @@ The Spreadsheet component accepts the `columnLabels` or `rowLabels` props, both 
 import Spreadsheet from "react-spreadsheet";
 
 const App = () => {
-  let col = ["Flavour","Food",]
-  let row = ["Item 1","Item 2",]
+  let col = ["Flavour", "Food"];
+  let row = ["Item 1", "Item 2"];
   const data = [
     [{ value: "Vanilla" }, { value: "Chocolate" }],
     [{ value: "Strawberry" }, { value: "Cookies" }],
@@ -52,8 +52,8 @@ import Spreadsheet from "react-spreadsheet";
 
 const App = () => {
   const data = [
-    [{ value: "Vanilla" }, { value: "Chocolate", readOnly:true }],
-    [{ value: "Strawberry" }, { value: "Cookies", readOnly:true }],
+    [{ value: "Vanilla" }, { value: "Chocolate", readOnly: true }],
+    [{ value: "Strawberry" }, { value: "Cookies", readOnly: true }],
   ];
   return <Spreadsheet data={data} />;
 };
@@ -71,7 +71,7 @@ const App = () => {
     [{ value: "Vanilla" }, { value: "Chocolate" }, { value: "" }],
     [{ value: "Strawberry" }, { value: "Cookies" }, { value: "" }],
   ]);
-  return <Spreadsheet data={data} 
+  return <Spreadsheet data={data}
   onChange={
     const t = d.map(row => [...row]);
     for (let i = 0; i < 3; i++) {
