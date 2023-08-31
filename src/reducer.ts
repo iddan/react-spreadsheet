@@ -158,6 +158,35 @@ export default function reducer(
       }
       const copied = Matrix.split(text, (value) => ({ value }));
       const copiedSize = Matrix.getSize(copied);
+
+      const selectedRange = state.selected.toRange(state.model.data);
+      if (selectedRange && copiedSize.rows === 1 && copiedSize.columns === 1) {
+        const cell = Matrix.get({ row: 0, column: 0 }, copied);
+        let newData =
+          state.cut && state.copied
+            ? Matrix.unset(state.copied.start, state.model.data)
+            : state.model.data;
+        const commit: Types.StoreState["lastCommit"] = [];
+        for (const point of selectedRange || []) {
+          const currentCell = Matrix.get(point, state.model.data);
+          commit.push({
+            prevCell: currentCell || null,
+            nextCell: cell || null,
+          });
+          newData = Matrix.set(point, cell, newData);
+        }
+
+        return {
+          ...state,
+          model: new Model(newData),
+          copied: null,
+          cut: false,
+          hasPasted: true,
+          mode: "view",
+          lastCommit: commit,
+        };
+      }
+
       const requiredSize: Matrix.Size = {
         rows: active.row + copiedSize.rows,
         columns: active.column + copiedSize.columns,
