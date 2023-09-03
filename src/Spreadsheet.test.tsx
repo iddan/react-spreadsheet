@@ -9,6 +9,7 @@ import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
 import { createEmptyMatrix } from "./util";
+import { createFormulaParser } from "./formula";
 
 type Value = string;
 type CellType = Types.CellBase<Value>;
@@ -252,6 +253,26 @@ describe("<Spreadsheet />", () => {
       (element) => element.textContent
     );
     expect(columnLabels).toEqual(EXAMPLE_COLUMN_LABELS);
+  });
+  test("switching createFormulaParser", () => {
+    const createFormulaParser1 = jest.fn(createFormulaParser);
+    const createFormulaParser2 = jest.fn(createFormulaParser);
+    const { rerender } = render(
+      <Spreadsheet
+        {...EXAMPLE_PROPS}
+        createFormulaParser={createFormulaParser1}
+      />
+    );
+    rerender(
+      <Spreadsheet
+        {...EXAMPLE_PROPS}
+        createFormulaParser={createFormulaParser2}
+      />
+    );
+    expect(createFormulaParser1).toHaveBeenCalledTimes(1);
+    expect(createFormulaParser1).toHaveBeenCalledWith(EXAMPLE_PROPS.data);
+    expect(createFormulaParser2).toHaveBeenCalledTimes(2);
+    expect(createFormulaParser2).toHaveBeenCalledWith(EXAMPLE_PROPS.data);
   });
 });
 
