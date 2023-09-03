@@ -6,7 +6,7 @@ import {
   extractFormula,
   FORMULA_VALUE_PREFIX,
   evaluate,
-  createBoundFormulaParser,
+  createFormulaParser,
 } from "./formula";
 
 const A1 = "A1";
@@ -55,12 +55,12 @@ describe("getReferences()", () => {
 
 describe("evaluate()", () => {
   test("evaluates formula", () => {
-    const formulaParser = createBoundFormulaParser(() => []);
+    const formulaParser = createFormulaParser([]);
     expect(evaluate(EXAMPLE_FORMULA, Point.ORIGIN, formulaParser)).toBe(true);
   });
   test("evaluates sum formula", () => {
     const data = [[{ value: 1 }], [{ value: 2 }]];
-    const formulaParser = createBoundFormulaParser(() => data);
+    const formulaParser = createFormulaParser(data);
     expect(
       evaluate(SUM_A1_A2_FORMULA, { row: 1, column: 1 }, formulaParser)
     ).toBe(3);

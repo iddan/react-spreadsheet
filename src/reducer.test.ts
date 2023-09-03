@@ -25,6 +25,7 @@ import {
 } from "./selection";
 import "./areModelsEqual";
 import { Model } from "./engine";
+import { createFormulaParser } from "./formula";
 
 const EDIT_STATE: Types.StoreState = { ...INITIAL_STATE, mode: "edit" };
 const EXAMPLE_DATA_ROWS_COUNT = 4;
@@ -58,7 +59,7 @@ describe("reducer", () => {
       "setData",
       INITIAL_STATE,
       Actions.setData(EXAMPLE_DATA),
-      { ...INITIAL_STATE, model: new Model(EXAMPLE_DATA) },
+      { ...INITIAL_STATE, model: new Model(createFormulaParser, EXAMPLE_DATA) },
     ],
     [
       "select",
@@ -169,6 +170,7 @@ describe("reducer", () => {
       {
         ...INITIAL_STATE,
         model: new Model(
+          createFormulaParser,
           Matrix.set(Point.ORIGIN, EXAMPLE_CELL, INITIAL_STATE.model.data)
         ),
         lastChanged: Point.ORIGIN,
@@ -264,7 +266,9 @@ describe("isActiveReadOnly", () => {
       "returns true if active is read only",
       {
         ...INITIAL_STATE,
-        model: new Model([[{ readOnly: true, value: undefined }]]),
+        model: new Model(createFormulaParser, [
+          [{ readOnly: true, value: undefined }],
+        ]),
         active: Point.ORIGIN,
       },
       true,

@@ -45,7 +45,7 @@ describe("getFormulaComputedValue()", () => {
 
 describe("updateCellValue", () => {
   test("update simple cell", () => {
-    const model = new Model([]);
+    const model = new Model(Formula.createFormulaParser, []);
     const cell: CellBase = { value: "1" };
     const point: Point = { row: 0, column: 0 };
     const nextModel = updateCellValue(model, point, cell);
@@ -53,7 +53,8 @@ describe("updateCellValue", () => {
     expect(nextModel.evaluatedData).toEqual([[cell]]);
   });
   test("update simple formula cell", () => {
-    const model = new Model([[{ value: 1 }], [{ value: 2 }]]);
+    const data = [[{ value: 1 }], [{ value: 2 }]];
+    const model = new Model(Formula.createFormulaParser, data);
     const cell: CellBase = { value: "=A1" };
     const point: Point = { row: 0, column: 1 };
     const nextModel = updateCellValue(model, point, cell);
@@ -64,7 +65,8 @@ describe("updateCellValue", () => {
     ]);
   });
   test("update range formula cell", () => {
-    const model = new Model([[{ value: 1 }], [{ value: 2 }]]);
+    const data = [[{ value: 1 }], [{ value: 2 }]];
+    const model = new Model(Formula.createFormulaParser, data);
     const cell: CellBase = { value: "=SUM(A:A)" };
     const point: Point = { row: 0, column: 1 };
     const nextModel = updateCellValue(model, point, cell);
@@ -75,7 +77,8 @@ describe("updateCellValue", () => {
     ]);
   });
   test("errors correctly for circular reference", () => {
-    const model = new Model([[{ value: 1 }], [{ value: 2 }]]);
+    const data = [[{ value: 1 }], [{ value: 2 }]];
+    const model = new Model(Formula.createFormulaParser, data);
     const cell: CellBase = { value: "=SUM(A:A)" };
     const point: Point = { row: 0, column: 0 };
     const nextModel = updateCellValue(model, point, cell);

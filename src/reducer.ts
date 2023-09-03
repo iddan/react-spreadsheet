@@ -13,6 +13,7 @@ import {
 import { isActive } from "./util";
 import * as Actions from "./actions";
 import { Model, updateCellValue } from "./engine";
+import { createFormulaParser } from "./formula";
 
 export const INITIAL_STATE: Types.StoreState = {
   active: null,
@@ -23,7 +24,7 @@ export const INITIAL_STATE: Types.StoreState = {
   hasPasted: false,
   cut: false,
   dragging: false,
-  model: new Model([]),
+  model: new Model(createFormulaParser, []),
   selected: new EmptySelection(),
   copied: null,
   lastCommit: null,
@@ -41,9 +42,16 @@ export default function reducer(
       const nextSelected = state.selected.normalizeTo(data);
       return {
         ...state,
-        model: new Model(data),
+        model: new Model(state.model.createFormulaParser, data),
         active: nextActive,
         selected: nextSelected,
+      };
+    }
+    case Actions.SET_CREATE_FORMULA_PARSER: {
+      const { createFormulaParser } = action.payload;
+      return {
+        ...state,
+        model: new Model(createFormulaParser, state.model.data),
       };
     }
     case Actions.SELECT_ENTIRE_ROW: {
@@ -103,18 +111,13 @@ export default function reducer(
       };
     }
     case Actions.SET_CELL_DATA: {
-      const { active, data: cellData, parserConstructor } = action.payload;
+      const { active, data: cellData } = action.payload;
       if (isActiveReadOnly(state)) {
         return state;
       }
       return {
         ...state,
-        model: updateCellValue(
-          state.model,
-          active,
-          cellData,
-          parserConstructor
-        ),
+        model: updateCellValue(state.model, active, cellData),
         lastChanged: active,
       };
     }
@@ -183,7 +186,7 @@ export default function reducer(
 
         return {
           ...state,
-          model: new Model(newData),
+          model: new Model(createFormulaParser, newData),
           copied: null,
           cut: false,
           hasPasted: true,
@@ -247,7 +250,7 @@ export default function reducer(
 
       return {
         ...state,
-        model: new Model(acc.data),
+        model: new Model(createFormulaParser, acc.data),
         selected: new RangeSelection(
           new PointRange(active, {
             row: active.row + copiedSize.rows - 1,
@@ -310,6 +313,9 @@ export default function reducer(
       const { changes } = action.payload;
       return { ...state, ...commit(changes) };
     }
+
+    default:
+      throw new Error("Unknown action");
   }
 }
 
@@ -363,7 +369,7 @@ function clear(state: Types.StoreState): Types.StoreState {
 
   return {
     ...state,
-    model: new Model(newData),
+    model: new Model(createFormulaParser, newData),
     ...commit(changes),
   };
 }

@@ -7,12 +7,9 @@ import useSelector from "./use-selector";
 import useDispatch from "./use-dispatch";
 import { getCellDimensions } from "./util";
 import * as Matrix from "./matrix";
-import { CellBase } from "./types";
-import FormulaParser from "fast-formula-parser";
 
 type Props = {
   DataEditor: Types.DataEditorComponent;
-  parserConstructor?: (getData: () => Matrix.Matrix<CellBase>) => FormulaParser;
 };
 
 const ActiveCell: React.FC<Props> = (props) => {
@@ -21,8 +18,8 @@ const ActiveCell: React.FC<Props> = (props) => {
   const dispatch = useDispatch();
   const setCellData = React.useCallback(
     (active: Point.Point, data: Types.CellBase) =>
-      dispatch(Actions.setCellData(active, data, props.parserConstructor)),
-    [dispatch, props.parserConstructor]
+      dispatch(Actions.setCellData(active, data)),
+    [dispatch]
   );
   const edit = React.useCallback(() => dispatch(Actions.edit()), [dispatch]);
   const commit = React.useCallback(

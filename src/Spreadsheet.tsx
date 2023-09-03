@@ -37,39 +37,47 @@ import context from "./context";
 import "./Spreadsheet.css";
 import { Model } from "./engine";
 import FormulaParser from "fast-formula-parser";
-import { CellBase } from "./types";
+import { createFormulaParser } from "./formula";
 
 /** The Spreadsheet component props */
 export type Props<CellType extends Types.CellBase> = {
   /** The spreadsheet's data */
   data: Matrix.Matrix<CellType>;
-  /** Class to be added to the spreadsheet element */
+  /** Class name to be added to the spreadsheet's root element */
   className?: string;
-  /** Use dark colors that complement dark mode */
+  /**
+   * Use dark colors that complement dark mode
+   * @defaultValue `false`
+   */
   darkMode?: boolean;
   /**
-   * Constructor for the instance of `FormulaParser` to be used by the Spreadsheet.
-   * Defaults to: internal instance created by the component.
+   * Function used to create the formula parser (instance of
+   * "fast-formula-parser") used by the Spreadsheet by getting the spreadsheet's
+   * data.
+   * @defaultValue function which creates a formula parser bound to the
+   * Spreadsheet's data.
+   * @see `createFormulaParser`
+   * @see https://www.npmjs.com/package/fast-formula-parser
    */
-  parserConstructor?: (getData: () => Matrix.Matrix<CellBase>) => FormulaParser;
+  createFormulaParser?: (data: Matrix.Matrix<CellType>) => FormulaParser;
   /**
    * Labels to use in column indicators.
-   * Defaults to: alphabetical labels.
+   * @defaultValue alphabetical labels.
    */
   columnLabels?: string[];
   /**
    * Labels to use in row indicators.
-   * Defaults to: row index labels.
+   * @defaultValue row index labels.
    */
   rowLabels?: string[];
   /**
    * If set to true, hides the row indicators of the spreadsheet.
-   * Defaults to: `false`.
+   * @defaultValue `false`.
    */
   hideRowIndicators?: boolean;
   /**
    * If set to true, hides the column indicators of the spreadsheet.
-   * Defaults to: `false`.
+   * @defaultValue `false`.
    */
   hideColumnIndicators?: boolean;
   // Custom Components
@@ -120,7 +128,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const {
     className,
     darkMode,
-    parserConstructor,
     columnLabels,
     rowLabels,
     hideColumnIndicators,
@@ -138,16 +145,20 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onBlur = () => {},
     onCellCommit = () => {},
   } = props;
+  type State = Types.StoreState<CellType>;
+
   const initialState = React.useMemo(() => {
-    const model = new Model(props.data);
+    const createParser = (props.createFormulaParser ||
+      createFormulaParser) as Types.CreateFormulaParser;
+    const model = new Model(createParser, props.data);
     return {
       ...INITIAL_STATE,
       model,
-    } as Types.StoreState<CellType>;
-  }, [props.data]);
+    } as State;
+  }, [props.createFormulaParser, props.data]);
 
   const reducerElements = React.useReducer(
-    reducer as unknown as React.Reducer<Types.StoreState<CellType>, any>,
+    reducer as unknown as React.Reducer<State, Actions.Action>,
     initialState
   );
   const [state, dispatch] = reducerElements;
@@ -159,20 +170,20 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const mode = state.mode;
 
   const rootRef = React.useRef<HTMLDivElement>(null);
-  const prevStateRef = React.useRef<Types.StoreState<CellType>>(initialState);
+  const prevStateRef = React.useRef<State>(initialState);
 
   const copy = React.useCallback(() => dispatch(Actions.copy()), [dispatch]);
   const cut = React.useCallback(() => dispatch(Actions.cut()), [dispatch]);
   const paste = React.useCallback(
-    (data) => dispatch(Actions.paste(data)),
+    (data: string) => dispatch(Actions.paste(data)),
     [dispatch]
   );
   const onKeyDownAction = React.useCallback(
-    (event) => dispatch(Actions.keyDown(event)),
+    (event: React.KeyboardEvent) => dispatch(Actions.keyDown(event)),
     [dispatch]
   );
   const onKeyPress = React.useCallback(
-    (event) => dispatch(Actions.keyPress(event)),
+    (event: React.KeyboardEvent) => dispatch(Actions.keyPress(event)),
     [dispatch]
   );
   const onDragStart = React.useCallback(
@@ -184,7 +195,12 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     [dispatch]
   );
   const setData = React.useCallback(
-    (data) => dispatch(Actions.setData(data)),
+    (data: Matrix.Matrix<CellType>) => dispatch(Actions.setData(data)),
+    [dispatch]
+  );
+  const setCreateFormulaParser = React.useCallback(
+    (createFormulaParser: Types.CreateFormulaParser) =>
+      dispatch(Actions.setCreateFormulaParser(createFormulaParser)),
     [dispatch]
   );
   const blur = React.useCallback(() => dispatch(Actions.blur()), [dispatch]);
@@ -246,6 +262,15 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       setData(props.data);
     }
   }, [props.data, setData]);
+
+  React.useEffect(() => {
+    const prevState = prevStateRef.current;
+    if (props.createFormulaParser !== prevState.model.createFormulaParser) {
+      const newFormulaParser = (props.createFormulaParser ||
+        createFormulaParser) as Types.CreateFormulaParser;
+      setCreateFormulaParser(newFormulaParser);
+    }
+  }, [props.createFormulaParser, setCreateFormulaParser]);
 
   const writeDataToClipboard = React.useCallback(
     (event: ClipboardEvent): void => {
@@ -420,7 +445,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
                 column={columnNumber}
                 // @ts-ignore
                 DataViewer={DataViewer}
-                parserConstructor={parserConstructor}
               />
             ))}
           </Row>
@@ -442,7 +466,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       RowIndicator,
       Cell,
       DataViewer,
-      parserConstructor,
     ]
   );
 
@@ -451,10 +474,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       <ActiveCell
         // @ts-ignore
         DataEditor={DataEditor}
-        parserConstructor={parserConstructor}
       />
     ),
-    [DataEditor, parserConstructor]
+    [DataEditor]
   );
 
   const rootNode = React.useMemo(

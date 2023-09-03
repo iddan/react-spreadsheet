@@ -3,6 +3,7 @@
  */
 
 import { Model } from "./engine";
+import { createFormulaParser } from "./formula";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import { PointRange } from "./point-range";
@@ -57,7 +58,7 @@ const EXAMPLE_STATE: Types.StoreState = {
   hasPasted: false,
   cut: false,
   dragging: false,
-  model: new Model(EXAMPLE_DATA),
+  model: new Model(createFormulaParser, EXAMPLE_DATA),
   selected: new EmptySelection(),
   copied: null,
   lastCommit: null,

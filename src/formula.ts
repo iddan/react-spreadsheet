@@ -2,6 +2,7 @@ import FormulaParser, {
   CellRef,
   DepParser,
   FormulaError,
+  FormulaParserConfig,
   Value,
 } from "fast-formula-parser";
 import { PointSet } from "./point-set";
@@ -26,23 +27,22 @@ export function extractFormula(value: string): string {
   return value.slice(1);
 }
 
-export function createBoundFormulaParser(
-  getData: () => Matrix.Matrix<CellBase>,
-  functions?: object
+export function createFormulaParser(
+  data: Matrix.Matrix<CellBase>,
+  config?: Omit<FormulaParserConfig, "onCell" | "onRange">
 ): FormulaParser {
   return new FormulaParser({
-    functions: functions ?? {},
+    ...config,
     onCell: (ref) => {
       const point: Point = {
         row: ref.row - 1,
         column: ref.col - 1,
       };
-      const cell = Matrix.get(point, getData());
+      const cell = Matrix.get(point, data);
       if (!isNaN(cell?.value as number)) return Number(cell?.value);
       return cell?.value;
     },
     onRange: (ref) => {
-      const data = getData();
       const size = Matrix.getSize(data);
       const start: Point = {
         row: ref.from.row - 1,

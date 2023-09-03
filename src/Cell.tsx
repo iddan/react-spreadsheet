@@ -110,7 +110,7 @@ export const enhance = (
   >
 > => {
   return function CellWrapper(props) {
-    const { row, column, parserConstructor } = props;
+    const { row, column } = props;
     const dispatch = useDispatch();
     const point = React.useMemo(
       (): Point.Point => ({
@@ -120,9 +120,8 @@ export const enhance = (
       [row, column]
     );
     const setCellData = React.useCallback(
-      (data: Types.CellBase) =>
-        dispatch(Actions.setCellData(point, data, parserConstructor)),
-      [dispatch, point, parserConstructor]
+      (data: Types.CellBase) => dispatch(Actions.setCellData(point, data)),
+      [dispatch, point]
     );
     const select = React.useCallback(
       (point: Point.Point) => dispatch(Actions.select(point)),

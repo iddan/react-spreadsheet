@@ -1,9 +1,14 @@
 import { Matrix } from "./matrix";
 import { Point } from "./point";
-import { CellBase, Dimensions, CommitChanges } from "./types";
-import FormulaParser from "fast-formula-parser";
+import {
+  CellBase,
+  Dimensions,
+  CommitChanges,
+  CreateFormulaParser,
+} from "./types";
 
 export const SET_DATA = "SET_DATA";
+export const SET_CREATE_FORMULA_PARSER = "SET_CREATE_FORMULA_PARSER";
 export const SELECT_ENTIRE_ROW = "SELECT_ENTIRE_ROW";
 export const SELECT_ENTIRE_COLUMN = "SELECT_ENTIRE_COLUMN";
 export const SELECT_ENTIRE_WORKSHEET = "SELECT_ENTIRE_WORKSHEET";
@@ -38,6 +43,23 @@ export function setData(data: Matrix<CellBase>): SetDataAction {
   return {
     type: SET_DATA,
     payload: { data },
+  };
+}
+
+export type SetCreateFormulaParserAction = BaseAction<
+  typeof SET_CREATE_FORMULA_PARSER
+> & {
+  payload: {
+    createFormulaParser: CreateFormulaParser;
+  };
+};
+
+export function setCreateFormulaParser(
+  createFormulaParser: CreateFormulaParser
+): SetCreateFormulaParserAction {
+  return {
+    type: SET_CREATE_FORMULA_PARSER,
+    payload: { createFormulaParser },
   };
 }
 
@@ -115,18 +137,13 @@ export type SetCellDataAction = BaseAction<typeof SET_CELL_DATA> & {
   payload: {
     active: Point;
     data: CellBase;
-    parserConstructor?: (getData: () => Matrix<CellBase>) => FormulaParser;
   };
 };
 
-export function setCellData(
-  active: Point,
-  data: CellBase,
-  parserConstructor?: (getData: () => Matrix<CellBase>) => FormulaParser
-): SetCellDataAction {
+export function setCellData(active: Point, data: CellBase): SetCellDataAction {
   return {
     type: SET_CELL_DATA,
-    payload: { active, data, parserConstructor },
+    payload: { active, data },
   };
 }
 
@@ -249,6 +266,7 @@ export function blur(): BlurAction {
 
 export type Action =
   | SetDataAction
+  | SetCreateFormulaParserAction
   | SelectEntireRowAction
   | SelectEntireColumnAction
   | SelectEntireWorksheetAction

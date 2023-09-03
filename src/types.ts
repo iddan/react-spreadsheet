@@ -7,6 +7,7 @@ import { Matrix } from "./matrix";
 import FormulaParser from "fast-formula-parser";
 
 /** The base type of cell data in Spreadsheet */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CellBase<Value = any> = {
   /** Whether the cell should not be editable */
   readOnly?: boolean;
@@ -97,8 +98,6 @@ export type CellComponentProps<Cell extends CellBase = CellBase> = {
   setCellDimensions: (point: Point, dimensions: Dimensions) => void;
   /** Set data of the cell */
   setCellData: (cell: Cell) => void;
-  /** Constructor for the formula parser to be used */
-  parserConstructor?: (getData: () => Matrix<CellBase>) => FormulaParser;
 };
 
 /** Type of the Spreadsheet Cell component */
@@ -208,3 +207,5 @@ export type CommitChanges<Cell extends CellBase = CellBase> = Array<{
   prevCell: Cell | null;
   nextCell: Cell | null;
 }>;
+
+export type CreateFormulaParser = (data: Matrix<CellBase>) => FormulaParser;
