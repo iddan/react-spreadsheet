@@ -37,6 +37,8 @@ beforeAll(() => {
   jest.clearAllMocks();
 });
 
+const FIRST_CELL_SELECTOR = "tr:nth-of-type(2) td:nth-of-type(1)";
+const ACTIVE_CELL_SELECTOR = ".Spreadsheet__active-cell";
 describe("<Spreadsheet />", () => {
   test("renders", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} />);
@@ -130,7 +132,7 @@ describe("<Spreadsheet />", () => {
     // Select cell
     fireEvent.mouseDown(cell);
     // Get active cell
-    const activeCell = safeQuerySelector(element, ".Spreadsheet__active-cell");
+    const activeCell = safeQuerySelector(element, ACTIVE_CELL_SELECTOR);
     // Press Enter
     fireEvent.keyDown(activeCell, {
       key: "Enter",
@@ -196,10 +198,7 @@ describe("<Spreadsheet />", () => {
     render(<Spreadsheet {...EXAMPLE_PROPS} onSelect={onSelect} />);
     // Get elements
     const element = getSpreadsheetElement();
-    const firstCell = safeQuerySelector(
-      element,
-      "tr:nth-of-type(2) td:nth-of-type(1)"
-    );
+    const firstCell = safeQuerySelector(element, FIRST_CELL_SELECTOR);
     const thirdCell = safeQuerySelector(
       element,
       "tr:nth-of-type(3) td:nth-of-type(2)"
@@ -273,6 +272,39 @@ describe("<Spreadsheet />", () => {
     expect(createFormulaParser1).toHaveBeenCalledWith(EXAMPLE_PROPS.data);
     expect(createFormulaParser2).toHaveBeenCalledTimes(2);
     expect(createFormulaParser2).toHaveBeenCalledWith(EXAMPLE_PROPS.data);
+  });
+  test.skip("pasting", () => {
+    render(<Spreadsheet {...EXAMPLE_PROPS} />);
+    const element = getSpreadsheetElement();
+    const firstCell = safeQuerySelector(element, FIRST_CELL_SELECTOR);
+    // Activate a cell
+    fireEvent.mouseDown(firstCell);
+    // Get active cell
+    const activeCell = safeQuerySelector(element, ACTIVE_CELL_SELECTOR);
+    // Press Enter
+    fireEvent.keyDown(activeCell, {
+      key: "Enter",
+    });
+    // Get input
+    const input = safeQuerySelector<HTMLInputElement>(activeCell, "input");
+    // Change input
+    fireEvent.change(input, {
+      target: {
+        value: EXAMPLE_VALUE,
+      },
+    });
+    // Copy
+    fireEvent.copy(activeCell);
+    // Get second cell
+    const secondCell = safeQuerySelector(
+      element,
+      "tr:nth-of-type(2) td:nth-of-type(2)"
+    );
+    // Select second cell
+    fireEvent.mouseDown(secondCell);
+    // Paste
+    fireEvent.paste(activeCell);
+    expect(input.value).toBe(EXAMPLE_VALUE);
   });
 });
 
