@@ -120,7 +120,8 @@ export const enhance = (
       [row, column]
     );
     const setCellData = React.useCallback(
-      (data: Types.CellBase) => dispatch(Actions.setCellData(point, data, parserConstructor)),
+      (data: Types.CellBase) =>
+        dispatch(Actions.setCellData(point, data, parserConstructor)),
       [dispatch, point, parserConstructor]
     );
     const select = React.useCallback(

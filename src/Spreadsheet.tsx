@@ -37,7 +37,7 @@ import context from "./context";
 import "./Spreadsheet.css";
 import { Model } from "./engine";
 import FormulaParser from "fast-formula-parser";
-import {CellBase} from "./types";
+import { CellBase } from "./types";
 
 /** The Spreadsheet component props */
 export type Props<CellType extends Types.CellBase> = {
@@ -51,7 +51,7 @@ export type Props<CellType extends Types.CellBase> = {
    * Constructor for the instance of `FormulaParser` to be used by the Spreadsheet.
    * Defaults to: internal instance created by the component.
    */
-  parserConstructor?: (getData: () => Matrix.Matrix<CellBase>) => FormulaParser
+  parserConstructor?: (getData: () => Matrix.Matrix<CellBase>) => FormulaParser;
   /**
    * Labels to use in column indicators.
    * Defaults to: alphabetical labels.
@@ -442,7 +442,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       RowIndicator,
       Cell,
       DataViewer,
-      parserConstructor
+      parserConstructor,
     ]
   );
 
@@ -454,7 +454,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
         parserConstructor={parserConstructor}
       />
     ),
-    [DataEditor]
+    [DataEditor, parserConstructor]
   );
 
   const rootNode = React.useMemo(

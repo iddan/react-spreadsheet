@@ -10,12 +10,6 @@ const PAIRS: Array<[Point.Point, number]> = [
 
 const MAP = PointMap.from(PAIRS);
 
-const MATRIX = [
-  [42, 42],
-  [undefined, 42],
-  [undefined, undefined, 42],
-];
-
 describe("PointMap.from()", () => {
   test("creates equal map for same pairs", () => {
     expect(MAP).toEqual(PointMap.from(PAIRS));

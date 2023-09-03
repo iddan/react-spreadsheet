@@ -109,7 +109,12 @@ export default function reducer(
       }
       return {
         ...state,
-        model: updateCellValue(state.model, active, cellData, parserConstructor),
+        model: updateCellValue(
+          state.model,
+          active,
+          cellData,
+          parserConstructor
+        ),
         lastChanged: active,
       };
     }
@@ -431,6 +436,13 @@ const editShiftKeyDownHandlers: KeyDownHandlers = {
   Tab: go(0, -1),
 };
 
+export enum Direction {
+  Left = "Left",
+  Right = "Right",
+  Top = "Top",
+  Bottom = "Bottom",
+}
+
 const shiftKeyDownHandlers: KeyDownHandlers = {
   ArrowUp: (state) => ({
     ...state,
@@ -518,13 +530,6 @@ export function isActiveReadOnly(state: Types.StoreState): boolean {
 export function getActive(state: Types.StoreState): Types.CellBase | null {
   const activeCell = state.active && Matrix.get(state.active, state.model.data);
   return activeCell || null;
-}
-
-export enum Direction {
-  Left = "Left",
-  Right = "Right",
-  Top = "Top",
-  Bottom = "Bottom",
 }
 
 /** Modify given edge according to given active point and data */

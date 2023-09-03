@@ -98,7 +98,7 @@ export type CellComponentProps<Cell extends CellBase = CellBase> = {
   /** Set data of the cell */
   setCellData: (cell: Cell) => void;
   /** Constructor for the formula parser to be used */
-  parserConstructor?: (getData: () => Matrix<CellBase>) => FormulaParser
+  parserConstructor?: (getData: () => Matrix<CellBase>) => FormulaParser;
 };
 
 /** Type of the Spreadsheet Cell component */

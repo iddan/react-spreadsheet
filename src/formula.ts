@@ -28,7 +28,7 @@ export function extractFormula(value: string): string {
 
 export function createBoundFormulaParser(
   getData: () => Matrix.Matrix<CellBase>,
-  functions?: object,
+  functions?: object
 ): FormulaParser {
   return new FormulaParser({
     functions: functions ?? {},

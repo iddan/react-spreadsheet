@@ -2,7 +2,6 @@ import * as React from "react";
 import classNames from "classnames";
 import * as Actions from "./actions";
 import * as Types from "./types";
-import * as Selection from "./selection";
 import useDispatch from "./use-dispatch";
 import useSelector from "./use-selector";
 

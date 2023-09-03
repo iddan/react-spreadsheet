@@ -32,4 +32,4 @@ export type {
   HeaderRowProps,
   HeaderRowComponent,
 } from "./types";
-export {createBoundFormulaParser} from "./formula";
+export { createBoundFormulaParser } from "./formula";

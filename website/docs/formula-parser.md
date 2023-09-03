@@ -20,12 +20,13 @@ The `react-spreadsheet` library also exposes a function `createBoundFormulaParse
 
 The Fast Formula Parser library allows overriding of the formulas as implemented.
 To leverage this, one could for example disable the `SUM` function as follows.
+
 ```javascript
-import Spreadsheet, {createBoundFormulaParser} from "react-spreadsheet";
+import Spreadsheet, { createBoundFormulaParser } from "react-spreadsheet";
 const App = () => {
-    function parserConstructor(getData) {
-        return createBoundFormulaParser(getData, {SUM: undefined});
-    }
-    return <Spreadsheet data={[]} parserConstructor={parserConstructor}/>;
+  function parserConstructor(getData) {
+    return createBoundFormulaParser(getData, { SUM: undefined });
+  }
+  return <Spreadsheet data={[]} parserConstructor={parserConstructor} />;
 };
 ```

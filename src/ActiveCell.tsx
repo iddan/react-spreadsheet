@@ -7,12 +7,12 @@ import useSelector from "./use-selector";
 import useDispatch from "./use-dispatch";
 import { getCellDimensions } from "./util";
 import * as Matrix from "./matrix";
-import {CellBase} from "./types";
+import { CellBase } from "./types";
 import FormulaParser from "fast-formula-parser";
 
 type Props = {
   DataEditor: Types.DataEditorComponent;
-  parserConstructor?: (getData: () => Matrix.Matrix<CellBase>) => FormulaParser
+  parserConstructor?: (getData: () => Matrix.Matrix<CellBase>) => FormulaParser;
 };
 
 const ActiveCell: React.FC<Props> = (props) => {

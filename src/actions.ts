@@ -115,14 +115,14 @@ export type SetCellDataAction = BaseAction<typeof SET_CELL_DATA> & {
   payload: {
     active: Point;
     data: CellBase;
-    parserConstructor?: (getData: () => Matrix<CellBase>) => FormulaParser
+    parserConstructor?: (getData: () => Matrix<CellBase>) => FormulaParser;
   };
 };
 
 export function setCellData(
-    active: Point,
-    data: CellBase,
-    parserConstructor?: (getData: () => Matrix<CellBase>) => FormulaParser
+  active: Point,
+  data: CellBase,
+  parserConstructor?: (getData: () => Matrix<CellBase>) => FormulaParser
 ): SetCellDataAction {
   return {
     type: SET_CELL_DATA,
