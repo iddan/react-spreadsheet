@@ -12,8 +12,7 @@ import {
 } from "./selection";
 import { isActive } from "./util";
 import * as Actions from "./actions";
-import { Model, updateCellValue } from "./engine";
-import { createFormulaParser } from "./formula";
+import { Model, updateCellValue, createFormulaParser } from "./engine";
 
 export const INITIAL_STATE: Types.StoreState = {
   active: null,

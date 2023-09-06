@@ -1,11 +1,10 @@
 import FormulaParser, { FormulaError, Value } from "fast-formula-parser";
-import { getReferences } from "./formula";
-import * as Matrix from "./matrix";
+import * as Matrix from "../matrix";
 import * as Formula from "./formula";
-import { Point } from "./point";
+import { Point } from "../point";
 import { PointGraph } from "./point-graph";
 import { PointSet } from "./point-set";
-import { CellBase, CreateFormulaParser } from "./types";
+import { CellBase, CreateFormulaParser } from "../types";
 
 export class Model<Cell extends CellBase> {
   readonly data!: Matrix.Matrix<Cell>;
@@ -65,7 +64,7 @@ function updateReferenceGraph(
   cell: CellBase<string>,
   data: Matrix.Matrix<CellBase>
 ): PointGraph {
-  const references = getReferences(
+  const references = Formula.getReferences(
     Formula.extractFormula(cell.value),
     point,
     data
@@ -144,7 +143,7 @@ export function createReferenceGraph(
   const entries: Array<[Point, PointSet]> = [];
   for (const [point, cell] of Matrix.entries(data)) {
     if (cell && Formula.isFormulaValue(cell.value)) {
-      const references = getReferences(
+      const references = Formula.getReferences(
         Formula.extractFormula(cell.value),
         point,
         data

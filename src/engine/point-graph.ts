@@ -1,4 +1,4 @@
-import { Point } from "./point";
+import { Point } from "../point";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";
 

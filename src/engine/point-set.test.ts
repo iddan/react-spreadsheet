@@ -1,5 +1,5 @@
 import { PointSet } from "./point-set";
-import * as Point from "./point";
+import * as Point from "../point";
 
 const MIN_POINT = Point.ORIGIN;
 const MAX_POINT: Point.Point = { row: 2, column: 2 };

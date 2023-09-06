@@ -9,7 +9,7 @@ import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
 import { createEmptyMatrix } from "./util";
-import { createFormulaParser } from "./formula";
+import { createFormulaParser } from "./engine";
 
 type Value = string;
 type CellType = Types.CellBase<Value>;

@@ -6,10 +6,10 @@ import FormulaParser, {
   Value,
 } from "fast-formula-parser";
 import { PointSet } from "./point-set";
-import { PointRange } from "./point-range";
-import { Point } from "./point";
-import * as Matrix from "./matrix";
-import { CellBase } from "./types";
+import { PointRange } from "../point-range";
+import { Point } from "../point";
+import * as Matrix from "../matrix";
+import { CellBase } from "../types";
 
 export const FORMULA_VALUE_PREFIX = "=";
 

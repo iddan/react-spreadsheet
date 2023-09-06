@@ -1,7 +1,7 @@
 /**
  * Immutable unordered Map like interface of point to value pairs.
  */
-import * as Point from "./point";
+import * as Point from "../point";
 
 type Data<T> = {
   [K in number]: {

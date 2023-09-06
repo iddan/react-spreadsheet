@@ -1,8 +1,8 @@
 import * as Formula from "./formula";
 import { getFormulaComputedValue, updateCellValue, Model } from "./engine";
-import { CellBase } from "./types";
+import { CellBase } from "../types";
 import FormulaParser, { FormulaError } from "fast-formula-parser";
-import { ORIGIN, Point } from "./point";
+import { ORIGIN, Point } from "../point";
 
 const MOCK_PARSE = jest.fn();
 const MOCK_FORMULA_PARSER = {

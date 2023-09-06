@@ -2,8 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { Model } from "./engine";
-import { createFormulaParser } from "./formula";
+import { Model, createFormulaParser } from "./engine";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
 import { PointRange } from "./point-range";

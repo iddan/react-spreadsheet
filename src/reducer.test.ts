@@ -24,8 +24,7 @@ import {
   EmptySelection,
 } from "./selection";
 import "./areModelsEqual";
-import { Model } from "./engine";
-import { createFormulaParser } from "./formula";
+import { Model, createFormulaParser } from "./engine";
 
 const EDIT_STATE: Types.StoreState = { ...INITIAL_STATE, mode: "edit" };
 const EXAMPLE_DATA_ROWS_COUNT = 4;

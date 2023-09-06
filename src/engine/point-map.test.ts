@@ -1,5 +1,5 @@
 import { PointMap } from "./point-map";
-import * as Point from "./point";
+import * as Point from "../point";
 
 const PAIRS: Array<[Point.Point, number]> = [
   [{ row: 0, column: 0 }, 42],

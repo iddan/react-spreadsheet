@@ -2,7 +2,7 @@
  * Immutable Set like interface of points
  */
 
-import * as Point from "./point";
+import * as Point from "../point";
 import { PointMap } from "./point-map";
 
 export class PointSet {

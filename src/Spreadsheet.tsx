@@ -35,9 +35,8 @@ import {
 import reducer, { INITIAL_STATE, hasKeyDownHandler } from "./reducer";
 import context from "./context";
 import "./Spreadsheet.css";
-import { Model } from "./engine";
+import { Model, createFormulaParser } from "./engine";
 import FormulaParser from "fast-formula-parser";
-import { createFormulaParser } from "./formula";
 
 /** The Spreadsheet component props */
 export type Props<CellType extends Types.CellBase> = {

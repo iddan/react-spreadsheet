@@ -1,4 +1,4 @@
-import * as Point from "./point";
+import * as Point from "../point";
 import { PointSet } from "./point-set";
 import {
   isFormulaValue,
