@@ -14,6 +14,7 @@ The state is passed to the other components using context (defined in `src/conte
 ### Main data structures
 
 - `Matrix` - Represents a 2D matrix of cells, used for the spreadsheet data.
+- `PointRange` - Represents a range in the spreadsheet.
 - `Selection` - Represents a rectangular selection of cells.
 - `CellBase` - Represents a single cell in the spreadsheet.
 - `Model` - Represents the spreadsheet data and the evaluated formulae cells.
