@@ -36,7 +36,6 @@ import reducer, { INITIAL_STATE, hasKeyDownHandler } from "./reducer";
 import context from "./context";
 import "./Spreadsheet.css";
 import { Model, createFormulaParser } from "./engine";
-import FormulaParser from "fast-formula-parser";
 
 /** The Spreadsheet component props */
 export type Props<CellType extends Types.CellBase> = {
@@ -58,7 +57,7 @@ export type Props<CellType extends Types.CellBase> = {
    * @see `createFormulaParser`
    * @see https://www.npmjs.com/package/fast-formula-parser
    */
-  createFormulaParser?: (data: Matrix.Matrix<CellType>) => FormulaParser;
+  createFormulaParser?: Types.CreateFormulaParser;
   /**
    * Labels to use in column indicators.
    * @defaultValue alphabetical labels.

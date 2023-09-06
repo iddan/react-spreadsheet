@@ -1,10 +1,10 @@
 import FormulaParser, { FormulaError, Value } from "fast-formula-parser";
 import * as Matrix from "../matrix";
-import * as Formula from "./formula";
 import { Point } from "../point";
+import { CellBase, CreateFormulaParser } from "../types";
+import * as Formula from "./formula";
 import { PointGraph } from "./point-graph";
 import { PointSet } from "./point-set";
-import { CellBase, CreateFormulaParser } from "../types";
 
 export class Model<Cell extends CellBase> {
   readonly data!: Matrix.Matrix<Cell>;

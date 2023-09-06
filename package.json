@@ -107,38 +107,6 @@
       "^.+\\.css$": "jest-transform-css"
     }
   },
-  "eslintConfig": {
-    "parser": "@typescript-eslint/parser",
-    "extends": [
-      "react-app",
-      "plugin:@typescript-eslint/eslint-recommended",
-      "plugin:@typescript-eslint/recommended",
-      "plugin:import/errors",
-      "plugin:import/warnings",
-      "plugin:import/typescript"
-    ],
-    "rules": {
-      "@typescript-eslint/ban-ts-comment": "off",
-      "@typescript-eslint/ban-types": "off",
-      "@typescript-eslint/no-empty-function": "off",
-      "@typescript-eslint/no-explicit-any": "error",
-      "tsdoc/syntax": "error"
-    },
-    "plugins": [
-      "eslint-plugin-tsdoc"
-    ],
-    "overrides": [
-      {
-        "files": [
-          "*.test.ts",
-          "*.test.tsx"
-        ],
-        "rules": {
-          "tsdoc/syntax": "off"
-        }
-      }
-    ]
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/iddan/react-spreadsheet.git"

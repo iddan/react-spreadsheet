@@ -1,6 +1,6 @@
 import * as React from "react";
-import * as Types from "./types";
 import classnames from "classnames";
+import * as Types from "./types";
 
 export type Props = {
   variant?: string;
