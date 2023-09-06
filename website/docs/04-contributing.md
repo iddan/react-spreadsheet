@@ -1,3 +1,8 @@
+---
+id: contributing
+title: Contributing
+---
+
 # Contributing
 
 ### Project Structure
