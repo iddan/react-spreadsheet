@@ -32,3 +32,7 @@ The component is interactively tested with [Storybook](https://storybook.js.org/
 ### Components
 
 As the Spreadsheet component allows customizing all the components used in the spreadsheet. For instance `src/Table.tsx` can be overridden with a component from the outside. That's why the props for the components are imported for `src/types.ts`, so their API will be stable and well defined.
+
+### Website
+
+The website is built with [Docusaurus](https://docusaurus.io/) and it's code is available in `website/`. The docs are in `website/docs/` and the main configuration is in `website/docusaurus.config.js`.
