@@ -5,6 +5,32 @@ title: Contributing
 
 # Contributing
 
+### Perquisites
+
+Make sure you are familiar with the following technologies:
+
+- [TypeScript](https://www.typescriptlang.org/) - used for the library code.
+- [React Hooks](https://react.dev/reference/react) - used for the library code.
+- [Jest](https://jestjs.io/) - used for testing.
+- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) - used for testing.
+- [Storybook](https://storybook.js.org/) - used for interactive testing.
+- [Typedoc](https://typedoc.org/) - used for generating the documentation.
+
+### Installation
+
+Make sure you have the following installed:
+
+- [Node.js](https://nodejs.org/en/) v16 or higher.
+- [Yarn](https://yarnpkg.com/) for package management
+
+Then run:
+
+```bash
+git clone https://github.com/iddan/react-spreadsheet.git;
+cd react-spreadsheet;
+yarn install;
+```
+
 ### Project Structure
 
 - `src/index.ts` - The entry point for the library, exports all the public API.
