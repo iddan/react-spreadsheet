@@ -3,3 +3,4 @@ build
 .docusaurus
 docs/api/
 typedoc-sidebar.js
+static/storybook

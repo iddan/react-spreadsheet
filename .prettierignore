@@ -3,6 +3,7 @@ dist/
 coverage/
 reference/
 storybook-static/
+static/storybook/
 
 # website
 website/node_modules
