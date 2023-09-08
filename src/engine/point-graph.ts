@@ -13,8 +13,9 @@ export class PointGraph {
   static from(pairs: Array<[Point, PointSet]>): PointGraph {
     let backward = PointMap.from<PointSet>([]);
     for (const [point, points] of pairs) {
-      const set = backward.get(point) || PointSet.from([]);
+      backward = backward.set(point, PointSet.from([]));
       for (const p of points) {
+        const set = backward.get(p) || PointSet.from([]);
         backward = backward.set(p, set.add(point));
       }
     }
@@ -29,26 +30,50 @@ export class PointGraph {
         : this.forward.set(point, points);
 
     const existing = this.forward.get(point);
-    const toAdd = existing ? points.difference(existing) : points;
 
     let newBackward = this.backward;
-    for (const p of toAdd) {
-      const set = newBackward.get(p) || PointSet.from([]);
-      newBackward = newBackward.set(p, set.add(point));
-    }
-    if (existing) {
-      const toRemove = existing.difference(points);
+
+    if (points.size() === 0) {
+      newBackward = newBackward.unset(point);
+      if (existing) {
+        for (const p of existing) {
+          const set = newBackward.get(p);
+          if (!set) {
+            continue;
+          }
+          const newSet = set.remove(point);
+          if (newSet.size() === 0) {
+            newBackward = newBackward.unset(p);
+          } else {
+            newBackward = newBackward.set(p, newSet);
+          }
+        }
+      }
+    } else {
+      const [toAdd, toRemove] = existing
+        ? [points.difference(existing), existing.difference(points)]
+        : [points, PointSet.from([])];
+
+      newBackward = newBackward.set(
+        point,
+        newBackward.get(point) || PointSet.from([])
+      );
+
+      for (const p of toAdd) {
+        const set = newBackward.get(p) || PointSet.from([]);
+        newBackward = newBackward.set(p, set.add(point));
+      }
+
       for (const p of toRemove) {
         const set = newBackward.get(p);
         if (!set) {
           continue;
         }
         const newSet = set.remove(point);
-        if (newSet.size() === 0) {
-          newBackward = newBackward.unset(p);
-        } else {
-          newBackward = newBackward.set(p, newSet);
-        }
+        newBackward =
+          newSet.size() === 0
+            ? newBackward.unset(p)
+            : newBackward.set(p, newSet);
       }
     }
     return new PointGraph(newForward, newBackward);
@@ -126,8 +151,8 @@ export class PointGraph {
     // Create a queue to store the points that still need to be visited
     const queue: Point[] = [];
 
-    // Iterate over all the points in the forward map and add the ones with no dependencies to the queue
-    for (const [point, dependencies] of this.forward.entries()) {
+    // Iterate over all the points in the backward map and add the ones with no dependencies to the queue
+    for (const [point, dependencies] of this.backward.entries()) {
       if (dependencies.size() === 0 && !visited.has(point)) {
         queue.push(point);
         visited = visited.add(point);

@@ -1,3 +1,4 @@
+import { Point } from "../point";
 import { PointMap } from "./point-map";
 import { PointSet } from "./point-set";
 import { PointGraph } from "./point-graph";
@@ -18,6 +19,7 @@ describe("PointGraph.from", () => {
     ]);
     expect(graph).toEqual({
       backward: PointMap.from([
+        [{ row: 0, column: 0 }, PointSet.from([])],
         [{ row: 0, column: 1 }, PointSet.from([{ row: 0, column: 0 }])],
       ]),
       forward: PointMap.from([
@@ -37,6 +39,7 @@ describe("PointGraph.from", () => {
     ]);
     expect(graph).toEqual({
       backward: PointMap.from([
+        [{ row: 0, column: 0 }, PointSet.from([])],
         [{ row: 0, column: 1 }, PointSet.from([{ row: 0, column: 0 }])],
         [{ row: 0, column: 2 }, PointSet.from([{ row: 0, column: 0 }])],
       ]),
@@ -55,13 +58,13 @@ describe("PointGraph.from", () => {
 
 describe("PointGraph.set", () => {
   test("add single edge to empty", () => {
-    expect(
-      EMPTY.set({ row: 0, column: 0 }, PointSet.from([{ row: 0, column: 1 }]))
-    ).toEqual(
-      PointGraph.from([
-        [{ row: 0, column: 0 }, PointSet.from([{ row: 0, column: 1 }])],
-      ])
-    );
+    const pair: [Point, PointSet] = [
+      { row: 0, column: 0 },
+      PointSet.from([{ row: 0, column: 1 }]),
+    ];
+    const graph = EMPTY.set(pair[0], pair[1]);
+    const expected = PointGraph.from([pair]);
+    expect(graph).toEqual(expected);
   });
   test("add two edges to empty", () => {
     expect(
@@ -88,9 +91,8 @@ describe("PointGraph.set", () => {
     const graph = PointGraph.from([
       [{ row: 0, column: 0 }, PointSet.from([{ row: 0, column: 1 }])],
     ]);
-    expect(graph.set({ row: 0, column: 0 }, PointSet.from([]))).toEqual(
-      PointGraph.from([])
-    );
+    const updatedGraph = graph.set({ row: 0, column: 0 }, PointSet.from([]));
+    expect(updatedGraph).toEqual(PointGraph.from([]));
   });
   test("remove and add single edges", () => {
     const graph = PointGraph.from([
@@ -105,36 +107,30 @@ describe("PointGraph.set", () => {
     );
   });
   test("add and remove multiple edges", () => {
-    let graph = EMPTY;
-    graph = graph.set(
+    const graph1 = EMPTY.set(
       { row: 0, column: 0 },
       PointSet.from([
         { row: 0, column: 1 },
         { row: 0, column: 2 },
       ])
-    );
-    graph = graph.set(
-      { row: 0, column: 1 },
-      PointSet.from([{ row: 0, column: 2 }])
-    );
-    expect(graph).toEqual(
-      PointGraph.from([
-        [
-          { row: 0, column: 0 },
-          PointSet.from([
-            { row: 0, column: 1 },
-            { row: 0, column: 2 },
-          ]),
-        ],
-        [{ row: 0, column: 1 }, PointSet.from([{ row: 0, column: 2 }])],
-      ])
-    );
-    graph = graph.set({ row: 0, column: 0 }, PointSet.from([]));
-    expect(graph).toEqual(
-      PointGraph.from([
-        [{ row: 0, column: 1 }, PointSet.from([{ row: 0, column: 2 }])],
-      ])
-    );
+    ).set({ row: 0, column: 1 }, PointSet.from([{ row: 0, column: 2 }]));
+    const expected1 = PointGraph.from([
+      [
+        { row: 0, column: 0 },
+        PointSet.from([
+          { row: 0, column: 1 },
+          { row: 0, column: 2 },
+        ]),
+      ],
+      [{ row: 0, column: 1 }, PointSet.from([{ row: 0, column: 2 }])],
+    ]);
+    expect(graph1).toEqual(expected1);
+
+    const graph2 = graph1.set({ row: 0, column: 0 }, PointSet.from([]));
+    const expected2 = PointGraph.from([
+      [{ row: 0, column: 1 }, PointSet.from([{ row: 0, column: 2 }])],
+    ]);
+    expect(graph2).toEqual(expected2);
   });
   test("add existing edge", () => {
     const graph = PointGraph.from([
@@ -205,6 +201,40 @@ describe("PointGraph.traverseBFS", () => {
   test("traverseBFS with single point", () => {
     const graph = PointGraph.from([[{ row: 0, column: 0 }, PointSet.from([])]]);
     expect(Array.from(graph.traverseBFS())).toEqual([{ row: 0, column: 0 }]);
+  });
+  test("traverseBFS with two point", () => {
+    const graph = PointGraph.from([
+      [{ row: 0, column: 0 }, PointSet.from([])],
+      [{ row: 1, column: 1 }, PointSet.from([])],
+    ]);
+    expect(Array.from(graph.traverseBFS())).toEqual([
+      { row: 0, column: 0 },
+      { row: 1, column: 1 },
+    ]);
+  });
+  test("traverseBFS with complex graph", () => {
+    const graph = PointGraph.from([
+      [
+        { row: 0, column: 0 },
+        PointSet.from([
+          { row: 1, column: 0 },
+          { row: 2, column: 0 },
+        ]),
+      ],
+      [{ row: 1, column: 0 }, PointSet.from([{ row: 2, column: 0 }])],
+      [{ row: 2, column: 0 }, PointSet.from([])],
+      [{ row: 3, column: 0 }, PointSet.from([{ row: 4, column: 0 }])],
+      [{ row: 4, column: 0 }, PointSet.from([{ row: 5, column: 0 }])],
+      [{ row: 5, column: 0 }, PointSet.from([])],
+    ]);
+    expect(Array.from(graph.traverseBFS())).toEqual([
+      { row: 0, column: 0 },
+      { row: 1, column: 0 },
+      { row: 2, column: 0 },
+      { row: 3, column: 0 },
+      { row: 4, column: 0 },
+      { row: 5, column: 0 },
+    ]);
   });
 });
 
