@@ -35,12 +35,12 @@ describe("PointMap.set()", () => {
 
 describe("PointMap.unset()", () => {
   test("Un-sets point", () => {
-    const newMap = MAP.unset(Point.ORIGIN);
+    const newMap = MAP.delete(Point.ORIGIN);
     expect(newMap.get(Point.ORIGIN)).toBeUndefined();
   });
   test("Does nothing if point does not exist", () => {
     const point = { row: 5, column: 5 };
-    const newMap = MAP.unset(point);
+    const newMap = MAP.delete(point);
     expect(newMap).toBe(MAP);
   });
 });

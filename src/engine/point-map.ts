@@ -2,94 +2,60 @@
  * Immutable unordered Map like interface of point to value pairs.
  */
 import * as Point from "../point";
-
-type Data<T> = {
-  [K in number]: {
-    [K in number]: T;
-  };
-};
+import * as pointHash from "./point-hash";
 
 export class PointMap<T> {
-  private constructor(private data: Data<T>) {}
+  private constructor(private map: Map<string, T>) {}
 
   /** Creates a new PointMap instance from an array-like object. */
   static from<T>(pairs: [Point.Point, T][]): PointMap<T> {
-    const data: Data<T> = {};
-    for (const [point, value] of pairs) {
-      data[point.row] = data[point.row] || {};
-      data[point.row][point.column] = value;
-    }
-    return new PointMap(data);
+    return new PointMap(
+      new Map(pairs.map(([point, value]) => [pointHash.toString(point), value]))
+    );
   }
 
   /** Sets the value for point in map */
   set(point: Point.Point, value: T): PointMap<T> {
-    return new PointMap<T>({
-      ...this.data,
-      [point.row]: {
-        ...this.data[point.row],
-        [point.column]: value,
-      },
-    });
+    const newMap = new Map(this.map);
+    newMap.set(pointHash.toString(point), value);
+    return new PointMap(newMap);
   }
 
   /** Un-sets the value for point in map */
-  unset(point: Point.Point): PointMap<T> {
-    const { row, column } = point;
-    if (!(row in this.data) || !(column in this.data[row])) {
+  delete(point: Point.Point): PointMap<T> {
+    const newMap = new Map(this.map);
+    if (!newMap.delete(pointHash.toString(point))) {
       return this;
     }
-    const {
-      // @ts-ignore
-      [String(row)]: { [String(column)]: _, ...nextRow },
-      ...nextMap
-    } = this.data;
-    if (Object.keys(nextRow).length === 0) {
-      return new PointMap(nextMap);
-    }
-    return new PointMap({ ...nextMap, [row]: nextRow });
+    return new PointMap(newMap);
   }
 
   /** Gets the value for point in map */
   get(point: Point.Point): undefined | T {
-    return this.data[point.row] && this.data[point.row][point.column];
+    return this.map.get(pointHash.toString(point));
   }
 
   /** Checks if map has point assigned to value */
   has(point: Point.Point): boolean {
-    return point.row in this.data && point.column in this.data[point.row];
+    return this.map.has(pointHash.toString(point));
   }
 
   /** Returns the number of elements in a PointMap object. */
   size(): number {
-    let acc = 0;
-    const mapKeys = Object.keys(this.data);
-    for (let i = 0; i < mapKeys.length; i++) {
-      const row = Number(mapKeys[i]);
-      const columns = this.data[row];
-      acc += Object.keys(columns).length;
-    }
-    return acc;
+    return this.map.size;
   }
 
   /** Iterate over pairs of point and value in the map */
   *entries(): Generator<[Point.Point, T]> {
-    for (const row in this.data) {
-      for (const column in this.data[row]) {
-        yield [
-          { row: Number(row), column: Number(column) },
-          this.data[row][column],
-        ];
-      }
+    for (const [key, value] of this.map) {
+      yield [pointHash.fromString(key), value];
     }
   }
 
   /** Iterate over the keys of the map */
   *keys(): Generator<Point.Point> {
-    for (const row in this.data) {
-      for (const column in this.data[row]) {
-        yield { row: Number(row), column: Number(column) };
-      }
+    for (const [key] of this.map) {
+      yield pointHash.fromString(key);
     }
   }
 }
