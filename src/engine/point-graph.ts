@@ -13,7 +13,7 @@ export class PointGraph {
   static from(pairs: Array<[Point, PointSet]>): PointGraph {
     let backward = PointMap.from<PointSet>([]);
     for (const [point, points] of pairs) {
-      backward = backward.set(point, PointSet.from([]));
+      backward = backward.set(point, backward.get(point) || PointSet.from([]));
       for (const p of points) {
         const set = backward.get(p) || PointSet.from([]);
         backward = backward.set(p, set.add(point));
@@ -26,7 +26,7 @@ export class PointGraph {
   set(point: Point, points: PointSet): PointGraph {
     const newForward =
       points.size() === 0
-        ? this.forward.unset(point)
+        ? this.forward.delete(point)
         : this.forward.set(point, points);
 
     const existing = this.forward.get(point);
@@ -34,16 +34,16 @@ export class PointGraph {
     let newBackward = this.backward;
 
     if (points.size() === 0) {
-      newBackward = newBackward.unset(point);
+      newBackward = newBackward.delete(point);
       if (existing) {
         for (const p of existing) {
           const set = newBackward.get(p);
           if (!set) {
             continue;
           }
-          const newSet = set.remove(point);
+          const newSet = set.delete(point);
           if (newSet.size() === 0) {
-            newBackward = newBackward.unset(p);
+            newBackward = newBackward.delete(p);
           } else {
             newBackward = newBackward.set(p, newSet);
           }
@@ -69,10 +69,10 @@ export class PointGraph {
         if (!set) {
           continue;
         }
-        const newSet = set.remove(point);
+        const newSet = set.delete(point);
         newBackward =
           newSet.size() === 0
-            ? newBackward.unset(p)
+            ? newBackward.delete(p)
             : newBackward.set(p, newSet);
       }
     }
