@@ -46,6 +46,14 @@ export class PointSet {
     return newSet;
   }
 
+  union(other: PointSet): PointSet {
+    let newSet = this as PointSet;
+    for (const point of other) {
+      newSet = newSet.add(point);
+    }
+    return newSet;
+  }
+
   *[Symbol.iterator](): Iterator<Point.Point> {
     for (const value of this.set) {
       yield pointHash.fromString(value);
