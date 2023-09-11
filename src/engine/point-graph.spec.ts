@@ -235,9 +235,9 @@ describe("PointGraph.traverseBFS", () => {
     ]);
     expect(Array.from(graph.traverseBFS())).toEqual([
       { row: 0, column: 0 },
+      { row: 3, column: 0 },
       { row: 1, column: 0 },
       { row: 2, column: 0 },
-      { row: 3, column: 0 },
       { row: 4, column: 0 },
       { row: 5, column: 0 },
     ]);

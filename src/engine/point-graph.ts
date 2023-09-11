@@ -15,6 +15,10 @@ export class PointGraph {
 
   set(node: Point, edges: PointSet): PointGraph {
     const newGraph = new PointGraph(new Map(this.forwards));
+    if (edges.size() === 0) {
+      newGraph.forwards.delete(pointHash.toString(node));
+      return newGraph;
+    }
     newGraph.forwards.set(pointHash.toString(node), edges);
     return newGraph;
   }
