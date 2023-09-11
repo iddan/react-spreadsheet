@@ -2,10 +2,15 @@ import { Point } from "../point";
 import * as pointHash from "./point-hash";
 import { PointSet } from "./point-set";
 
+/**
+ * Immutable directed graph of points, where each point can have multiple
+ * edges to other points.
+ */
 export class PointGraph {
   private constructor(private forwards = new Map<string, PointSet>()) {}
 
-  static from(pairs: Array<[Point, PointSet]>): PointGraph {
+  /** Creates a new PointGraph instance from an array-like or iterable object */
+  static from(pairs: Iterable<[Point, PointSet]>): PointGraph {
     const adjacencyList = new Map<string, PointSet>();
     for (const [node, edges] of pairs) {
       adjacencyList.set(pointHash.toString(node), edges);
