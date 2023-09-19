@@ -1,12 +1,15 @@
 import * as React from "react";
 import type { StoryFn, Meta } from "@storybook/react";
-import { createEmptyMatrix, Spreadsheet, Props, CellBase } from "..";
+import { createEmptyMatrix, Spreadsheet, Props, CellBase, Point } from "..";
 import * as Matrix from "../matrix";
 import { AsyncCellDataEditor, AsyncCellDataViewer } from "./AsyncCellData";
 import CustomCell from "./CustomCell";
+import NehorayCell from "./NehorayCell";
 import { RangeEdit, RangeView } from "./RangeDataComponents";
 import { SelectEdit, SelectView } from "./SelectDataComponents";
 import { CustomCornerIndicator } from "./CustomCornerIndicator";
+import { FormatCellObject } from "../types";
+import { PointRange } from "../point-range";
 
 type StringCell = CellBase<string | undefined>;
 type NumberCell = CellBase<number | undefined>;
@@ -139,9 +142,16 @@ export const Readonly: StoryFn<Props<StringCell>> = (props) => {
   return <Spreadsheet {...props} data={data} />;
 };
 
+export const WithNehorayCell: StoryFn<Props<CellBase>> = (props) => {
+  const data = createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS);
+  const startingPoint: Point = { row: 0, column: 0 }
+  const endPoint: Point = { row: 2, column: 2 }
+  const formatCellRange = new PointRange(startingPoint, endPoint);
+  const formatCells: FormatCellObject[] = [{ formatCellRange, formatCellRules: 'IsEmpty' }]
+  return <Spreadsheet {...props} data={data} Cell={CustomCell} formatCells={formatCells} />;
+};
 export const WithAsyncCellData: StoryFn<Props<StringCell>> = (props) => {
   const data = createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS);
-
   data[2][2] = {
     value: undefined,
     DataViewer: AsyncCellDataViewer,

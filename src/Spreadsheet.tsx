@@ -73,6 +73,9 @@ export type Props<CellType extends Types.CellBase> = {
    * @defaultValue `false`.
    */
   hideRowIndicators?: boolean;
+
+  formatCells?: Types.FormatCellObject[]
+
   /**
    * If set to true, hides the column indicators of the spreadsheet.
    * @defaultValue `false`.
@@ -108,6 +111,7 @@ export type Props<CellType extends Types.CellBase> = {
   onSelect?: (selected: Point.Point[]) => void;
   /** Callback called when Spreadsheet's active cell changes. */
   onActivate?: (active: Point.Point) => void;
+
   /** Callback called when the Spreadsheet loses focus */
   onBlur?: () => void;
   onCellCommit?: (
@@ -136,12 +140,12 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     HeaderRow = DefaultHeaderRow,
     DataEditor = DefaultDataEditor,
     DataViewer = DefaultDataViewer,
-    onChange = () => {},
-    onModeChange = () => {},
-    onSelect = () => {},
-    onActivate = () => {},
-    onBlur = () => {},
-    onCellCommit = () => {},
+    onChange = () => { },
+    onModeChange = () => { },
+    onSelect = () => { },
+    onActivate = () => { },
+    onBlur = () => { },
+    onCellCommit = () => { },
   } = props;
   type State = Types.StoreState<CellType>;
 

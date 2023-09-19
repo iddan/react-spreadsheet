@@ -62,6 +62,12 @@ export type StoreState<Cell extends CellBase = CellBase> = {
   lastChanged: Point | null;
   lastCommit: null | CellChange<Cell>[];
 };
+type _FormatCellRules='IsEmpty'|'IsNotEmpty'|'GreaterThan' |'GreaterThanOrEqualTo'|'LessThan'|'LessThanOrEqualTo'|'IsEqualTo'|'IsNotEqualTo'
+export type FormatCellObject={
+  formatCellRange:PointRange,
+  formatCellRules:_FormatCellRules,
+  formatColors?:string
+}
 
 export type CellChange<Cell extends CellBase = CellBase> = {
   prevCell: Cell | null;
