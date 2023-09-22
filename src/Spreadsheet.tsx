@@ -101,7 +101,10 @@ export type Props<CellType extends Types.CellBase> = {
   /** Callback called on key down inside the spreadsheet. */
   onKeyDown?: (event: React.KeyboardEvent) => void;
   /** Callback called when the Spreadsheet's data changes. */
-  onChange?: (data: Matrix.Matrix<CellType>) => void;
+  onChange?: (
+    data: Matrix.Matrix<CellType>,
+    evaluatedData: Matrix.Matrix<CellType>
+  ) => void;
   /** Callback called when the Spreadsheet's edit mode changes. */
   onModeChange?: (mode: Types.Mode) => void;
   /** Callback called when the Spreadsheet's selection changes. */
@@ -214,7 +217,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     if (state.model.data !== prevState.model.data) {
       // Call on change only if the data change internal
       if (state.model.data !== props.data) {
-        onChange(state.model.data);
+        onChange(state.model.data, state.model.evaluatedData);
       }
     }
 
