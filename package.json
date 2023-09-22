@@ -28,7 +28,7 @@
     "ci": "run-s check-format check-typing lint test:coverage",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "postinstall": "rollup -c"
+    "postinstall": "node_modules/.bin/rollup -c"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
