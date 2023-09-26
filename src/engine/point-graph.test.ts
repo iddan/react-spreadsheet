@@ -4,7 +4,7 @@ import { PointGraph } from "./point-graph";
 
 const EMPTY = PointGraph.from([]);
 
-describe("PointGraph.from", () => {
+describe("PointGraph.prototype.from", () => {
   test("empty", () => {
     const graph = PointGraph.from([]);
     expect(graph).toEqual({
@@ -43,7 +43,7 @@ describe("PointGraph.from", () => {
   });
 });
 
-describe("PointGraph.set", () => {
+describe("PointGraph.prototype.set", () => {
   test("add single edge to empty", () => {
     const pair: [Point, PointSet] = [
       { row: 0, column: 0 },
@@ -148,7 +148,7 @@ describe("PointGraph.set", () => {
   });
 });
 
-describe("PointGraph.getBackwards", () => {
+describe("PointGraph.prototype.getBackwards", () => {
   test("backwards get single edge", () => {
     const graph = PointGraph.from([
       [{ row: 0, column: 0 }, PointSet.from([{ row: 0, column: 1 }])],
@@ -199,7 +199,7 @@ describe("PointGraph.getBackwards", () => {
   });
 });
 
-describe("PointGraph.traverseBFSBackwards", () => {
+describe("PointGraph.prototype.traverseBFSBackwards", () => {
   test("empty graph", () => {
     const graph = PointGraph.from([]);
     expect(Array.from(graph.traverseBFSBackwards())).toEqual([]);

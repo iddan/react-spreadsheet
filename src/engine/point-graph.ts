@@ -20,7 +20,7 @@ export class PointGraph {
 
   set(node: Point, edges: PointSet): PointGraph {
     const newGraph = new PointGraph(new Map(this.forwards));
-    if (edges.size() === 0) {
+    if (edges.size === 0) {
       newGraph.forwards.delete(pointHash.toString(node));
       return newGraph;
     }
@@ -117,7 +117,7 @@ export class PointGraph {
 
     // Iterate over all the points and add the ones with no dependencies to the queue
     for (const [point, values] of this) {
-      if (values.size() === 0) {
+      if (values.size === 0) {
         visited = visited.add(point);
         queue.push(point);
       }
@@ -135,7 +135,7 @@ export class PointGraph {
       const dependents = this.getBackwards(point);
 
       // If there are no dependents, skip to the next iteration
-      if (dependents.size() === 0) {
+      if (dependents.size === 0) {
         continue;
       }
 
@@ -143,7 +143,7 @@ export class PointGraph {
       for (const dependent of dependents) {
         if (
           !visited.has(dependent) &&
-          this.get(dependent).difference(visited).size() === 0
+          this.get(dependent).difference(visited).size === 0
         ) {
           queue.push(dependent);
           visited = visited.add(dependent);

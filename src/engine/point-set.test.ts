@@ -25,9 +25,9 @@ describe("PointSet.prototype.has()", () => {
   });
 });
 
-describe("PointSet.prototype.size()", () => {
+describe("PointSet.prototype.size", () => {
   test("Returns the number of points in a PointSet object", () => {
-    expect(EXAMPLE_SET.size()).toBe(EXAMPLE_POINTS.length);
+    expect(EXAMPLE_SET.size).toBe(EXAMPLE_POINTS.length);
   });
 });
 

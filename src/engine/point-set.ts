@@ -22,7 +22,7 @@ export class PointSet {
   }
 
   /** Returns the number of points in a PointSet object */
-  size(): number {
+  get size(): number {
     return this.set.size;
   }
 
