@@ -23,11 +23,7 @@ export class Model<Cell extends CellBase> {
     this.referenceGraph = referenceGraph || createReferenceGraph(data);
     this.evaluatedData =
       evaluatedData ||
-      createEvaluatedData(
-        data,
-        this.referenceGraph,
-        this.createFormulaParser(data)
-      );
+      createEvaluatedData(data, this.referenceGraph, this.createFormulaParser);
   }
 }
 
@@ -157,12 +153,13 @@ export function createReferenceGraph(
 export function createEvaluatedData<Cell extends CellBase>(
   data: Matrix.Matrix<Cell>,
   referenceGraph: PointGraph,
-  formulaParser: FormulaParser
+  createFormulaParser: CreateFormulaParser
 ): Matrix.Matrix<Cell> {
   let evaluatedData = data;
+  let formulaParser = createFormulaParser(evaluatedData);
 
   // Iterate over the points in the reference graph, starting from the leaves
-  for (const point of referenceGraph.traverseBFS()) {
+  for (const point of referenceGraph.traverseBFSBackwards()) {
     // Get the cell at the current point in the data Matrix
     const cell = Matrix.get(point, data);
     if (!cell) {
@@ -181,6 +178,7 @@ export function createEvaluatedData<Cell extends CellBase>(
         { ...cell, value: evaluatedValue },
         evaluatedData
       );
+      formulaParser = createFormulaParser(evaluatedData);
     }
   }
 
