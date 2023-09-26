@@ -11,11 +11,11 @@ export class PointGraph {
 
   /** Creates a new PointGraph instance from an array-like or iterable object */
   static from(pairs: Iterable<[Point, PointSet]>): PointGraph {
-    const adjacencyList = new Map<string, PointSet>();
+    const forwards = new Map<string, PointSet>();
     for (const [node, edges] of pairs) {
-      adjacencyList.set(pointHash.toString(node), edges);
+      forwards.set(pointHash.toString(node), edges);
     }
-    return new PointGraph(adjacencyList);
+    return new PointGraph(forwards);
   }
 
   set(node: Point, edges: PointSet): PointGraph {
@@ -90,7 +90,7 @@ export class PointGraph {
   }
 
   /** Get the points in the graph in a breadth-first order */
-  *traverseBFS(): Generator<Point> {
+  *traverseBFSBackwards(): Generator<Point> {
     // Create a Set to store the points that have been visited
     let visited = PointSet.from([]);
 
@@ -98,11 +98,11 @@ export class PointGraph {
     const queue: Point[] = [];
 
     // Iterate over all the points and add the ones with no dependencies to the queue
-    for (const key of this.forwards.keys()) {
+    for (const [key, values] of this.forwards.entries()) {
       const point = pointHash.fromString(key);
-      if (this.getBackwards(point).size() === 0) {
-        queue.push(point);
+      if (values.size() === 0) {
         visited = visited.add(point);
+        queue.push(point);
       }
     }
 
@@ -115,16 +115,19 @@ export class PointGraph {
       yield point;
 
       // Get the set of points that depend on the current point
-      const dependents = this.get(point);
+      const dependents = this.getBackwards(point);
 
       // If there are no dependents, skip to the next iteration
-      if (!dependents) {
+      if (dependents.size() === 0) {
         continue;
       }
 
       // Otherwise, add the dependents to the queue if they have not yet been visited
       for (const dependent of dependents) {
-        if (!visited.has(dependent)) {
+        if (
+          !visited.has(dependent) &&
+          this.get(dependent).difference(visited).size() === 0
+        ) {
           queue.push(dependent);
           visited = visited.add(dependent);
         }

@@ -199,26 +199,28 @@ describe("PointGraph.getBackwards", () => {
   });
 });
 
-describe("PointGraph.traverseBFS", () => {
-  test("traverseBFS with empty graph", () => {
+describe("PointGraph.traverseBFSBackwards", () => {
+  test("empty graph", () => {
     const graph = PointGraph.from([]);
-    expect(Array.from(graph.traverseBFS())).toEqual([]);
+    expect(Array.from(graph.traverseBFSBackwards())).toEqual([]);
   });
-  test("traverseBFS with single point", () => {
+  test("single point, no values", () => {
     const graph = PointGraph.from([[{ row: 0, column: 0 }, PointSet.from([])]]);
-    expect(Array.from(graph.traverseBFS())).toEqual([{ row: 0, column: 0 }]);
+    expect(Array.from(graph.traverseBFSBackwards())).toEqual([
+      { row: 0, column: 0 },
+    ]);
   });
-  test("traverseBFS with two point", () => {
+  test("two point, no values", () => {
     const graph = PointGraph.from([
       [{ row: 0, column: 0 }, PointSet.from([])],
       [{ row: 1, column: 1 }, PointSet.from([])],
     ]);
-    expect(Array.from(graph.traverseBFS())).toEqual([
+    expect(Array.from(graph.traverseBFSBackwards())).toEqual([
       { row: 0, column: 0 },
       { row: 1, column: 1 },
     ]);
   });
-  test("traverseBFS with complex graph", () => {
+  test("complex graph", () => {
     const graph = PointGraph.from([
       [
         { row: 0, column: 0 },
@@ -233,13 +235,13 @@ describe("PointGraph.traverseBFS", () => {
       [{ row: 4, column: 0 }, PointSet.from([{ row: 5, column: 0 }])],
       [{ row: 5, column: 0 }, PointSet.from([])],
     ]);
-    expect(Array.from(graph.traverseBFS())).toEqual([
+    expect(Array.from(graph.traverseBFSBackwards())).toEqual([
+      { row: 2, column: 0 },
+      { row: 5, column: 0 },
+      { row: 1, column: 0 },
+      { row: 4, column: 0 },
       { row: 0, column: 0 },
       { row: 3, column: 0 },
-      { row: 1, column: 0 },
-      { row: 2, column: 0 },
-      { row: 4, column: 0 },
-      { row: 5, column: 0 },
     ]);
   });
 });

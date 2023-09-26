@@ -274,6 +274,24 @@ describe("<Spreadsheet />", () => {
     expect(createFormulaParser2).toHaveBeenCalledTimes(2);
     expect(createFormulaParser2).toHaveBeenCalledWith(EXAMPLE_PROPS.data);
   });
+
+  test("formula cell referencing another formula cell", () => {
+    render(
+      <Spreadsheet
+        data={[
+          [{ value: 1 }, { value: 2 }, { value: "=A1+B1" }, { value: "=C1" }],
+        ]}
+      />
+    );
+    const element = getSpreadsheetElement();
+    const cells = element.querySelectorAll("td");
+    expect(cells.length).toBe(4);
+    const [a1, b1, c1, d1] = cells;
+    expect(a1.textContent).toBe("1");
+    expect(b1.textContent).toBe("2");
+    expect(c1.textContent).toBe("3");
+    expect(d1.textContent).toBe("3");
+  });
 });
 
 /** Like .querySelector() but throws for no match */
