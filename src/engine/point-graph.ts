@@ -89,6 +89,24 @@ export class PointGraph {
     return false;
   }
 
+  *[Symbol.iterator](): Iterator<[Point, PointSet]> {
+    const visitedHashes = new Set<string>();
+    for (const [key, values] of this.forwards) {
+      const point = pointHash.fromString(key);
+      visitedHashes.add(key);
+      yield [point, values];
+
+      // Make sure to include values that are not included in the forwards map keys
+      for (const value of values) {
+        const hash = pointHash.toString(value);
+        if (!visitedHashes.has(hash) && !this.forwards.has(hash)) {
+          visitedHashes.add(hash);
+          yield [value, PointSet.from([])];
+        }
+      }
+    }
+  }
+
   /** Get the points in the graph in a breadth-first order */
   *traverseBFSBackwards(): Generator<Point> {
     // Create a Set to store the points that have been visited
@@ -98,8 +116,7 @@ export class PointGraph {
     const queue: Point[] = [];
 
     // Iterate over all the points and add the ones with no dependencies to the queue
-    for (const [key, values] of this.forwards.entries()) {
-      const point = pointHash.fromString(key);
+    for (const [point, values] of this) {
       if (values.size() === 0) {
         visited = visited.add(point);
         queue.push(point);

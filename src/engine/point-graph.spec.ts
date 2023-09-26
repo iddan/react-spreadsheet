@@ -230,10 +230,8 @@ describe("PointGraph.traverseBFSBackwards", () => {
         ]),
       ],
       [{ row: 1, column: 0 }, PointSet.from([{ row: 2, column: 0 }])],
-      [{ row: 2, column: 0 }, PointSet.from([])],
       [{ row: 3, column: 0 }, PointSet.from([{ row: 4, column: 0 }])],
       [{ row: 4, column: 0 }, PointSet.from([{ row: 5, column: 0 }])],
-      [{ row: 5, column: 0 }, PointSet.from([])],
     ]);
     expect(Array.from(graph.traverseBFSBackwards())).toEqual([
       { row: 2, column: 0 },
