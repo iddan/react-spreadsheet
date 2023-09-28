@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { StoryFn, Meta } from "@storybook/react";
+import type { StoryFn, Meta, StoryObj } from "@storybook/react";
 import { createEmptyMatrix, Spreadsheet, Props, CellBase } from "..";
 import * as Matrix from "../matrix";
 import { AsyncCellDataEditor, AsyncCellDataViewer } from "./AsyncCellData";
@@ -59,13 +59,16 @@ const meta: Meta<Props<StringCell>> = {
 
 export default meta;
 
-export const Basic: StoryFn<Props<StringCell>> = (props) => (
-  <Spreadsheet {...props} />
-);
+export const Basic: StoryObj = {
+  args: {},
+};
 
-export const DarkMode: StoryFn<Props<StringCell>> = (props) => (
-  <Spreadsheet {...props} darkMode />
-);
+export const DarkMode: StoryObj = {
+  args: {
+    ...meta.args,
+    darkMode: true,
+  },
+};
 
 export const Controlled: StoryFn<Props<StringCell>> = (props) => {
   const [data, setData] = React.useState(EMPTY_DATA);
@@ -118,68 +121,96 @@ export const Controlled: StoryFn<Props<StringCell>> = (props) => {
   );
 };
 
-export const CustomRowLabels: StoryFn<Props<StringCell>> = (props) => (
-  <Spreadsheet
-    {...props}
-    rowLabels={["Dan", "Alice", "Bob", "Steve", "Adam", "Ruth"]}
-  />
-);
-
-export const CustomColumnLabels: StoryFn<Props<StringCell>> = (props) => (
-  <Spreadsheet {...props} columnLabels={["Name", "Age", "Email", "Address"]} />
-);
-
-export const HideIndicators: StoryFn<Props<StringCell>> = (props) => (
-  <Spreadsheet {...props} hideColumnIndicators hideRowIndicators />
-);
-
-export const Readonly: StoryFn<Props<StringCell>> = (props) => {
-  const data = createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS);
-  data[0][0] = { readOnly: true, value: "Read Only" };
-  return <Spreadsheet {...props} data={data} />;
+export const CustomRowLabels: StoryObj = {
+  args: {
+    ...meta.args,
+    rowLabels: ["Dan", "Alice", "Bob", "Steve", "Adam", "Ruth"],
+  },
 };
 
-export const WithAsyncCellData: StoryFn<Props<StringCell>> = (props) => {
-  const data = createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS);
-
-  data[2][2] = {
-    value: undefined,
-    DataViewer: AsyncCellDataViewer,
-    DataEditor: AsyncCellDataEditor,
-  };
-  return <Spreadsheet {...props} data={data} />;
+export const CustomColumnLabels: StoryObj = {
+  args: {
+    ...meta.args,
+    columnLabels: ["Name", "Age", "Email", "Address"],
+  },
 };
 
-export const WithCustomCell: StoryFn<Props<CellBase>> = (props) => (
-  <Spreadsheet {...props} Cell={CustomCell} />
-);
-
-export const RangeCell: StoryFn<Props<NumberCell>> = (props) => {
-  const data = createEmptyMatrix<NumberCell>(INITIAL_ROWS, INITIAL_COLUMNS);
-  data[2][2] = {
-    value: 0,
-    DataViewer: RangeView,
-    DataEditor: RangeEdit,
-  };
-  return <Spreadsheet {...props} data={data} />;
+export const HideIndicators: StoryObj = {
+  args: {
+    ...meta.args,
+    hideColumnIndicators: true,
+    hideRowIndicators: true,
+  },
 };
 
-export const WithSelectCell: StoryFn<Props<StringCell>> = (props) => {
-  const data = createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS);
-
-  data[2][2] = {
-    value: undefined,
-    DataViewer: SelectView,
-    DataEditor: SelectEdit,
-    className: "select-cell",
-  };
-
-  return <Spreadsheet data={data} />;
+export const Readonly: StoryObj = {
+  args: {
+    ...meta.args,
+    data: Matrix.set(
+      { row: 0, column: 0 },
+      { readOnly: true, value: "Read Only" },
+      createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS)
+    ),
+  },
 };
 
-export const WithCornerIndicator: StoryFn<Props<StringCell>> = (props) => (
-  <Spreadsheet {...props} CornerIndicator={CustomCornerIndicator} />
-);
+export const WithAsyncCellData: StoryObj = {
+  args: {
+    ...meta.args,
+    data: Matrix.set(
+      { row: 2, column: 2 },
+      {
+        value: undefined,
+        DataViewer: AsyncCellDataViewer,
+        DataEditor: AsyncCellDataEditor,
+      },
+      createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS)
+    ),
+  },
+};
+
+export const WithCustomCell: StoryObj = {
+  args: {
+    Cell: CustomCell,
+  },
+};
+
+export const RangeCell: StoryObj = {
+  args: {
+    data: Matrix.set(
+      { row: 2, column: 2 },
+      {
+        value: 0,
+        DataViewer: RangeView,
+        DataEditor: RangeEdit,
+      },
+      createEmptyMatrix<NumberCell>(INITIAL_ROWS, INITIAL_COLUMNS)
+    ),
+  },
+};
+
+export const WithSelectCell: StoryObj = {
+  args: {
+    ...meta.args,
+    data: Matrix.set(
+      { row: 2, column: 2 },
+      {
+        value: undefined,
+        DataViewer: SelectView,
+        DataEditor: SelectEdit,
+        className: "select-cell",
+      },
+      createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS)
+    ),
+  },
+};
+
+export const WithCornerIndicator: StoryObj = {
+  args: {
+    ...meta.args,
+    CornerIndicator: CustomCornerIndicator,
+  },
+};
 
 export const Filter: StoryFn<Props<StringCell>> = (props) => {
   const [data, setData] = React.useState(
