@@ -1,6 +1,16 @@
 import * as React from "react";
 import type { StoryFn, Meta, StoryObj } from "@storybook/react";
-import { createEmptyMatrix, Spreadsheet, Props, CellBase } from "..";
+import {
+  createEmptyMatrix,
+  Spreadsheet,
+  Props,
+  CellBase,
+  EntireWorksheetSelection,
+  Selection,
+  EntireRowsSelection,
+  EntireColumnsSelection,
+  EmptySelection,
+} from "..";
 import * as Matrix from "../matrix";
 import { AsyncCellDataEditor, AsyncCellDataViewer } from "./AsyncCellData";
 import CustomCell from "./CustomCell";
@@ -269,5 +279,39 @@ export const Filter: StoryFn<Props<StringCell>> = (props) => {
       </div>
       <Spreadsheet {...props} data={filtered} onChange={setData} />
     </>
+  );
+};
+
+export const ControlledSelection: StoryFn<Props<StringCell>> = (props) => {
+  const [selected, setSelected] = React.useState<Selection>(
+    new EmptySelection()
+  );
+  const handleSelect = React.useCallback((selection: Selection) => {
+    // setSelected(selection);
+  }, []);
+
+  const handleSelectEntireRow = React.useCallback(() => {
+    setSelected(new EntireRowsSelection(0, 0));
+  }, []);
+
+  const handleSelectEntireColumn = React.useCallback(() => {
+    setSelected(new EntireColumnsSelection(0, 0));
+  }, []);
+
+  const handleSelectEntireWorksheet = React.useCallback(() => {
+    setSelected(new EntireWorksheetSelection());
+  }, []);
+
+  return (
+    <div>
+      <div>
+        <button onClick={handleSelectEntireRow}>Select entire row</button>
+        <button onClick={handleSelectEntireColumn}>Select entire column</button>
+        <button onClick={handleSelectEntireWorksheet}>
+          Select entire worksheet
+        </button>
+      </div>
+      <Spreadsheet {...props} selected={selected} onSelect={handleSelect} />;
+    </div>
   );
 };
