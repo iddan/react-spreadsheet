@@ -27,8 +27,9 @@ function areEntireColumnsSelectionsEqual(
 ): boolean | undefined {
   const isAInstance = a instanceof EntireColumnsSelection;
   const isBInstance = b instanceof EntireColumnsSelection;
+
   if (isAInstance && isBInstance) {
-    return a.start === b.start && a.end === b.end;
+    return a.equals(b);
   }
   if (isAInstance !== isBInstance) {
     return false;
@@ -43,7 +44,7 @@ function areEntireRowsSelectionsEqual(
   const isAInstance = a instanceof EntireRowsSelection;
   const isBInstance = b instanceof EntireRowsSelection;
   if (isAInstance && isBInstance) {
-    return a.start === b.start && a.end === b.end;
+    return a.equals(b);
   }
   if (isAInstance !== isBInstance) {
     return false;
@@ -70,12 +71,7 @@ function areRangeSelectionsEqual(a: unknown, b: unknown): boolean | undefined {
   const isAInstance = a instanceof RangeSelection;
   const isBInstance = b instanceof RangeSelection;
   if (isAInstance && isBInstance) {
-    return (
-      a.range.start.row === b.range.start.row &&
-      a.range.start.column === b.range.start.column &&
-      a.range.end.row === b.range.end.row &&
-      a.range.end.column === b.range.end.column
-    );
+    return a.equals(b);
   }
   if (isAInstance !== isBInstance) {
     return false;

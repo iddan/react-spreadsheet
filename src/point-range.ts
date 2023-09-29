@@ -69,4 +69,14 @@ export class PointRange {
       }
     );
   }
+
+  /** Returns whether given range is equal to this range */
+  equals(range: PointRange): boolean {
+    return (
+      this.start.row === range.start.row &&
+      this.start.column === range.start.column &&
+      this.end.row === range.end.row &&
+      this.end.column === range.end.column
+    );
+  }
 }
