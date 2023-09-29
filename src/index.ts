@@ -5,7 +5,8 @@ import DataViewer from "./DataViewer";
 export default Spreadsheet;
 export { Spreadsheet, DataEditor, DataViewer };
 export type { Props } from "./Spreadsheet";
-export { Matrix, createEmpty as createEmptyMatrix } from "./matrix";
+export { createEmpty as createEmptyMatrix } from "./matrix";
+export type { Matrix } from "./matrix";
 export {
   Selection,
   EmptySelection,
