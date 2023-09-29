@@ -27,7 +27,7 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - run: yarn
+      - run: yarn --frozen-lockfile
       - run: yarn ci
       - run: yarn build
         env:
