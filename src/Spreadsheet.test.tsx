@@ -437,6 +437,48 @@ describe("<Spreadsheet />", () => {
     });
     expect(handleSelect).toBeCalledWith(new EntireColumnsSelection(0, 1));
   });
+  test("controlled entire row selection", () => {
+    render(
+      <Spreadsheet
+        {...EXAMPLE_PROPS}
+        selected={new EntireRowsSelection(0, 0)}
+      />
+    );
+    const element = getSpreadsheetElement();
+    const selected = safeQuerySelector(
+      element,
+      ".Spreadsheet__floating-rect--selected"
+    );
+    expect(selected).not.toHaveClass("Spreadsheet__floating-rect--hidden");
+  });
+  test("controlled entire column selection", () => {
+    render(
+      <Spreadsheet
+        {...EXAMPLE_PROPS}
+        selected={new EntireRowsSelection(0, 0)}
+      />
+    );
+    const element = getSpreadsheetElement();
+    const selected = safeQuerySelector(
+      element,
+      ".Spreadsheet__floating-rect--selected"
+    );
+    expect(selected).not.toHaveClass("Spreadsheet__floating-rect--hidden");
+  });
+  test("controlled entire worksheet selection", () => {
+    render(
+      <Spreadsheet
+        {...EXAMPLE_PROPS}
+        selected={new EntireWorksheetSelection()}
+      />
+    );
+    const element = getSpreadsheetElement();
+    const selected = safeQuerySelector(
+      element,
+      ".Spreadsheet__floating-rect--selected"
+    );
+    expect(selected).not.toHaveClass("Spreadsheet__floating-rect--hidden");
+  });
 });
 
 /** Like .querySelector() but throws for no match */
