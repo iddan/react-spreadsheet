@@ -222,7 +222,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       }
     }
 
-    if (state.selected !== prevState.selected) {
+    if (!state.selected.equals(prevState.selected)) {
       onSelect(state.selected);
     }
 
@@ -257,7 +257,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   ]);
 
   React.useEffect(() => {
-    if (props.selected && props.selected !== state.selected) {
+    if (props.selected && !props.selected.equals(state.selected)) {
       dispatch(Actions.setSelection(props.selected));
     }
   }, [dispatch, props.selected, state.selected]);

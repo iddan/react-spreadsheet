@@ -21,6 +21,9 @@ export abstract class Selection {
 
   /** Determines whether the given point is within the selection */
   abstract has(data: Matrix.Matrix<unknown>, point: Point.Point): boolean;
+
+  /** Determines whether the given selection is equal to this selection */
+  abstract equals(selection: Selection): boolean;
 }
 
 /** Selection of no cells */
@@ -42,6 +45,9 @@ export class EmptySelection extends Selection {
   }
   has(): boolean {
     return false;
+  }
+  equals(selection: Selection): boolean {
+    return selection instanceof EmptySelection;
   }
 }
 
@@ -79,6 +85,12 @@ export class RangeSelection extends Selection {
     const range = this.toRange(data);
     return range !== null && range.has(point);
   }
+
+  equals(selection: Selection): boolean {
+    return (
+      selection instanceof RangeSelection && this.range.equals(selection.range)
+    );
+  }
 }
 
 /** Selection of an entire part of the spreadsheet */
@@ -109,6 +121,10 @@ export class EntireWorksheetSelection extends EntireSelection {
   has(data: Matrix.Matrix<unknown>, point: Point.Point): boolean {
     return true;
   }
+
+  equals(selection: Selection): boolean {
+    return selection instanceof EntireWorksheetSelection;
+  }
 }
 
 /** Selection of an entire axis in the spreadsheet */
@@ -133,6 +149,15 @@ export abstract class EntireAxisSelection extends EntireSelection {
     super();
     this.start = Math.min(start, end);
     this.end = Math.max(start, end);
+  }
+
+  equals(selection: Selection): boolean {
+    return (
+      selection instanceof EntireAxisSelection &&
+      this.constructor === selection.constructor &&
+      this.start === selection.start &&
+      this.end === selection.end
+    );
   }
 }
 
