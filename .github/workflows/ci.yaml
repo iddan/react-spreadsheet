@@ -12,21 +12,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3.8.1
         with:
-          node-version: 16.x
-      - name: Cache node modules
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.npm
-            node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+          node-version: 18
+          cache: yarn
       - run: yarn --frozen-lockfile
       - run: yarn ci
       - run: yarn build
@@ -36,5 +28,3 @@ jobs:
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
-    timeout-minutes: 10
