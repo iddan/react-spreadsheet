@@ -156,8 +156,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     return {
       ...INITIAL_STATE,
       model,
+      selected: props.selected || INITIAL_STATE.selected,
     } as State;
-  }, [props.createFormulaParser, props.data]);
+  }, [props.createFormulaParser, props.data, props.selected]);
 
   const reducerElements = React.useReducer(
     reducer as unknown as React.Reducer<State, Actions.Action>,
@@ -211,9 +212,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   );
 
   // Track active
-  const prevActiveRef = React.useRef<Point.Point | null>(null);
+  const prevActiveRef = React.useRef<Point.Point | null>(state.active);
   React.useEffect(() => {
-    if (state.active === prevActiveRef.current) {
+    if (state.active !== prevActiveRef.current) {
       if (state.active) {
         onActivate(state.active);
       } else {
@@ -229,7 +230,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   }, [onActivate, onBlur, state.active]);
 
   // Listen to data changes
-  const prevDataRef = React.useRef<Matrix.Matrix<CellType> | null>(null);
+  const prevDataRef = React.useRef<Matrix.Matrix<CellType>>(state.model.data);
   React.useEffect(() => {
     if (state.model.data !== prevDataRef.current) {
       // Call on change only if the data change internal
@@ -242,11 +243,11 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   }, [state.model.data, onChange, props.data]);
 
   // Listen to selection changes
-  const prevSelectedRef = React.useRef<Selection | null>(null);
+  const prevSelectedRef = React.useRef<Selection>(state.selected);
   React.useEffect(() => {
-    if (state.selected !== prevSelectedRef.current) {
+    if (!state.selected.equals(prevSelectedRef.current)) {
       // Call on select only if the selection change internal
-      if (state.selected !== props.selected) {
+      if (!props.selected || !state.selected.equals(props.selected)) {
         onSelect(state.selected);
       }
     }
@@ -255,7 +256,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   }, [state.selected, onSelect, props.selected]);
 
   // Listen to mode changes
-  const prevModeRef = React.useRef<Types.Mode | null>(null);
+  const prevModeRef = React.useRef<Types.Mode>(state.mode);
   React.useEffect(() => {
     if (state.mode !== prevModeRef.current) {
       onModeChange(state.mode);
@@ -265,7 +266,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   }, [state.mode, onModeChange]);
 
   // Listen to last commit changes
-  const prevLastCommitRef = React.useRef<null | Types.CellChange[]>(null);
+  const prevLastCommitRef = React.useRef<null | Types.CellChange[]>(
+    state.lastCommit
+  );
   React.useEffect(() => {
     if (state.lastCommit && state.lastCommit !== prevLastCommitRef.current) {
       for (const change of state.lastCommit) {
