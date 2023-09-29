@@ -172,7 +172,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const mode = state.mode;
 
   const rootRef = React.useRef<HTMLDivElement>(null);
-  const prevStateRef = React.useRef<State>(initialState);
 
   const copy = React.useCallback(() => dispatch(Actions.copy()), [dispatch]);
   const cut = React.useCallback(() => dispatch(Actions.cut()), [dispatch]);
@@ -206,31 +205,15 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     [dispatch]
   );
   const blur = React.useCallback(() => dispatch(Actions.blur()), [dispatch]);
+  const setSelection = React.useCallback(
+    (selection: Selection) => dispatch(Actions.setSelection(selection)),
+    [dispatch]
+  );
 
+  // Track active
+  const prevActiveRef = React.useRef<Point.Point | null>(null);
   React.useEffect(() => {
-    const prevState = prevStateRef.current;
-    if (state.lastCommit && state.lastCommit !== prevState.lastCommit) {
-      for (const change of state.lastCommit) {
-        onCellCommit(change.prevCell, change.nextCell, state.lastChanged);
-      }
-    }
-
-    if (state.model.data !== prevState.model.data) {
-      // Call on change only if the data change internal
-      if (state.model.data !== props.data) {
-        onChange(state.model.data);
-      }
-    }
-
-    if (!state.selected.equals(prevState.selected)) {
-      onSelect(state.selected);
-    }
-
-    if (state.mode !== prevState.mode) {
-      onModeChange(state.mode);
-    }
-
-    if (state.active !== prevState.active) {
+    if (state.active === prevActiveRef.current) {
       if (state.active) {
         onActivate(state.active);
       } else {
@@ -242,40 +225,92 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       }
     }
 
-    prevStateRef.current = state;
-  }, [
-    props.data,
-    state,
-    onActivate,
-    onBlur,
-    onCellCommit,
-    onChange,
-    onModeChange,
-    onSelect,
-    rowLabels,
-    columnLabels,
-  ]);
+    prevActiveRef.current = state.active;
+  }, [onActivate, onBlur, state.active]);
 
+  // Listen to data changes
+  const prevDataRef = React.useRef<Matrix.Matrix<CellType> | null>(null);
   React.useEffect(() => {
-    if (props.selected && !props.selected.equals(state.selected)) {
-      dispatch(Actions.setSelection(props.selected));
+    if (state.model.data !== prevDataRef.current) {
+      // Call on change only if the data change internal
+      if (state.model.data !== props.data) {
+        onChange(state.model.data);
+      }
     }
-  }, [dispatch, props.selected, state.selected]);
 
+    prevDataRef.current = state.model.data;
+  }, [state.model.data, onChange, props.data]);
+
+  // Listen to selection changes
+  const prevSelectedRef = React.useRef<Selection | null>(null);
   React.useEffect(() => {
-    const prevState = prevStateRef.current;
-    if (props.data !== prevState.model.data) {
+    if (state.selected !== prevSelectedRef.current) {
+      // Call on select only if the selection change internal
+      if (state.selected !== props.selected) {
+        onSelect(state.selected);
+      }
+    }
+
+    prevSelectedRef.current = state.selected;
+  }, [state.selected, onSelect, props.selected]);
+
+  // Listen to mode changes
+  const prevModeRef = React.useRef<Types.Mode | null>(null);
+  React.useEffect(() => {
+    if (state.mode !== prevModeRef.current) {
+      onModeChange(state.mode);
+    }
+
+    prevModeRef.current = state.mode;
+  }, [state.mode, onModeChange]);
+
+  // Listen to last commit changes
+  const prevLastCommitRef = React.useRef<null | Types.CellChange[]>(null);
+  React.useEffect(() => {
+    if (state.lastCommit && state.lastCommit !== prevLastCommitRef.current) {
+      for (const change of state.lastCommit) {
+        onCellCommit(change.prevCell, change.nextCell, state.lastChanged);
+      }
+    }
+  }, [onCellCommit, state.lastChanged, state.lastCommit]);
+
+  // Update selection when props.selected changes
+  const prevSelectedPropRef = React.useRef<Selection | undefined>(
+    props.selected
+  );
+  React.useEffect(() => {
+    if (
+      props.selected &&
+      prevSelectedPropRef.current &&
+      !props.selected.equals(prevSelectedPropRef.current)
+    ) {
+      setSelection(props.selected);
+    }
+    prevSelectedPropRef.current = props.selected;
+  }, [props.selected, setSelection]);
+
+  // Update data when props.data changes
+  const prevDataPropRef = React.useRef<Matrix.Matrix<CellType> | undefined>(
+    props.data
+  );
+  React.useEffect(() => {
+    if (props.data !== prevDataPropRef.current) {
       setData(props.data);
     }
+    prevDataPropRef.current = props.data;
   }, [props.data, setData]);
 
+  // Update createFormulaParser when props.createFormulaParser changes
+  const prevCreateFormulaParserPropRef = React.useRef<
+    Types.CreateFormulaParser | undefined
+  >(props.createFormulaParser);
   React.useEffect(() => {
-    const prevState = prevStateRef.current;
-    if (props.createFormulaParser !== prevState.model.createFormulaParser) {
-      const newFormulaParser = (props.createFormulaParser ||
-        createFormulaParser) as Types.CreateFormulaParser;
-      setCreateFormulaParser(newFormulaParser);
-    }
+    if (
+      props.createFormulaParser !== prevCreateFormulaParserPropRef.current &&
+      props.createFormulaParser
+    )
+      setCreateFormulaParser(props.createFormulaParser);
+    prevCreateFormulaParserPropRef.current = props.createFormulaParser;
   }, [props.createFormulaParser, setCreateFormulaParser]);
 
   const writeDataToClipboard = React.useCallback(
@@ -364,12 +399,12 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   );
 
   const handleBlur = React.useCallback(
-    (event) => {
+    (event: React.FocusEvent<HTMLDivElement>) => {
       /**
        * Focus left self, Not triggered when swapping focus between children
        * @see https://reactjs.org/docs/events.html#detecting-focus-entering-and-leaving
        */
-      if (!event.currentTarget.contains(event.relatedTarget)) {
+      if (!event.currentTarget.contains(event.relatedTarget as Node)) {
         blur();
       }
     },

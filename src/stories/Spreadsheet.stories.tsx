@@ -287,7 +287,7 @@ export const ControlledSelection: StoryFn<Props<StringCell>> = (props) => {
     new EmptySelection()
   );
   const handleSelect = React.useCallback((selection: Selection) => {
-    // setSelected(selection);
+    setSelected(selection);
   }, []);
 
   const handleSelectEntireRow = React.useCallback(() => {
