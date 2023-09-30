@@ -84,6 +84,8 @@ scripts/
 babel.config*
 .github/
 rollup.config.js
+rollup.config.mjs
+.babelrc.json
 
 # Website
 
@@ -98,6 +100,7 @@ typedoc.json
 .storybook
 **/stories/
 *.stories.*
+storybook-static
 
 # Prettier
 .prettierignore
@@ -105,5 +108,3 @@ typedoc.json
 # Stylelint
 .stylelintrc.json
 .stylelintignore
-
-storybook-static
