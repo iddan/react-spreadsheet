@@ -45,4 +45,7 @@ export type {
   HeaderRowProps,
   HeaderRowComponent,
 } from "./types";
-export { createFormulaParser } from "./engine";
+export {
+  createFormulaParser,
+  Model
+} from "./engine";
