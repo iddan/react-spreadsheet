@@ -27,6 +27,7 @@ export const INITIAL_STATE: Types.StoreState = {
   selected: new EmptySelection(),
   copied: null,
   lastCommit: null,
+  actionData: {},
 };
 
 export default function reducer(
@@ -121,6 +122,13 @@ export default function reducer(
         selected: new RangeSelection(new PointRange(point, point)),
         active: point,
         mode: isActive(state.active, point) ? "edit" : "view",
+      };
+    }
+    case Actions.ON_ACTION_BUTTON_CLICKED: {
+      const { data } = action.payload;
+      return {
+        ...state,
+        actionData: data,
       };
     }
     case Actions.SET_CELL_DATA: {

@@ -61,6 +61,7 @@ export type StoreState<Cell extends CellBase = CellBase> = {
   dragging: boolean;
   lastChanged: Point | null;
   lastCommit: null | CellChange<Cell>[];
+  actionData: Object | {};
 };
 
 export type CellChange<Cell extends CellBase = CellBase> = {

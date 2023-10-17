@@ -118,6 +118,39 @@ export const Controlled: StoryFn<Props<StringCell>> = (props) => {
     });
   }, [setData]);
 
+  const actionPressed = React.useCallback((action) => {
+    console.log("this action", action);
+    const { actionPressed, rowNumber } = action;
+    if (actionPressed === "addAbove") {
+      setData((data) => {
+        const { columns } = Matrix.getSize(data);
+        console.log("Columns", columns);
+        const newRow = Array(columns);
+        let newTable = JSON.parse(JSON.stringify(data)); // Deep copy
+        newTable.splice(rowNumber, 0, newRow);
+        return [...newTable];
+      });
+    } else if (actionPressed === "addBelow") {
+      setData((data) => {
+        const { columns } = Matrix.getSize(data);
+        console.log("Columns", columns);
+        const newRow = Array(columns);
+        let newTable = JSON.parse(JSON.stringify(data)); // Deep copy
+        newTable.splice(rowNumber + 1, 0, newRow);
+        return [...newTable];
+      });
+    } else if (actionPressed === "delete") {
+      setData((data) => {
+        let newTable = JSON.parse(JSON.stringify(data)); // Deep copy
+        newTable.splice(rowNumber, 1);
+        return [...newTable];
+      });
+    }
+  }, []);
+  const isActive = React.useCallback((data) => {
+    // console.log("this action",data)
+  }, []);
+
   return (
     <>
       <div>
@@ -126,7 +159,15 @@ export const Controlled: StoryFn<Props<StringCell>> = (props) => {
         <button onClick={removeColumn}>Remove column</button>
         <button onClick={removeRow}>Remove row</button>
       </div>
-      <Spreadsheet {...props} data={data} onChange={setData} />
+      <Spreadsheet
+        {...props}
+        data={data}
+        onChange={setData}
+        isActionButtonEnable={true}
+        onActionButtonClicked={actionPressed}
+        onActivate={isActive}
+        hideColumnIndicators={false}
+      />
     </>
   );
 };

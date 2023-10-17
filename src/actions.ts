@@ -30,6 +30,7 @@ export const KEY_DOWN = "KEY_DOWN";
 export const DRAG_START = "DRAG_START";
 export const DRAG_END = "DRAG_END";
 export const COMMIT = "COMMIT";
+export const ON_ACTION_BUTTON_CLICKED = "ON_ACTION_BUTTON_CLICKED";
 
 export type BaseAction<T extends string> = {
   type: T;
@@ -142,6 +143,18 @@ export function activate(point: Point): ActivateAction {
   return {
     type: ACTIVATE,
     payload: { point },
+  };
+}
+
+export type ActionPressed = BaseAction<typeof ON_ACTION_BUTTON_CLICKED> & {
+  payload: {
+    data: Object;
+  };
+};
+export function onActionPressed(data: Object): ActionPressed {
+  return {
+    type: ON_ACTION_BUTTON_CLICKED,
+    payload: { data },
   };
 }
 
@@ -298,4 +311,5 @@ export type Action =
   | EditAction
   | ViewAction
   | ClearAction
-  | BlurAction;
+  | BlurAction
+  | ActionPressed;

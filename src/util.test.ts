@@ -61,6 +61,7 @@ const EXAMPLE_STATE: Types.StoreState = {
   selected: new EmptySelection(),
   copied: null,
   lastCommit: null,
+  actionData: {},
 };
 const EXAMPLE_STRING = "EXAMPLE_STRING";
 

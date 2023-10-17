@@ -3,5 +3,5 @@
   "out": "reference",
   "readme": "none",
   "excludeNotDocumented": true,
-  "exclude": ["**/*.test.ts", "**/*.test.tsx", "**/*.stories.tsx"]
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "**/*.stories.tsx", "**/*.svg"]
 }

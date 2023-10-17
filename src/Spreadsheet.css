@@ -127,3 +127,124 @@
 .Spreadsheet__floating-rect--copied {
   border: 2px var(--outline-color) dashed;
 }
+
+.SpreadsheetActionButtons {
+  background-color: "transparent" !important;
+  border: "none" !important;
+  color: "inherit" !important;
+  padding: 0 !important;
+  font: "inherit" !important;
+  cursor: "pointer" !important;
+  outline: "inherit" !important;
+}
+/* .svgImage :hover{
+  cursor: pointer;
+}  */
+.svg_image_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.svgImage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.svgImage a {
+  margin: 0 2px; /* Adjust as needed */
+  transition: background-color 0.3s ease;
+}
+
+.svgImage a:hover {
+  cursor: pointer;
+}
+
+.svgImage a span{
+  transition: transform 0.1s ease-in-out;
+} 
+.svgImage a span {
+  transition: transform 0.1s ease-in-out;
+}
+
+.svgImage a:active span {
+  transform: scale(0.9);
+}
+
+/* .svgImage a.delete .icon-table-add-row-below-svgrepo-com :hover  {
+  color: #FFCCCB;
+}
+
+/* .svgImage a span {
+  position: relative;
+  overflow: hidden;
+}
+
+.svgImage a span:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+  transform: scale(0);
+  transition: transform 0.5s;
+}
+
+.svgImage a:active span:after {
+  transform: scale(1);
+} */
+
+@font-face {
+  font-family: "icomoon";
+  src: url("fonts/icomoon.eot?h5kftr");
+  src: url("fonts/icomoon.eot?h5kftr#iefix") format("embedded-opentype"),
+    url("fonts/icomoon.ttf?h5kftr") format("truetype"),
+    url("fonts/icomoon.woff?h5kftr") format("woff"),
+    url("fonts/icomoon.svg?h5kftr#icomoon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="icon-"],
+[class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: "icomoon" !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-trash-o:before {
+  content: "\f014";
+  font-size: 14px;
+}
+.icon-table-add-row-above-svgrepo-com:before {
+  content: "\e900";
+  font-size: 14px;
+}
+.icon-table-add-row-below-svgrepo-com:before {
+  content: "\e901";
+  font-size: 14px;
+}
+.Spreadsheet__cell__icon {
+  color: #444 !important;
+}
+.Spreadsheet__cell__icon.icon-trash-o:hover {
+  color: darkred !important;
+}
+.icon-table-add-row-below-svgrepo-com:hover {
+  content: "\e901";
+  color: #666 !important;
+}

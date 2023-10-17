@@ -36,6 +36,10 @@ import DefaultDataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
+const rowDelete = require("../../assets/delete_row.svg").default
+const addbelow = require("../../assets/add_row_below.svg").default
+const addAbove = require("../../assets/add_row_above.svg").default
+// import addAbove from '../assets/add_row_above.svg';
 
 import "./Spreadsheet.css";
 
@@ -75,6 +79,11 @@ export type Props<CellType extends Types.CellBase> = {
    * @defaultValue `false`.
    */
   hideRowIndicators?: boolean;
+  /**
+   * If set to true, it shows the insert row and delete button on spreadsheet.
+   * @defaultValue `false`.
+   */
+  isActionButtonEnable?: boolean;
   /**
    * If set to true, hides the column indicators of the spreadsheet.
    * @defaultValue `false`.
@@ -119,6 +128,7 @@ export type Props<CellType extends Types.CellBase> = {
     nextCell: null | CellType,
     coords: null | Point.Point
   ) => void;
+  onActionButtonClicked?: (actionPressed: Object) => void;
 };
 
 /**
@@ -134,6 +144,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     rowLabels,
     hideColumnIndicators,
     hideRowIndicators,
+    isActionButtonEnable,
     onKeyDown,
     Table = DefaultTable,
     Row = DefaultRow,
@@ -146,6 +157,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onActivate = () => {},
     onBlur = () => {},
     onCellCommit = () => {},
+    onActionButtonClicked = () => {},
   } = props;
   type State = Types.StoreState<CellType>;
 
@@ -386,6 +398,16 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     [state, onKeyDown, onKeyDownAction]
   );
 
+  const actionButtonClicked = React.useCallback(
+    (rowNumber: number, actionPressed: string) => {
+      const data = { rowNumber, actionPressed };
+      console.log("ActionButtonInsideNodeModules", data);
+      onActionButtonClicked(data);
+      // dispatch(Actions.onActionPressed(data))
+    },
+    [onActionButtonClicked]
+  );
+
   const handleMouseUp = React.useCallback(() => {
     onDragEnd();
     document.removeEventListener("mouseup", handleMouseUp);
@@ -469,6 +491,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
                 <ColumnIndicator key={columnNumber} column={columnNumber} />
               )
             )}
+          {isActionButtonEnable && !hideColumnIndicators && (
+            <th className="Spreadsheet__header">Action</th>
+          )}
         </HeaderRow>
         {range(size.rows).map((rowNumber) => (
           <Row key={rowNumber} row={rowNumber}>
@@ -491,6 +516,33 @@ const Spreadsheet = <CellType extends Types.CellBase>(
                 DataViewer={DataViewer}
               />
             ))}
+            {isActionButtonEnable && (
+              <>
+                <td className="Spreadsheet__cell">
+                  <div className="svgImage">
+                    <a title="Insert row above"
+                      onClick={() => actionButtonClicked(rowNumber, "addAbove")}
+                    >
+                      <span className="Spreadsheet__cell__icon icon-table-add-row-above-svgrepo-com"></span>
+                      {/* <img src={addAbove} height={25}/> */}
+                    </a>
+                    <a title="Insert row below"
+                      onClick={() => actionButtonClicked(rowNumber, "addBelow")}
+                    >
+                      <span className="Spreadsheet__cell__icon icon-table-add-row-below-svgrepo-com"></span>
+                      {/* <img src={addbelow} height={25}/> */}
+                    </a>
+                    <a title="Delete row"
+                      className="delete"
+                      onClick={() => actionButtonClicked(rowNumber, "delete")}
+                    >
+                      <span className="Spreadsheet__cell__icon icon-trash-o"></span>
+                      {/* <img src={rowDelete} height={25}/> */}
+                    </a>
+                  </div>
+                </td>
+              </>
+            )}
           </Row>
         ))}
       </Table>
