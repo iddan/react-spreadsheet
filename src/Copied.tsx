@@ -6,9 +6,7 @@ import useSelector from "./use-selector";
 const Copied: React.FC = () => {
   const range = useSelector((state) => state.copied);
   const dimensions = useSelector(
-    (state) =>
-      range &&
-      getRangeDimensions(state.rowDimensions, state.columnDimensions, range)
+    (state) => range && getRangeDimensions(state.dimensions, range)
   );
   const hidden = range === null;
 
