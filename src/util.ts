@@ -167,3 +167,7 @@ export function shouldHandleClipboardEvent(
 export function isFocusedWithin(element: Element): boolean {
   return element.matches(FOCUS_WITHIN_SELECTOR);
 }
+
+export function hasLineBreaker(value: unknown) {
+  return typeof value === "string" && value.includes("\n");
+}
