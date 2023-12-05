@@ -10,7 +10,7 @@ import {
   EntireRowsSelection,
   EntireWorksheetSelection,
 } from "./selection";
-import { hasLineBreaker, isActive } from "./util";
+import { isActive } from "./util";
 import * as Actions from "./actions";
 import { Model, updateCellValue, createFormulaParser } from "./engine";
 
@@ -177,9 +177,8 @@ export default function reducer(
       if (!active) {
         return state;
       }
-      const copied = hasLineBreaker(text)
-        ? Matrix.splitWithLineBreaker(text, (value) => ({ value }))
-        : Matrix.split(text, (value) => ({ value }));
+
+      const copied = Matrix.split(text, (value) => ({ value }));
       const copiedSize = Matrix.getSize(copied);
 
       const selectedRange = state.selected.toRange(state.model.data);

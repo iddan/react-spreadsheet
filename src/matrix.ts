@@ -167,22 +167,6 @@ export function split<T>(
   horizontalSeparator = "\t",
   verticalSeparator: string | RegExp = /\r\n|\n|\r/
 ): Matrix<T> {
-  return csv
-    .split(verticalSeparator)
-    .map((row) => row.split(horizontalSeparator).map(transform));
-}
-
-/**
- * Parses a CSV string that may contain line breaks within double quotes.
- * This function splits the CSV content into rows and columns, considering line breaks
- * inside double quotes as part of the data rather than a new row.
- */
-export function splitWithLineBreaker<T>(
-  csv: string,
-  transform: (value: string) => T,
-  horizontalSeparator = "\t",
-  verticalSeparator: string | RegExp = /\r\n|\n|\r/
-): Matrix<T> {
   // Temporarily replace line breaks inside quotes
   const replaced = csv.replace(/"([^"]*?)"/g, (match, p1) => {
     return p1.replace(/\n/g, "\\n");
