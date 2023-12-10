@@ -64,6 +64,12 @@ describe("Matrix.split()", () => {
   test("Constructs a matrix from a CSV string", () => {
     expect(Matrix.split(CSV, Number)).toEqual(EXAMPLE_MATRIX);
   });
+
+  test("Keeps line breaks inside double quotes", () => {
+    const csv = '"Value\n1"\tValue2\t"Value\n3"';
+    const result = Matrix.split(csv, (value) => value);
+    expect(result).toEqual([["Value\n1", "Value2", "Value\n3"]]);
+  });
 });
 
 describe("Matrix.set()", () => {

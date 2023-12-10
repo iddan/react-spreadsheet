@@ -177,6 +177,7 @@ export default function reducer(
       if (!active) {
         return state;
       }
+
       const copied = Matrix.split(text, (value) => ({ value }));
       const copiedSize = Matrix.getSize(copied);
 

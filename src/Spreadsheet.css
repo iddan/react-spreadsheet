@@ -86,6 +86,10 @@
   box-sizing: border-box;
 }
 
+.Spreadsheet__data-viewer--preserve-breaks {
+  white-space: pre-wrap;
+}
+
 .Spreadsheet__data-editor,
 .Spreadsheet__data-editor input {
   width: 100%;

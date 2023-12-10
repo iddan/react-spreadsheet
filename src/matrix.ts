@@ -167,9 +167,19 @@ export function split<T>(
   horizontalSeparator = "\t",
   verticalSeparator: string | RegExp = /\r\n|\n|\r/
 ): Matrix<T> {
-  return csv
-    .split(verticalSeparator)
-    .map((row) => row.split(horizontalSeparator).map(transform));
+  // Temporarily replace line breaks inside quotes
+  const replaced = csv.replace(/"([^"]*?)"/g, (match, p1) => {
+    return p1.replace(/\n/g, "\\n");
+  });
+  return replaced.split(verticalSeparator).map((row) =>
+    row
+      .split(horizontalSeparator)
+      .map((line) => {
+        // Restore original line breaks in each line
+        return line.replace(/\\n/g, "\n");
+      })
+      .map(transform)
+  );
 }
 
 /** Returns whether the point exists in the matrix or not. */
