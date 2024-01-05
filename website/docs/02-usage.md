@@ -7,10 +7,10 @@ title: Usage
 
 ## Simple
 
-The Spreadsheet component requires the `data` property: an array of arrays with objects that has the `value` key. Changes made in the Spreadsheet will not affect the passed data array as in React props values should not be mutated.
+The Spreadsheet component requires the `data` property: an array of arrays with objects that have the `value` key. Changes made in the Spreadsheet will not affect the passed data array as in React props values should not be mutated.
 
 :::caution
-If `data` prop value is changed the component will discard any changes made by the user. If you want to make changes to `data` and incorporate the user's changes see [Controlled](#Controlled).
+If the `data` prop value is changed the component will discard any changes made by the user. If you want to make changes to `data` and incorporate the user's changes see [Controlled](#Controlled).
 :::
 
 ```javascript
@@ -33,19 +33,25 @@ The Spreadsheet component accepts the `columnLabels` or `rowLabels` props, both 
 import Spreadsheet from "react-spreadsheet";
 
 const App = () => {
-  let col = ["Flavour", "Food"];
-  let row = ["Item 1", "Item 2"];
+  const columnLabels = ["Flavour", "Food"];
+  const rowLabels = ["Item 1", "Item 2"];
   const data = [
     [{ value: "Vanilla" }, { value: "Chocolate" }],
     [{ value: "Strawberry" }, { value: "Cookies" }],
   ];
-  return <Spreadsheet data={data} columnLabels={col} rowLabels={row} />;
+  return (
+    <Spreadsheet
+      data={data}
+      columnLabels={columnLabels}
+      rowLabels={rowLabels}
+    />
+  );
 };
 ```
 
 ## Readonly Cells
 
-Any particular Spreadsheet cell can be set to readonly by just specifying `readOnly:true` in the cell along with the value.
+Any particular Spreadsheet cell can be set to read-only by just specifying `readOnly: true` in the cell along with the value.
 
 ```javascript
 import Spreadsheet from "react-spreadsheet";
@@ -61,9 +67,10 @@ const App = () => {
 
 ## Controlled
 
-The Spreadsheet component accepts `onChange` prop that is called every time one of the Spreadsheet's cell is changed by the user. You can use it to save the modified data and to react to changes (e.g. validating the modified data, further modify it, persist it).
+The Spreadsheet component accepts the `onChange` prop that is called every time one of the Spreadsheet's cells is changed by the user. You can use it to save the modified data and to react to changes (e.g. validating the modified data, further modifying it, persisting it).
 
 ```javascript
+import { useState } from "react";
 import Spreadsheet from "react-spreadsheet";
 
 const App = () => {
@@ -71,25 +78,6 @@ const App = () => {
     [{ value: "Vanilla" }, { value: "Chocolate" }, { value: "" }],
     [{ value: "Strawberry" }, { value: "Cookies" }, { value: "" }],
   ]);
-  return <Spreadsheet data={data}
-  onChange={
-    const t = d.map(row => [...row]);
-    for (let i = 0; i < 3; i++) {
-      const string = d[i][1]
-      if(string.value === 'Chocolate'){
-        t[i][2] = {value:"🍫"}
-      }
-      else if(string.value === "Cookies"){
-        t[i][2] = {value:"🍪"}
-      }
-      else if(string.value === "Pizza"){
-        t[i][2] = {value:"🍕"}
-      }
-      else {
-        t[i][2] = {value:"❓"}
-      }
-    }
-    setData(t)
-  } />;
+  return <Spreadsheet data={data} onChange={setData} />;
 };
 ```
