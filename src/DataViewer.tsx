@@ -11,7 +11,7 @@ const DataViewer = <Cell extends Types.CellBase<Value>, Value>({
   cell,
   evaluatedCell,
 }: Types.DataViewerProps<Cell>): React.ReactElement => {
-  const value = evaluatedCell?.value ?? cell?.value;
+  const value = getValue(cell, evaluatedCell);
 
   return typeof value === "boolean" ? (
     <span className="Spreadsheet__data-viewer Spreadsheet__data-viewer--boolean">
@@ -29,6 +29,17 @@ const DataViewer = <Cell extends Types.CellBase<Value>, Value>({
 };
 
 export default DataViewer;
+
+function getValue(
+  cell: Types.CellBase | undefined,
+  evaluatedCell: Types.CellBase | undefined
+) {
+  const baseValue = evaluatedCell?.value ?? cell?.value;
+  if (baseValue && typeof baseValue === "object") {
+    return baseValue.toString();
+  }
+  return baseValue;
+}
 
 export function convertBooleanToText(value: boolean): string {
   return value ? TRUE_TEXT : FALSE_TEXT;
