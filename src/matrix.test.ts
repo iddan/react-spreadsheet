@@ -65,6 +65,13 @@ describe("Matrix.split()", () => {
     expect(Matrix.split(CSV, Number)).toEqual(EXAMPLE_MATRIX);
   });
 
+  const CSVWithTrailingNewline = `${CSV}\n`;
+  test("Constructs a matrix from a CSV string with trailing newline", () => {
+    expect(Matrix.split(CSVWithTrailingNewline, Number)).toEqual(
+      EXAMPLE_MATRIX
+    );
+  });
+
   test("Keeps line breaks inside double quotes", () => {
     const csv = '"Value\n1"\tValue2\t"Value\n3"';
     const result = Matrix.split(csv, (value) => value);
