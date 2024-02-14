@@ -148,7 +148,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onActivate = () => {},
     onBlur = () => {},
     onCellCommit = () => {},
-    getEvaluatedData = () => {},
+    onEvaluatedDataChange = () => {},
   } = props;
   type State = Types.StoreState<CellType>;
 
@@ -251,10 +251,10 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
 	React.useEffect(() => {
 		if (state?.model?.evaluatedData !== prevEvaluatedDataRef?.current) {
-        getEvaluatedData(state?.model?.evaluatedData);
+        onEvaluatedDataChange(state?.model?.evaluatedData);
 		}
     prevEvaluatedDataRef.current = state.model.evaluatedData;
-	}, [state?.model?.evaluatedData, getEvaluatedData]);
+	}, [state?.model?.evaluatedData, onEvaluatedDataChange]);
 
   // Listen to selection changes
   const prevSelectedRef = React.useRef<Selection>(state.selected);
