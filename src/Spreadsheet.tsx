@@ -119,8 +119,8 @@ export type Props<CellType extends Types.CellBase> = {
     nextCell: null | CellType,
     coords: null | Point.Point
   ) => void;
-  /** Callback called when the Spreadsheet's data changes and get realtime evaluated data. */
-  getEvaluatedData :  (data: Matrix.Matrix<CellType>) => void;
+  /** Callback called when the Spreadsheet's evaluated data changes. */
+  onEvaluatedDataChange :  (data: Matrix.Matrix<CellType>) => void;
 };
 
 /**
