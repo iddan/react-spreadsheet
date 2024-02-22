@@ -120,7 +120,7 @@ export type Props<CellType extends Types.CellBase> = {
     coords: null | Point.Point
   ) => void;
   /** Callback called when the Spreadsheet's evaluated data changes. */
-  onEvaluatedDataChange:  (data: Matrix.Matrix<CellType>) => void;
+  onEvaluatedDataChange: (data: Matrix.Matrix<CellType>) => void;
 };
 
 /**
@@ -245,13 +245,14 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     prevDataRef.current = state.model.data;
   }, [state.model.data, onChange, props.data]);
 
-  const prevEvaluatedDataRef = React.useRef<Matrix.Matrix<CellType>>(state.model.evaluatedData);
+  const prevEvaluatedDataRef = React.useRef<Matrix.Matrix<CellType>>(
+    state.model.evaluatedData
+  );
   React.useEffect(() => {
     if (state?.model?.evaluatedData !== prevEvaluatedDataRef?.current) {
       onEvaluatedDataChange(state?.model?.evaluatedData);
     }
 
-	  
     prevEvaluatedDataRef.current = state.model.evaluatedData;
   }, [state?.model?.evaluatedData, onEvaluatedDataChange]);
 
