@@ -144,10 +144,13 @@ export function getCSV(data: Matrix.Matrix<Types.CellBase>): string {
  * @param columnLabels - the spreadsheet's column labels (if defined)
  * @returns the rows and columns counts of a spreadsheet
  */
-export function calculateSpreadsheetSize(
+export function calculateSpreadsheetSize<
+  RowIndicatorLabel = React.ReactNode,
+  ColumnIndicatorLabel = React.ReactNode
+>(
   data: Matrix.Matrix<unknown>,
-  rowLabels?: string[],
-  columnLabels?: string[]
+  rowLabels?: RowIndicatorLabel[],
+  columnLabels?: ColumnIndicatorLabel[]
 ): Matrix.Size {
   const { columns, rows } = Matrix.getSize(data);
   return {
