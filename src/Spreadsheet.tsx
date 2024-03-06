@@ -120,7 +120,7 @@ export type Props<CellType extends Types.CellBase> = {
     coords: null | Point.Point
   ) => void;
   /** Callback called when the Spreadsheet's evaluated data changes. */
-  onEvaluatedDataChange: (data: Matrix.Matrix<CellType>) => void;
+  onEvaluatedDataChange?: (data: Matrix.Matrix<CellType>) => void;
 };
 
 /**

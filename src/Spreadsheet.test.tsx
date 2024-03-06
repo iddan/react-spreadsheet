@@ -97,6 +97,7 @@ const EXAMPLE_DATA = createEmptyMatrix<CellType>(ROWS, COLUMNS);
 const EXAMPLE_PROPS: Props<CellType> = {
   data: EXAMPLE_DATA,
   onChange: jest.fn(),
+  onEvaluatedDataChange: jest.fn(),
 };
 const EXAMPLE_VALUE: Value = "EXAMPLE_VALUE";
 const EXAMPLE_CELL: CellType = { value: EXAMPLE_VALUE };
