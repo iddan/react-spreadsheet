@@ -119,6 +119,8 @@ export type Props<CellType extends Types.CellBase> = {
     nextCell: null | CellType,
     coords: null | Point.Point
   ) => void;
+  /** Callback called when the Spreadsheet's evaluated data changes. */
+  onEvaluatedDataChange?: (data: Matrix.Matrix<CellType>) => void;
 };
 
 /**
@@ -146,6 +148,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     onActivate = () => {},
     onBlur = () => {},
     onCellCommit = () => {},
+    onEvaluatedDataChange = () => {},
   } = props;
   type State = Types.StoreState<CellType>;
 
@@ -241,6 +244,17 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
     prevDataRef.current = state.model.data;
   }, [state.model.data, onChange, props.data]);
+
+  const prevEvaluatedDataRef = React.useRef<Matrix.Matrix<CellType>>(
+    state.model.evaluatedData
+  );
+  React.useEffect(() => {
+    if (state?.model?.evaluatedData !== prevEvaluatedDataRef?.current) {
+      onEvaluatedDataChange(state?.model?.evaluatedData);
+    }
+
+    prevEvaluatedDataRef.current = state.model.evaluatedData;
+  }, [state?.model?.evaluatedData, onEvaluatedDataChange]);
 
   // Listen to selection changes
   const prevSelectedRef = React.useRef<Selection>(state.selected);
