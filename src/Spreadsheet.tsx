@@ -38,6 +38,7 @@ import Selected from "./Selected";
 import Copied from "./Copied";
 
 import "./Spreadsheet.css";
+import Highlighted from "./Highlighted";
 
 /** The Spreadsheet component props */
 export type Props<CellType extends Types.CellBase> = {
@@ -82,6 +83,8 @@ export type Props<CellType extends Types.CellBase> = {
   hideColumnIndicators?: boolean;
   /** The selected cells in the worksheet. */
   selected?: Selection;
+  /** List of highlighted regions in the worksheet. */
+  highlights?: Types.Highlight[];
   // Custom Components
   /** Component rendered above each column. */
   ColumnIndicator?: Types.ColumnIndicatorComponent;
@@ -160,8 +163,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       ...INITIAL_STATE,
       model,
       selected: props.selected || INITIAL_STATE.selected,
+      highlights: props.highlights || INITIAL_STATE.highlights,
     } as State;
-  }, [props.createFormulaParser, props.data, props.selected]);
+  }, [props.createFormulaParser, props.data, props.selected, props.highlights]);
 
   const reducerElements = React.useReducer(
     reducer as unknown as React.Reducer<State, Actions.Action>,
@@ -211,6 +215,11 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const blur = React.useCallback(() => dispatch(Actions.blur()), [dispatch]);
   const setSelection = React.useCallback(
     (selection: Selection) => dispatch(Actions.setSelection(selection)),
+    [dispatch]
+  );
+  const setHighlights = React.useCallback(
+    (highlights: Types.Highlight[]) =>
+      dispatch(Actions.setHighlights(highlights)),
     [dispatch]
   );
 
@@ -305,6 +314,21 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     }
     prevSelectedPropRef.current = props.selected;
   }, [props.selected, setSelection]);
+
+  // Update highlights when props.highlights changes
+  const prevHighlightsPropRef = React.useRef<Types.Highlight[] | undefined>(
+      props.highlights
+  );
+  React.useEffect(() => {
+      if (
+          props.highlights &&
+          prevHighlightsPropRef.current &&
+          props.highlights !== prevHighlightsPropRef.current
+      ) {
+        setHighlights(props.highlights);
+      }
+      prevHighlightsPropRef.current = props.highlights;
+  }, [props.highlights, dispatch]);
 
   // Update data when props.data changes
   const prevDataPropRef = React.useRef<Matrix.Matrix<CellType> | undefined>(
@@ -552,6 +576,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
         {tableNode}
         {activeCellNode}
         <Selected />
+        <Highlighted />
         <Copied />
       </div>
     ),

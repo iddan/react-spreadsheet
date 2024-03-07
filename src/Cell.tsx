@@ -57,6 +57,14 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
     [setCellDimensions, select, dragging, point]
   );
 
+  // Report dimensions on initial render
+  React.useEffect(() => {
+    const root = rootRef.current;
+    if (root) {
+      setCellDimensions(point, getOffsetRect(root));
+    }
+  }, [setCellDimensions, point]);
+
   React.useEffect(() => {
     const root = rootRef.current;
     if (selected && root) {

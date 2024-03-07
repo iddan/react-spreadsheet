@@ -7,6 +7,7 @@ export type Props = {
   dimensions?: Types.Dimensions | null | undefined;
   hidden?: boolean;
   dragging?: boolean;
+  additionalClasses?: string[],
 };
 
 const FloatingRect: React.FC<Props> = ({
@@ -14,11 +15,12 @@ const FloatingRect: React.FC<Props> = ({
   dragging,
   hidden,
   variant,
+  additionalClasses,
 }) => {
   const { width, height, top, left } = dimensions || {};
   return (
     <div
-      className={classnames("Spreadsheet__floating-rect", {
+      className={classnames("Spreadsheet__floating-rect", additionalClasses, {
         [`Spreadsheet__floating-rect--${variant}`]: variant,
         "Spreadsheet__floating-rect--dragging": dragging,
         "Spreadsheet__floating-rect--hidden": hidden,

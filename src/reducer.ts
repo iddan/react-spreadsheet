@@ -25,6 +25,7 @@ export const INITIAL_STATE: Types.StoreState = {
   dragging: false,
   model: new Model(createFormulaParser, []),
   selected: new EmptySelection(),
+  highlights: [],
   copied: null,
   lastCommit: null,
 };
@@ -102,6 +103,13 @@ export default function reducer(
         active: active || null,
         mode: "view",
       };
+    }
+    case Actions.SET_HIGHLIGHTS: {
+        const { highlights } = action.payload;
+        return {
+          ...state,
+          highlights,
+        };
     }
     case Actions.SELECT: {
       const { point } = action.payload;
