@@ -17,6 +17,8 @@ import CustomCell from "./CustomCell";
 import { RangeEdit, RangeView } from "./RangeDataComponents";
 import { SelectEdit, SelectView } from "./SelectDataComponents";
 import { CustomCornerIndicator } from "./CustomCornerIndicator";
+import {Highlight} from "../types";
+import {useEffect} from "react";
 
 type StringCell = CellBase<string | undefined>;
 type NumberCell = CellBase<number | undefined>;
@@ -61,6 +63,26 @@ const meta: Meta<Props<StringCell>> = {
           }
         }}
       >
+        <style>
+            {`
+            .cell-highlight-red {
+                background: rgba(238, 204, 204, 0.34);
+                border: 2px #FFCCCC solid;
+            }
+            .cell-highlight-blue {
+                background: rgba(204, 204, 238, 0.34);
+                border: 2px #CCCCFF solid;
+            }
+            .cell-highlight-green {
+                background: rgba(204, 238, 204, 0.34);
+                border: 2px #CCFFCC solid;
+            }
+            .cell-highlight-yellow {
+              background: rgba(238, 238, 204, 0.34);
+              border: 2px #FFFFCC solid;
+            }
+            `}
+        </style>
         <Story />
       </div>
     ),
@@ -286,6 +308,8 @@ export const ControlledSelection: StoryFn<Props<StringCell>> = (props) => {
   const [selected, setSelected] = React.useState<Selection>(
     new EmptySelection()
   );
+  const [running, setRunning] = React.useState(false);
+  const [highlighted, setHighlighted] = React.useState<Array<Highlight>>([]);
   const handleSelect = React.useCallback((selection: Selection) => {
     setSelected(selection);
   }, []);
@@ -302,16 +326,53 @@ export const ControlledSelection: StoryFn<Props<StringCell>> = (props) => {
     setSelected(new EntireWorksheetSelection());
   }, []);
 
+  useEffect(() => {
+    if (!running) {
+      return;
+    }
+    setTimeout(() => {
+      if (highlighted.length < 4) {
+        setHighlighted([
+            ...highlighted,
+            {
+              selection: new EntireColumnsSelection(highlighted.length, highlighted.length),
+              classNames: ["cell-highlight-red", "cell-highlight-blue", "cell-highlight-green", "cell-highlight-yellow"].slice(highlighted.length, highlighted.length + 1)
+            },
+        ])
+      } else {
+        setHighlighted([]);
+      }
+    }, 1000);
+  }, [highlighted, running]);
+
   return (
     <div>
       <div>
+        <p>Selection</p>
         <button onClick={handleSelectEntireRow}>Select entire row</button>
         <button onClick={handleSelectEntireColumn}>Select entire column</button>
         <button onClick={handleSelectEntireWorksheet}>
           Select entire worksheet
         </button>
+        <p>Highlighting</p>
+        <button onClick={() => setHighlighted([{
+          selection: new EntireWorksheetSelection(),
+          classNames: ["cell-highlight-red"],
+        }])}>
+          Highlight entire worksheet
+        </button>
+        <button onClick={() => setHighlighted([{
+          selection: new EntireColumnsSelection(0, 0),
+          classNames: ["cell-highlight-red"],
+        }])}>
+          Highlight entire column
+        </button>
+        <button onClick={() => setRunning(!running)}>
+            {running ? "Stop" : "Start"} cycling highlighting
+        </button>
       </div>
-      <Spreadsheet {...props} selected={selected} onSelect={handleSelect} />;
+      <hr />
+      <Spreadsheet {...props} highlights={highlighted} selected={selected} onSelect={handleSelect}/>;
     </div>
   );
 };

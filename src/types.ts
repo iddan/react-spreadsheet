@@ -45,9 +45,16 @@ export type Dimensions = {
   left: number;
 };
 
+/* List of highlighted cells */
+export type Highlight = {
+  classNames: string[];
+  selection: Selection;
+}
+
 export type StoreState<Cell extends CellBase = CellBase> = {
   model: Model<Cell>;
   selected: Selection;
+  highlights: Highlight[];
   copied: PointRange | null;
   hasPasted: boolean;
   cut: boolean;
