@@ -16,6 +16,7 @@ import {
   getCSV,
   shouldHandleClipboardEvent,
   isFocusedWithin,
+  deepArrayComparison,
 } from "./util";
 
 import DefaultTable from "./Table";
@@ -235,13 +236,12 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   // Listen to data changes
   const prevDataRef = React.useRef<Matrix.Matrix<CellType>>(state.model.data);
   React.useEffect(() => {
-    if (state.model.data !== prevDataRef.current) {
+    if (!deepArrayComparison(state.model.data, prevDataRef.current)) {
       // Call on change only if the data change internal
-      if (state.model.data !== props.data) {
+      if (!deepArrayComparison(state.model.data, props.data)) {
         onChange(state.model.data);
       }
     }
-
     prevDataRef.current = state.model.data;
   }, [state.model.data, onChange, props.data]);
 
@@ -252,7 +252,6 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     if (state?.model?.evaluatedData !== prevEvaluatedDataRef?.current) {
       onEvaluatedDataChange(state?.model?.evaluatedData);
     }
-
     prevEvaluatedDataRef.current = state.model.evaluatedData;
   }, [state?.model?.evaluatedData, onEvaluatedDataChange]);
 
