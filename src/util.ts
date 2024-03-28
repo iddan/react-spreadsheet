@@ -34,6 +34,17 @@ export function range(end: number, start = 0, step = 1): number[] {
   return array;
 }
 
+/** Perform deep comparison of two (nested) arrays. */
+export function deepArrayComparison(arr1: any[], arr2: any[]): boolean {
+  if (arr1.length !== arr2.length) return false;
+  return arr1.every((element, index) => {
+    if (Array.isArray(element) && Array.isArray(arr2[index])) {
+      return deepArrayComparison(element, arr2[index]);
+    }
+    return element === arr2[index];
+  });
+}
+
 /** Return whether given point is active */
 export function isActive(
   active: Types.StoreState["active"],
