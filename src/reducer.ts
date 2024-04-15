@@ -20,6 +20,7 @@ export const INITIAL_STATE: Types.StoreState = {
   rowDimensions: {},
   columnDimensions: {},
   lastChanged: null,
+  lastUpdateDate: null,
   hasPasted: false,
   cut: false,
   dragging: false,
@@ -132,6 +133,7 @@ export default function reducer(
         ...state,
         model: updateCellValue(state.model, active, cellData),
         lastChanged: active,
+        lastUpdateDate: new Date(),
       };
     }
     case Actions.SET_CELL_DIMENSIONS: {
@@ -206,6 +208,7 @@ export default function reducer(
           hasPasted: true,
           mode: "view",
           lastCommit: commit,
+          lastUpdateDate: new Date(),
         };
       }
 
@@ -276,6 +279,7 @@ export default function reducer(
         hasPasted: true,
         mode: "view",
         lastCommit: acc.commit,
+        lastUpdateDate: new Date(),
       };
     }
 
@@ -385,6 +389,7 @@ function clear(state: Types.StoreState): Types.StoreState {
     ...state,
     model: new Model(createFormulaParser, newData),
     ...commit(changes),
+    lastUpdateDate: new Date(),
   };
 }
 
