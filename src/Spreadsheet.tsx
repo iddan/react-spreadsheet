@@ -171,7 +171,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
   const size = React.useMemo(() => {
     return calculateSpreadsheetSize(state.model.data, rowLabels, columnLabels);
-  }, [state.lastUpdateDate, rowLabels, columnLabels]);
+  }, [state.model.data, rowLabels, columnLabels]);
 
   const mode = state.mode;
 
