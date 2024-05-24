@@ -408,9 +408,12 @@ export const go =
     if (!state.active) {
       return;
     }
+    const size = Matrix.getSize(state.model.data);
+    const newColumn = state.active.column + columnDelta;
+    const shouldWrap = newColumn >= size.columns;
     const nextActive = {
-      row: state.active.row + rowDelta,
-      column: state.active.column + columnDelta,
+      row: state.active.row + rowDelta + (shouldWrap ? 1 : 0),
+      column: (state.active.column + columnDelta) % size.columns,
     };
     if (!Matrix.has(nextActive, state.model.data)) {
       return { ...state, mode: "view" };
