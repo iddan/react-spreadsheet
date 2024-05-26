@@ -177,42 +177,27 @@ const Spreadsheet = <CellType extends Types.CellBase>(
 
   const rootRef = React.useRef<HTMLDivElement>(null);
 
-  const copy = React.useCallback(() => dispatch(Actions.copy()), [dispatch]);
-  const cut = React.useCallback(() => dispatch(Actions.cut()), [dispatch]);
-  const paste = React.useCallback(
-    (data: string) => dispatch(Actions.paste(data)),
-    [dispatch]
-  );
-  const onKeyDownAction = React.useCallback(
-    (event: React.KeyboardEvent) => dispatch(Actions.keyDown(event)),
-    [dispatch]
-  );
-  const onKeyPress = React.useCallback(
-    (event: React.KeyboardEvent) => dispatch(Actions.keyPress(event)),
-    [dispatch]
-  );
-  const onDragStart = React.useCallback(
-    () => dispatch(Actions.dragStart()),
-    [dispatch]
-  );
-  const onDragEnd = React.useCallback(
-    () => dispatch(Actions.dragEnd()),
-    [dispatch]
-  );
-  const setData = React.useCallback(
-    (data: Matrix.Matrix<CellType>) => dispatch(Actions.setData(data)),
-    [dispatch]
-  );
-  const setCreateFormulaParser = React.useCallback(
-    (createFormulaParser: Types.CreateFormulaParser) =>
-      dispatch(Actions.setCreateFormulaParser(createFormulaParser)),
-    [dispatch]
-  );
-  const blur = React.useCallback(() => dispatch(Actions.blur()), [dispatch]);
-  const setSelection = React.useCallback(
-    (selection: Selection) => dispatch(Actions.setSelection(selection)),
-    [dispatch]
-  );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const useAction = <T extends (...args: any[]) => Actions.Action>(
+    action: T
+  ) => {
+    return React.useCallback(
+      (...args: Parameters<T>) => dispatch(action(...args)),
+      [action]
+    );
+  };
+
+  const cut = useAction(Actions.cut);
+  const copy = useAction(Actions.copy);
+  const paste = useAction(Actions.paste);
+  const onKeyDownAction = useAction(Actions.keyDown);
+  const onKeyPress = useAction(Actions.keyPress);
+  const onDragStart = useAction(Actions.dragStart);
+  const onDragEnd = useAction(Actions.dragEnd);
+  const setData = useAction(Actions.setData);
+  const setCreateFormulaParser = useAction(Actions.setCreateFormulaParser);
+  const blur = useAction(Actions.blur);
+  const setSelection = useAction(Actions.setSelection);
 
   // Track active
   const prevActiveRef = React.useRef<Point.Point | null>(state.active);
