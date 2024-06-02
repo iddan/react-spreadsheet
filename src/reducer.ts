@@ -301,6 +301,10 @@ export default function reducer(
         return state;
       }
       if (state.mode === "view" && state.active) {
+        const selectedRange = state.selected.toRange(state.model.data);
+        if (selectedRange?.size() === 1) {
+          return edit(clear(state));
+        }
         return edit(state);
       }
       return state;
