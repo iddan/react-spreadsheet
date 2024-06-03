@@ -8,12 +8,7 @@ const Selected: React.FC = () => {
   const dimensions = useSelector(
     (state) =>
       selected &&
-      getSelectedDimensions(
-        state.rowDimensions,
-        state.columnDimensions,
-        state.model.data,
-        state.selected
-      )
+      getSelectedDimensions(state.dimensions, state.model.data, state.selected)
   );
   const dragging = useSelector((state) => state.dragging);
   const hidden = useSelector(

@@ -17,14 +17,10 @@ const DISPATCH_MOCK = jest.fn();
 const STATE_WITH_ACTIVE: Types.StoreState = {
   ...INITIAL_STATE,
   active: Point.ORIGIN,
-  rowDimensions: {
-    0: {
+  dimensions: {
+    "0:0": {
       height: 42,
       top: 42,
-    },
-  },
-  columnDimensions: {
-    0: {
       width: 42,
       left: 42,
     },

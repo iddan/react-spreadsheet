@@ -15,6 +15,10 @@ export type CellBase<Value = any> = {
   className?: string;
   /** The value of the cell */
   value: Value;
+  /** Check the cell is merged */
+  isMerged?: boolean;
+  /** The mergeRange of the cell */
+  mergeRange?: string;
   /** Custom component to render when the cell is edited, if not defined would default to the component defined for the Spreadsheet */
   DataEditor?: DataEditorComponent<CellBase<Value>>;
   /** Custom component to render when the cell is viewed, if not defined would default to the component defined for the Spreadsheet */
@@ -53,11 +57,7 @@ export type StoreState<Cell extends CellBase = CellBase> = {
   cut: boolean;
   active: Point | null;
   mode: Mode;
-  rowDimensions: Record<number, Pick<Dimensions, "height" | "top"> | undefined>;
-  columnDimensions: Record<
-    number,
-    Pick<Dimensions, "width" | "left"> | undefined
-  >;
+  dimensions: Record<string, Dimensions | undefined>;
   dragging: boolean;
   lastChanged: Point | null;
   lastCommit: null | CellChange<Cell>[];
