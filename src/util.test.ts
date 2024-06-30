@@ -54,6 +54,7 @@ const EXAMPLE_STATE: Types.StoreState = {
     },
   },
   lastChanged: null,
+  lastUpdateDate: null,
   hasPasted: false,
   cut: false,
   dragging: false,

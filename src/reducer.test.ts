@@ -223,7 +223,13 @@ describe("reducer", () => {
     ],
   ];
   test.each(cases)("%s", (name, state, action, expected) => {
-    expect(reducer(state, action)).toEqual(expected);
+    if (name === "setCellData") {
+      // Addressing this case separately since the test may fail due to slight time-related
+      // differences between the generation of the expected and obtained results.
+      const result = reducer(state, action);
+      result.lastUpdateDate = null;
+      expect(result).toEqual(expected);
+    } else expect(reducer(state, action)).toEqual(expected);
   });
 });
 
