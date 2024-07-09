@@ -33,22 +33,28 @@ const EXAMPLE_CELL_DIMENSIONS: Types.Dimensions = {
 const EXAMPLE_STATE: Types.StoreState = {
   active: null,
   mode: "view",
-  rowDimensions: {
-    0: {
+  dimensions: {
+    "0:0": {
       height: EXAMPLE_CELL_DIMENSIONS.height,
       top: EXAMPLE_CELL_DIMENSIONS.top,
-    },
-    1: {
-      height: EXAMPLE_CELL_DIMENSIONS.height,
-      top: EXAMPLE_CELL_DIMENSIONS.top + EXAMPLE_CELL_DIMENSIONS.height,
-    },
-  },
-  columnDimensions: {
-    0: {
       width: EXAMPLE_CELL_DIMENSIONS.width,
       left: EXAMPLE_CELL_DIMENSIONS.left,
     },
-    1: {
+    "0:1": {
+      height: EXAMPLE_CELL_DIMENSIONS.height,
+      top: EXAMPLE_CELL_DIMENSIONS.top,
+      width: EXAMPLE_CELL_DIMENSIONS.width,
+      left: EXAMPLE_CELL_DIMENSIONS.left + EXAMPLE_CELL_DIMENSIONS.width,
+    },
+    "1:0": {
+      height: EXAMPLE_CELL_DIMENSIONS.height,
+      top: EXAMPLE_CELL_DIMENSIONS.top + EXAMPLE_CELL_DIMENSIONS.height,
+      width: EXAMPLE_CELL_DIMENSIONS.width,
+      left: EXAMPLE_CELL_DIMENSIONS.left,
+    },
+    "1:1": {
+      height: EXAMPLE_CELL_DIMENSIONS.height,
+      top: EXAMPLE_CELL_DIMENSIONS.top + EXAMPLE_CELL_DIMENSIONS.height,
       width: EXAMPLE_CELL_DIMENSIONS.width,
       left: EXAMPLE_CELL_DIMENSIONS.left + EXAMPLE_CELL_DIMENSIONS.width,
     },
@@ -153,13 +159,9 @@ describe("getCellDimensions()", () => {
     ],
   ] as const;
   test.each(cases)("%s", (name, point, expected) => {
-    expect(
-      util.getCellDimensions(
-        point,
-        EXAMPLE_STATE.rowDimensions,
-        EXAMPLE_STATE.columnDimensions
-      )
-    ).toEqual(expected);
+    expect(util.getCellDimensions(point, EXAMPLE_STATE.dimensions)).toEqual(
+      expected
+    );
   });
 });
 
@@ -214,13 +216,9 @@ describe("getRangeDimensions()", () => {
     ],
   ];
   test.each(cases)("%s", (name, range, expected) => {
-    expect(
-      util.getRangeDimensions(
-        EXAMPLE_STATE.rowDimensions,
-        EXAMPLE_STATE.columnDimensions,
-        range
-      )
-    ).toEqual(expected);
+    expect(util.getRangeDimensions(EXAMPLE_STATE.dimensions, range)).toEqual(
+      expected
+    );
   });
 });
 
@@ -232,8 +230,7 @@ describe("getSelectedDimensions()", () => {
       "point range",
       new RangeSelection(new PointRange(Point.ORIGIN, Point.ORIGIN)),
       util.getRangeDimensions(
-        EXAMPLE_STATE.rowDimensions,
-        EXAMPLE_STATE.columnDimensions,
+        EXAMPLE_STATE.dimensions,
         new PointRange(Point.ORIGIN, Point.ORIGIN)
       ),
     ],
@@ -242,8 +239,7 @@ describe("getSelectedDimensions()", () => {
   test.each(cases)("%s", (name, selection, expected) => {
     expect(
       util.getSelectedDimensions(
-        EXAMPLE_STATE.rowDimensions,
-        EXAMPLE_STATE.columnDimensions,
+        EXAMPLE_STATE.dimensions,
         EXAMPLE_STATE.model.data,
         selection
       )

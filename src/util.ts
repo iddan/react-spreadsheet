@@ -76,37 +76,21 @@ export function readTextFromClipboard(event: ClipboardEvent): string {
 /** Get the dimensions of cell at point from state */
 export function getCellDimensions(
   point: Point.Point,
-  rowDimensions: Types.StoreState["rowDimensions"] | undefined,
-  columnDimensions: Types.StoreState["columnDimensions"] | undefined
+  dimensions: Types.StoreState["dimensions"] | undefined
 ): Types.Dimensions | undefined {
-  const cellRowDimensions = rowDimensions && rowDimensions[point.row];
-  const cellColumnDimensions =
-    columnDimensions && columnDimensions[point.column];
-  return (
-    cellRowDimensions &&
-    cellColumnDimensions && {
-      ...cellRowDimensions,
-      ...cellColumnDimensions,
-    }
-  );
+  const cellDimensions =
+    dimensions && dimensions?.[`${point.row}:${point.column}`];
+
+  return cellDimensions;
 }
 
 /** Get the dimensions of a range of cells */
 export function getRangeDimensions(
-  rowDimensions: Types.StoreState["rowDimensions"],
-  columnDimensions: Types.StoreState["columnDimensions"],
+  dimensions: Types.StoreState["dimensions"],
   range: PointRange
 ): Types.Dimensions | undefined {
-  const startDimensions = getCellDimensions(
-    range.start,
-    rowDimensions,
-    columnDimensions
-  );
-  const endDimensions = getCellDimensions(
-    range.end,
-    rowDimensions,
-    columnDimensions
-  );
+  const startDimensions = getCellDimensions(range.start, dimensions);
+  const endDimensions = getCellDimensions(range.end, dimensions);
   return (
     startDimensions &&
     endDimensions && {
@@ -120,15 +104,12 @@ export function getRangeDimensions(
 
 /** Get the dimensions of selected */
 export function getSelectedDimensions(
-  rowDimensions: Types.StoreState["rowDimensions"],
-  columnDimensions: Types.StoreState["columnDimensions"],
+  dimensions: Types.StoreState["dimensions"],
   data: Matrix.Matrix<unknown>,
   selected: Selection
 ): Types.Dimensions | undefined {
   const range = selected.toRange(data);
-  return range
-    ? getRangeDimensions(rowDimensions, columnDimensions, range)
-    : undefined;
+  return range ? getRangeDimensions(dimensions, range) : undefined;
 }
 
 /** Get given data as CSV */

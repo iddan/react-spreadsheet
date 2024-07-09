@@ -17,8 +17,7 @@ import { Model, updateCellValue, createFormulaParser } from "./engine";
 export const INITIAL_STATE: Types.StoreState = {
   active: null,
   mode: "view",
-  rowDimensions: {},
-  columnDimensions: {},
+  dimensions: {},
   lastChanged: null,
   hasPasted: false,
   cut: false,
@@ -136,27 +135,26 @@ export default function reducer(
     }
     case Actions.SET_CELL_DIMENSIONS: {
       const { point, dimensions } = action.payload;
-      const prevRowDimensions = state.rowDimensions[point.row];
-      const prevColumnDimensions = state.columnDimensions[point.column];
+      const prevDimensions = state.dimensions[`${point.row}:${point.column}`];
       if (
-        prevRowDimensions &&
-        prevColumnDimensions &&
-        prevRowDimensions.top === dimensions.top &&
-        prevRowDimensions.height === dimensions.height &&
-        prevColumnDimensions.left === dimensions.left &&
-        prevColumnDimensions.width === dimensions.width
+        prevDimensions &&
+        prevDimensions.top === dimensions.top &&
+        prevDimensions.height === dimensions.height &&
+        prevDimensions.left === dimensions.left &&
+        prevDimensions.width === dimensions.width
       ) {
         return state;
       }
       return {
         ...state,
-        rowDimensions: {
-          ...state.rowDimensions,
-          [point.row]: { top: dimensions.top, height: dimensions.height },
-        },
-        columnDimensions: {
-          ...state.columnDimensions,
-          [point.column]: { left: dimensions.left, width: dimensions.width },
+        dimensions: {
+          ...state.dimensions,
+          [`${point.row}:${point.column}`]: {
+            top: dimensions.top,
+            height: dimensions.height,
+            left: dimensions.left,
+            width: dimensions.width,
+          },
         },
       };
     }
