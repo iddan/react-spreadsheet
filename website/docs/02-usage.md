@@ -10,7 +10,7 @@ title: Usage
 The Spreadsheet component requires the `data` property: an array of arrays with objects that have the `value` key. Changes made in the Spreadsheet will not affect the passed data array as in React props values should not be mutated.
 
 :::caution
-If the `data` prop value is changed the component will discard any changes made by the user. If you want to make changes to `data` and incorporate the user's changes see [Controlled](#Controlled).
+If the `data` prop value is changed the component will discard any changes made by the user. If you want to make changes to `data` and incorporate the user's changes see [Controlled](#controlled).
 :::
 
 ```javascript
