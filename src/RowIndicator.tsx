@@ -5,7 +5,7 @@ import * as Types from "./types";
 import useDispatch from "./use-dispatch";
 import useSelector from "./use-selector";
 
-const RowIndicator: Types.RowIndicatorComponent = ({
+const RowIndicator: Types.RowIndicatorComponent<string> = ({
   row,
   label,
   selected,
@@ -33,9 +33,9 @@ const RowIndicator: Types.RowIndicatorComponent = ({
 
 export default RowIndicator;
 
-export const enhance = (
-  RowIndicatorComponent: Types.RowIndicatorComponent
-): React.FC<Omit<Types.RowIndicatorProps, "selected" | "onSelect">> => {
+export const enhance = <Label,>(
+  RowIndicatorComponent: Types.RowIndicatorComponent<Label>
+): React.FC<Omit<Types.RowIndicatorProps<Label>, "selected" | "onSelect">> => {
   return function RowIndicatorWrapper(props) {
     const dispatch = useDispatch();
     const selected = useSelector((state) =>
