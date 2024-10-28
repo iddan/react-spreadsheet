@@ -57,15 +57,20 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
     [setCellDimensions, select, dragging, point]
   );
 
+  const modeRef = React.useRef<Types.Mode>();
+  React.useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
+
   React.useEffect(() => {
     const root = rootRef.current;
     if (selected && root) {
       setCellDimensions(point, getOffsetRect(root));
     }
-    if (root && active && mode === "view") {
+    if (root && active && modeRef.current === "view") {
       root.focus();
     }
-  }, [setCellDimensions, selected, active, mode, point, data]);
+  }, [setCellDimensions, selected, active, point, data]);
 
   if (data && data.DataViewer) {
     // @ts-ignore
