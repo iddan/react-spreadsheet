@@ -8,7 +8,7 @@ import React, {
 import classnames from "classnames";
 import { CellComponent } from "..";
 
-export const CustomCell: CellComponent = ({
+export const CustomMergeCell: CellComponent = ({
   column,
   row,
   setCellDimensions,
@@ -53,8 +53,8 @@ export const CustomCell: CellComponent = ({
     const rowspan = parseInt(endRow ?? "") - parseInt(startRow ?? "");
 
     return {
-      colspan: colspan === 0 ? undefined : colspan,
-      rowspan: rowspan === 0 ? undefined : rowspan,
+      colspan: colspan === 0 ? undefined : colspan + 1,
+      rowspan: rowspan === 0 ? undefined : rowspan + 1,
     };
   };
 
@@ -136,6 +136,7 @@ export const CustomCell: CellComponent = ({
       )}
       style={{
         borderColor: active ? "black" : "none",
+        display: data?.isMerged && !data?.mergeRange ? "none" : undefined,
       }}
       tabIndex={0}
       onMouseOver={handleMouseOver}
@@ -154,4 +155,4 @@ export const CustomCell: CellComponent = ({
   );
 };
 
-export default CustomCell;
+export default CustomMergeCell;

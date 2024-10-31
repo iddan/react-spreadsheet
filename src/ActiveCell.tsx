@@ -36,9 +36,7 @@ const ActiveCell: React.FC<Props> = (props) => {
     state.active ? Matrix.get(state.active, state.model.data) : undefined
   );
   const dimensions = useSelector((state) =>
-    active
-      ? getCellDimensions(active, state.rowDimensions, state.columnDimensions)
-      : undefined
+    active ? getCellDimensions(active, state.dimensions) : undefined
   );
   const hidden = React.useMemo(
     () => !active || !dimensions,

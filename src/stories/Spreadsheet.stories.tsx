@@ -14,6 +14,7 @@ import {
 import * as Matrix from "../matrix";
 import { AsyncCellDataEditor, AsyncCellDataViewer } from "./AsyncCellData";
 import CustomCell from "./CustomCell";
+import CustomMergeCell from "./CustomMergeCell";
 import { RangeEdit, RangeView } from "./RangeDataComponents";
 import { SelectEdit, SelectView } from "./SelectDataComponents";
 import { CustomCornerIndicator } from "./CustomCornerIndicator";
@@ -24,6 +25,351 @@ type NumberCell = CellBase<number | undefined>;
 const INITIAL_ROWS = 6;
 const INITIAL_COLUMNS = 4;
 const EMPTY_DATA = createEmptyMatrix<StringCell>(INITIAL_ROWS, INITIAL_COLUMNS);
+const TEST_MERGE_DATA = [
+  [
+    {
+      address: "A1",
+      value: null,
+      isMerged: false,
+      style: {},
+    },
+    {
+      address: "B1",
+      value: null,
+      isMerged: false,
+      style: {},
+    },
+    {
+      address: "C1",
+      value: "Merge C1:E1",
+      isMerged: true,
+      mergeRange: "C1:E1",
+      style: {
+        font: {
+          size: 12,
+          color: {
+            theme: 1,
+          },
+          name: "Calibri",
+          family: 2,
+          scheme: "minor",
+        },
+        border: {},
+        fill: {
+          type: "pattern",
+          pattern: "none",
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      },
+    },
+    {
+      address: "D1",
+      value: "Merge C1:E1",
+      isMerged: true,
+      style: {
+        font: {
+          size: 12,
+          color: {
+            theme: 1,
+          },
+          name: "Calibri",
+          family: 2,
+          scheme: "minor",
+        },
+        border: {},
+        fill: {
+          type: "pattern",
+          pattern: "none",
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      },
+    },
+    {
+      address: "E1",
+      value: "Merge C1:E1",
+      isMerged: true,
+      style: {
+        font: {
+          size: 12,
+          color: {
+            theme: 1,
+          },
+          name: "Calibri",
+          family: 2,
+          scheme: "minor",
+        },
+        border: {},
+        fill: {
+          type: "pattern",
+          pattern: "none",
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      },
+    },
+  ],
+  [
+    {
+      address: "A2",
+      value: "Merge A2:A4",
+      isMerged: true,
+      mergeRange: "A2:A4",
+      style: {
+        font: {
+          size: 12,
+          color: {
+            theme: 1,
+          },
+          name: "Calibri",
+          family: 2,
+          scheme: "minor",
+        },
+        border: {},
+        fill: {
+          type: "pattern",
+          pattern: "none",
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      },
+    },
+    {
+      address: "B2",
+      value: "Merge B2:C2",
+      isMerged: true,
+      mergeRange: "B2:C2",
+      style: {
+        font: {
+          size: 12,
+          color: {
+            theme: 1,
+          },
+          name: "Calibri",
+          family: 2,
+          scheme: "minor",
+        },
+        border: {},
+        fill: {
+          type: "pattern",
+          pattern: "none",
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      },
+    },
+    {
+      address: "C2",
+      value: "Merge B2:C2",
+      isMerged: true,
+      style: {
+        font: {
+          size: 12,
+          color: {
+            theme: 1,
+          },
+          name: "Calibri",
+          family: 2,
+          scheme: "minor",
+        },
+        border: {},
+        fill: {
+          type: "pattern",
+          pattern: "none",
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      },
+    },
+  ],
+  [
+    {
+      address: "A3",
+      value: "Merge A2:A4",
+      isMerged: true,
+      style: {
+        font: {
+          size: 12,
+          color: {
+            theme: 1,
+          },
+          name: "Calibri",
+          family: 2,
+          scheme: "minor",
+        },
+        border: {},
+        fill: {
+          type: "pattern",
+          pattern: "none",
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      },
+    },
+    {
+      address: "B3",
+      value: null,
+      isMerged: false,
+      style: {},
+    },
+    {
+      address: "C3",
+      value: null,
+      isMerged: false,
+      style: {},
+    },
+    {
+      address: "D3",
+      value: "Merge D1:G1",
+      isMerged: true,
+      mergeRange: "D3:G3",
+      style: {
+        font: {
+          size: 12,
+          color: {
+            theme: 1,
+          },
+          name: "Calibri",
+          family: 2,
+          scheme: "minor",
+        },
+        border: {},
+        fill: {
+          type: "pattern",
+          pattern: "none",
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      },
+    },
+    {
+      address: "E3",
+      value: "Merge D1:G1",
+      isMerged: true,
+      style: {
+        font: {
+          size: 12,
+          color: {
+            theme: 1,
+          },
+          name: "Calibri",
+          family: 2,
+          scheme: "minor",
+        },
+        border: {},
+        fill: {
+          type: "pattern",
+          pattern: "none",
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      },
+    },
+    {
+      address: "F3",
+      value: "Merge D1:G1",
+      isMerged: true,
+      style: {
+        font: {
+          size: 12,
+          color: {
+            theme: 1,
+          },
+          name: "Calibri",
+          family: 2,
+          scheme: "minor",
+        },
+        border: {},
+        fill: {
+          type: "pattern",
+          pattern: "none",
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      },
+    },
+    {
+      address: "G3",
+      value: "Merge D1:G1",
+      isMerged: true,
+      style: {
+        font: {
+          size: 12,
+          color: {
+            theme: 1,
+          },
+          name: "Calibri",
+          family: 2,
+          scheme: "minor",
+        },
+        border: {},
+        fill: {
+          type: "pattern",
+          pattern: "none",
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      },
+    },
+  ],
+  [
+    {
+      address: "A4",
+      value: "Merge A2:A4",
+      isMerged: true,
+      style: {
+        font: {
+          size: 12,
+          color: {
+            theme: 1,
+          },
+          name: "Calibri",
+          family: 2,
+          scheme: "minor",
+        },
+        border: {},
+        fill: {
+          type: "pattern",
+          pattern: "none",
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      },
+    },
+    {
+      address: "B4",
+      value: null,
+      isMerged: false,
+      style: {},
+    },
+    {
+      address: "C4",
+      value: "Merge C4:D4",
+      isMerged: true,
+      mergeRange: "C4:D4",
+      style: {},
+    },
+    {
+      address: "D4",
+      value: "Merge C4:D4",
+      isMerged: true,
+      style: {},
+    },
+  ],
+];
 
 const meta: Meta<Props<StringCell>> = {
   title: "Spreadsheet",
@@ -182,6 +528,13 @@ export const WithAsyncCellData: StoryObj = {
 export const WithCustomCell: StoryObj = {
   args: {
     Cell: CustomCell,
+  },
+};
+
+export const WithCustomMergeCell: StoryObj = {
+  args: {
+    data: TEST_MERGE_DATA,
+    Cell: CustomMergeCell,
   },
 };
 

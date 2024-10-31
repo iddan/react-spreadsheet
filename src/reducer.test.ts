@@ -181,14 +181,10 @@ describe("reducer", () => {
       Actions.setCellDimensions(Point.ORIGIN, EXAMPLE_DIMENSIONS),
       {
         ...INITIAL_STATE,
-        rowDimensions: {
-          [Point.ORIGIN.row]: {
+        dimensions: {
+          [`${Point.ORIGIN.row}:${Point.ORIGIN.column}`]: {
             height: EXAMPLE_DIMENSIONS.height,
             top: EXAMPLE_DIMENSIONS.top,
-          },
-        },
-        columnDimensions: {
-          [Point.ORIGIN.column]: {
             width: EXAMPLE_DIMENSIONS.width,
             left: EXAMPLE_DIMENSIONS.left,
           },
