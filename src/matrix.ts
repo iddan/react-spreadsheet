@@ -316,3 +316,36 @@ export function maxPoint(matrix: Matrix<unknown>): Point.Point {
   const size = getSize(matrix);
   return { row: size.rows - 1, column: size.columns - 1 };
 }
+
+export function equals<T>(a: Matrix<T>, b: Matrix<T>): boolean {
+  if (a === b) {
+    return true;
+  }
+
+  if (!a || !b) {
+    return false;
+  }
+
+  const { rows: rowsA, columns: columnsA } = getSize(a);
+  const { rows: rowsB, columns: columnsB } = getSize(b);
+
+  if (rowsA !== rowsB || columnsA !== columnsB) {
+    return false;
+  }
+
+  for (const [point, valueA] of entries(a)) {
+    const valueB = get(point, b);
+
+    if (valueA !== valueB) {
+      if (!valueA || !valueB) {
+        return false;
+      }
+
+      if (JSON.stringify(valueA) !== JSON.stringify(valueB)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}

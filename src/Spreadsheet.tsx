@@ -283,24 +283,27 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   React.useEffect(() => {
     if (
       props.selected &&
-      prevSelectedPropRef.current &&
-      !props.selected.equals(prevSelectedPropRef.current)
+      !state.selected.equals(props.selected) &&
+      !prevSelectedPropRef.current?.equals(props.selected)
     ) {
       setSelection(props.selected);
     }
     prevSelectedPropRef.current = props.selected;
-  }, [props.selected, setSelection]);
+  }, [props.selected, setSelection, state.selected]);
 
   // Update data when props.data changes
   const prevDataPropRef = React.useRef<Matrix.Matrix<CellType> | undefined>(
     props.data
   );
   React.useEffect(() => {
-    if (props.data !== prevDataPropRef.current) {
+    if (
+      props.data !== prevDataPropRef.current &&
+      !Matrix.equals(props.data, state.model.data)
+    ) {
       setData(props.data);
     }
     prevDataPropRef.current = props.data;
-  }, [props.data, setData]);
+  }, [props.data, setData, state.model.data]);
 
   // Update createFormulaParser when props.createFormulaParser changes
   const prevCreateFormulaParserPropRef = React.useRef<
