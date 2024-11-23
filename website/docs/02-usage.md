@@ -74,7 +74,7 @@ import { useState } from "react";
 import Spreadsheet from "react-spreadsheet";
 
 const App = () => {
-  const [data, setData] = useState([
+  const [data, setData] = useState<Matrix<CellBase>>([
     [{ value: "Vanilla" }, { value: "Chocolate" }, { value: "" }],
     [{ value: "Strawberry" }, { value: "Cookies" }, { value: "" }],
   ]);
