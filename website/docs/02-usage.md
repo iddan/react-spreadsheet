@@ -69,12 +69,29 @@ const App = () => {
 
 The Spreadsheet component accepts the `onChange` prop that is called every time one of the Spreadsheet's cells is changed by the user. You can use it to save the modified data and to react to changes (e.g. validating the modified data, further modifying it, persisting it).
 
+JavaScript (See TypeScript example below):
+
 ```javascript
 import { useState } from "react";
 import Spreadsheet from "react-spreadsheet";
 
 const App = () => {
   const [data, setData] = useState([
+    [{ value: "Vanilla" }, { value: "Chocolate" }, { value: "" }],
+    [{ value: "Strawberry" }, { value: "Cookies" }, { value: "" }],
+  ]);
+  return <Spreadsheet data={data} onChange={setData} />;
+};
+```
+
+TypeScript:
+
+```typescript
+import { useState } from "react";
+import Spreadsheet from "react-spreadsheet";
+
+const App = () => {
+  const [data, setData] = useState<Matrix<CellBase>>([
     [{ value: "Vanilla" }, { value: "Chocolate" }, { value: "" }],
     [{ value: "Strawberry" }, { value: "Cookies" }, { value: "" }],
   ]);
