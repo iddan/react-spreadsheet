@@ -3,7 +3,7 @@
  */
 
 import * as React from "react";
-import { fireEvent, render } from "@testing-library/react";
+import { render, fireEvent } from "@testing-library/react";
 import * as Point from "./point";
 import * as Types from "./types";
 import * as Actions from "./actions";
@@ -66,7 +66,7 @@ describe("<ActiveCell />", () => {
     const activeCell = document.querySelector(".Spreadsheet__active-cell");
     expect(activeCell).not.toBeNull();
     expect(activeCell).toHaveClass("Spreadsheet__active-cell--edit");
-    expect(MOCK_DATA_EDITOR).toBeCalledTimes(1);
+    expect(MOCK_DATA_EDITOR).toBeCalledTimes(2);
     expect(MOCK_DATA_EDITOR).toBeCalledWith(
       {
         row: Point.ORIGIN.row,
