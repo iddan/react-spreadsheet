@@ -38,16 +38,6 @@ const meta: Meta<Props<StringCell>> = {
   args: {
     data: EMPTY_DATA,
   },
-  argTypes: {
-    columnLabels: {
-      control: "array",
-      defaultValue: [],
-    },
-    rowLabels: {
-      control: "array",
-      defaultValue: [],
-    },
-  },
   decorators: [
     (Story): React.ReactElement => (
       <div
@@ -229,7 +219,7 @@ export const Filter: StoryFn<Props<StringCell>> = (props) => {
   const [filter, setFilter] = React.useState("");
 
   const handleFilterChange = React.useCallback(
-    (event) => {
+    (event: React.ChangeEvent<HTMLInputElement>) => {
       const nextFilter = event.target.value;
       setFilter(nextFilter);
     },

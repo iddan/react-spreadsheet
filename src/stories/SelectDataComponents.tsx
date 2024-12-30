@@ -27,7 +27,8 @@ export const SelectEdit: DataEditorComponent<Cell> = ({
   exitEditMode,
 }) => {
   const handleChange = React.useCallback(
-    (selection) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (selection: any) => {
       onChange({ ...cell, value: selection ? selection.value : null });
     },
     [cell, onChange]

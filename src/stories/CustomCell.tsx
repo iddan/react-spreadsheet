@@ -44,7 +44,7 @@ const CustomCell: CellComponent = ({
   }, [rootRef, active, mode]);
 
   const handleMouseDown = React.useCallback(
-    (event) => {
+    (event: React.MouseEvent<HTMLTableCellElement>) => {
       if (mode === "view") {
         if (event.shiftKey) {
           select({ row, column });

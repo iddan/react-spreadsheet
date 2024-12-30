@@ -6,7 +6,7 @@ import React from "react";
 import { render } from "@testing-library/react";
 import Row from "./Row";
 
-const wrapper: React.FC = ({ children }) => {
+const wrapper = ({ children }: { children?: React.ReactNode }) => {
   return (
     <table>
       <tbody>{children}</tbody>
