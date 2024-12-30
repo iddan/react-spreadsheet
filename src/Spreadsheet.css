@@ -1,12 +1,12 @@
 .Spreadsheet {
   --background-color: white;
   --text-color: black;
-  --readonly-text-color: rgba(0, 0, 0, 0.4);
+  --readonly-text-color: rgb(0 0 0 / 40%);
   --outline-color: #4285f4;
-  --outline-background-color: rgba(160, 195, 255, 0.2);
-  --border-color: hsl(2deg, 0%, 91%);
-  --header-background-color: rgba(0, 0, 0, 0.04);
-  --elevation: 0 2px 5px rgba(0, 0, 0, 0.4);
+  --outline-background-color: rgb(160 195 255 / 20%);
+  --border-color: hsl(2deg 0% 91%);
+  --header-background-color: rgb(0 0 0 / 4%);
+  --elevation: 0 2px 5px rgb(0 0 0 / 40%);
 
   position: relative;
   overflow: visible;
@@ -18,9 +18,9 @@
 .Spreadsheet--dark-mode {
   --background-color: black;
   --text-color: white;
-  --readonly-text-color: rgba(255, 255, 255, 0.4);
-  --header-background-color: rgba(255, 255, 255, 0.04);
-  --border-color: hsl(2deg, 0%, 19%);
+  --readonly-text-color: rgb(255 255 255 / 40%);
+  --header-background-color: rgb(255 255 255 / 4%);
+  --border-color: hsl(2deg 0% 19%);
 }
 
 .Spreadsheet__active-cell {
