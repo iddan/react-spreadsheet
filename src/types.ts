@@ -161,11 +161,11 @@ export type HeaderRowProps = React.PropsWithChildren<{}>;
 export type HeaderRowComponent = React.ComponentType<HeaderRowProps>;
 
 /** Type of the Spreadsheet RowIndicator component props */
-export type RowIndicatorProps = {
+export type RowIndicatorProps<Label = string> = {
   /** The row the indicator indicates */
   row: number;
   /** A custom label for the indicator as provided in rowLabels */
-  label?: React.ReactNode | null;
+  label?: Label | null;
   /** Whether the entire row is selected */
   selected: boolean;
   /** Callback to be called when the row is selected */
@@ -173,14 +173,16 @@ export type RowIndicatorProps = {
 };
 
 /** Type of the RowIndicator component */
-export type RowIndicatorComponent = React.ComponentType<RowIndicatorProps>;
+export type RowIndicatorComponent<Label = string> = React.ComponentType<
+  RowIndicatorProps<Label>
+>;
 
 /** Type of the Spreadsheet ColumnIndicator component props */
-export type ColumnIndicatorProps = {
+export type ColumnIndicatorProps<Label = string> = {
   /** The column the indicator indicates */
   column: number;
   /** A custom label for the indicator as provided in columnLabels */
-  label?: React.ReactNode | null;
+  label?: Label | null;
   /** Whether the entire column in selected */
   selected: boolean;
   /** Callback to be called when the column is selected */
@@ -188,8 +190,9 @@ export type ColumnIndicatorProps = {
 };
 
 /** Type of the ColumnIndicator component */
-export type ColumnIndicatorComponent =
-  React.ComponentType<ColumnIndicatorProps>;
+export type ColumnIndicatorComponent<Label = string> = React.ComponentType<
+  ColumnIndicatorProps<Label>
+>;
 
 /** Type of the Spreadsheet CornerIndicator component props */
 export type CornerIndicatorProps = {
@@ -198,6 +201,19 @@ export type CornerIndicatorProps = {
   /** Callback to select the entire table */
   onSelect: () => void;
 };
+
+export type IndicatorLabelValidator<RowIndicatorLabel, ColumnIndicatorLabel> =
+  RowLabelValidator<RowIndicatorLabel> &
+    ColumnLabelValidator<ColumnIndicatorLabel>;
+
+type RowLabelValidator<RowIndicatorLabel> = RowIndicatorLabel extends string
+  ? { RowIndicator?: RowIndicatorComponent<RowIndicatorLabel> }
+  : { RowIndicator: RowIndicatorComponent<RowIndicatorLabel> };
+
+type ColumnLabelValidator<ColumnIndicatorLabel> =
+  ColumnIndicatorLabel extends string
+    ? { ColumnIndicator?: ColumnIndicatorComponent<ColumnIndicatorLabel> }
+    : { ColumnIndicator: ColumnIndicatorComponent<ColumnIndicatorLabel> };
 
 /** Type of the CornerIndicator component */
 export type CornerIndicatorComponent =

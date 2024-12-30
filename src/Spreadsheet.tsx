@@ -40,7 +40,11 @@ import Copied from "./Copied";
 import "./Spreadsheet.css";
 
 /** The Spreadsheet component props */
-export type Props<CellType extends Types.CellBase> = {
+export type Props<
+  CellType extends Types.CellBase,
+  RowIndicatorLabel = string,
+  ColumnIndicatorLabel = string
+> = Types.IndicatorLabelValidator<RowIndicatorLabel, ColumnIndicatorLabel> & {
   /** The spreadsheet's data */
   data: Matrix.Matrix<CellType>;
   /** Class name to be added to the spreadsheet's root element */
@@ -64,12 +68,12 @@ export type Props<CellType extends Types.CellBase> = {
    * Labels to use in column indicators.
    * @defaultValue alphabetical labels.
    */
-  columnLabels?: string[];
+  columnLabels?: ColumnIndicatorLabel[];
   /**
    * Labels to use in row indicators.
    * @defaultValue row index labels.
    */
-  rowLabels?: string[];
+  rowLabels?: RowIndicatorLabel[];
   /**
    * If set to true, hides the row indicators of the spreadsheet.
    * @defaultValue `false`.
@@ -84,11 +88,11 @@ export type Props<CellType extends Types.CellBase> = {
   selected?: Selection;
   // Custom Components
   /** Component rendered above each column. */
-  ColumnIndicator?: Types.ColumnIndicatorComponent;
+  ColumnIndicator?: unknown;
   /** Component rendered in the corner of row and column indicators. */
   CornerIndicator?: Types.CornerIndicatorComponent;
   /** Component rendered next to each row. */
-  RowIndicator?: Types.RowIndicatorComponent;
+  RowIndicator?: unknown;
   /** The Spreadsheet's table component. */
   Table?: Types.TableComponent;
   /** The Spreadsheet's row component. */
@@ -126,8 +130,12 @@ export type Props<CellType extends Types.CellBase> = {
 /**
  * The Spreadsheet component
  */
-const Spreadsheet = <CellType extends Types.CellBase>(
-  props: Props<CellType>
+const Spreadsheet = <
+  CellType extends Types.CellBase,
+  RowIndicatorLabel = React.ReactNode,
+  ColumnIndicatorLabel = React.ReactNode
+>(
+  props: Props<CellType, RowIndicatorLabel, ColumnIndicatorLabel>
 ): React.ReactElement => {
   const {
     className,
@@ -425,13 +433,23 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   );
 
   const RowIndicator = React.useMemo(
-    () => enhanceRowIndicator(props.RowIndicator || DefaultRowIndicator),
+    () =>
+      enhanceRowIndicator<RowIndicatorLabel>(
+        props.RowIndicator ||
+          (DefaultRowIndicator as Types.RowIndicatorComponent<RowIndicatorLabel>)
+      ),
     [props.RowIndicator]
   );
 
   const ColumnIndicator = React.useMemo(
     () =>
-      enhanceColumnIndicator(props.ColumnIndicator || DefaultColumnIndicator),
+      enhanceColumnIndicator<ColumnIndicatorLabel>(
+        props.ColumnIndicator ||
+          // We typecheck that a ColumnIndicator is required when the Label type is not a string,
+          // so if it is not defined we can safely assume that the Label type is a string, so we cast
+          // the default component to the correct type.
+          (DefaultColumnIndicator as Types.ColumnIndicatorComponent<ColumnIndicatorLabel>)
+      ),
     [props.ColumnIndicator]
   );
 

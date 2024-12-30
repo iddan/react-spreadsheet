@@ -5,7 +5,7 @@ import * as Actions from "./actions";
 import useDispatch from "./use-dispatch";
 import useSelector from "./use-selector";
 
-const ColumnIndicator: Types.ColumnIndicatorComponent = ({
+const ColumnIndicator: Types.ColumnIndicatorComponent<string> = ({
   column,
   label,
   selected,
@@ -32,9 +32,11 @@ const ColumnIndicator: Types.ColumnIndicatorComponent = ({
 
 export default ColumnIndicator;
 
-export const enhance = (
-  ColumnIndicatorComponent: Types.ColumnIndicatorComponent
-): React.FC<Omit<Types.ColumnIndicatorProps, "selected" | "onSelect">> => {
+export const enhance = <Label,>(
+  ColumnIndicatorComponent: Types.ColumnIndicatorComponent<Label>
+): React.FC<
+  Omit<Types.ColumnIndicatorProps<Label>, "selected" | "onSelect">
+> => {
   return function ColumnIndicatorWrapper(props) {
     const dispatch = useDispatch();
     const selectEntireColumn = React.useCallback(
