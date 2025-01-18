@@ -17,6 +17,7 @@ import CustomCell from "./CustomCell";
 import { RangeEdit, RangeView } from "./RangeDataComponents";
 import { SelectEdit, SelectView } from "./SelectDataComponents";
 import { CustomCornerIndicator } from "./CustomCornerIndicator";
+import {Highlight} from "../highlight";
 
 type StringCell = CellBase<string | undefined>;
 type NumberCell = CellBase<number | undefined>;
@@ -303,5 +304,27 @@ export const ControlledSelection: StoryFn<Props<StringCell>> = (props) => {
       </div>
       <Spreadsheet {...props} selected={selected} onSelect={handleSelect} />;
     </div>
+  );
+};
+
+export const ControlledHighlights: StoryFn<Props<StringCell>> = (props) => {
+  const [highlights, setHighlights] = React.useState<Highlight[]>([{ point: { row: 0, column: 0 }, color: "#FF0000" }]);
+
+  const handleHighlight = React.useCallback(() => {
+    setHighlights((highlights) => {
+        if (highlights.length === 0) {
+            return [{ point: { row: 0, column: 0 }, color: "#FF0000" }];
+        }
+        return [];
+    });
+  }, []);
+
+  return (
+      <div>
+        <div>
+          <button onClick={handleHighlight}>toggle highlight</button>
+        </div>
+        <Spreadsheet {...props} highlights={highlights} />;
+      </div>
   );
 };

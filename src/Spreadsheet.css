@@ -34,6 +34,13 @@
   box-shadow: var(--elevation);
 }
 
+.Spreadsheet__highlight-cell {
+  position: absolute;
+  border: 2px solid;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
 .Spreadsheet__table {
   border-collapse: collapse;
   table-layout: fixed;
