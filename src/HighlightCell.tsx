@@ -30,9 +30,7 @@ const HighlightCell: React.FC<HighlightCellComponentProps> = ({ highLight }) => 
       <div
           ref={rootRef}
           className={classnames(
-              "Spreadsheet__active-cell",
-              "Spreadsheet__active-cell--view",
-              "Spreadsheet__highlight"
+              "Spreadsheet__highlight-cell"
           )}
           style={{
             ...dimensions,
