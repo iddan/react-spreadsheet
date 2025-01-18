@@ -7,6 +7,7 @@ import {
   CreateFormulaParser,
 } from "./types";
 import { Selection } from "./selection";
+import {Highlight} from "./highlight";
 
 export const SET_DATA = "SET_DATA";
 export const SET_CREATE_FORMULA_PARSER = "SET_CREATE_FORMULA_PARSER";
@@ -14,6 +15,7 @@ export const SELECT_ENTIRE_ROW = "SELECT_ENTIRE_ROW";
 export const SELECT_ENTIRE_COLUMN = "SELECT_ENTIRE_COLUMN";
 export const SELECT_ENTIRE_WORKSHEET = "SELECT_ENTIRE_WORKSHEET";
 export const SET_SELECTION = "SET_SELECTION";
+export const SET_HIGHLIGHTS = "SET_HIGHLIGHTS";
 export const SELECT = "SELECT";
 export const ACTIVATE = "ACTIVATE";
 export const SET_CELL_DATA = "SET_CELL_DATA";
@@ -129,6 +131,19 @@ export function select(point: Point): SelectAction {
   return {
     type: SELECT,
     payload: { point },
+  };
+}
+
+export type SetHighlightsAction = BaseAction<typeof SET_HIGHLIGHTS> & {
+  payload: {
+    highlights: Highlight[];
+  };
+};
+
+export function setHighlights(highlights: Highlight[]): SetHighlightsAction {
+  return {
+    type: SET_HIGHLIGHTS,
+    payload: { highlights },
   };
 }
 
@@ -283,6 +298,7 @@ export type Action =
   | SelectEntireColumnAction
   | SelectEntireWorksheetAction
   | SetSelectionAction
+  | SetHighlightsAction
   | SelectAction
   | ActivateAction
   | SetCellDataAction

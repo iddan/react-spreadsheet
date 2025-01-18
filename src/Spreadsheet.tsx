@@ -4,6 +4,7 @@ import * as Types from "./types";
 import * as Actions from "./actions";
 import * as Matrix from "./matrix";
 import * as Point from "./point";
+import * as Highlight from "./highlight";
 import { Selection } from "./selection";
 import reducer, { INITIAL_STATE, hasKeyDownHandler } from "./reducer";
 import context from "./context";
@@ -34,6 +35,7 @@ import { Cell as DefaultCell, enhance as enhanceCell } from "./Cell";
 import DefaultDataViewer from "./DataViewer";
 import DefaultDataEditor from "./DataEditor";
 import ActiveCell from "./ActiveCell";
+import HighlightCellContainer from "./HighlightCell";
 import Selected from "./Selected";
 import Copied from "./Copied";
 
@@ -82,6 +84,8 @@ export type Props<CellType extends Types.CellBase> = {
   hideColumnIndicators?: boolean;
   /** The selected cells in the worksheet. */
   selected?: Selection;
+  /** Highlights to apply to the spreadsheet */
+  highlights?: Highlight.Highlight[];
   // Custom Components
   /** Component rendered above each column. */
   ColumnIndicator?: Types.ColumnIndicatorComponent;
@@ -160,8 +164,9 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       ...INITIAL_STATE,
       model,
       selected: props.selected || INITIAL_STATE.selected,
+      highlights: props.highlights || INITIAL_STATE.highlights,
     } as State;
-  }, [props.createFormulaParser, props.data, props.selected]);
+  }, [props.createFormulaParser, props.data, props.selected, props.highlights]);
 
   const reducerElements = React.useReducer(
     reducer as unknown as React.Reducer<State, Actions.Action>,
@@ -195,6 +200,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const onDragStart = useAction(Actions.dragStart);
   const onDragEnd = useAction(Actions.dragEnd);
   const setData = useAction(Actions.setData);
+  const setHighlights = useAction(Actions.setHighlights);
   const setCreateFormulaParser = useAction(Actions.setCreateFormulaParser);
   const blur = useAction(Actions.blur);
   const setSelection = useAction(Actions.setSelection);
@@ -301,6 +307,17 @@ const Spreadsheet = <CellType extends Types.CellBase>(
     }
     prevDataPropRef.current = props.data;
   }, [props.data, setData]);
+
+  // Update highlights when props.highlights changes
+  const prevHighlightsPropRef = React.useRef<Highlight.Highlight[] | undefined>(
+      props.highlights
+  );
+  React.useEffect(() => {
+    if (props.highlights !== prevHighlightsPropRef.current) {
+      setHighlights(props.highlights || []);
+    }
+    prevHighlightsPropRef.current = props.highlights;
+  }, [props.highlights, setHighlights]);
 
   // Update createFormulaParser when props.createFormulaParser changes
   const prevCreateFormulaParserPropRef = React.useRef<
@@ -536,6 +553,7 @@ const Spreadsheet = <CellType extends Types.CellBase>(
       >
         {tableNode}
         {activeCellNode}
+        <HighlightCellContainer />
         <Selected />
         <Copied />
       </div>
