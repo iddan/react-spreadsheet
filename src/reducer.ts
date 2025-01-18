@@ -27,6 +27,7 @@ export const INITIAL_STATE: Types.StoreState = {
   selected: new EmptySelection(),
   copied: null,
   lastCommit: null,
+  highlights: [],
 };
 
 export default function reducer(
@@ -101,6 +102,12 @@ export default function reducer(
         selected: selection,
         active: active || null,
         mode: "view",
+      };
+    }
+    case Actions.SET_HIGHLIGHTS: {
+      return {
+        ...state,
+        highlights: action.payload.highlights,
       };
     }
     case Actions.SELECT: {

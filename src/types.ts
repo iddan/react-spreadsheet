@@ -5,6 +5,7 @@ import { Selection } from "./selection";
 import { Model } from "./engine";
 import { PointRange } from "./point-range";
 import { Matrix } from "./matrix";
+import {Highlight} from "./highlight";
 
 /** The base type of cell data in Spreadsheet */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,6 +53,7 @@ export type StoreState<Cell extends CellBase = CellBase> = {
   hasPasted: boolean;
   cut: boolean;
   active: Point | null;
+  highlights: Highlight[];
   mode: Mode;
   rowDimensions: Record<number, Pick<Dimensions, "height" | "top"> | undefined>;
   columnDimensions: Record<
@@ -78,6 +80,8 @@ export type CellComponentProps<Cell extends CellBase = CellBase> = {
   DataViewer: DataViewerComponent<Cell>;
   /** Whether the cell is selected */
   selected: boolean;
+  /** Whether the cell is highlighted */
+  highlighted: boolean;
   /** Whether the cell is active */
   active: boolean;
   /** Whether the cell is copied */

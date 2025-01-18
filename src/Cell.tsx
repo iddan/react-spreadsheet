@@ -13,6 +13,7 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
   column,
   DataViewer,
   selected,
+  highlighted,
   active,
   dragging,
   mode,
@@ -59,13 +60,13 @@ export const Cell: React.FC<Types.CellComponentProps> = ({
 
   React.useEffect(() => {
     const root = rootRef.current;
-    if (selected && root) {
+    if ((selected || highlighted) && root) {
       setCellDimensions(point, getOffsetRect(root));
     }
     if (root && active && mode === "view") {
       root.focus();
     }
-  }, [setCellDimensions, selected, active, mode, point, data]);
+  }, [setCellDimensions, selected, highlighted, active, mode, point, data]);
 
   if (data && data.DataViewer) {
     // @ts-ignore
@@ -99,6 +100,7 @@ export const enhance = (
   Omit<
     Types.CellComponentProps,
     | "selected"
+    | "highlighted"
     | "active"
     | "copied"
     | "dragging"
@@ -146,6 +148,10 @@ export const enhance = (
     const selected = useSelector((state) =>
       state.selected.has(state.model.data, point)
     );
+    const highlights = useSelector((state) => state.highlights);
+    const highlighted = highlights.some((highlight) =>
+      Point.isEqual(highlight.point, point)
+    );
     const dragging = useSelector((state) => state.dragging);
     const copied = useSelector((state) => state.copied?.has(point) || false);
 
@@ -153,6 +159,7 @@ export const enhance = (
       <CellComponent
         {...props}
         selected={selected}
+        highlighted={highlighted}
         active={active}
         copied={copied}
         dragging={dragging}
