@@ -1,9 +1,9 @@
-import Spreadsheet from "./Spreadsheet";
+import Spreadsheet, { SpreadsheetRef } from "./Spreadsheet";
 import DataEditor from "./DataEditor";
 import DataViewer from "./DataViewer";
 
 export default Spreadsheet;
-export { Spreadsheet, DataEditor, DataViewer };
+export { Spreadsheet, DataEditor, DataViewer, SpreadsheetRef };
 export type { Props } from "./Spreadsheet";
 export { createEmpty as createEmptyMatrix } from "./matrix";
 export type { Matrix } from "./matrix";

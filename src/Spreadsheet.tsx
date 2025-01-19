@@ -124,10 +124,23 @@ export type Props<CellType extends Types.CellBase> = {
 };
 
 /**
+ * The Spreadsheet Ref Type
+ */
+
+export type SpreadsheetRef = {
+  /**
+   * provide point as props to which one want to activate
+   */
+  activate: (point: Point.Point) => void;
+};
+
+/**
  * The Spreadsheet component
  */
-const Spreadsheet = <CellType extends Types.CellBase>(
-  props: Props<CellType>
+
+const Spreadsheet = <SpreadsheetRef, CellType extends Types.CellBase>(
+  props: Props<CellType>,
+  ref: React.ForwardedRef<SpreadsheetRef>
 ): React.ReactElement => {
   const {
     className,
@@ -198,6 +211,23 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   const setCreateFormulaParser = useAction(Actions.setCreateFormulaParser);
   const blur = useAction(Actions.blur);
   const setSelection = useAction(Actions.setSelection);
+  const activate = useAction(Actions.activate);
+
+  // Memoize methods to be exposed via ref
+  const methods = React.useMemo(
+    () => ({
+      activate: (point: Point.Point) => {
+        activate(point);
+      },
+    }),
+    []
+  );
+
+  // Expose methods to parent via ref
+  React.useImperativeHandle<SpreadsheetRef, SpreadsheetRef>(
+    ref,
+    () => methods as SpreadsheetRef
+  );
 
   // Track active
   const prevActiveRef = React.useRef<Point.Point | null>(state.active);
@@ -557,4 +587,4 @@ const Spreadsheet = <CellType extends Types.CellBase>(
   );
 };
 
-export default Spreadsheet;
+export default React.forwardRef(Spreadsheet);
