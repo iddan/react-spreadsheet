@@ -129,7 +129,7 @@ export type Props<CellType extends Types.CellBase> = {
 
 export type SpreadsheetRef = {
   /**
-   * provide point as props to which one want to activate
+   * Pass the desired point as a prop to specify which one should be activated.
    */
   activate: (point: Point.Point) => void;
 };
