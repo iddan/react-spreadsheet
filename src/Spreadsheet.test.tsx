@@ -4,7 +4,7 @@
 
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
-import Spreadsheet, { Props } from "./Spreadsheet";
+import Spreadsheet, { Props, SpreadsheetRef } from "./Spreadsheet";
 import * as Matrix from "./matrix";
 import * as Types from "./types";
 import * as Point from "./point";
@@ -475,6 +475,76 @@ describe("<Spreadsheet />", () => {
       ".Spreadsheet__floating-rect--selected"
     );
     expect(selected).not.toHaveClass("Spreadsheet__floating-rect--hidden");
+  });
+});
+
+describe("Spreadsheet Ref Methods", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("ref.activate activates the specified cell", () => {
+    const onActivate = jest.fn();
+    const ref = React.createRef<SpreadsheetRef>();
+
+    render(
+      <Spreadsheet {...EXAMPLE_PROPS} ref={ref} onActivate={onActivate} />
+    );
+
+    // Ensure ref is defined
+    expect(ref.current).not.toBeNull();
+
+    // Call activate method via ref
+    const targetPoint = { row: 1, column: 1 };
+    React.act(() => {
+      ref.current?.activate(targetPoint);
+    });
+
+    // Verify onActivate was called with correct point
+    expect(onActivate).toHaveBeenCalledTimes(1);
+    expect(onActivate).toHaveBeenCalledWith(targetPoint);
+  });
+
+  test("ref methods are memoized and stable between renders", () => {
+    const ref = React.createRef<SpreadsheetRef>();
+    const { rerender } = render(<Spreadsheet {...EXAMPLE_PROPS} ref={ref} />);
+
+    // Store initial methods
+    const initialActivate = ref.current?.activate;
+
+    // Trigger re-render
+    rerender(<Spreadsheet {...EXAMPLE_PROPS} ref={ref} />);
+
+    // Methods should be referentially stable
+    expect(ref.current?.activate).toBe(initialActivate);
+  });
+
+  test("activate method handles invalid points gracefully", () => {
+    const onActivate = jest.fn();
+    const ref = React.createRef<SpreadsheetRef>();
+
+    render(
+      <Spreadsheet {...EXAMPLE_PROPS} ref={ref} onActivate={onActivate} />
+    );
+
+    // Try to activate cell outside grid bounds
+    const invalidPoint = { row: ROWS + 1, column: COLUMNS + 1 };
+    React.act(() => {
+      ref.current?.activate(invalidPoint);
+    });
+
+    // Should still call onActivate with the provided point
+    expect(onActivate).toHaveBeenCalledTimes(1);
+    expect(onActivate).toHaveBeenCalledWith(invalidPoint);
+  });
+
+  test("ref is properly typed as SpreadsheetRef", () => {
+    const ref = React.createRef<SpreadsheetRef>();
+
+    render(<Spreadsheet {...EXAMPLE_PROPS} ref={ref} />);
+
+    // TypeScript compilation would fail if ref typing is incorrect
+    expect(typeof ref.current?.activate).toBe("function");
   });
 });
 
