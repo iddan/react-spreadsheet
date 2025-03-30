@@ -8,7 +8,6 @@ Simple, customizable yet performant spreadsheet for React.
 
 ![Screenshot](https://github.com/iddan/react-spreadsheet/blob/master/assets/screenshot.png?raw=true)
 [![CI](https://github.com/iddan/react-spreadsheet/workflows/CI/badge.svg?branch=master)](https://github.com/iddan/react-spreadsheet/actions/workflows/ci.yaml?query=branch%3Amaster)
-[![Coverage Status](https://coveralls.io/repos/github/iddan/react-spreadsheet/badge.svg?branch=master)](https://coveralls.io/github/iddan/react-spreadsheet?branch=master)
 
 ```bash
 npm install react react-dom scheduler react-spreadsheet
