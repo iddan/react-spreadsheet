@@ -248,17 +248,17 @@ const Spreadsheet = <SpreadsheetRef, CellType extends Types.CellBase>(
   }, [onActivate, onBlur, state.active]);
 
   // Listen to data changes
-  const prevDataRef = React.useRef<Matrix.Matrix<CellType>>(state.model.data);
+  const currentModelDataRef = React.useRef<Matrix.Matrix<CellType>>(
+    state.model.data
+  );
   React.useEffect(() => {
-    if (state.model.data !== prevDataRef.current) {
-      // Call on change only if the data change internal
-      if (state.model.data !== props.data) {
-        onChange(state.model.data);
-      }
-    }
+    currentModelDataRef.current = state.model.data;
+  }, [state.model.data]);
 
-    prevDataRef.current = state.model.data;
-  }, [state.model.data, onChange, props.data]);
+  React.useEffect(() => {
+    if (state.lastUpdateDate === null) return;
+    onChange(currentModelDataRef.current);
+  }, [state.lastUpdateDate, onChange]);
 
   const prevEvaluatedDataRef = React.useRef<Matrix.Matrix<CellType>>(
     state.model.evaluatedData
@@ -267,7 +267,6 @@ const Spreadsheet = <SpreadsheetRef, CellType extends Types.CellBase>(
     if (state?.model?.evaluatedData !== prevEvaluatedDataRef?.current) {
       onEvaluatedDataChange(state?.model?.evaluatedData);
     }
-
     prevEvaluatedDataRef.current = state.model.evaluatedData;
   }, [state?.model?.evaluatedData, onEvaluatedDataChange]);
 
