@@ -1,4 +1,5 @@
 import type { Preview } from "@storybook/react";
+import "./index.css";
 
 // function to get user dark mode
 const getDarkMode = () => {
