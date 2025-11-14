@@ -12,33 +12,44 @@ module.exports = {
   organizationName: "iddan", // Usually your GitHub org/user name.
   projectName: "react-spreadsheet", // Usually your repo name.
   themeConfig: {
+    prism: {
+      theme: require("prism-react-renderer").themes.nightOwlLight,
+      darkTheme: require("prism-react-renderer").themes.nightOwl,
+    },
+    colorMode: {
+      defaultMode: "dark",
+      disableSwitch: false,
+      respectPrefersColorScheme: true,
+    },
     navbar: {
       title: "React Spreadsheet",
+      logo: {
+        alt: "React Spreadsheet Logo",
+        src: "img/logo.svg",
+      },
       items: [
         {
-          to: "docs/",
-          activeBasePath: "docs",
-          label: "Docs",
-          position: "left",
-        },
-        {
-          to: "api",
-          label: "API",
-          position: "left",
-        },
-        // Please keep GitHub link to the right for consistency.
-        {
-          href: "https://github.com/iddan/react-spreadsheet",
-          label: "GitHub",
+          type: "search",
           position: "right",
         },
+        {
+          to: "learn/",
+          activeBasePath: "learn",
+          label: "Learn",
+          position: "right",
+        },
+        {
+          to: "reference",
+          label: "Reference",
+          position: "right",
+        },
+        {
+          href: "https://github.com/iddan/react-spreadsheet",
+          position: "right",
+          className: "header-github-link",
+          "aria-label": "GitHub repository",
+        },
       ],
-    },
-    footer: {
-      style: "dark",
-      links: [],
-      // Please do not remove the credits, help to publicize Docusaurus :)
-      copyright: `Built with Docusaurus.`,
     },
   },
   presets: [
@@ -46,6 +57,7 @@ module.exports = {
       "@docusaurus/preset-classic",
       {
         docs: {
+          routeBasePath: "learn",
           sidebarPath: require.resolve("./docs/sidebars.js"),
           // Please change this to your repo.
           editUrl:
@@ -61,6 +73,7 @@ module.exports = {
     [
       "docusaurus-plugin-typedoc-api",
       {
+        routeBasePath: "reference",
         projectRoot: path.resolve(__dirname, ".."),
         packages: ["."],
         exclude: ["**/*.test.ts", "**/*.test.tsx", "**/*.stories.tsx"],
