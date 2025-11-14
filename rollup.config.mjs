@@ -3,7 +3,7 @@
 import typescript from "rollup-plugin-typescript2";
 import postcss from "rollup-plugin-postcss";
 import dts from "rollup-plugin-dts";
-import pkg from "./package.json" assert { type: "json" };
+import pkg from "./package.json" with { type: "json" };
 
 function createExternal(dependencies) {
   return Object.keys(dependencies).flatMap(
