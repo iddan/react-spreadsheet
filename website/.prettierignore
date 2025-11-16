@@ -1,6 +1,0 @@
-node_modules
-build
-.docusaurus
-docs/api/
-typedoc-sidebar.js
-static/storybook
