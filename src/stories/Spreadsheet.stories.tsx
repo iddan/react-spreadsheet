@@ -39,6 +39,52 @@ const meta: Meta<Props<StringCell>> = {
   args: {
     data: EMPTY_DATA,
   },
+  argTypes: {
+    className: { type: "string" },
+    darkMode: { type: "boolean" },
+    columnLabels: {
+      type: {
+        name: "array",
+        value: {
+          name: "string",
+        },
+      },
+    },
+    rowLabels: {
+      type: {
+        name: "array",
+        value: {
+          name: "string",
+        },
+      },
+    },
+    hideRowIndicators: { type: "boolean" },
+    hideColumnIndicators: { type: "boolean" },
+    selected: {
+      type: {
+        name: "other",
+        value: "Selection",
+      },
+    },
+    createFormulaParser: { type: "function" },
+    ColumnIndicator: { type: "function" },
+    CornerIndicator: { type: "function" },
+    RowIndicator: { type: "function" },
+    Table: { type: "function" },
+    Row: { type: "function" },
+    HeaderRow: { type: "function" },
+    Cell: { type: "function" },
+    DataViewer: { type: "function" },
+    DataEditor: { type: "function" },
+    onKeyDown: { type: "function" },
+    onChange: { type: "function" },
+    onModeChange: { type: "function" },
+    onSelect: { type: "function" },
+    onActivate: { type: "function" },
+    onBlur: { type: "function" },
+    onCellCommit: { type: "function" },
+    onEvaluatedDataChange: { type: "function" },
+  },
   decorators: [
     (Story): React.ReactElement => (
       <div
