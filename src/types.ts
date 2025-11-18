@@ -60,6 +60,7 @@ export type StoreState<Cell extends CellBase = CellBase> = {
   >;
   dragging: boolean;
   lastChanged: Point | null;
+  lastUpdateDate: Date | null;
   lastCommit: null | CellChange<Cell>[];
 };
 
