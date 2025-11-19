@@ -165,7 +165,7 @@ describe("<Spreadsheet />", () => {
       activeCell?.getBoundingClientRect()
     );
     // Check selected is not hidden
-    expect(selected).toHaveClass("Spreadsheet__floating-rect--hidden");
+    expect(selected).not.toHaveClass("Spreadsheet__floating-rect--hidden");
     // Check onActivate is called
     expect(onActivate).toHaveBeenCalledTimes(1);
     expect(onActivate).toHaveBeenCalledWith(Point.ORIGIN);
@@ -475,6 +475,123 @@ describe("<Spreadsheet />", () => {
       ".Spreadsheet__floating-rect--selected"
     );
     expect(selected).not.toHaveClass("Spreadsheet__floating-rect--hidden");
+  });
+  test("auto fill handle is not rendered when no cell is selected", () => {
+    render(<Spreadsheet {...EXAMPLE_PROPS} />);
+    const element = getSpreadsheetElement();
+    const autoFillHandle = element.querySelector(
+      ".Spreadsheet__auto-fill-handle"
+    );
+    expect(autoFillHandle).toBeNull();
+  });
+  test("auto fill handle is rendered when a cell is selected", () => {
+    render(<Spreadsheet {...EXAMPLE_PROPS} />);
+    const element = getSpreadsheetElement();
+    const cell = safeQuerySelector(element, "td");
+    // Select a cell
+    fireEvent.mouseDown(cell);
+    // Check auto fill handle is rendered
+    const autoFillHandle = safeQuerySelector(
+      element,
+      ".Spreadsheet__auto-fill-handle"
+    );
+    expect(autoFillHandle).toBeInTheDocument();
+  });
+  test("auto fill handle is rendered when a range is selected", () => {
+    render(<Spreadsheet {...EXAMPLE_PROPS} />);
+    const element = getSpreadsheetElement();
+    const firstCell = safeQuerySelector(
+      element,
+      "tr:nth-of-type(2) td:nth-of-type(1)"
+    );
+    const thirdCell = safeQuerySelector(
+      element,
+      "tr:nth-of-type(3) td:nth-of-type(2)"
+    );
+    // Select first cell
+    fireEvent.mouseDown(firstCell);
+    // Extend selection to create a range
+    fireEvent.mouseDown(thirdCell, { shiftKey: true });
+    // Check auto fill handle is rendered
+    const autoFillHandle = safeQuerySelector(
+      element,
+      ".Spreadsheet__auto-fill-handle"
+    );
+    expect(autoFillHandle).toBeInTheDocument();
+  });
+  test("mousedown on auto fill handle initiates auto fill mode", () => {
+    render(<Spreadsheet {...EXAMPLE_PROPS} />);
+    const element = getSpreadsheetElement();
+    const cell = safeQuerySelector(element, "td");
+    // Select a cell
+    fireEvent.mouseDown(cell);
+    // Get auto fill handle
+    const autoFillHandle = safeQuerySelector(
+      element,
+      ".Spreadsheet__auto-fill-handle"
+    );
+    // Get selected floating rect
+    const selected = safeQuerySelector(
+      element,
+      ".Spreadsheet__floating-rect--selected"
+    );
+    // Check auto filling class is not present initially
+    expect(selected).not.toHaveClass(
+      "Spreadsheet__floating-rect--auto-filling"
+    );
+    // Trigger auto fill
+    fireEvent.mouseDown(autoFillHandle);
+    // Check auto filling class is present
+    expect(selected).toHaveClass("Spreadsheet__floating-rect--auto-filling");
+  });
+  test("auto fill continues numeric sequence 1, 2, 3", () => {
+    const onChange = jest.fn();
+    const data = createEmptyMatrix<CellType>(ROWS, COLUMNS);
+    // Set up a numeric sequence: 1, 2
+    const dataWithSequence = Matrix.set(
+      { row: 0, column: 0 },
+      { value: "1" },
+      Matrix.set({ row: 1, column: 0 }, { value: "2" }, data)
+    );
+    render(<Spreadsheet data={dataWithSequence} onChange={onChange} />);
+    const element = getSpreadsheetElement();
+    // Select first cell (1)
+    const firstCell = safeQuerySelector(
+      element,
+      "tr:nth-of-type(2) td:nth-of-type(1)"
+    );
+    fireEvent.mouseDown(firstCell);
+    // Extend selection to second cell (2) to establish pattern
+    const secondCell = safeQuerySelector(
+      element,
+      "tr:nth-of-type(3) td:nth-of-type(1)"
+    );
+    fireEvent.mouseDown(secondCell, { shiftKey: true });
+    // Get auto fill handle
+    const autoFillHandle = safeQuerySelector(
+      element,
+      ".Spreadsheet__auto-fill-handle"
+    );
+    // Start auto fill
+    fireEvent.mouseDown(autoFillHandle);
+    // Extend selection to include two more cells (simulating dragging down)
+    const fourthCell = safeQuerySelector(
+      element,
+      "tr:nth-of-type(5) td:nth-of-type(1)"
+    );
+    fireEvent.mouseDown(fourthCell, { shiftKey: true });
+    // End auto fill (trigger mouseup on window)
+    fireEvent.mouseUp(window);
+    // Check onChange was called with auto-filled data
+    expect(onChange).toHaveBeenCalled();
+    const resultData = onChange.mock.calls[
+      onChange.mock.calls.length - 1
+    ][0] as Matrix.Matrix<CellType>;
+    // Verify the sequence: 1, 2, 3, 4
+    expect(Matrix.get({ row: 0, column: 0 }, resultData)?.value).toBe("1");
+    expect(Matrix.get({ row: 1, column: 0 }, resultData)?.value).toBe("2");
+    expect(Matrix.get({ row: 2, column: 0 }, resultData)?.value).toBe(3);
+    expect(Matrix.get({ row: 3, column: 0 }, resultData)?.value).toBe(4);
   });
 });
 
