@@ -704,7 +704,7 @@ export function autoFill<T extends Types.CellBase>(
   if (!activeCell) {
     return data;
   }
-  const range = selected?.toRange(data);
+  const range = selected.toRange(data);
   if (!range) return data;
   return autoFillRange(data, range) as Matrix.Matrix<T>;
 }

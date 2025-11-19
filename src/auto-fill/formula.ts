@@ -26,7 +26,7 @@
  * ["=SUM(A1:A3)"] → "=SUM(A2:A4)", "=SUM(A3:A5)"...
  */
 
-import { AutoFiller, Series } from "./types";
+import { AutoFiller } from "./types";
 import { isFormulaValue, extractFormula } from "../engine/formula";
 
 /**

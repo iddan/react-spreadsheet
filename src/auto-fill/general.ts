@@ -14,7 +14,7 @@
  * ["Hello", "Hello"] → "Hello", "Hello", "Hello"...
  */
 
-import { AutoFiller, Series } from "./types";
+import { AutoFiller } from "./types";
 
 /**
  * Repeating/copying auto-filler - matches when all values are the same

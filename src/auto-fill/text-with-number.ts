@@ -17,7 +17,7 @@
  * ["Item 001"] → "Item 002", "Item 003", "Item 004"...
  */
 
-import { AutoFiller, Series } from "./types";
+import { AutoFiller } from "./types";
 
 export type TextWithNumberFactor = {
   prefix: string;

@@ -67,7 +67,7 @@ export function autoFillRange<T>(
   const series = Array.from(range, (point) => matrix.get(point, data));
   const autoFiller = autoFillers.find((it) => it.match(series));
   if (!autoFiller) return data;
-  const matchDetails = autoFiller?.match(series);
+  const matchDetails = autoFiller.match(series);
 
   // Find the first non-empty cell in the series (for formulas, we start from the first)
   let firstFilledIndex = -1;
